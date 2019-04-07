@@ -12,6 +12,6 @@
 #include <stdlib.h>
 
 int main(void) {
-	puts("Projecto Kernel!!!Hello Kernel!!!"); /* prints !!!Hello World!!! */
+	puts("!!!Hello World!!!"); /* prints !!!Hello World!!! */
 	return EXIT_SUCCESS;
 }
