@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <cliente/client.h> //Ejemplo de uso de la libreria. Borrar
 
 int main(void) {
 	puts("!!!Hello World!!!"); /* prints !!!Hello World!!! */
