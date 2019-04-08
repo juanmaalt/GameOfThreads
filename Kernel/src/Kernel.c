@@ -9,7 +9,7 @@
  */
 
 #include "Kernel.h"
-#define REQUESTS 8
+
 
 int main(void) {
 	t_config* config = leer_config();
