@@ -16,7 +16,7 @@ RUN path
 
 
 --USO--
-
+#include <parser/parser.h>
 Comando *resultado = parsear_linea("SELECT ejemploTabla ejemploKey");
 
 
@@ -40,6 +40,8 @@ typedef struct{
 } Comando;
 
 Ejemplo: resultado->palabraEspecial;
+palabraEspecial se compara con alguna de las siguientes cadenas:
+"SELECT", "INSERT", "CREATE", "DESCRIBE", "DROP", "JOURNAL", "ADD MEMORY", "RUN"
 
 
 
