@@ -26,13 +26,13 @@ endif
 all: Memoria
 
 dependents:
-	-cd /home/utnso/git/tp-2019-1c-GameOfThreads/Librerias/Debug && $(MAKE) clean all
+	-cd /home/utnso/workspace-tp-2019/tp-2019-1c-GameOfThreads/Librerias/Debug && $(MAKE) all
 
 # Tool invocations
-Memoria: $(OBJS) $(USER_OBJS) /home/utnso/git/tp-2019-1c-GameOfThreads/Librerias/Debug/libLibrerias.so
+Memoria: $(OBJS) $(USER_OBJS) /home/utnso/workspace-tp-2019/tp-2019-1c-GameOfThreads/Librerias/Debug/libLibrerias.so
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
-	gcc -L"/home/utnso/git/tp-2019-1c-GameOfThreads/Librerias/Debug" -o "Memoria" $(OBJS) $(USER_OBJS) $(LIBS)
+	gcc -L"/home/utnso/workspace-tp-2019/tp-2019-1c-GameOfThreads/Librerias/Debug" -o "Memoria" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -42,6 +42,6 @@ clean:
 	-@echo ' '
 
 .PHONY: all clean dependents
-/home/utnso/git/tp-2019-1c-GameOfThreads/Librerias/Debug/libLibrerias.so:
+/home/utnso/workspace-tp-2019/tp-2019-1c-GameOfThreads/Librerias/Debug/libLibrerias.so:
 
 -include ../makefile.targets
