@@ -18,6 +18,8 @@ RUN path
 --USO--
 #include <parser/parser.h>
 Comando *resultado = parsear_linea("SELECT ejemploTabla ejemploKey");
+if(resultado->hayError)
+	//deberia omitirse la linea pero continuar el funcionamiento
 
 
 
