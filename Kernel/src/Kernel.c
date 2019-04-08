@@ -8,11 +8,17 @@
  ============================================================================
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <cliente/cliente.h> //Ejemplo de uso de la libreria. Borrar
+#include "Kernel.h"
+#define REQUESTS 8
 
 int main(void) {
-	puts("!!!Hello World!!!"); /* prints !!!Hello World!!! */
-	return EXIT_SUCCESS;
+	t_config* config = leer_config();
+
+
+	return 0;
+
+}
+
+t_config* leer_config() {
+	return config_create("Kernel.config");
 }
