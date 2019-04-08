@@ -1,0 +1,49 @@
+--PARSER--
+
+
+
+--SINTAXIS ADMITIDA--
+
+SELECT nombreTabla Key
+INSERT nombreTabla key value timestamp (puede no tener timestamp)
+CREATE nombreTabla tipoConsistencia numeroParticiones compactacionTime
+DESCRIBE nombreTabla
+DROP nombreTabla
+JOURNAL
+ADD MEMORY numero TO criterio
+RUN path
+
+
+
+--USO--
+
+Comando *resultado = parsear_linea("SELECT ejemploTabla ejemploKey");
+
+
+
+--ATRIBUTOS--
+
+typedef struct{
+	char *palabraEspecial;
+	char *nombreTabla;
+	char *key;
+	char *value;
+	char *timestamp;
+	char *tipoConsistencia;
+	char *numeroParticiones;
+	char *compactacionTime;
+	char *numeroMemoria;
+	char *criterio;
+	char *path;
+	int hayError;
+	char *descripcionError;
+} Comando;
+
+Ejemplo: resultado->palabraEspecial;
+
+
+
+--LIBERACION--
+
+free_comando(resultado);
+
