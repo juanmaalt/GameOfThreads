@@ -9,14 +9,14 @@
 5- Para el projecto de Librerias hacer:
 	Project -> Properties -> C/C++ Build -> GCC C Compiler -> Miscellaneous -> tildar -fPic
 	
-	Project -> Properties -> C/C++ Build -> Settings -> GCC C Linker -> Librarys y agregar commons y readline (-lcommons y -lreadline). No es necesario el -l
+	Project -> Properties -> C/C++ Build -> Settings -> GCC C Linker -> Librarys y agregar commons  readline y pthread (-lcommons, -lreadline y -lpthread). No es necesario el -l
 
 6- Por cada proyecto restante hacer:
-	Project -> Properties -> C/C++ Build -> Settings -> GCC C Linker -> Librarys y agregar commons y readline (-lcommons y -lreadline). No es necesario el -l.
+	Project -> Properties -> C/C++ Build -> Settings -> GCC C Linker -> Librarys y agregar commons  readline y pthread (-lcommons, -lreadline y -lpthread). No es necesario el -l.
 
 	Project -> Properties -> C/C++ General -> Paths and symbols -> References -> Desplegar el menu Librerias -> Tildar [Active]
 
-7- Donde esta el simbolo verde con un play (el de correr programa) seleccionar la flecha negra de al lado que apunta par abajo -> Run configurations -> C/C++ Aplication -> "NombreProjecto" Debug -> Environment -> New -> name: LD_LIBRARY_PATH value:${workspace_loc}/Librerias/Debug
+7- Donde esta el simbolo verde con un play (el de correr programa) seleccionar la flecha negra de al lado que apunta par abajo -> Run configurations -> C/C++ Aplication -> "NombreProjecto" Debug -> Environment -> New -> name: LD_LIBRARY_PATH value:${workspace_loc:/Librerias/Debug}
 	
 8- Compilar primero shared library y despues el resto de los projectos.
 
