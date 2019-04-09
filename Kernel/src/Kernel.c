@@ -14,7 +14,7 @@
 int main(void) {
 	t_config* config = leer_config();
 
-		/*Comando *res = parsear_linea("JOURNAL");
+		Comando *res = parsear_linea("JOURNAL");
 
 		printf("Palabra especial: %s\n", res->palabraEspecial);
 		printf("Nombre tabla: %s\n", res->nombreTabla);
@@ -30,7 +30,7 @@ int main(void) {
 		printf("Error en el parseo: %d\n", res->hayError);
 		printf("Descripcion error: %s\n", res->descripcionError);
 
-		free_comando(res);*/
+		free_comando(res);
 
 	return 0;
 
