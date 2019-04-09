@@ -8,9 +8,7 @@
 
 Comando *parsear_linea(char* cad){
 	Comando *resultado = (Comando *) malloc(sizeof(Comando));
-	char *cadena = (char *) malloc((sizeof(char)*strlen(cad))+1);
-	strcpy(cadena, cad);
-	strcat(cadena, " "); //Este es un fix bien a lo cabeza, se necesita minimo un espacio al final de cada linea que se parsee por algunos casos excepcionales, por ejemplo INSERT tablaA 3 valueEjemplo
+	char *cadena = formatear_cadena(cad);
 
 	resultado->hayError = 0; //Empezamos creyendo que no hay error hasta que pase lo contrario
 
@@ -74,21 +72,31 @@ Comando *parsear_linea(char* cad){
 	return resultado;
 }
 
+char *formatear_cadena(char *cad){
+	char *cadena = (char *) malloc((sizeof(char)*strlen(cad))+1);
+	strcpy(cadena, cad);
+	cadena[(sizeof(char)*strlen(cad))] = '\0';
+	return cadena;
+}
+
 char *obtener_palabra_especial(char *cadena){
 	int offset=0;
-	char *base = cadena;
+	char *base;
 	cadena += seek; //Aca seek deberia ser 0 asi que no hace nada
 
-	if(*cadena == '\0') //Para el no trivial caso en que me ingresen algo del estilo: "INSERT tablaA 3 valueEjemplo". Insert espera un timestamp, pero este podria llegar a ser null. Por otro lado el la cadena va a estar siempre apuntando a seek+1 donde ese +1 siempre va a representar el espacio siguiente, excepto en este caso donde va a representar el \0
+	if(*cadena == '\0') //Siempre es bueno chequear esto
 		return NULL;
 
-	for( ; *cadena != ' '; ++cadena, ++offset) ;
-	cadena = base;
+	for( ; *cadena == ' '; ++cadena, ++seek) ; //Elimina los espacios en blanco, incrementando el punteor seek para que apunte al siguiente caracter
+	base = cadena; //Actualizamos la base de la cadena, ya que la idea es omitir el espacio
+
+	for( ; *cadena != ' ' && *cadena != '\0'; ++cadena, ++offset) ; //Preguntamos cual es la longituf (offset) de la siguiente palabra hasta un espacio o \0
+	cadena = base; //una vez que tenemos la longitud, necesitamos volver a poner la cadena en su estado original, es decir, al principio de la ultima palabra encontrada
 
 	char *resultado = (char *) malloc((sizeof(char)*offset)+1);
 	strncpy(resultado, cadena+seek, sizeof(char)*offset);
 	resultado[sizeof(char)*offset] = '\0';
-	seek += offset+1;
+	seek += offset+1; //Actualizamos el seek para que la proxima vez que se ejecute la funcion, salteemos esta palabra. El +1 es para que en el siguiente ciclo, seek ya este apuntando a lo que sigue, y no al ultmo caracter de este palabra
 
 	if(strcmp(resultado, "ADD") == 0){
 		char *palabra = obtener_palabra_especial(cadena);
@@ -103,13 +111,16 @@ char *obtener_palabra_especial(char *cadena){
 
 char *extraer_palabra_y_guardar(char *cadena){
 	int offset=0;
-	char *base = cadena;
+	char *base;
 	cadena += seek;
 
 	if(*cadena == '\0')
 		return NULL;
 
-	for( ; *cadena != ' '; ++cadena, ++offset) ;
+	for( ; *cadena == ' '; ++cadena, ++seek) ;
+	base = cadena;
+
+	for( ; *cadena != ' ' && *cadena != '\0'; ++cadena, ++offset) ;
 	cadena = base;
 
 	char *resultado = (char *) malloc((sizeof(char)*offset)+1);

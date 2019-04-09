@@ -45,6 +45,7 @@ Comando *parsear_linea(char *);
 void free_comando(Comando *comando);
 char *obtener_palabra_especial(char *);
 char *extraer_palabra_y_guardar(char *);
+char *formatear_cadena(char *);
 
 
 //VARIABLES GLOBALES

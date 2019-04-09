@@ -14,7 +14,7 @@
 int main(void) {
 	t_config* config = leer_config();
 
-		Comando *res = parsear_linea("JOURNAL");
+		Comando *res = parsear_linea("INSERT asd sdeacf");
 
 		printf("Palabra especial: %s\n", res->palabraEspecial);
 		printf("Nombre tabla: %s\n", res->nombreTabla);
