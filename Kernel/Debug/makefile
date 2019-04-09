@@ -26,25 +26,13 @@ endif
 all: Kernel
 
 dependents:
-<<<<<<< HEAD
 	-cd /home/utnso/workspace/tp-2019-1c-GameOfThreads/Librerias/Debug && $(MAKE) all
-=======
-	-cd /home/utnso/workspace-tp-2019/tp-2019-1c-GameOfThreads/Librerias/Debug && $(MAKE) clean all
->>>>>>> branch 'master' of https://github.com/sisoputnfrba/tp-2019-1c-GameOfThreads
 
 # Tool invocations
-<<<<<<< HEAD
 Kernel: $(OBJS) $(USER_OBJS) /home/utnso/workspace/tp-2019-1c-GameOfThreads/Librerias/Debug/libLibrerias.so
-=======
-Kernel: $(OBJS) $(USER_OBJS) /home/utnso/workspace-tp-2019/tp-2019-1c-GameOfThreads/Librerias/Debug/libLibrerias.so
->>>>>>> branch 'master' of https://github.com/sisoputnfrba/tp-2019-1c-GameOfThreads
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
-<<<<<<< HEAD
 	gcc -L"/home/utnso/workspace/tp-2019-1c-GameOfThreads/Librerias/Debug" -o "Kernel" $(OBJS) $(USER_OBJS) $(LIBS)
-=======
-	gcc -L"/home/utnso/workspace-tp-2019/tp-2019-1c-GameOfThreads/Librerias/Debug" -o "Kernel" $(OBJS) $(USER_OBJS) $(LIBS)
->>>>>>> branch 'master' of https://github.com/sisoputnfrba/tp-2019-1c-GameOfThreads
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -54,10 +42,6 @@ clean:
 	-@echo ' '
 
 .PHONY: all clean dependents
-<<<<<<< HEAD
 /home/utnso/workspace/tp-2019-1c-GameOfThreads/Librerias/Debug/libLibrerias.so:
-=======
-/home/utnso/workspace-tp-2019/tp-2019-1c-GameOfThreads/Librerias/Debug/libLibrerias.so:
->>>>>>> branch 'master' of https://github.com/sisoputnfrba/tp-2019-1c-GameOfThreads
 
 -include ../makefile.targets
