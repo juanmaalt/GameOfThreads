@@ -14,6 +14,7 @@ C_DEPS :=
 # Every subdirectory with source files must be described here
 SUBDIRS := \
 cliente \
+parser \
 serializacion \
 server \
 server_multithread \

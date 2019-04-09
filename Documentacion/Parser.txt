@@ -1,0 +1,53 @@
+--PARSER--
+
+
+
+--SINTAXIS ADMITIDA--
+
+SELECT nombreTabla Key
+INSERT nombreTabla key value timestamp (puede no tener timestamp)
+CREATE nombreTabla tipoConsistencia numeroParticiones compactacionTime
+DESCRIBE nombreTabla
+DROP nombreTabla
+JOURNAL
+ADD MEMORY numero TO criterio
+RUN path
+
+
+
+--USO--
+#include <parser/parser.h>
+Comando *resultado = parsear_linea("SELECT ejemploTabla ejemploKey");
+if(resultado->hayError)
+	//deberia omitirse la linea pero continuar el funcionamiento
+
+
+
+--ATRIBUTOS--
+
+typedef struct{
+	char *palabraEspecial;
+	char *nombreTabla;
+	char *key;
+	char *value;
+	char *timestamp;
+	char *tipoConsistencia;
+	char *numeroParticiones;
+	char *compactacionTime;
+	char *numeroMemoria;
+	char *criterio;
+	char *path;
+	int hayError;
+	char *descripcionError;
+} Comando;
+
+Ejemplo: resultado->palabraEspecial;
+palabraEspecial se compara con alguna de las siguientes cadenas:
+"SELECT", "INSERT", "CREATE", "DESCRIBE", "DROP", "JOURNAL", "ADD MEMORY", "RUN"
+
+
+
+--LIBERACION--
+
+free_comando(resultado);
+
