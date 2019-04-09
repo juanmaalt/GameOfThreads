@@ -17,11 +17,7 @@ C_DEPS += \
 src/%.o: ../src/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C Compiler'
-<<<<<<< HEAD
 	gcc -I"/home/utnso/workspace/tp-2019-1c-GameOfThreads/Librerias" -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
-=======
-	gcc -I"/home/utnso/workspace-tp-2019/tp-2019-1c-GameOfThreads/Librerias" -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
->>>>>>> branch 'master' of https://github.com/sisoputnfrba/tp-2019-1c-GameOfThreads
 	@echo 'Finished building: $<'
 	@echo ' '
 
