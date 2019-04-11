@@ -16,7 +16,7 @@ int main(void) {
 
 	int kernelSocket = conect_to_server("127.0.0.1", "8002");
 
-	Comando parsed = parse("SELECT asd feaf");
+	Comando parsed = parse("DESCRIBE nombreTabla");
 
 	send_comando(kernelSocket, parsed);
 
