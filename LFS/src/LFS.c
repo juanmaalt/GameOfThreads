@@ -11,8 +11,8 @@
 #include "LFS.h"
 
 int main(void) {
-	//levantar_config();
-	//ver_config();
+	levantar_config();
+	ver_config();
 
 	int kernelSocket = conect_to_server("127.0.0.1", "8002");
 
