@@ -25,5 +25,4 @@
 	
 	Comando ldd ./"nombreEjecutable" y chequear que libshared_library.so => not found
 
-	Comando export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:'/home/utnso/Workspace/tp-2018-1c-aBunchOfMonkeys/shared_library/Debug'
-	
+	Comando  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:'/home/utnso/workspace/tp-2019-1c-GameOfThreads/Librerias/Debug'
