@@ -70,7 +70,7 @@
 			} RUN;
 		} argumentos;
 		char** _raw; //Para uso de la liberación
-	} Comando;
+	} __attribute__((packed)) Comando;
 
 	/**
 	* @NAME: parse
@@ -88,5 +88,23 @@
 	* 		op - Una operacion obtenida del parse
 	*/
 	void destruir_operacion(Comando op);
+
+	/**
+	* @NAME: mostrar
+	* @DESC: muestra por la salida estandar un comando para testear el funcionamiento
+	* @PARAMS:
+	* 		comando - Una comando cualquiera
+	*/
+	void mostrar(Comando comando);
+
+	/**
+	* @NAME: validar
+	* @DESC: chequea la validez de un comando. Devuelve 1 si es valido, 0 si no lo es
+	* @PARAMS:
+	* 		comando - Una comando cualquiera
+	*/
+	int validar(Comando comando);
+
+
 
 #endif /* PARSER_H_ */

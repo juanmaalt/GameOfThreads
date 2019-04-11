@@ -17,5 +17,6 @@ int conect_to_server(char * ip, char *port){
 
 	if(result != 0)
 		exit_error(listenningSocket, "cliente.c: conect_to_server: fallo la conexion con el servidor", NULL);
+	printf("Conectado\n");
 	return listenningSocket;
 }

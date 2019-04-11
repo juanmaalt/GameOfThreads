@@ -143,3 +143,79 @@ Comando parse(char* line){
 	free(auxLine);
 	return ret;
 }
+
+void mostrar(Comando parsed){
+
+    if(parsed.valido){
+        switch(parsed.keyword){
+            case SELECT:
+                printf("SELECT\n");
+                printf("nombreTabla: %s\n", parsed.argumentos.SELECT.nombreTabla);
+                printf("key: %s\n", parsed.argumentos.SELECT.key);
+                break;
+            case INSERT:
+                printf("INSERT\n");
+                printf("nombreTabla: %s\n", parsed.argumentos.INSERT.nombreTabla);
+                printf("key: %s\n", parsed.argumentos.INSERT.key);
+                printf("value: %s\n", parsed.argumentos.INSERT.value);
+                printf("timestamp (opcional): %s\n", parsed.argumentos.INSERT.timestamp);
+                break;
+            case CREATE:
+                printf("CREATE\n");
+                printf("nombreTabla: %s\n", parsed.argumentos.CREATE.nombreTabla);
+                printf("tipoConsistencia: %s\n", parsed.argumentos.CREATE.tipoConsistencia);
+                printf("numeroParticiones: %s\n", parsed.argumentos.CREATE.numeroParticiones);
+                printf("compactacionTime: %s\n", parsed.argumentos.CREATE.compactacionTime);
+                break;
+            case DESCRIBE:
+                printf("DESCRIBE\n");
+                printf("nombreTabla: %s\n", parsed.argumentos.DESCRIBE.nombreTabla);
+                break;
+            case DROP:
+            	printf("DROP\n");
+                printf("nombreTabla: %s\n", parsed.argumentos.DROP.nombreTabla);
+                break;
+            case JOURNAL:
+                printf("JOURNAL\nno posee argumentos\n");
+                break;
+            case ADDMEMORY:
+            	printf("ADD MEMORY\n");
+            	printf("numero: %s\n", parsed.argumentos.ADDMEMORY.numero);
+            	printf("criterio: %s\n", parsed.argumentos.ADDMEMORY.criterio);
+                break;
+            case RUN:
+            	printf("RUN\n");
+            	printf("path: %s\n", parsed.argumentos.RUN.path);
+                break;
+            default:
+                fprintf(stderr, "No se pude interpretar el enum: %d\n", parsed.keyword);
+                exit(EXIT_FAILURE);
+        }
+
+        //destruir_operacion(parsed);
+    } else {
+        fprintf(stderr, "La linea no es valida\n");
+        exit(EXIT_FAILURE);
+    }
+}
+
+int validar(Comando parsed){
+    if(parsed.valido){
+        switch(parsed.keyword){
+            case SELECT:
+            case INSERT:
+            case CREATE:
+            case DESCRIBE:
+            case DROP:
+            case JOURNAL:
+            case ADDMEMORY:
+            case RUN:
+                return 1;
+            default:
+                return 0;
+        }
+        //destruir_operacion(parsed);
+    } else {
+        return 0;
+    }
+}

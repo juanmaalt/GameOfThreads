@@ -17,7 +17,7 @@ void *waiting_conections(void *socketVar);
 
 //GLOBALES
 int socketEsi;
-Instruccion *respuesta;
+Comando *respuesta;
 
 
 

@@ -8,13 +8,17 @@
  ============================================================================
  */
 
-#include <stdio.h>
-#include <stdlib.h>
 #include "LFS.h"
 
 int main(void) {
-	levantar_config();
-	ver_config();
+	//levantar_config();
+	//ver_config();
+
+	int kernelSocket = conect_to_server("127.0.0.1", "8002");
+
+	Comando parsed = parse("SELECT asd feaf");
+
+	send_comando(kernelSocket, parsed);
 
 	return EXIT_SUCCESS;
 }

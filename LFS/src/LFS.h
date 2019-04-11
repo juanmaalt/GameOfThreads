@@ -12,6 +12,7 @@
 #include<stdlib.h>
 #include<commons/string.h>
 #include<commons/config.h>
+#include <cliente/cliente.h>
 
 //FUNCIONES
 void levantar_config(void);

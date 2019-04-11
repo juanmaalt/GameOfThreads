@@ -15,6 +15,7 @@
 #include<commons/config.h>
 #include<readline/readline.h>
 #include <parser/parsi_mod.h>
+#include <server/server.h>
 
 
 t_log* iniciar_logger(void);
