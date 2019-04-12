@@ -64,9 +64,8 @@ void *waiting_conections(void *socketVar){
 						//printf("server.c: waiting_conections: un cliente se ha conectado\n");
 					}//fin if(newSocket == -1) else
 				}else{ //Aca se define como responde el server ante un cliente que le quiere mandar un mensaje
-					printf("server.c: waiting_conections: reciviendo algo\n");
 					Comando *contenido = recv_comando(unSocket);
-					if(contenido == (Comando *)EXIT_FAILURE){
+					if(contenido == NULL){
 						printf("server.c: waiting_conections: se ha desconectado un cliente\n");
 						close(unSocket);
 						FD_CLR(unSocket, &masterfds);

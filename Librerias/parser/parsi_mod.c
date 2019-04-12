@@ -30,7 +30,7 @@ Comando parse(char* line){
 	char** split = string_n_split(auxLine, 5, " ");
 
 	char* keyword = split[0];
-	char* clave = split[1];
+	//char* clave = split[1];
 
 	//Chequeos sintacticos
 	if (keyword == NULL){
@@ -135,6 +135,8 @@ Comando parse(char* line){
 	} else if(string_equals_ignore_case(keyword, "RUN")){
 		ret.keyword = RUN;
 		ret.argumentos.RUN.path = split[1];
+	} else if(string_equals_ignore_case(keyword, "METRICS")){
+		ret.keyword = METRICS;
 	} else {
 		fprintf(stderr, "No se encontro el keyword <%s>\n", keyword); //Chequeo sintactico final
 		RETURN_ERROR;
@@ -187,15 +189,16 @@ void mostrar(Comando parsed){
             	printf("RUN\n");
             	printf("path: %s\n", parsed.argumentos.RUN.path);
                 break;
+            case METRICS:
+            	printf("METRICS\nno posee argumentos\n");
+                break;
             default:
                 fprintf(stderr, "No se pude interpretar el enum: %d\n", parsed.keyword);
-                exit(EXIT_FAILURE);
         }
 
         //destruir_operacion(parsed);
     } else {
         fprintf(stderr, "La linea no es valida\n");
-        exit(EXIT_FAILURE);
     }
 }
 
@@ -210,12 +213,14 @@ int validar(Comando parsed){
             case JOURNAL:
             case ADDMEMORY:
             case RUN:
-                return 1;
+            case METRICS:
+                break;
             default:
-                return 0;
+                return EXIT_FAILURE;
         }
         //destruir_operacion(parsed);
     } else {
-        return 0;
+        return EXIT_FAILURE;
     }
+    return EXIT_SUCCESS;
 }

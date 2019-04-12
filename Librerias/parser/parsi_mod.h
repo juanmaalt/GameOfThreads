@@ -34,7 +34,8 @@
 			DROP,
 			JOURNAL,
 			ADDMEMORY,
-			RUN
+			RUN,
+			METRICS
 		} keyword;
 		union {
 			struct {
@@ -68,6 +69,8 @@
 			struct {
 				char* path;
 			} RUN;
+			struct {
+			} METRICS;
 		} argumentos;
 		char** _raw; //Para uso de la liberación
 	} __attribute__((packed)) Comando;
@@ -99,7 +102,12 @@
 
 	/**
 	* @NAME: validar
-	* @DESC: chequea la validez de un comando. Devuelve 1 si es valido, 0 si no lo es
+	* @DESC: chequea la validez de un comando. Devuelve EXIT_SUCCESS si es valido, EXIT_FAILURE si no lo es.
+	* 		 cuando se parsea un comando, este puede devolver, si lo hay, un error. Pero
+	* 		 durante el proceso de parseo nosotros nunca nos enteramos, por eso antes de usar
+	* 		 un comando parseado hay que preguntar por la validez del mismo. La funcion void mostrar()
+	* 		 tambien pregunta la validez de esu comando para mostrarlo por pantalla. Esta funcion, solo
+	* 		 se concentra en decir si es valido o no.
 	* @PARAMS:
 	* 		comando - Una comando cualquiera
 	*/

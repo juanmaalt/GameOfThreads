@@ -10,6 +10,11 @@ int send_comando(int socket, Comando parsed){
 	size_t total;
 	void *content;
 
+	if(validar(parsed) == EXIT_FAILURE){
+		printf("serializacion.c: send_comando: comando invalido\n");
+		return EXIT_FAILURE;
+	}
+
     switch(keyword){
         case SELECT:
         	arg1 = parsed.argumentos.SELECT.nombreTabla;
@@ -47,7 +52,7 @@ int send_comando(int socket, Comando parsed){
             }
             arg4 = parsed.argumentos.INSERT.timestamp;
             longArg4 = strlen(parsed.argumentos.INSERT.timestamp);
-            total = sizeof(int) + sizeof(char)*(longArg1) + sizeof(char)*(longArg2) + sizeof(char)*(longArg3) + sizeof(char)*(longArg4);
+            total = sizeof(int) + sizeof(int)+ sizeof(char)*(longArg1) + sizeof(int)+ sizeof(char)*(longArg2) + sizeof(int)+ sizeof(char)*(longArg3) + sizeof(int)+ sizeof(char)*(longArg4);
             content = malloc(total);
             //Keyword
             memcpy(content, &keyword, sizeof(int));
@@ -77,7 +82,7 @@ int send_comando(int socket, Comando parsed){
             longArg3 = strlen(parsed.argumentos.CREATE.numeroParticiones);
             arg4 = parsed.argumentos.CREATE.compactacionTime;
             longArg4 = strlen(parsed.argumentos.CREATE.compactacionTime);
-            total = sizeof(int) + sizeof(char)*(longArg1) + sizeof(char)*(longArg2) + sizeof(char)*(longArg3) + sizeof(char)*(longArg4);
+            total = sizeof(int) + sizeof(int)+ sizeof(char)*(longArg1) + sizeof(int)+ sizeof(char)*(longArg2) + sizeof(int)+ sizeof(char)*(longArg3) + sizeof(int)+ sizeof(char)*(longArg4);
             content = malloc(total);
             //Keyword
             memcpy(content, &keyword, sizeof(int));
@@ -107,7 +112,7 @@ int send_comando(int socket, Comando parsed){
             longArg3 = 0;
             arg4 = NULL;
             longArg4 = 0;
-            total = sizeof(int) + sizeof(char)*(longArg1);
+            total = sizeof(int) + sizeof(int) +sizeof(char)*(longArg1);
             content = malloc(total);
             //Keyword
             memcpy(content, &keyword, sizeof(int));
@@ -125,7 +130,7 @@ int send_comando(int socket, Comando parsed){
             longArg3 = 0;
             arg4 = NULL;
             longArg4 = 0;
-            total = sizeof(int) + sizeof(char)*(longArg1);
+            total = sizeof(int) + sizeof(int) + sizeof(char)*(longArg1);
             content = malloc(total);
             //Keyword
             memcpy(content, &keyword, sizeof(int));
@@ -156,7 +161,7 @@ int send_comando(int socket, Comando parsed){
             longArg3 = 0;
             arg4 = NULL;
             longArg4 = 0;
-            total = sizeof(int) + sizeof(char)*(longArg1) + sizeof(char)*(longArg2);
+            total = sizeof(int) + sizeof(int) + sizeof(char)*(longArg1) + sizeof(int) + sizeof(char)*(longArg2);
             content = malloc(total);
             //Keyword
             memcpy(content, &keyword, sizeof(int));
@@ -178,7 +183,7 @@ int send_comando(int socket, Comando parsed){
             longArg3 = 0;
             arg4 = NULL;
             longArg4 = 0;
-            total = sizeof(int) + sizeof(char)*(longArg1);
+            total = sizeof(int) + sizeof(int) + sizeof(char)*(longArg1);
             content = malloc(total);
             //Keyword
             memcpy(content, &keyword, sizeof(int));
@@ -187,16 +192,28 @@ int send_comando(int socket, Comando parsed){
             //arg1
             memcpy(content+sizeof(int)+sizeof(int), arg1, sizeof(char)*longArg1);
             break;
+        case METRICS:
+        	arg1 = NULL;
+            longArg1 = 0;
+            arg2 = NULL;
+            longArg2 = 0;
+            arg3 = NULL;
+            longArg3 = 0;
+            arg4 = NULL;
+            longArg4 = 0;
+            total = sizeof(int);
+            content = malloc(total);
+            memcpy(content, &keyword, sizeof(int));
+        	break;
         default:
             return EXIT_FAILURE;
     }
 
 	int result = send(socket, content, total, 0);
 	if(result <= 0){
-			printf("serializacion.c: send_msg: no se pudo enviar el mensaje\n");
+			printf("serializacion.c: send_comando: no se pudo enviar el mensaje\n");
 			return EXIT_FAILURE;
 		}
-
 
 	return EXIT_SUCCESS;
 }
@@ -204,11 +221,9 @@ int send_comando(int socket, Comando parsed){
 
 
 Comando *recv_comando(int socket){
-	Comando parsed;
-
-	int result = recv(socket, &parsed.keyword, sizeof(int), 0);
+	Comando *parsed = malloc(sizeof(Comando));
+	int result = recv(socket, &parsed->keyword, sizeof(int), 0);
 	if(result <= 0){
-			printf("serializacion.c: send_msg: no se pudo enviar el mensaje\n");
 			return NULL;
 		}
 
@@ -216,9 +231,9 @@ Comando *recv_comando(int socket){
 	char* arg2 = NULL;
 	char* arg3 = NULL;
 	char* arg4 = NULL;
-	int longArg1, longArg2, longArg3, longArg4;
+	int longArg1 = 0; int longArg2 = 0; int longArg3 = 0; int longArg4 = 0;
 
-    switch(parsed.keyword){
+    switch(parsed->keyword){
         case SELECT:
         	recv(socket, &longArg1, sizeof(int), 0);
         	arg1 = calloc(longArg1, sizeof(char));
@@ -228,34 +243,35 @@ Comando *recv_comando(int socket){
         	arg2 = calloc(longArg2, sizeof(char));
         	recv(socket, arg2, sizeof(char)*longArg2, 0);
 
-        	parsed.argumentos.SELECT.nombreTabla = arg1;
-        	parsed.argumentos.SELECT.key = arg2;
+        	parsed->argumentos.SELECT.nombreTabla = arg1;
+        	parsed->argumentos.SELECT.key = arg2;
             break;
         case INSERT:
         	recv(socket, &longArg1, sizeof(int), 0);
         	arg1 = calloc(longArg1, sizeof(char));
-        	recv(socket, arg1, sizeof(char)*longArg1, 0);
+        	recv(socket, arg1, sizeof(char)*longArg1, 0);printf("|%s|", arg1);
+
 
         	recv(socket, &longArg2, sizeof(int), 0);
         	arg2 = calloc(longArg2, sizeof(char));
-        	recv(socket, arg2, sizeof(char)*longArg2, 0);
+        	recv(socket, arg2, sizeof(char)*longArg2, 0);printf("|%s|", arg2);
 
         	recv(socket, &longArg3, sizeof(int), 0);
         	arg3 = calloc(longArg3, sizeof(char));
-        	recv(socket, arg3, sizeof(char)*longArg3, 0);
+        	recv(socket, arg3, sizeof(char)*longArg3, 0);printf("|%s|", arg3);
 
         	recv(socket, &longArg4, sizeof(int), 0);
         	arg4 = calloc(longArg4, sizeof(char));
-        	recv(socket, arg4, sizeof(char)*longArg4, 0);
+        	recv(socket, arg4, sizeof(char)*longArg4, 0);printf("|%s|", arg4);
         	if(strcmp(arg4, "NULL")==0){
         		free(arg4);
         		arg4=NULL;
         	}
 
-        	parsed.argumentos.INSERT.nombreTabla = arg1;
-        	parsed.argumentos.INSERT.key = arg2;
-        	parsed.argumentos.INSERT.value = arg3;
-        	parsed.argumentos.INSERT.timestamp = arg4;
+        	parsed->argumentos.INSERT.nombreTabla = arg1;
+        	parsed->argumentos.INSERT.key = arg2;
+        	parsed->argumentos.INSERT.value = arg3;
+        	parsed->argumentos.INSERT.timestamp = arg4;
             break;
         case CREATE:
         	recv(socket, &longArg1, sizeof(int), 0);
@@ -274,24 +290,24 @@ Comando *recv_comando(int socket){
         	arg4 = calloc(longArg4, sizeof(char));
         	recv(socket, arg4, sizeof(char)*longArg4, 0);
 
-        	parsed.argumentos.CREATE.nombreTabla = arg1;
-        	parsed.argumentos.CREATE.tipoConsistencia = arg2;
-        	parsed.argumentos.CREATE.numeroParticiones = arg3;
-        	parsed.argumentos.CREATE.compactacionTime = arg4;
+        	parsed->argumentos.CREATE.nombreTabla = arg1;
+        	parsed->argumentos.CREATE.tipoConsistencia = arg2;
+        	parsed->argumentos.CREATE.numeroParticiones = arg3;
+        	parsed->argumentos.CREATE.compactacionTime = arg4;
             break;
         case DESCRIBE:
         	recv(socket, &longArg1, sizeof(int), 0);
         	arg1 = calloc(longArg1, sizeof(char));
         	recv(socket, arg1, sizeof(char)*longArg1, 0);
 
-        	parsed.argumentos.DESCRIBE.nombreTabla = arg1;
+        	parsed->argumentos.DESCRIBE.nombreTabla = arg1;
             break;
         case DROP:
         	recv(socket, &longArg1, sizeof(int), 0);
         	arg1 = calloc(longArg1, sizeof(char));
         	recv(socket, arg1, sizeof(char)*longArg1, 0);
 
-        	parsed.argumentos.DROP.nombreTabla = arg1;
+        	parsed->argumentos.DROP.nombreTabla = arg1;
             break;
         case JOURNAL:
         	//Nada
@@ -305,22 +321,24 @@ Comando *recv_comando(int socket){
         	arg2 = calloc(longArg2, sizeof(char));
         	recv(socket, arg2, sizeof(char)*longArg2, 0);
 
-        	parsed.argumentos.ADDMEMORY.numero = arg1;
-        	parsed.argumentos.ADDMEMORY.criterio = arg2;
+        	parsed->argumentos.ADDMEMORY.numero = arg1;
+        	parsed->argumentos.ADDMEMORY.criterio = arg2;
             break;
         case RUN:
         	recv(socket, &longArg1, sizeof(int), 0);
         	arg1 = calloc(longArg1, sizeof(char));
         	recv(socket, arg1, sizeof(char)*longArg1, 0);
 
-        	parsed.argumentos.RUN.path = arg1;
+        	parsed->argumentos.RUN.path = arg1;
             break;
+        case METRICS:
+        	//Nada
+        	break;
         default:
             return 0;
     }
-    mostrar(parsed);
-    while(1);
-	return NULL;
+    mostrar(*parsed);
+	return parsed;
 }
 
 

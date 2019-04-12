@@ -16,7 +16,9 @@ int main(void) {
 
 	int kernelSocket = conect_to_server("127.0.0.1", "8002");
 
-	Comando parsed = parse("DESCRIBE nombreTabla");
+	char* input = readline("Comando:\n");
+	Comando parsed = parse(input);
+	free(input);
 
 	send_comando(kernelSocket, parsed);
 
