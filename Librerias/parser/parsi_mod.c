@@ -73,9 +73,9 @@ Comando parse(char* line){
 		}
 	}
 
-	if(string_equals_ignore_case(keyword, "RUN")){
-		if(split[1] == NULL){
-			fprintf(stderr, "Error sintactico, argumentos para RUN invalidos\n");
+	if(string_equals_ignore_case(keyword, "JOURNAL")){
+		if(split[1] != NULL){
+			fprintf(stderr, "Error sintactico, JOURNAL no lleva argumentos\n");
 			RETURN_ERROR;
 		}
 	}
@@ -91,6 +91,20 @@ Comando parse(char* line){
 		}
 		if(!string_equals_ignore_case(split[3], "TO")){
 			fprintf(stderr, "Error sintactico, tal vez olvido el 'TO'\n");
+			RETURN_ERROR;
+		}
+	}
+
+	if(string_equals_ignore_case(keyword, "RUN")){
+		if(split[1] == NULL){
+			fprintf(stderr, "Error sintactico, argumentos para RUN invalidos\n");
+			RETURN_ERROR;
+		}
+	}
+
+	if(string_equals_ignore_case(keyword, "METRICS")){
+		if(split[1] != NULL){
+			fprintf(stderr, "Error sintactico, METRICS no lleva argumentos\n");
 			RETURN_ERROR;
 		}
 	}

@@ -21,10 +21,7 @@ int send_comando(int socket, Comando parsed){
             longArg1 = strlen(parsed.argumentos.SELECT.nombreTabla);
             arg2 = parsed.argumentos.SELECT.key;
             longArg2 = strlen(parsed.argumentos.SELECT.key);
-            arg3 = NULL;
-            longArg3 = 0;
-            arg4 = NULL;
-            longArg4 = 0;
+
             total = sizeof(int) + sizeof(int) + sizeof(char)*(longArg1) + sizeof(int) + sizeof(char)*(longArg2);
             content = malloc(total);
             //Keyword
@@ -106,12 +103,7 @@ int send_comando(int socket, Comando parsed){
         case DESCRIBE:
         	arg1 = parsed.argumentos.DESCRIBE.nombreTabla;
             longArg1 = strlen(parsed.argumentos.DESCRIBE.nombreTabla);
-            arg2 = NULL;
-            longArg2 = 0;
-            arg3 = NULL;
-            longArg3 = 0;
-            arg4 = NULL;
-            longArg4 = 0;
+
             total = sizeof(int) + sizeof(int) +sizeof(char)*(longArg1);
             content = malloc(total);
             //Keyword
@@ -124,12 +116,7 @@ int send_comando(int socket, Comando parsed){
         case DROP:
         	arg1 = parsed.argumentos.DROP.nombreTabla;
             longArg1 = strlen(parsed.argumentos.DROP.nombreTabla);
-            arg2 = NULL;
-            longArg2 = 0;
-            arg3 = NULL;
-            longArg3 = 0;
-            arg4 = NULL;
-            longArg4 = 0;
+
             total = sizeof(int) + sizeof(int) + sizeof(char)*(longArg1);
             content = malloc(total);
             //Keyword
@@ -140,14 +127,6 @@ int send_comando(int socket, Comando parsed){
             memcpy(content+sizeof(int)+sizeof(int), arg1, sizeof(char)*longArg1);
             break;
         case JOURNAL:
-        	arg1 = NULL;
-            longArg1 = 0;
-            arg2 = NULL;
-            longArg2 = 0;
-            arg3 = NULL;
-            longArg3 = 0;
-            arg4 = NULL;
-            longArg4 = 0;
             total = sizeof(int);
             content = malloc(total);
             memcpy(content, &keyword, sizeof(int));
@@ -157,10 +136,7 @@ int send_comando(int socket, Comando parsed){
             longArg1 = strlen(parsed.argumentos.ADDMEMORY.numero);
             arg2 = parsed.argumentos.ADDMEMORY.criterio;
             longArg2 = strlen(parsed.argumentos.ADDMEMORY.criterio);
-            arg3 = NULL;
-            longArg3 = 0;
-            arg4 = NULL;
-            longArg4 = 0;
+
             total = sizeof(int) + sizeof(int) + sizeof(char)*(longArg1) + sizeof(int) + sizeof(char)*(longArg2);
             content = malloc(total);
             //Keyword
@@ -177,12 +153,7 @@ int send_comando(int socket, Comando parsed){
         case RUN:
         	arg1 = parsed.argumentos.RUN.path;
             longArg1 = strlen(parsed.argumentos.RUN.path);
-            arg2 = NULL;
-            longArg2 = 0;
-            arg3 = NULL;
-            longArg3 = 0;
-            arg4 = NULL;
-            longArg4 = 0;
+
             total = sizeof(int) + sizeof(int) + sizeof(char)*(longArg1);
             content = malloc(total);
             //Keyword
@@ -193,14 +164,6 @@ int send_comando(int socket, Comando parsed){
             memcpy(content+sizeof(int)+sizeof(int), arg1, sizeof(char)*longArg1);
             break;
         case METRICS:
-        	arg1 = NULL;
-            longArg1 = 0;
-            arg2 = NULL;
-            longArg2 = 0;
-            arg3 = NULL;
-            longArg3 = 0;
-            arg4 = NULL;
-            longArg4 = 0;
             total = sizeof(int);
             content = malloc(total);
             memcpy(content, &keyword, sizeof(int));
@@ -249,20 +212,20 @@ Comando *recv_comando(int socket){
         case INSERT:
         	recv(socket, &longArg1, sizeof(int), 0);
         	arg1 = calloc(longArg1, sizeof(char));
-        	recv(socket, arg1, sizeof(char)*longArg1, 0);printf("|%s|", arg1);
+        	recv(socket, arg1, sizeof(char)*longArg1, 0);
 
 
         	recv(socket, &longArg2, sizeof(int), 0);
         	arg2 = calloc(longArg2, sizeof(char));
-        	recv(socket, arg2, sizeof(char)*longArg2, 0);printf("|%s|", arg2);
+        	recv(socket, arg2, sizeof(char)*longArg2, 0);
 
         	recv(socket, &longArg3, sizeof(int), 0);
         	arg3 = calloc(longArg3, sizeof(char));
-        	recv(socket, arg3, sizeof(char)*longArg3, 0);printf("|%s|", arg3);
+        	recv(socket, arg3, sizeof(char)*longArg3, 0);
 
         	recv(socket, &longArg4, sizeof(int), 0);
         	arg4 = calloc(longArg4, sizeof(char));
-        	recv(socket, arg4, sizeof(char)*longArg4, 0);printf("|%s|", arg4);
+        	recv(socket, arg4, sizeof(char)*longArg4, 0);
         	if(strcmp(arg4, "NULL")==0){
         		free(arg4);
         		arg4=NULL;
