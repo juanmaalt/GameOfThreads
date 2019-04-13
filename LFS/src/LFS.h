@@ -14,21 +14,21 @@
 #include <commons/config.h>
 #include <cliente/cliente.h>
 
-//FUNCIONES
-void levantar_config(void);
-void ver_config(void);
-
 //ESTRUCTURAS
 typedef struct{
 	char *puerto_escucha;
 	char *punto_montaje;
-	char *retardo;
+	//char *retardo; Esta config la dejamos como variable.
 	char *tamanio_value;
-	char *tiempo_dump;
-}Config_data;
+	//char *tiempo_dump; Esta config la dejamos como variable.
+}Config_final_data;
 
-//GLOBALES
-Config_data config;
+
+//FUNCIONES
+t_log* iniciar_logger();
+t_config* leer_config();
+void levantar_config(Config_final_data *config, t_config* configFile);
+void ver_config(Config_final_data *config, t_log* logger_visible);
 
 
 #endif /* LFS_H_ */
