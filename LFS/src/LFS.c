@@ -11,8 +11,17 @@
 #include "LFS.h"
 
 int main(void) {
-	levantar_config();
-	ver_config();
+	Config_final_data config;
+
+	//Funciones .log
+	t_log* logger_visible = iniciar_logger();
+
+	//Funciones .config
+	t_config* configFile = leer_config();
+	levantar_config(&config, configFile);
+	ver_config(&config, logger_visible);
+	//Meter funcion para levantar las variables de tiempo retardo y tiempo_dump
+
 
 	int kernelSocket = connect_to_server("127.0.0.1", "8001");
 
@@ -30,18 +39,26 @@ int main(void) {
 	return EXIT_SUCCESS;
 }
 
-void levantar_config() {
-	t_config *configFile = config_create("LFS.config");
-
-	config.puerto_escucha = config_get_string_value(configFile, "PUERTO_ESCUCHA");
-	config.punto_montaje = config_get_string_value(configFile, "PUNTO_MONTAJE");
-	config.retardo = config_get_string_value(configFile, "RETARDO");
-	config.tamanio_value = config_get_string_value(configFile, "TAMANIO_VALUE");
-	config.tiempo_dump = config_get_string_value(configFile, "TIEMPO_DUMP");
-
-	//free(configFile);
+t_log* iniciar_logger() {
+	return log_create("LFS.log", "LFS", 1, LOG_LEVEL_INFO);
 }
 
-void ver_config(void){
-	printf("PUERTO_ESCUCHA=%s\nPUNTO_MONTAJE=%s\nRETARDO=%s\nTAMANIO_VALUE=%s\nTIEMPO_DUMP=%s\n", config.puerto_escucha, config.punto_montaje, config.retardo, config.tamanio_value, config.tiempo_dump);
+t_config* leer_config(){
+	return config_create("LFS.config");
 }
+
+void levantar_config(Config_final_data *config, t_config* configFile) {
+	config->puerto_escucha = config_get_string_value(configFile, "PUERTO_ESCUCHA");
+	config->punto_montaje = config_get_string_value(configFile, "PUNTO_MONTAJE");
+	config->tamanio_value = config_get_string_value(configFile, "TAMANIO_VALUE");
+	free(configFile);
+}
+
+void ver_config(Config_final_data *config, t_log* logger_visible){
+	log_info(logger_visible, "PUERTO_ESCUCHA=%s", config->puerto_escucha);
+	log_info(logger_visible, "PUNTO_MONTAJE=%s", config->punto_montaje);
+	log_info(logger_visible, "TAMANIO_VALUE=%s", config->tamanio_value);
+
+	//printf("PUERTO_ESCUCHA=%s\nPUNTO_MONTAJE=%s\nTAMANIO_VALUE=%s\n", config->puerto_escucha, config->punto_montaje,config->tamanio_value);
+}
+
