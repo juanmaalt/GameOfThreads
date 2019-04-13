@@ -14,17 +14,21 @@ int main(void) {
 	levantar_config();
 	ver_config();
 
-	int kernelSocket = conect_to_server("127.0.0.1", "8002");
+	int kernelSocket = connect_to_server("127.0.0.1", "8001");
+
+	if(kernelSocket == EXIT_FAILURE){
+		fprintf(stderr, "No se pudo conectar al server\n");
+		return EXIT_FAILURE;
+	}
 
 	char* input = readline("Comando:\n");
 	Comando parsed = parse(input);
 	free(input);
 
-	send_comando(kernelSocket, parsed);
+	send_command(kernelSocket, parsed);
 
 	return EXIT_SUCCESS;
 }
-
 
 void levantar_config() {
 	t_config *configFile = config_create("LFS.config");

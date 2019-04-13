@@ -1,6 +1,6 @@
 #include "server.h"
 
-int enable_server(char *port, char* iPAddress){
+int enable_server(char *iPAddress, char* port){
 	struct addrinfo hints;
 	struct addrinfo *serverInfo;
 
@@ -17,16 +17,20 @@ int enable_server(char *port, char* iPAddress){
 
 	freeaddrinfo(serverInfo); //Haya salido bien o mal el bind, ya no necesitamos serverInfo
 
-	if(result != 0)//Verificamos que haya salido bien
-		exit_error(socketfd, "server.c: enable_server: puede que haya otro proceso escuchando el mismo puerto", NULL);
+	if(result != 0){
+		close(socketfd);
+		fprintf(stderr, "server.c: enable_server: puede que haya otro proceso escuchando el mismo puerto.\n");
+		return EXIT_FAILURE;
+	}
 
 	return socketfd;
 }
 
 
 
-void *waiting_conections(void *socketVar){
-	int socket = (int)socketVar;
+void *waiting_connections(int socket){
+	//int socket = (int)socketVar;
+
 	fd_set readfds; //Aca va a estar el (los) socket que necesite leer (que le enviemos algo) (que estan travados en un connect o un recv)
 	fd_set masterfds;
 	int maxSocketLen, newSocket, result;
@@ -44,8 +48,12 @@ void *waiting_conections(void *socketVar){
 	for(;;){
 		readfds = masterfds;
 		result = select(maxSocketLen+1, &readfds, NULL, NULL, NULL); //FUNCION BLOQUEANTE QUE ESPERA QUE PASE ALGO
-		if(result < 0)
-			exit_error(socket, "server.c: waiting_conections: ocurrio un error inesperado", NULL);
+
+		if(result < 0){
+			close(socket);
+			fprintf(stderr, "server.c: waiting_conections: ocurrio un error inesperado");
+			continue;
+		}
 		if(result == 0){
 			printf("server.c: waiting_conections: no hubo actividad en ningun socket");
 			continue; //Se saltea lo que queda del ciclo y vuelve a empezar. Este error probablemente no ocurra nunca
@@ -64,15 +72,13 @@ void *waiting_conections(void *socketVar){
 						//printf("server.c: waiting_conections: un cliente se ha conectado\n");
 					}//fin if(newSocket == -1) else
 				}else{ //Aca se define como responde el server ante un cliente que le quiere mandar un mensaje
-					Comando *contenido = recv_comando(unSocket);
-					if(contenido == NULL){
+					result = serve_client(unSocket);
+					if(result == EXIT_FAILURE){
 						printf("server.c: waiting_conections: se ha desconectado un cliente\n");
 						close(unSocket);
 						FD_CLR(unSocket, &masterfds);
 						continue;
 					}
-					socketEsi=unSocket;
-					respuesta=contenido;
 					//sem_post(&waiting);//seria el signal
 					//send_msg(unSocket, get, "hola", NULL);
 				}//fin if(unSocket == socket) else
@@ -80,5 +86,5 @@ void *waiting_conections(void *socketVar){
 		}//fin for de unSocket
 	}//FIN FOR INFINITO
 
-	return (void *)1;
+	return NULL;
 }

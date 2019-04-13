@@ -15,10 +15,25 @@
 
 //FUNCIONES
 
-char *prepare_msg(void);
-int send_comando(int socket, Comando comando); //Funcion para el envio de mensajes del sistema
-Comando *recv_comando(int socket);
-void exit_error(int socket, char *msg, void *buffer);
+	/**
+	* @NAME: send_command
+	* @DESC: envia un dato de tipo comando (ver parser) al socket
+	* 		 indicado
+	* @PARAMS:
+	* 		socket - el socket destino
+	* 		comando - el mensaje a enviar
+	*/
+	int send_command(int socket, Comando comando);
+
+	/**
+	* @NAME: recv_command
+	* @DESC: realiza todo lo necesario para recibir un mensaje de
+	* 		 un socket en particular y devuelve ese mensaje en forma
+	* 		 de comando
+	* @PARAMS:
+	* 		socket - el socket origen (el socket que nos envio el mensaje)
+	*/
+	Comando *recv_command(int socket);
 
 
 #endif /* SERIALIZACION_SERIALIZACION_H_ */

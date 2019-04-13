@@ -8,10 +8,10 @@
 #ifndef LFS_H_
 #define LFS_H_
 
-#include<stdio.h>
-#include<stdlib.h>
-#include<commons/string.h>
-#include<commons/config.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <commons/string.h>
+#include <commons/config.h>
 #include <cliente/cliente.h>
 
 //FUNCIONES

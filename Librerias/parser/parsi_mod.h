@@ -98,7 +98,7 @@
 	* @PARAMS:
 	* 		comando - Una comando cualquiera
 	*/
-	void mostrar(Comando comando);
+	void parsi_mostrar(Comando comando);
 
 	/**
 	* @NAME: validar
@@ -111,7 +111,7 @@
 	* @PARAMS:
 	* 		comando - Una comando cualquiera
 	*/
-	int validar(Comando comando);
+	int parsi_validar(Comando comando);
 
 
 

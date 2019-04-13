@@ -1,6 +1,6 @@
 #include "serializacion.h"
 
-int send_comando(int socket, Comando parsed){
+int send_command(int socket, Comando parsed){
 	int keyword = parsed.keyword;
 	char* arg1;
 	char* arg2;
@@ -10,8 +10,8 @@ int send_comando(int socket, Comando parsed){
 	size_t total;
 	void *content;
 
-	if(validar(parsed) == EXIT_FAILURE){
-		printf("serializacion.c: send_comando: comando invalido\n");
+	if(parsi_validar(parsed) == EXIT_FAILURE){
+		printf("serializacion.c: send_command: comando invalido\n");
 		return EXIT_FAILURE;
 	}
 
@@ -174,21 +174,22 @@ int send_comando(int socket, Comando parsed){
 
 	int result = send(socket, content, total, 0);
 	if(result <= 0){
-			printf("serializacion.c: send_comando: no se pudo enviar el mensaje\n");
-			return EXIT_FAILURE;
-		}
+		printf("serializacion.c: send_command: no se pudo enviar el mensaje\n");
+		return EXIT_FAILURE;
+	}
 
 	return EXIT_SUCCESS;
 }
 
 
 
-Comando *recv_comando(int socket){
+Comando *recv_command(int socket){
 	Comando *parsed = malloc(sizeof(Comando));
 	int result = recv(socket, &parsed->keyword, sizeof(int), 0);
 	if(result <= 0){
-			return NULL;
-		}
+		printf("serializacion.c: recv_command: no se pudo recibir el mensaje\n");
+		return NULL;
+	}
 
 	char* arg1 = NULL;
 	char* arg2 = NULL;
@@ -300,17 +301,6 @@ Comando *recv_comando(int socket){
         default:
             return 0;
     }
-    mostrar(*parsed);
+    parsi_mostrar(*parsed);
 	return parsed;
-}
-
-
-
-void exit_error(int socket, char *msg, void *buffer){
-	if (buffer != NULL) {
-	       free(buffer);
-	   }
-	close(socket);
-	printf("%s\n", msg);
-	exit(1);
 }

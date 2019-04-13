@@ -160,7 +160,7 @@ Comando parse(char* line){
 	return ret;
 }
 
-void mostrar(Comando parsed){
+void parsi_mostrar(Comando parsed){
 
     if(parsed.valido){
         switch(parsed.keyword){
@@ -216,7 +216,7 @@ void mostrar(Comando parsed){
     }
 }
 
-int validar(Comando parsed){
+int parsi_validar(Comando parsed){
     if(parsed.valido){
         switch(parsed.keyword){
             case SELECT:

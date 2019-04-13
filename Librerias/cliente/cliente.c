@@ -1,6 +1,6 @@
 #include "cliente.h"
 
-int conect_to_server(char * ip, char *port){
+int connect_to_server(char * ip, char *port){
 	struct addrinfo hints;
 	struct addrinfo *serverInfo;
 
@@ -15,8 +15,14 @@ int conect_to_server(char * ip, char *port){
 	int result = connect(listenningSocket, serverInfo->ai_addr, serverInfo->ai_addrlen);
 	freeaddrinfo(serverInfo);
 
-	if(result != 0)
-		exit_error(listenningSocket, "cliente.c: conect_to_server: fallo la conexion con el servidor", NULL);
-	printf("Conectado\n");
+	if(result != 0){
+		close(listenningSocket);
+		fprintf(stderr, "cliente.c: conect_to_server: fallo la conexion con el servidor");
+		return EXIT_FAILURE;
+	}
 	return listenningSocket;
+}
+
+extern int serve_client(int socketCliente){
+	return EXIT_SUCCESS;
 }
