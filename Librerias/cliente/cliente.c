@@ -17,12 +17,13 @@ int connect_to_server(char * ip, char *port){
 
 	if(result != 0){
 		close(listenningSocket);
-		fprintf(stderr, "cliente.c: conect_to_server: fallo la conexion con el servidor");
+		fprintf(stderr, "cliente.c: conect_to_server: fallo la conexion con el servidor\n");
 		return EXIT_FAILURE;
 	}
 	return listenningSocket;
 }
 
-extern int serve_client(int socketCliente){
+int serve_client(int socketCliente){
 	return EXIT_SUCCESS;
 }
+

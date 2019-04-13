@@ -187,7 +187,6 @@ Comando *recv_command(int socket){
 	Comando *parsed = malloc(sizeof(Comando));
 	int result = recv(socket, &parsed->keyword, sizeof(int), 0);
 	if(result <= 0){
-		printf("serializacion.c: recv_command: no se pudo recibir el mensaje\n");
 		return NULL;
 	}
 
@@ -301,6 +300,5 @@ Comando *recv_command(int socket){
         default:
             return 0;
     }
-    parsi_mostrar(*parsed);
 	return parsed;
 }

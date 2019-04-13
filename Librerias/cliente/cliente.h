@@ -21,17 +21,4 @@
 	*/
 	int connect_to_server(char *ip, char *port);
 
-	/**
-	* @NAME: serve_client
-	* @DESC: no usar. Solo soluciona un error de linkeo. La funcion solo
-	* 		 tiene sentido en contexto de servidor, el unico lugar donde se
-	* 		 deberia llamar es waiting_connections. Al declararse como extern,
-	* 		 aparentemente las funciones de cliente necesitan una implementacion
-	* 		 de la funcion. Caso contrario, tira error de linkeo. En resumen:
-	* 		 usar esta funcion solo si sos servidor. Definirla en un cliente no
-	* 		 va a hacer nada.
-	* @PARAMS:
-	*/
-	extern int serve_client(int socketCliente);
-
 #endif /* CLIENT_H_ */

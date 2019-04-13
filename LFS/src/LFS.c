@@ -30,7 +30,7 @@ int main(void) {
 		return EXIT_FAILURE;
 	}
 
-	char* input = readline("Comando:\n");
+	char* input = readline("Mandele un comando al kernel> ");
 	Comando parsed = parse(input);
 	free(input);
 
@@ -39,13 +39,40 @@ int main(void) {
 	return EXIT_SUCCESS;
 }
 
+
+
+
+
+
+
+
+
+
 t_log* iniciar_logger() {
 	return log_create("LFS.log", "LFS", 1, LOG_LEVEL_INFO);
 }
 
+
+
+
+
+
+
+
+
+
 t_config* leer_config(){
 	return config_create("LFS.config");
 }
+
+
+
+
+
+
+
+
+
 
 void levantar_config(Config_final_data *config, t_config* configFile) {
 	config->puerto_escucha = config_get_string_value(configFile, "PUERTO_ESCUCHA");
@@ -53,6 +80,15 @@ void levantar_config(Config_final_data *config, t_config* configFile) {
 	config->tamanio_value = config_get_string_value(configFile, "TAMANIO_VALUE");
 	free(configFile);
 }
+
+
+
+
+
+
+
+
+
 
 void ver_config(Config_final_data *config, t_log* logger_visible){
 	log_info(logger_visible, "PUERTO_ESCUCHA=%s", config->puerto_escucha);
