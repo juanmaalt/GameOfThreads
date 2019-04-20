@@ -17,10 +17,20 @@
 #include <parser/parsi_mod.h>
 #include <server/server.h>
 
+//ESTRUCTURAS
+typedef struct{
+	char *ip_memoria;
+	char *puerto_memoria;
+	char *multiprocesamiento;
+}Config_final_data;
+
+
 //FUNCIONES
+t_log* iniciar_logger();
+t_config* leer_config();
+void get_data_config(Config_final_data *config, t_config* configFile);
+void ver_config(Config_final_data *config, t_log* logger_visible);
 extern int serve_client(int socketCliente);
-t_log* iniciar_logger(void);
-t_config* leer_config(void);
 void leer_consola(t_log* logger);
 void _leer_consola_haciendo(void(*accion)(char*));
 

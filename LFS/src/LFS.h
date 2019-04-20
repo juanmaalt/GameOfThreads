@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <commons/string.h>
 #include <commons/config.h>
+#include <commons/log.h>
 #include <cliente/cliente.h>
 
 //ESTRUCTURAS
@@ -27,7 +28,7 @@ typedef struct{
 //FUNCIONES
 t_log* iniciar_logger();
 t_config* leer_config();
-void levantar_config(Config_final_data *config, t_config* configFile);
+void get_data_config(Config_final_data *config, t_config* configFile);
 void ver_config(Config_final_data *config, t_log* logger_visible);
 
 

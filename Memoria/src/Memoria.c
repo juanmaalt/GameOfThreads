@@ -12,20 +12,53 @@
 
 int main(void) {
 	Config_final_data config;
+
+	//Funciones .log
+	t_log* logger_visible = iniciar_logger();
+
+	//Funciones .config
 	t_config* configFile = leer_config();
-
-	obtener_data_config(&config, configFile);
-
-	ver_config(&config);
+	get_data_config(&config, configFile);
+	ver_config(&config, logger_visible);
 
 	config_destroy(configFile);
 }
+
+
+
+
+
+
+
+
+
+
+t_log* iniciar_logger() {
+	return log_create("LFS.log", "LFS", 1, LOG_LEVEL_INFO);
+}
+
+
+
+
+
+
+
+
 
 t_config* leer_config() {
 	return config_create("Memoria.config");
 }
 
-void obtener_data_config(Config_final_data *config, t_config* configFile) {
+
+
+
+
+
+
+
+
+
+void get_data_config(Config_final_data *config, t_config* configFile) {
 	config->puerto = config_get_string_value(configFile, "PUERTO");
 	config->ip_fileSystem = config_get_string_value(configFile, "IP_FS");
 	config->puerto_fileSystem = config_get_string_value(configFile,
@@ -37,11 +70,22 @@ void obtener_data_config(Config_final_data *config, t_config* configFile) {
 			"MEMORY_NUMBER");
 }
 
-void ver_config(Config_final_data *config) {
-	printf(
-			"PUERTO=%s\nIP_FS=%s\nPUERTO_FS=%s\nIP_SEEDS=%s\nPUERTO_SEEDS=%s\nTAM_MEM=%s\nMEMORY_NUMBER=%s \n",
-			config->puerto, config->ip_fileSystem, config->puerto_fileSystem,
-			config->ip_seeds, config->puerto_seeds, config->tamanio_memoria,
-			config->numero_memoria);
+
+
+
+
+
+
+
+
+
+void ver_config(Config_final_data *config, t_log* logger_visible) {
+	log_info(logger_visible, "PUERTO=%s", config->puerto);
+	log_info(logger_visible, "IP_FS=%s", config->ip_fileSystem);
+	log_info(logger_visible, "PUERTO_FS=%s", config->puerto_fileSystem);
+	log_info(logger_visible, "IP_SEEDS=%s", config->ip_seeds);
+	log_info(logger_visible, "PUERTO_SEEDS=%s", config->puerto_seeds);
+	log_info(logger_visible, "TAM_MEM=%s", config->tamanio_memoria);
+	log_info(logger_visible, "MEMORY_NUMBER=%s", config->numero_memoria);
 }
 
