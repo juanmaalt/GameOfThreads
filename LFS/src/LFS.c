@@ -23,7 +23,7 @@ int main(void) {
 	//Meter funcion para levantar las variables de tiempo retardo y tiempo_dump
 	config_destroy(configFile);
 
-	int kernelSocket = connect_to_server("127.0.0.1", "8001");
+	int kernelSocket = connect_to_server("127.0.0.1", "8005");
 
 	if(kernelSocket == EXIT_FAILURE){
 		fprintf(stderr, "No se pudo conectar al server\n");
@@ -31,18 +31,46 @@ int main(void) {
 	}
 
 	char* input = readline("Mandele un comando al kernel> ");
-	Comando parsed = parse(input);
+	Comando comando_parseado = parse(input);
 	free(input);
 
-	send_command(kernelSocket, parsed);
+	if (parsi_validar(comando_parseado) == EXIT_FAILURE)
+		return EXIT_FAILURE;
+
+	switch(comando_parseado.keyword){
+		case SELECT:
+			selectAPI(comando_parseado);
+			break;
+		case INSERT:
+			insertAPI(comando_parseado);
+			break;
+		case CREATE:
+			createAPI(comando_parseado);
+			break;
+		case DESCRIBE:
+			describeAPI(comando_parseado);
+			break;
+		case DROP:
+			dropAPI(comando_parseado);
+			break;
+		default:
+			return EXIT_FAILURE;
+	}
+
+	send_command(kernelSocket, comando_parseado);
 
 	return EXIT_SUCCESS;
 }
 
 
 
+void selectAPI(Comando comando){
 
-
+}
+void insertAPI(Comando comando){}
+void createAPI(Comando comando){}
+void describeAPI(Comando comando){}
+void dropAPI(Comando comando){}
 
 
 

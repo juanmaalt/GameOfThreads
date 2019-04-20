@@ -31,5 +31,12 @@ t_config* leer_config();
 void get_data_config(Config_final_data *config, t_config* configFile);
 void ver_config(Config_final_data *config, t_log* logger_visible);
 
+//API
+void selectAPI(Comando );
+void insertAPI(Comando );
+void createAPI(Comando );
+void describeAPI(Comando );
+void dropAPI(Comando );
+
 
 #endif /* LFS_H_ */
