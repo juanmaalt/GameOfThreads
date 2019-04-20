@@ -21,6 +21,16 @@ int main(void) {
 	get_data_config(&config, configFile);
 	ver_config(&config, logger_visible);
 
+/*Conectarse al proceso File System y realizar handshake necesario para obtener los datos requeridos.
+ 	 Esto incluye el tamaño máximo del Value configurado para la administración de las páginas.
+
+ * Inicializar la memoria principal (que se explican en los siguientes apartados).
+
+ * Iniciar el proceso de Gossiping (explicado en profundidad en el Anexo III) que consiste en la
+comunicación de cada proceso memoria con otros procesos memorias, o seeds, para intercambiar y
+descubrir otros procesos memorias que se encuentren dentro del pool (conjunto de memorias).
+
+*/
 	config_destroy(configFile);
 }
 
