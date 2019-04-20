@@ -14,7 +14,8 @@ int main(void) {
 	Config_final_data config;
 
 	//Funciones .log
-	t_log* logger_visible = iniciar_logger();
+	t_log* logger_visible = iniciar_logger(true);
+	t_log* logger_invisible=iniciar_logger(false);
 
 	//Funciones .config
 	t_config* configFile = leer_config();
@@ -22,6 +23,8 @@ int main(void) {
 	ver_config(&config, logger_visible);
 	//Meter funcion para levantar las variables de tiempo retardo y tiempo_dump
 	config_destroy(configFile);
+
+
 
 	int kernelSocket = connect_to_server("127.0.0.1", "8005");
 
@@ -32,7 +35,9 @@ int main(void) {
 
 	char* input = readline("Mandele un comando al kernel> ");
 	Comando comando_parseado = parse(input);
-	free(input);
+
+
+
 
 	if (parsi_validar(comando_parseado) == EXIT_FAILURE)
 		return EXIT_FAILURE;
@@ -40,23 +45,34 @@ int main(void) {
 	switch(comando_parseado.keyword){
 		case SELECT:
 			selectAPI(comando_parseado);
+			log_info(logger_invisible, "%s",input);
+
 			break;
 		case INSERT:
 			insertAPI(comando_parseado);
+			log_info(logger_invisible, "%s",input);
+
 			break;
 		case CREATE:
 			createAPI(comando_parseado);
+			log_info(logger_invisible, "%s",input);
+
+
 			break;
 		case DESCRIBE:
 			describeAPI(comando_parseado);
+			log_info(logger_invisible, "%s",input);
+
 			break;
 		case DROP:
 			dropAPI(comando_parseado);
+			log_info(logger_invisible, "%s",input);
+
 			break;
 		default:
 			return EXIT_FAILURE;
 	}
-
+	free(input);
 	send_command(kernelSocket, comando_parseado);
 
 	return EXIT_SUCCESS;
@@ -67,17 +83,27 @@ int main(void) {
 void selectAPI(Comando comando){
 
 }
-void insertAPI(Comando comando){}
-void createAPI(Comando comando){}
-void describeAPI(Comando comando){}
-void dropAPI(Comando comando){}
+void insertAPI(Comando comando){
+
+
+}
+void createAPI(Comando comando){
+
+
+}
+void describeAPI(Comando comando){
+
+}
+void dropAPI(Comando comando){
+
+}
 
 
 
 
 
-t_log* iniciar_logger() {
-	return log_create("LFS.log", "LFS", 1, LOG_LEVEL_INFO);
+t_log* iniciar_logger(bool visible) {
+	return log_create("LFS.log", "LFS", visible, LOG_LEVEL_INFO);
 }
 
 
