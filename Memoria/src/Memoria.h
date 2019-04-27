@@ -13,10 +13,14 @@
 #include <commons/string.h>
 #include <commons/config.h>
 #include <commons/log.h>
+#include <readline/readline.h>
+#include <parser/parsi_mod.h>
 #include <cliente/cliente.h>
+#include <server_multithread/server_multithread.h>
 
 //ESTRUCTURAS
 typedef struct{
+	char *ip;
 	char *puerto;
 	char *ip_fileSystem;
 	char *puerto_fileSystem;
@@ -27,10 +31,11 @@ typedef struct{
 }Config_final_data;
 
 //FUNCIONES
-t_log* iniciar_logger();
+t_log* iniciar_logger(bool);
 t_config* leer_config(void);
 void get_data_config(Config_final_data *, t_config* );
 void ver_config(Config_final_data *config, t_log* logger_visible);
+int threadConnection(int serverSocket, void *funcionThread);
 
 
 #endif /* MEMORIA_H_ */
