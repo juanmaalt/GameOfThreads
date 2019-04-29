@@ -25,23 +25,7 @@ int main(void) {
 	config_destroy(configFile);
 
 
-
-	int kernelSocket = connect_to_server("127.0.0.1", "8001");
-
-	if(kernelSocket == EXIT_FAILURE){
-		fprintf(stderr, "No se pudo conectar al server\n");
-		return EXIT_FAILURE;
-	}
-
-	char* input = readline("Mandele un comando al kernel> ");
-	Comando comando_parseado = parse(input);
-
-
-
-
-	if (parsi_validar(comando_parseado) == EXIT_FAILURE)
-		return EXIT_FAILURE;
-
+	/*
 	switch(comando_parseado.keyword){
 		case SELECT:
 			selectAPI(comando_parseado);
@@ -72,8 +56,7 @@ int main(void) {
 		default:
 			return EXIT_FAILURE;
 	}
-	free(input);
-	send_command(kernelSocket, comando_parseado);
+	*/
 
 	return EXIT_SUCCESS;
 }
@@ -110,19 +93,9 @@ t_log* iniciar_logger(bool visible) {
 
 
 
-
-
-
-
-
 t_config* leer_config(){
 	return config_create("LFS.config");
 }
-
-
-
-
-
 
 
 
@@ -134,12 +107,6 @@ void get_data_config(Config_final_data *config, t_config* configFile) {
 	config->tamanio_value = config_get_string_value(configFile, "TAMANIO_VALUE");
 	//free(configFile);
 }
-
-
-
-
-
-
 
 
 

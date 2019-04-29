@@ -15,7 +15,7 @@
 #include <commons/config.h>
 #include <readline/readline.h>
 #include <parser/parsi_mod.h>
-#include <server/server.h>
+#include <cliente/cliente.h>
 
 //ESTRUCTURAS
 typedef struct{
@@ -26,12 +26,13 @@ typedef struct{
 
 
 //FUNCIONES
-t_log* iniciar_logger();
+t_log* iniciar_logger(bool);
 t_config* leer_config();
 void get_data_config(Config_final_data *config, t_config* configFile);
 void ver_config(Config_final_data *config, t_log* logger_visible);
 extern int serve_client(int socketCliente);
 void leer_consola(t_log* logger);
 void _leer_consola_haciendo(void(*accion)(char*));
+int funcion_conexion(int socket);
 
 #endif /* KERNEL_H_ */
