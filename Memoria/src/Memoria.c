@@ -14,24 +14,29 @@
 void *connection_handler(void *nSocket){
     printf("Esperando conexion\n");
     int socket = *(int*)nSocket;
-    Comando *resultado = recv_command(socket);
+    TipoDeMensaje tipo;
+    char *resultado = recv_command(socket, &tipo);
 
     //Es importante realizar este chequeo devolviendo EXIT_FAILURE
 	if(resultado == NULL){
-		return 0;
+		return NULL;
 	}
 
 	printf("Hemos recibido algo!\n");
-	parsi_mostrar(*resultado);
+
+	if(tipo == COMANDO)
+		parsi_mostrar(parse(resultado));
+	if(tipo == TEXTO_PLANO)
+		printf("%s\n", resultado);
+
 
 	//Podríamos meter un counter y que cada X mensajes recibidos corra el gossiping
 
-	//Devuelvo el mensaje
-	send_command(socket, *resultado);
 
-	free(resultado);
+	if(resultado != NULL)
+		free(resultado);
 
-	return 0;
+	return NULL;
 }
 
 

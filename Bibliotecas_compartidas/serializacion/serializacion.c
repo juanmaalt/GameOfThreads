@@ -1,26 +1,83 @@
 #include "serializacion.h"
 
-int send_command(int socket, Comando parsed){
-	int keyword = parsed.keyword;
-	char* arg1;
-	char* arg2;
-	char* arg3;
-	char* arg4;
-	int longArg1, longArg2, longArg3, longArg4;
-	size_t total;
-	void *content;
+int send_command(int socket, TipoDeMensaje tipo, char *mensaje){
+	//Restricciones
+	switch(tipo){
+		case TEXTO_PLANO:
+			//Ninguna
+		break;
+		case COMANDO:
+			if(parsi_validar(parse(mensaje)) == EXIT_FAILURE){
+				printf("serializacion.c: send_command: error en el envio de comando, probablemente este intentando enviar un comando invalido\n");
+				return EXIT_FAILURE;
+			}
+		break;
+		default:
+			;
+	}
+	int longitudMensaje = strlen(mensaje);
+	size_t total = sizeof(TipoDeMensaje) + sizeof(int) + sizeof(char) * longitudMensaje; //tipo de envio + longitud del mensaje + el mensaje
+	void *content = malloc(total);
+	memcpy(content, &tipo, sizeof(TipoDeMensaje));
+	memcpy(content+sizeof(TipoDeMensaje), &longitudMensaje, sizeof(int));
+	memcpy(content+sizeof(int)+sizeof(TipoDeMensaje), mensaje, sizeof(char)*longitudMensaje);
+
+	int result = send(socket, content, total, 0);
+	if(result <= 0){
+		printf("serializacion.c: send_command: no se pudo enviar el mensaje\n");
+		return EXIT_FAILURE;
+	}
+	if(content != NULL)
+		free(content);
+	return EXIT_SUCCESS;
+}
+
+
+char *recv_command(int socket, TipoDeMensaje *tipo){
+	int result = recv(socket, tipo, sizeof(int), 0);
+	if(result <= 0){
+		return NULL;
+	}
+
+	int longitudMensaje;
+	result = recv(socket, &longitudMensaje, sizeof(int), 0);
+	if(result <= 0){
+		return NULL;
+	}
+
+	char *mensaje = calloc(longitudMensaje, sizeof(char));
+	result = recv(socket, mensaje, sizeof(char)*longitudMensaje, 0);
+	if(result <= 0){
+		return NULL;
+	}
+	return mensaje;
+}
+
+
+
+
+
+
+/*
+void *serializar_comando(Comando parsed, size_t *total){
+	total = malloc(sizeof(size_t)); //Tamaño total de content. Se devuelve como referencia
+	void *content; //Contenido que se va a retornar
+	int keyword = parsed.keyword; //Palabra princial del contenido parseado, para definir en que case entrar
+	//int validez = parsed.valido; La validez del comando no la mandamos, la asumimos desde el otro lado, ya que aca se chequea si es valido, y si no lo es no lo envia
+	//int _raw = parsed._raw; //Atributo que se usa para la liberacion, es importante enviarlo para que se pueda hacer free del comando desde el lado del receptor
+	int tipoDeEnvio = COMANDO;
 
 	if(parsi_validar(parsed) == EXIT_FAILURE){
-		printf("serializacion.c: send_command: comando invalido\n");
+		printf("serializacion.c: serializar_comando: comando invalido\n");
 		return EXIT_FAILURE;
 	}
 
     switch(keyword){
         case SELECT:
-        	arg1 = parsed.argumentos.SELECT.nombreTabla;
-            longArg1 = strlen(parsed.argumentos.SELECT.nombreTabla);
-            arg2 = parsed.argumentos.SELECT.key;
-            longArg2 = strlen(parsed.argumentos.SELECT.key);
+        	char *arg1 = parsed.argumentos.SELECT.nombreTabla;
+            int longArg1 = strlen(parsed.argumentos.SELECT.nombreTabla);
+            char *arg2 = parsed.argumentos.SELECT.key;
+            int longArg2 = strlen(parsed.argumentos.SELECT.key);
 
             total = sizeof(int) + sizeof(int) + sizeof(char)*(longArg1) + sizeof(int) + sizeof(char)*(longArg2);
             content = malloc(total);
@@ -169,20 +226,22 @@ int send_command(int socket, Comando parsed){
             memcpy(content, &keyword, sizeof(int));
         	break;
         default:
-            return EXIT_FAILURE;
+            return NULL;
     }
 
-	int result = send(socket, content, total, 0);
-	if(result <= 0){
-		printf("serializacion.c: send_command: no se pudo enviar el mensaje\n");
-		return EXIT_FAILURE;
-	}
 
-	return EXIT_SUCCESS;
+	return NULL;
 }
+*/
 
 
 
+
+
+
+
+
+/*
 Comando *recv_command(int socket){
 	Comando *parsed = malloc(sizeof(Comando));
 	int result = recv(socket, &parsed->keyword, sizeof(int), 0);
@@ -301,4 +360,4 @@ Comando *recv_command(int socket){
             return 0;
     }
 	return parsed;
-}
+}*/

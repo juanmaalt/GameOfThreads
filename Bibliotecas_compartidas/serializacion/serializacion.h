@@ -13,27 +13,39 @@
 #include "../parser/parsi_mod.h" //Para poder enviar estructuras de tipo Comando
 
 
+//ENUM
+typedef enum{
+	TEXTO_PLANO,
+	COMANDO
+}TipoDeMensaje;
+
+
 //FUNCIONES
 
 	/**
 	* @NAME: send_command
-	* @DESC: envia un dato de tipo comando (ver parser) al socket
-	* 		 indicado
+	* @DESC: envia un mensaje al socket indicado, seleccionando que tipo de mensaje es.
+	* 		 segun el tipo de mensaje va a ser el grado de restricciones, por ejemplo,
+	* 		 texto plano no tiene restricciones, un comando tiene la restriccion de que sea
+	* 		 valido con parsi_validar()
 	* @PARAMS:
 	* 		socket - el socket destino
-	* 		comando - el mensaje a enviar
+	* 		tipo - tipo de mensaje a enviar
+	* 		mensaje - mensaje a enviar
 	*/
-	int send_command(int socket, Comando comando);
+	int send_command(int socket, TipoDeMensaje tipo, char* mensaje);
+
 
 	/**
 	* @NAME: recv_command
 	* @DESC: realiza todo lo necesario para recibir un mensaje de
 	* 		 un socket en particular y devuelve ese mensaje en forma
-	* 		 de comando
+	* 		 de cadena char*
 	* @PARAMS:
 	* 		socket - el socket origen (el socket que nos envio el mensaje)
+	* 		tipo - puntero usado para recibir el tipo de mensaje, liberarlo en el codigo propio.
 	*/
-	Comando *recv_command(int socket);
+	char *recv_command(int socket, TipoDeMensaje *tipo);
 
 
 #endif /* SERIALIZACION_SERIALIZACION_H_ */

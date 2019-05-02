@@ -66,16 +66,10 @@ int funcion_conexion(int socket){
 	}
 
 	char* input = readline("Escribe un comando para la memoria> ");
-	Comando comando_parseado = parse(input);
+	send_command(socket, COMANDO, input);
 
-	if (parsi_validar(comando_parseado) == EXIT_FAILURE)
-		return EXIT_FAILURE;
-
-	free(input);
-
-	send_command(socket, comando_parseado);
-	Comando *resultado = recv_command(socket);
-	parsi_mostrar(*resultado);
+	if(input != NULL)
+		free(input);
 	return 0;
 }
 
