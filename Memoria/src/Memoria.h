@@ -35,6 +35,8 @@ t_log* iniciar_logger(bool);
 t_config* leer_config(void);
 void get_data_config(Config_final_data *, t_config* );
 void ver_config(Config_final_data *config, t_log* logger_visible);
+int conectarLFS(Config_final_data *config, t_log* logger_invisible);
+int handshakeLFS(int socketLFS);
 int threadConnection(int serverSocket, void *funcionThread);
 
 

@@ -12,7 +12,6 @@
 
 
 void *connection_handler(void *nSocket){
-    printf("Esperando conexion\n");
     int socket = *(int*)nSocket;
     TipoDeMensaje tipo;
     char *resultado = recv_command(socket, &tipo);
@@ -31,7 +30,7 @@ void *connection_handler(void *nSocket){
 
 
 	//Podríamos meter un counter y que cada X mensajes recibidos corra el gossiping
-
+	send_command(socket, COMANDO, resultado);
 
 	if(resultado != NULL)
 		free(resultado);
@@ -55,34 +54,14 @@ int main(void) {
 	get_data_config(&config, configFile);
 	ver_config(&config, logger_visible);
 
+	int lfsSocket = conectarLFS(&config, logger_invisible);
+	int	tamanio_value = handshakeLFS(lfsSocket);
+	printf("TAMAÑO_VALUE= %d\n", tamanio_value);
 
-	/*Conectarse al proceso File System y realizar handshake necesario para obtener los datos requeridos.
-		 Esto incluye el tamaño máximo del Value configurado para la administración de las páginas.
-
-	 * Inicializar la memoria principal (que se explican en los siguientes apartados).
-
-	 * Iniciar el proceso de Gossiping (explicado en profundidad en el Anexo III) que consiste en la
-	   comunicación de cada proceso memoria con otros procesos memorias, o seeds, para intercambiar y
-	   descubrir otros procesos memorias que se encuentren dentro del pool (conjunto de memorias).
-
-	*/
-
-	//Obtiene el socket por el cual se va a conectar al LFS como cliente / * Conectarse al proceso File System
-/*
-	 int lfsSocket = connect_to_server(config.ip_fileSystem, config.puerto_fileSystem);
-	 if(lfsSocket == EXIT_FAILURE){
-		log_info(logger_visible, "El LFS no está levantado. Cerrar la Memoria, levantar el LFS y volver a levantar la Memoria");
-		 return EXIT_FAILURE;
-	 }
-*/
-
-
-	printf("IP=%s\nPORT=%s\n",config.ip,config.puerto);
 
 	//Habilita el server y queda en modo en listen / * Inicializar la memoria principal
 	int miSocket = enable_server(config.ip, config.puerto);
 	log_info(logger_invisible, "Servidor encendido, esperando conexiones");
-	printf("funcionó el enable\n");
 	threadConnection(miSocket, connection_handler);
 
 	config_destroy(configFile);
@@ -135,3 +114,34 @@ void ver_config(Config_final_data *config, t_log* logger_visible) {
 
 
 
+int conectarLFS(Config_final_data *config, t_log* logger_invisible){
+	//Obtiene el socket por el cual se va a conectar al LFS como cliente / * Conectarse al proceso File System
+	int socket = connect_to_server(config->ip_fileSystem, config->puerto_fileSystem);
+	if(socket == EXIT_FAILURE){
+		log_error(logger_invisible, "El LFS no está levantado. Cerrar la Memoria, levantar el LFS y volver a levantar la Memoria");
+		return EXIT_FAILURE;
+	}
+	log_error(logger_invisible, "Conectado al LFS. Iniciando Handshake.");
+
+	return socket;
+}
+
+
+
+
+
+int handshakeLFS(int socketLFS){
+	send_command(socketLFS, TEXTO_PLANO, "handshake");
+
+    TipoDeMensaje tipo;
+    char *tamanio = recv_command(socketLFS, &tipo);
+
+	if(tipo == COMANDO)
+		printf("Handshake falló. No se recibió el tamaño del value.\n");
+	if(tipo == TEXTO_PLANO)
+		printf("Handshake exitoso. Se recibió el tamaño del value, es: %d\n", *tamanio);
+
+
+
+	return *tamanio;
+}

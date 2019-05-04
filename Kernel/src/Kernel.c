@@ -25,10 +25,8 @@ int main(void) {
 
 
 	//Funciones de conexión - Funcion declarada abajo para no llenar el main
-	printf("Antes de obtener socket memoria\n");
 	printf("IP=%s\nPORT=%s\n",config.ip_memoria, config.puerto_memoria);
 	int memoriaSocket = connect_to_server(config.ip_memoria, config.puerto_memoria);
-	printf("Antes de funcion_conexion\n");
 	funcion_conexion(memoriaSocket);
 	log_info(logger_invisible, "Mensaje enviado a la memoria.");
 
@@ -70,6 +68,25 @@ int funcion_conexion(int socket){
 
 	if(input != NULL)
 		free(input);
+
+
+	TipoDeMensaje tipo;
+	char *resultado = recv_command(socket, &tipo);
+
+	//Es importante realizar este chequeo devolviendo EXIT_FAILURE
+	if(resultado == NULL){
+		return 0;
+	}
+
+	printf("Hemos recibido una respuesta!\n");
+
+	if(tipo == COMANDO)
+		parsi_mostrar(parse(resultado));
+	if(tipo == TEXTO_PLANO)
+		printf("%s\n", resultado);
+
+
+
 	return 0;
 }
 
