@@ -14,8 +14,8 @@
 #include <commons/string.h>
 #include <commons/config.h>
 #include <readline/readline.h>
-#include <parser/parsi_mod.h>
 #include <cliente/cliente.h>
+#include <parser/parser_comando.h>
 
 //ESTRUCTURAS
 typedef struct{

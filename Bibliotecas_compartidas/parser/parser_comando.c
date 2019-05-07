@@ -1,4 +1,4 @@
-#include "parsi_mod.h"
+#include "parser_comando.h"
 
 #define RETURN_ERROR Comando ERROR={ .valido = false }; return ERROR
 
@@ -15,7 +15,7 @@ void destruir_operacion(Comando op){
 	}
 }
 
-Comando parse(char* line){
+Comando parsear_comando(char* line){
 	if(line == NULL || string_equals_ignore_case(line, "")){
 		fprintf(stderr, "No pude interpretar una linea vacia\n");
 		RETURN_ERROR;
@@ -160,7 +160,7 @@ Comando parse(char* line){
 	return ret;
 }
 
-void parsi_mostrar(Comando parsed){
+void comando_mostrar(Comando parsed){
 
     if(parsed.valido){
         switch(parsed.keyword){
@@ -216,7 +216,7 @@ void parsi_mostrar(Comando parsed){
     }
 }
 
-int parsi_validar(Comando parsed){
+int comando_validar(Comando parsed){
     if(parsed.valido){
         switch(parsed.keyword){
             case SELECT:

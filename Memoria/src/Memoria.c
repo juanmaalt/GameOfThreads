@@ -14,7 +14,7 @@
 void *connection_handler(void *nSocket){
     int socket = *(int*)nSocket;
     TipoDeMensaje tipo;
-    char *resultado = recv_command(socket, &tipo);
+    char *resultado = recv_msg(socket, &tipo);
 
     //Es importante realizar este chequeo devolviendo EXIT_FAILURE
 	if(resultado == NULL){
@@ -24,13 +24,13 @@ void *connection_handler(void *nSocket){
 	printf("Hemos recibido algo!\n");
 
 	if(tipo == COMANDO)
-		parsi_mostrar(parse(resultado));
+		comando_mostrar(parsear_comando(resultado));
 	if(tipo == TEXTO_PLANO)
 		printf("%s\n", resultado);
 
 
 	//Podríamos meter un counter y que cada X mensajes recibidos corra el gossiping
-	send_command(socket, COMANDO, resultado);
+	send_msg(socket, COMANDO, resultado);
 
 	if(resultado != NULL)
 		free(resultado);
@@ -131,10 +131,10 @@ int conectarLFS(Config_final_data *config, t_log* logger_invisible){
 
 
 int handshakeLFS(int socketLFS){
-	send_command(socketLFS, TEXTO_PLANO, "handshake");
+	send_msg(socketLFS, TEXTO_PLANO, "handshake");
 
     TipoDeMensaje tipo;
-    char *tamanio = recv_command(socketLFS, &tipo);
+    char *tamanio = recv_msg(socketLFS, &tipo);
 
 	if(tipo == COMANDO)
 		printf("Handshake falló. No se recibió el tamaño del value.\n");

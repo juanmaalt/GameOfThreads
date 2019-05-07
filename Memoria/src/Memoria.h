@@ -14,8 +14,8 @@
 #include <commons/config.h>
 #include <commons/log.h>
 #include <readline/readline.h>
-#include <parser/parsi_mod.h>
 #include <cliente/cliente.h>
+#include <parser/parser_comando.h>
 #include <server_multithread/server_multithread.h>
 
 //ESTRUCTURAS

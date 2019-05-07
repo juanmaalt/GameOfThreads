@@ -14,7 +14,7 @@
 void *connection_handler(void *nSocket){
     int socket = *(int*)nSocket;
     TipoDeMensaje tipo;
-    char *resultado = recv_command(socket, &tipo);
+    char *resultado = recv_msg(socket, &tipo);
 
     //Es importante realizar este chequeo devolviendo EXIT_FAILURE
 	if(resultado == NULL){
@@ -23,7 +23,7 @@ void *connection_handler(void *nSocket){
 
 	printf("Hemos recibido algo!\n");
 	if(tipo == COMANDO)
-		parsi_mostrar(parse(resultado));
+		comando_mostrar(parsear_comando(resultado));
 	if(tipo == TEXTO_PLANO)
 		//if(strcmp(resultado, "handshake"))
 			handshakeMemoria(socket);
@@ -166,5 +166,5 @@ void handshakeMemoria(int socketMemoria){
 	printf("Se conectó la Memoria\n");
 	char* tamanio = "500";
 
-	send_command(socketMemoria, TEXTO_PLANO, tamanio);
+	send_msg(socketMemoria, TEXTO_PLANO, tamanio);
 }

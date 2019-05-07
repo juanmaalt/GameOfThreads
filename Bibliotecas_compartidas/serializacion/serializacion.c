@@ -1,13 +1,13 @@
 #include "serializacion.h"
 
-int send_command(int socket, TipoDeMensaje tipo, char *mensaje){
+int send_msg(int socket, TipoDeMensaje tipo, char *mensaje){
 	//Restricciones
 	switch(tipo){
 		case TEXTO_PLANO:
 			//Ninguna
 		break;
 		case COMANDO:
-			if(parsi_validar(parse(mensaje)) == EXIT_FAILURE){
+			if(comando_validar(parsear_comando(mensaje)) == EXIT_FAILURE){
 				printf("serializacion.c: send_command: error en el envio de comando, probablemente este intentando enviar un comando invalido\n");
 				return EXIT_FAILURE;
 			}
@@ -33,7 +33,7 @@ int send_command(int socket, TipoDeMensaje tipo, char *mensaje){
 }
 
 
-char *recv_command(int socket, TipoDeMensaje *tipo){
+char *recv_msg(int socket, TipoDeMensaje *tipo){
 	int result = recv(socket, tipo, sizeof(int), 0);
 	if(result <= 0){
 		return NULL;

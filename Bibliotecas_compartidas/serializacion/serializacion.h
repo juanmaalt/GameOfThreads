@@ -10,7 +10,8 @@
 #include <netdb.h> // Para getaddrinfo
 #include <unistd.h> // Para close
 #include <stdbool.h> ////Para bool que se usan en la funcion log (relativamente opcional)
-#include "../parser/parsi_mod.h" //Para poder enviar estructuras de tipo Comando
+
+#include "../parser/parser_comando.h" //Para poder enviar estructuras de tipo Comando
 
 
 //ENUM
@@ -33,7 +34,7 @@ typedef enum{
 	* 		tipo - tipo de mensaje a enviar
 	* 		mensaje - mensaje a enviar
 	*/
-	int send_command(int socket, TipoDeMensaje tipo, char* mensaje);
+	int send_msg(int socket, TipoDeMensaje tipo, char* mensaje);
 
 
 	/**
@@ -45,7 +46,7 @@ typedef enum{
 	* 		socket - el socket origen (el socket que nos envio el mensaje)
 	* 		tipo - puntero usado para recibir el tipo de mensaje, liberarlo en el codigo propio.
 	*/
-	char *recv_command(int socket, TipoDeMensaje *tipo);
+	char *recv_msg(int socket, TipoDeMensaje *tipo);
 
 
 #endif /* SERIALIZACION_SERIALIZACION_H_ */

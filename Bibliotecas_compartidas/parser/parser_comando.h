@@ -82,7 +82,7 @@
 	* @PARAMS:
 	* 		line - Una linea de un archivo ESI
 	*/
-	Comando parse(char* line);
+	Comando parsear_comando(char* line);
 	
 	/**
 	* @NAME: destruir_operacion
@@ -98,7 +98,7 @@
 	* @PARAMS:
 	* 		comando - Una comando cualquiera
 	*/
-	void parsi_mostrar(Comando comando);
+	void comando_mostrar(Comando comando);
 
 	/**
 	* @NAME: validar
@@ -111,7 +111,7 @@
 	* @PARAMS:
 	* 		comando - Una comando cualquiera
 	*/
-	int parsi_validar(Comando comando);
+	int comando_validar(Comando comando);
 
 
 
