@@ -1,0 +1,76 @@
+--SEND_MSG--
+
+int send_msg(int socket, TipoDeMensaje tipo, char *mensaje)
+
+
+
+--Argumentos y retorno--
+
+socket: destinatario del mensaje
+
+tipo: el tipo del mensaje, puede ser texto plano o comando. Hay una estructura que los define asi que solo se van a poder poner los que admita la estructura. La diferencia entre cual esar que la validacion, si mando texto plano puedo mandar cualquier cosa, si mando un comando, se verifica que realmente sea un comando por medio de parsi_validar()
+
+mensaje: el mensaje que se manda
+
+retorno: EXIT_FAILURE o EXIT_SUCCESS
+
+
+
+--Ejemplo--
+
+char* input = "ejemplo"
+int resultado = send_msg(socket, TEXTO_PLANO, input);
+
+if (resultado == EXIT_FAILURE)
+	//Salio mal, hacer algo
+
+free(input);
+
+
+
+
+
+
+
+
+
+
+--RECV_MSG--
+
+char* recv_msg(int socket, TipoDeMensaje *tipo)
+
+
+
+--Argumentos y retorno--
+
+socket: el emisor del mensaje
+
+tipo: una vez llamada a la funcion, va a contener el tipo del mensaje que se recibio en este parametro. Existen dos maneras de usarlo, ver ejemplos
+
+retorno: el mensaje que se recibio, o NULL si no se hubo un error
+
+
+
+--Ejemplo--
+
+TipoDeMensaje tipo; //Defino una variable que a futuro va a contener el tipo
+char *resultado = recv_msg(socket, &tipo); //La funcion se encarga de inicializar la variable resultado y asignarle valor a tipo
+
+if(resultado == NULL)
+	//Salio mal, hacer algo
+
+if(tipo == COMANDO)
+	parsi_mostrar(parse(resultado));
+if(tipo == TEXTO_PLANO)
+	printf("%s\n", resultado);
+
+
+free(resultado);
+
+
+La otra variante es definir tipo como
+TipoDeMensaje *tipo = malloc(sizeof(TipoDeMensaje));
+y enviarlo de la siguiente manera
+char *resultado = recv_msg(socket, tipo);
+La diferencia esta en que de esta manera, puedo hacer free(tipo) cuando yo quiera. El otro caso, va a liberar tipo automaticamente cuando se acabe la funcion que lo definio
+
