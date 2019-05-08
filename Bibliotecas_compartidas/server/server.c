@@ -72,7 +72,7 @@ void *waiting_connections(int socket){
 						//printf("server.c: waiting_conections: un cliente se ha conectado\n");
 					}//fin if(newSocket == -1) else
 				}else{ //Aca se define como responde el server ante un cliente que le quiere mandar un mensaje
-					result = serve_client(unSocket);
+					//result = serve_client(unSocket);
 					if(result == EXIT_FAILURE){
 						printf("server.c: waiting_conections: se ha desconectado un cliente\n");
 						close(unSocket);

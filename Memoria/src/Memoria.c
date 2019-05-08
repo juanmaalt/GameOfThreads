@@ -51,7 +51,7 @@ int main(void) {
 
 	//Funciones .config
 	t_config* configFile = leer_config();
-	get_data_config(&config, configFile);
+	extraer_data_config(&config, configFile);
 	ver_config(&config, logger_visible);
 
 	int lfsSocket = conectarLFS(&config, logger_invisible);
@@ -85,7 +85,7 @@ t_config* leer_config() {
 
 
 
-void get_data_config(Config_final_data *config, t_config* configFile) {
+void extraer_data_config(Config_final_data *config, t_config* configFile) {
 	config->ip = config_get_string_value(configFile, "IP");
 	config->puerto = config_get_string_value(configFile, "PUERTO");
 	config->ip_fileSystem = config_get_string_value(configFile, "IP_FS");

@@ -32,27 +32,6 @@
 	*/
 	void *waiting_connections(int socketVar);
 
-	/**
-	* @NAME: serve_client
-	* @DESC: se debe definir en el codigo propio como extern. Se define aca,
-	* 		 se implementa en otro archivo. Define el comportamiento que
-	* 		 debera tener 'waiting_connections' ante un determinado cliente.
-	* 		 Es un modelo sincronizado, por lo tanto, cuando se ejecute esta
-	* 		 funcion va a ser por que un cliente nos mando algo y nosotros
-	* 		 estamos en condiciones de recibirlo. Eventualmente podemos
-	* 		 mandarle algo nosotros tambien. Por ultimo, es requisito que
-	* 		 antes se haya llamado a 'waiting_connections'. Aunque la podemos
-	* 		 llamar nosotros si conocemos el socket del cliente. Es poco probable
-	* 		 que eso pase.
-	* @PARAMS:
-	* 		socketCliente - el socket del cliente que vamos a atender
-	* @IMPORTANTE: Si hay algun error en la funcion para recibir (devuelve
-	* 			   un resultado menor o igual a 0), el retorno de serve_cliente
-	* 			   debe ser EXIT_FAILURE para garantizar que waiting_connections
-	* 			   siga andando bien.
-	*/
-	int serve_client(int socketCliente);
-
 
 
 

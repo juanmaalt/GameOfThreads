@@ -23,7 +23,3 @@ int connect_to_server(char * ip, char *port){
 	return listenningSocket;
 }
 
-int serve_client(int socketCliente){
-	return EXIT_SUCCESS;
-}
-
