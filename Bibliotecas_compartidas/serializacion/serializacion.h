@@ -1,5 +1,7 @@
 #ifndef SERIALIZACION_SERIALIZACION_H_
 #define SERIALIZACION_SERIALIZACION_H_
+#define RED "\x1b[31m"
+#define STD "\x1b[0m"
 
 //INCLUDES
 #include <stdio.h> // Por dependencia de readline en algunas distros de linux
@@ -17,7 +19,8 @@
 //ENUM
 typedef enum{
 	TEXTO_PLANO,
-	COMANDO
+	COMANDO,
+	LQL
 }TipoDeMensaje;
 
 
@@ -39,7 +42,7 @@ typedef enum{
 
 	/**
 	* @NAME: recv_command
-	* @DESC: realiza todo lo necesario para recibir un mensaje de
+	* @DESC: realiza lo necesario para recibir un mensaje de
 	* 		 un socket en particular y devuelve ese mensaje en forma
 	* 		 de cadena char*
 	* @PARAMS:

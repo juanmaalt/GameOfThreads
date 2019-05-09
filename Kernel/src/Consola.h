@@ -11,8 +11,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <readline/readline.h>
+#include "Kernel.h"
 
 //FUNCIONES
 void recibir_comandos();
+int cargar_lql(char* path);
 
 #endif /* CONSOLA_H_ */

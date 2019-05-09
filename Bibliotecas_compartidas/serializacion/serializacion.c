@@ -8,7 +8,7 @@ int send_msg(int socket, TipoDeMensaje tipo, char *mensaje){
 		break;
 		case COMANDO:
 			if(comando_validar(parsear_comando(mensaje)) == EXIT_FAILURE){
-				printf("serializacion.c: send_command: error en el envio de comando, probablemente este intentando enviar un comando invalido\n");
+				printf(RED"serializacion.c: send_command: error en el envio de comando, probablemente este intentando enviar un comando invalido"STD"\n");
 				return EXIT_FAILURE;
 			}
 		break;
@@ -24,7 +24,7 @@ int send_msg(int socket, TipoDeMensaje tipo, char *mensaje){
 
 	int result = send(socket, content, total, 0);
 	if(result <= 0){
-		printf("serializacion.c: send_command: no se pudo enviar el mensaje\n");
+		printf(RED"serializacion.c: send_command: no se pudo enviar el mensaje"STD"\n");
 		return EXIT_FAILURE;
 	}
 	if(content != NULL)

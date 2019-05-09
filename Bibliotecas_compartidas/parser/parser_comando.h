@@ -18,6 +18,8 @@
 
 #ifndef PARSER_H_
 #define PARSER_H_
+#define RED "\x1b[31m"
+#define STD "\x1b[0m"
 
 	#include <stdlib.h>
 	#include <stdio.h>

@@ -12,47 +12,31 @@
 
 
 int main(void) {
+	//Se hacen las configuraciones iniciales para log, config y se inician semaforos
 	if(configuracion_inicial() == EXIT_FAILURE){
-		printf("No se pudo generar la configuracion inicial\n");
+		printf(RED"Kernel.c: main: no se pudo generar la configuracion inicial"STD"\n");
 		return EXIT_FAILURE;
 	}
 	ver_config(&config, logger_visible);
 
+	//Se inicia un proceso de consola
 	if(iniciar_consola() == EXIT_FAILURE){
-		printf("No se pudo levantar la consola\n");
+		printf(RED"Kernel.c: main: no se pudo levantar la consola"STD"\n");
 		return EXIT_FAILURE;
 	}
 
-	if(iniciar_planificacion() == EXIT_FAILURE){
-		printf("No se pudo comenzar a planificar\n");
+	//Se entra en un estado de planificacion del cual no se sale hasta que la planificacion termine
+	if(iniciar_planificador() == EXIT_FAILURE){
+		printf(RED"Kernel.c: main: hubo un problema en la planificacion"STD"\n");
 		return EXIT_FAILURE;
 	}
 
-	esperar_procesos_hijos();
-	finalizar_procesos_hijos();
+	//Rutinas de finalizacion
+	esperar_procesos_hijos(); //TODO: revisar la espera de procesos hijos
+	finalizar_procesos_hijos(); //TODO: revisar la finalizacion de procesos hijos
 	return 0;
 }
 
-
-
-
-
-int iniciar_planificacion(){
-	pidsProcesadores = list_create();
-	for(int i=0; i<config.multiprocesamiento; ++i){
-		int *pid = malloc(sizeof(int)); //Lo hago asi por que los salames que hicieron la funcion list_add nada mas linkean el puntero, no le copian el valor. Por ende voy a necesitar un malloc de int por cada valor que quiera guardar, y no hacerles free de nada
-		*pid = fork();
-		if(*pid < 0){
-			printf("Kernel.c: iniciar_planificacion: fallo la creacion de un proceso\n");
-			return EXIT_FAILURE;
-		}
-		if (*pid == 0){
-			iniciar_procesador();
-		}
-		list_add(pidsProcesadores, pid);
-	}
-	return EXIT_SUCCESS;
-}
 
 
 
@@ -61,7 +45,7 @@ int iniciar_planificacion(){
 int iniciar_consola(){
 	pidConsola = fork();
 	if(pidConsola < 0){
-		printf("Kernel.c: iniciar_consola: fallo la creacion de la consola");
+		printf(RED"Kernel.c: iniciar_consola: fallo la creacion de la consola"STD"\n");
 		return EXIT_FAILURE;
 	}
 	if(pidConsola == 0){ //Esto solo lo va a poder "ver" el hijo
@@ -76,21 +60,24 @@ int iniciar_consola(){
 
 
 int configuracion_inicial(){
+	sem_init(&disponibilidadPlanificador, 0, 1); //Inicia mutex con valor 0
+	sem_init(&scriptEnReady, 0, 0);
+
 	logger_visible = iniciar_logger(true);
 	if(logger_visible == NULL){
-		printf("Kernel.c: configuracion_inicial: error en 'logger_visible = iniciar_logger(true);'\n");
+		printf(RED"Kernel.c: configuracion_inicial: error en 'logger_visible = iniciar_logger(true);'"STD"\n");
 		return EXIT_FAILURE;
 	}
 
 	logger_invisible = iniciar_logger(false);
 	if(logger_visible == NULL){
-		printf("Kernel.c: configuracion_inicial: error en 'logger_invisible = iniciar_logger(false);'\n");
+		printf(RED"Kernel.c: configuracion_inicial: error en 'logger_invisible = iniciar_logger(false);'"STD"\n");
 		return EXIT_FAILURE;
 	}
 
 	t_config* configFile = leer_config();
 	if(configFile == NULL){
-		printf("Kernel.c: configuracion_inicial: error en el archivo 'Kernel.config'");
+		printf(RED"Kernel.c: configuracion_inicial: error en el archivo 'Kernel.config'"STD"\n");
 		return EXIT_FAILURE;
 	}
 	extraer_data_config(&config, configFile);

@@ -1,5 +1,7 @@
 #ifndef CLIENT_H_
 #define CLIENT_H_
+#define RED "\x1b[31m"
+#define STD "\x1b[0m"
 
 //INCLUDES
 #include <stdio.h> // Por dependencia de readline en algunas distros de linux

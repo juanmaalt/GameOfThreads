@@ -17,7 +17,7 @@ void destruir_operacion(Comando op){
 
 Comando parsear_comando(char* line){
 	if(line == NULL || string_equals_ignore_case(line, "")){
-		fprintf(stderr, "No pude interpretar una linea vacia\n");
+		fprintf(stderr, RED"No pude interpretar una linea vacia"STD"\n");
 		RETURN_ERROR;
 	}
 
@@ -34,77 +34,77 @@ Comando parsear_comando(char* line){
 
 	//Chequeos sintacticos
 	if (keyword == NULL){
-		fprintf(stderr, "Error sintactico, comando desconocido\n");
+		fprintf(stderr, RED"Error sintactico, comando desconocido"STD"\n");
 		RETURN_ERROR;
 	}
 
 	if(string_equals_ignore_case(keyword, "SELECT")){
 		if(split[1] == NULL || split[2] == NULL){
-			fprintf(stderr, "Error sintactico, argumentos para SELECT invalidos\n");
+			fprintf(stderr, RED"Error sintactico, argumentos para SELECT invalidos"STD"\n");
 			RETURN_ERROR;
 		}
 	}
 
 	if(string_equals_ignore_case(keyword, "INSERT")){
 		if(split[1] == NULL || split[2] == NULL || split[3] == NULL){ //El insert puede no tener timestamp, es decir, split[4]
-			fprintf(stderr, "Error sintactico, argumentos para INSERT invalidos\n");
+			fprintf(stderr, RED"Error sintactico, argumentos para INSERT invalidos"STD"\n");
 			RETURN_ERROR;
 		}
 	}
 
 	if(string_equals_ignore_case(keyword, "CREATE")){
 		if(split[1] == NULL || split[2] == NULL || split[3] == NULL || split[4] == NULL){
-			fprintf(stderr, "Error sintactico, argumentos para CREATE invalidos\n");
+			fprintf(stderr, RED"Error sintactico, argumentos para CREATE invalidos"STD"\n");
 			RETURN_ERROR;
 		}
 	}
 
 	if(string_equals_ignore_case(keyword, "DESCRIBE")){
 		if(split[1] == NULL){
-			fprintf(stderr, "Error sintactico, argumentos para DESCRIBE invalidos\n");
+			fprintf(stderr, RED"Error sintactico, argumentos para DESCRIBE invalidos"STD"\n");
 			RETURN_ERROR;
 		}
 	}
 
 	if(string_equals_ignore_case(keyword, "DROP")){
 		if(split[1] == NULL){
-			fprintf(stderr, "Error sintactico, argumentos para DROP invalidos\n");
+			fprintf(stderr, RED"Error sintactico, argumentos para DROP invalidos"STD"\n");
 			RETURN_ERROR;
 		}
 	}
 
 	if(string_equals_ignore_case(keyword, "JOURNAL")){
 		if(split[1] != NULL){
-			fprintf(stderr, "Error sintactico, JOURNAL no lleva argumentos\n");
+			fprintf(stderr, RED"Error sintactico, JOURNAL no lleva argumentos"STD"\n");
 			RETURN_ERROR;
 		}
 	}
 
 	if(string_equals_ignore_case(keyword, "ADD")){
 		if(split[1] == NULL || split[2] == NULL || split[3] == NULL || split[4] == NULL){
-			fprintf(stderr, "Error sintactico, argumentos para ADD MEMORY invalidos\n");
+			fprintf(stderr, RED"Error sintactico, argumentos para ADD MEMORY invalidos"STD"\n");
 			RETURN_ERROR;
 		}
 		if(!string_equals_ignore_case(split[1], "MEMORY")){
-			fprintf(stderr, "Error sintactico, tal vez olvido el 'MEMORY'\n");
+			fprintf(stderr, RED"Error sintactico, tal vez olvido el 'MEMORY'"STD"\n");
 			RETURN_ERROR;
 		}
 		if(!string_equals_ignore_case(split[3], "TO")){
-			fprintf(stderr, "Error sintactico, tal vez olvido el 'TO'\n");
+			fprintf(stderr, RED"Error sintactico, tal vez olvido el 'TO'"STD"\n");
 			RETURN_ERROR;
 		}
 	}
 
 	if(string_equals_ignore_case(keyword, "RUN")){
 		if(split[1] == NULL){
-			fprintf(stderr, "Error sintactico, argumentos para RUN invalidos\n");
+			fprintf(stderr, RED"Error sintactico, argumentos para RUN invalidos"STD"\n");
 			RETURN_ERROR;
 		}
 	}
 
 	if(string_equals_ignore_case(keyword, "METRICS")){
 		if(split[1] != NULL){
-			fprintf(stderr, "Error sintactico, METRICS no lleva argumentos\n");
+			fprintf(stderr, RED"Error sintactico, METRICS no lleva argumentos"STD"\n");
 			RETURN_ERROR;
 		}
 	}
@@ -152,7 +152,7 @@ Comando parsear_comando(char* line){
 	} else if(string_equals_ignore_case(keyword, "METRICS")){
 		ret.keyword = METRICS;
 	} else {
-		fprintf(stderr, "No se encontro el keyword <%s>\n", keyword); //Chequeo sintactico final
+		fprintf(stderr, RED"No se encontro el keyword <%s>"STD"\n", keyword); //Chequeo sintactico final
 		RETURN_ERROR;
 	}
 
@@ -207,12 +207,12 @@ void comando_mostrar(Comando parsed){
             	printf("METRICS\nno posee argumentos\n");
                 break;
             default:
-                fprintf(stderr, "No se pude interpretar el enum: %d\n", parsed.keyword);
+                fprintf(stderr, RED"No se pude interpretar el enum: %d"STD"\n", parsed.keyword);
         }
 
         //destruir_operacion(parsed);
     } else {
-        fprintf(stderr, "La linea no es valida\n");
+        fprintf(stderr, RED"La linea no es valida"STD"\n");
     }
 }
 
