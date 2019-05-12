@@ -60,6 +60,10 @@ int main(void) {
 
 
 	//Habilita el server y queda en modo en listen / * Inicializar la memoria principal
+
+	InicializarMemoPrincipal(config);
+
+
 	int miSocket = enable_server(config.ip, config.puerto);
 	log_info(logger_invisible, "Servidor encendido, esperando conexiones");
 	threadConnection(miSocket, connection_handler);
@@ -68,7 +72,11 @@ int main(void) {
 }
 
 
+void inicializarMemoPrincipal(Config_final_data config){
+//	int tamanioMemoria=atoi(config.tamanio_memoria);
+//	void*memoriaPrincipal = malloc(tamanioMemoria);
 
+}
 
 
 t_log* iniciar_logger(bool visible) {
