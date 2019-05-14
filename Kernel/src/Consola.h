@@ -14,7 +14,7 @@
 #include "Kernel.h"
 
 //FUNCIONES
-void recibir_comandos();
+void *recibir_comandos(void *);
 int cargar_lql(char* path);
 
 #endif /* CONSOLA_H_ */

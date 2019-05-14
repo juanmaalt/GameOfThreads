@@ -32,8 +32,7 @@ int main(void) {
 	}
 
 	//Rutinas de finalizacion
-	esperar_procesos_hijos(); //TODO: revisar la espera de procesos hijos
-	finalizar_procesos_hijos(); //TODO: revisar la finalizacion de procesos hijos
+	printf(RED"Advertencia: se esta finalizando el Kernel"STD);
 	return 0;
 }
 
@@ -43,15 +42,11 @@ int main(void) {
 
 
 int iniciar_consola(){
-	pidConsola = fork();
-	if(pidConsola < 0){
+	if(pthread_create(&idConsola, NULL, recibir_comandos, NULL)){
 		printf(RED"Kernel.c: iniciar_consola: fallo la creacion de la consola"STD"\n");
 		return EXIT_FAILURE;
 	}
-	if(pidConsola == 0){ //Esto solo lo va a poder "ver" el hijo
-		recibir_comandos();
-	}
-	//El padre, sigue su ciclo volviendo al main
+	//No hay pthread_join. Alternativamente hay pthread_detach en la funcion recibir_comando. Hacen casi lo mismo
 	return EXIT_SUCCESS;
 }
 
@@ -60,7 +55,7 @@ int iniciar_consola(){
 
 
 int configuracion_inicial(){
-	sem_init(&disponibilidadPlanificador, 0, 1); //Inicia mutex con valor 0
+	sem_init(&disponibilidadPlanificador, 0, 0); //el ultimo valor indica el valor con el que inicia el semaforo
 	sem_init(&scriptEnReady, 0, 0);
 
 	logger_visible = iniciar_logger(true);
@@ -89,20 +84,8 @@ int configuracion_inicial(){
 
 
 
-void esperar_procesos_hijos(){
-	waitpid(pidConsola, NULL, 0);
-	for(int i=0; i<list_size(pidsProcesadores); ++i){
-		//printf("elemento %d: %d\n", i, *(int*)list_get(pidsProcesadores, i));
-		waitpid(*(int*)list_get(pidsProcesadores, i), NULL, 0);
-	}
-}
 
-void finalizar_procesos_hijos(){
-	kill(pidConsola, SIGTERM);
-	for(int i=0; i<list_size(pidsProcesadores); ++i){
-		kill(*(int*)list_get(pidsProcesadores, i), SIGTERM);
-	}
-}
+
 
 t_log* iniciar_logger(bool visible) {
 	return log_create("Kernel.log", "Kernel", visible, LOG_LEVEL_INFO);

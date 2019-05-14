@@ -19,8 +19,7 @@
 #include <readline/readline.h>
 #include <cliente/cliente.h>
 #include <parser/parser_comando.h>
-#include <signal.h> //Para SIGTERM
-#include <sys/wait.h> //Para wait(), esperar a que un proceso hijo termine para finalizar
+#include <pthread.h>
 #include <semaphore.h>
 #include "Consola.h"
 #include "Planificador.h"
@@ -41,7 +40,7 @@ typedef struct{
 t_log* logger_visible;
 t_log* logger_invisible;
 Config_final_data config;
-int pidConsola;
+pthread_t idConsola;
 t_list *pidsProcesadores; //TODO: ver como liberar esto al final del programa, poca importancia
 sem_t disponibilidadPlanificador; //Para que la consola no pueda mandarle algo al planificador si no se inicio
 sem_t scriptEnReady; //Para saber si hay algo en ready o no, y no estar preguntando permanentemente
@@ -57,8 +56,8 @@ t_config* leer_config();
 void extraer_data_config(Config_final_data *config, t_config* configFile);
 void ver_config(Config_final_data *config, t_log* logger_visible);
 
-/*Descripcion de procesos:
- * padre: inicia todas las rutinas y termina haciendose cargo de la funcion ready() en planificador.c
+/*Descripcion de hilos:
+ * padre (proceso): inicia todas las rutinas y termina haciendose cargo de la funcion ready() en planificador.c
  * consola: es iniciada por su padre y termina haciendose cargo de la consola en Consola.c. Va a ser el encargado de llamar a new() cada vez que reciba un script o comando
  * procesadores/unidades de ejecucion: tambien iniciados por el padre, todos se hacen cargo de la funcion exec()
  * */

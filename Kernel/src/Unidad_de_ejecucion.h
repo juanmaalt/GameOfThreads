@@ -15,7 +15,7 @@
 #include "Planificador.h"
 
 //FUNCIONES
-void exec();
+void *exec(void *);
 
 
 #endif /* UNIDAD_DE_EJECUCION_H_ */

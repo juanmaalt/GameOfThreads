@@ -44,7 +44,7 @@ int new(TipoDeMensaje tipo, void *data){
 		return EXIT_FAILURE;
 	}
 	//queue_push(colaDeNew, pcb); //TODO: IMPORTANTE esto no anda
-	sem_post(&scriptEnReady);
+	sem_post(&scriptEnReady); //Como esta funcion va a ser llamada por la consola, el semaforo tambien tiene que ser compartido por el proceso consola
 	return EXIT_SUCCESS;
 }
 
@@ -55,9 +55,7 @@ int new(TipoDeMensaje tipo, void *data){
 
 int ready(){
 	while(1){
-		printf("Esperando scripts en ready...\n");
 		sem_wait(&scriptEnReady);
-		printf("Hay scripts en ready!\n");
 		//codigo
 	}
 	return EXIT_SUCCESS;
@@ -71,16 +69,14 @@ int ready(){
 int iniciar_unidades_de_ejecucion(){
 	pidsProcesadores = list_create();
 	for(int i=0; i<config.multiprocesamiento; ++i){
-		int *pid = malloc(sizeof(int)); //Lo hago asi por que los salames que hicieron la funcion list_add nada mas linkean el puntero, no le copian el valor. Por ende voy a necesitar un malloc de int por cada valor que quiera guardar, y no hacerles free de nada
-		*pid = fork(); //TODO: todos estos mallocs de int se liberan supuestamente al finalizar el programa, pero no perderlo de vista xq podria haber algun error purulando
-		if(*pid < 0){
+		pthread_t *id = malloc(sizeof(pthread_t)); //Lo hago asi por que los salames que hicieron la funcion list_add nada mas linkean el puntero, no le copian el valor. Por ende voy a necesitar un malloc de int por cada valor que quiera guardar, y no hacerles free de nada
+		//TODO: todos estos mallocs de int se liberan supuestamente al finalizar el programa, pero no perderlo de vista xq podria haber algun error purulando
+		int res = pthread_create(id, NULL, exec, NULL);
+		if(res != 0){
 			printf(RED"Kernel.c: iniciar_planificacion: fallo la creacion de un proceso"STD"\n");
 			return EXIT_FAILURE;
 		}
-		if (*pid == 0){
-			exec();
-		}
-		list_add(pidsProcesadores, pid);
+		list_add(pidsProcesadores, id);
 	}
 	return EXIT_SUCCESS;
 }

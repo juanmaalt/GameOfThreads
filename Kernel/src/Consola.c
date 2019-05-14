@@ -7,9 +7,9 @@
 
 #include "Consola.h"
 
-void recibir_comandos(){
-	printf("Esperando para iniciar consola...\n");
-	sem_wait(&disponibilidadPlanificador);printf("Consola iniciada!\n");
+void *recibir_comandos(void *null){
+	pthread_detach(pthread_self());
+	sem_wait(&disponibilidadPlanificador);
 	Comando *parsed = malloc(sizeof(Comando));
 	for(;;){
 		char *userImput = readline("> ");
@@ -44,7 +44,7 @@ void recibir_comandos(){
 	    }
 	    free(userImput);
 	}
-	exit(EXIT_SUCCESS);
+	return NULL;
 }
 
 int cargar_lql(char *path){
