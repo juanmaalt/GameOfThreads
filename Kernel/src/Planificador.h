@@ -18,16 +18,16 @@
 #include "Unidad_de_ejecucion.h"
 
 //ESTRUCTURAS
+typedef enum{
+	STRING_COMANDO,
+	FILE_LQL
+}PCB_DataType;
+
 typedef struct{
 	void *data;
 	PCB_DataType tipo;
 	unsigned short quantumRemanente;
 }PCB;
-
-typedef enum{
-	STRING_COMANDO,
-	FILE_LQL
-}PCB_DataType;
 
 
 //GLOBALES
