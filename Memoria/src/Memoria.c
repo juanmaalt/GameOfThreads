@@ -41,49 +41,99 @@ void *connection_handler(void *nSocket){
 
 
 
+//TODO: cada printf en rojo que indique el error se debe poner en el log
 
 int main(void) {
-	Config_final_data config;
-
-	//Funciones .log
-	t_log* logger_visible = iniciar_logger(true);
-	t_log* logger_invisible=iniciar_logger(false);
-
-	//Funciones .config
-	t_config* configFile = leer_config();
-	extraer_data_config(&config, configFile);
+	//Se hacen las configuraciones iniciales para log y config
+	if(configuracion_inicial() == EXIT_FAILURE){
+			printf(RED"Memoria.c: main: no se pudo generar la configuracion inicial"STD"\n");
+			return EXIT_FAILURE;
+		}
 	ver_config(&config, logger_visible);
 
-	int lfsSocket = conectarLFS(&config, logger_invisible);
+
+	/*int lfsSocket = conectarLFS(&config, logger_invisible);
 	int	tamanio_value = handshakeLFS(lfsSocket);
 	printf("TAMAÑO_VALUE= %d\n", tamanio_value);
-
-
+	*/
+	int	tamanio_value=4;
 	//Habilita el server y queda en modo en listen / * Inicializar la memoria principal
+	if(inicializar_memoriaPrincipal(config)==EXIT_FAILURE){
+		printf(RED"Memoria.c: main: no se pudo inicializar la memoria principal"STD"\n");
+		return EXIT_FAILURE;
+	}
+	printf("Memoria Inicializada correctamente\n");
 
-	InicializarMemoPrincipal(config);
+	//GOSSIPING
 
+	//Inicio consola
 
-	int miSocket = enable_server(config.ip, config.puerto);
+	if(iniciar_consola() == EXIT_FAILURE){
+			printf(RED"Memoria.c: main: no se pudo levantar la consola"STD"\n");
+			return EXIT_FAILURE;
+	}
+	pthread_join(idConsola,NULL);
+	/*int miSocket = enable_server(config.ip, config.puerto);
 	log_info(logger_invisible, "Servidor encendido, esperando conexiones");
 	threadConnection(miSocket, connection_handler);
-
+*/
 	config_destroy(configFile);
+	log_destroy(logger_invisible);
+	log_destroy(logger_visible);
+}
+
+int configuracion_inicial(){
+
+	logger_visible = iniciar_logger(true);
+	if(logger_visible == NULL){
+		printf(RED"Memoria.c: configuracion_inicial: error en 'logger_visible = iniciar_logger(true);'"STD"\n");
+		return EXIT_FAILURE;
+	}
+
+	logger_invisible = iniciar_logger(false);
+	if(logger_visible == NULL){
+		printf(RED"Memoria.c: configuracion_inicial: error en 'logger_invisible = iniciar_logger(false);'"STD"\n");
+		return EXIT_FAILURE;
+	}
+
+	configFile = leer_config();
+	if(configFile == NULL){
+		printf(RED"Memoria.c: configuracion_inicial: error en el archivo 'Kernel.config'"STD"\n");
+		return EXIT_FAILURE;
+	}
+	extraer_data_config(&config, configFile);
+
+	return EXIT_SUCCESS;
 }
 
 
-void inicializarMemoPrincipal(Config_final_data config){
-//	int tamanioMemoria=atoi(config.tamanio_memoria);
-//	void*memoriaPrincipal = malloc(tamanioMemoria);
 
+int inicializar_memoriaPrincipal(Config_final_data config){
+	int tamanioMemoria=atoi(config.tamanio_memoria);
+	memoriaPrincipal.index=0;
+	memoriaPrincipal.cantMaxPaginas= tamanioMemoria/ sizeof(marco);
+
+	memoriaPrincipal.memoria = malloc(tamanioMemoria);
+	if(!memoriaPrincipal.memoria)
+			return EXIT_FAILURE;
+
+	return EXIT_SUCCESS;
+}
+
+
+int iniciar_consola(){
+	if(pthread_create(&idConsola, NULL, recibir_comandos, NULL)){
+		printf(RED"Memoria.c: iniciar_consola: fallo la creacion de la consola"STD"\n");
+		return EXIT_FAILURE;
+	}
+	//No hay pthread_join. Alternativamente hay pthread_detach en la funcion recibir_comando. Hacen casi lo mismo
+	return EXIT_SUCCESS;
 }
 
 
 t_log* iniciar_logger(bool visible) {
 	return log_create("Memoria.log", "Memoria", visible, LOG_LEVEL_INFO);
 }
-
-
 
 
 t_config* leer_config() {

@@ -20,6 +20,13 @@
 #include <cliente/cliente.h>
 #include <parser/parser_comando.h>
 #include <server_multithread/server_multithread.h>
+#include <pthread.h>
+#include <semaphore.h>
+
+#include "Consola.h"
+
+#define RED "\x1b[31m"
+#define STD "\x1b[0m"
 
 //ESTRUCTURAS
 typedef struct{
@@ -39,7 +46,7 @@ typedef struct{
 	uint16_t key;
 	double timestamp;
 	char* value;
-}marco;
+}marco;  		// puede tener un __attribute__((packed, aligned(1))) para evitar el padding
 
 typedef struct{
 	t_list* paginas;
@@ -57,11 +64,33 @@ typedef struct{
 
 typedef struct{
 	char* pathTabla;
-	t_list* paginas;
+	tabla_de_paginas* tablaPaginas;
 }segmento;
 
+//Bloque de Memoria
+
+typedef struct{
+	void* memoria;
+	int index;		//Indica nro de bytes ocupados
+	int cantMaxPaginas;
+}memoria_principal;
+
+//GLOBALES
+
+/*Las de log y config son globales para poder acceder a ellos desde cualquier lado, pudiendo leer del config en tiempo de ejecucion y escribir en los logs sin
+* pasarlos por parametro
+*/
+t_log* logger_visible;
+t_log* logger_invisible;
+t_config* configFile;
+Config_final_data config;
+
+pthread_t idConsola;
+tabla_de_segmentos tablaSegmentos;
+memoria_principal memoriaPrincipal;
 
 //FUNCIONES
+int configuracion_inicial();
 t_log* iniciar_logger(bool);
 t_config* leer_config(void);
 void extraer_data_config(Config_final_data *, t_config* );
@@ -70,8 +99,9 @@ int conectarLFS(Config_final_data *config, t_log* logger_invisible);
 int handshakeLFS(int socketLFS);
 int threadConnection(int serverSocket, void *funcionThread);
 
-void inicializarMemoPrincipal(Config_final_data config);
+int inicializar_memoriaPrincipal(Config_final_data config);
 
+int iniciar_consola();
 
 
 #endif /* MEMORIA_H_ */
