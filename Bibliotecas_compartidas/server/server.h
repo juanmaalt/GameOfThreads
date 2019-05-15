@@ -26,7 +26,8 @@
 	/**
 	* @NAME: waiting_connections
 	* @DESC: configura un servidor con la ip seleccionada escuchando
-	* 		 al puerto especificado
+	* 		 al puerto especificado. Utiliza el metodo de multiplezacion SELECT.
+	* 		 Si se usa esto, no se usa el server multithread.
 	* @PARAMS:
 	* 		socketVar - el socket de nuestro servidor
 	*/
