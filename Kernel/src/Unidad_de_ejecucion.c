@@ -9,8 +9,11 @@
 
 void *exec(void *null){
 	pthread_detach(pthread_self());
-	/*TODO: ver como conviene resolver esto, si con semaforos y tener un mismo comportamiento
-	 * para cada procesador, o hacer algo mas comlejo
-	 */
+	for(;;){
+		//La cpu por default esta disponible
+		sem_wait(&ordenDeEjecucion);
+		//Codigo
+		sem_post(&unidadDeEjecucionDisponible);
+	}
 	return NULL;
 }
