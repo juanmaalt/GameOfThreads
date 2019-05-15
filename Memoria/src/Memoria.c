@@ -56,7 +56,9 @@ int main(void) {
 	int	tamanio_value = handshakeLFS(lfsSocket);
 	printf("TAMAÑO_VALUE= %d\n", tamanio_value);
 	*/
+
 	int	tamanio_value=4;
+
 	//Habilita el server y queda en modo en listen / * Inicializar la memoria principal
 	if(inicializar_memoriaPrincipal(config)==EXIT_FAILURE){
 		printf(RED"Memoria.c: main: no se pudo inicializar la memoria principal"STD"\n");
@@ -64,7 +66,7 @@ int main(void) {
 	}
 	printf("Memoria Inicializada correctamente\n");
 
-	//GOSSIPING
+	//TODO:GOSSIPING
 
 	//Inicio consola
 
@@ -73,10 +75,12 @@ int main(void) {
 			return EXIT_FAILURE;
 	}
 	pthread_join(idConsola,NULL);
+
 	/*int miSocket = enable_server(config.ip, config.puerto);
 	log_info(logger_invisible, "Servidor encendido, esperando conexiones");
 	threadConnection(miSocket, connection_handler);
 */
+
 	config_destroy(configFile);
 	log_destroy(logger_invisible);
 	log_destroy(logger_visible);
@@ -202,4 +206,34 @@ int handshakeLFS(int socketLFS){
 
 
 	return *tamanio;
+}
+
+int ejecutarOperacion(char* input){ //TODO: TIPO de retorno Resultado
+	Comando *parsed = malloc(sizeof(Comando));
+	*parsed = parsear_comando(input);
+	//TODO: funciones pasandole userInput y parsed por si necesito enviar algo o usar algun dato parseado
+
+	if(parsed->valido){
+		switch(parsed->keyword){
+			case SELECT:
+				selectAPI(input,*parsed);
+				break;
+			case INSERT:
+				insertAPI(input,*parsed);
+				break;
+			case CREATE:
+			case DESCRIBE:
+			case DROP:
+			case JOURNAL:
+				printf("Entro un comando\n");
+				break;
+			default:
+				fprintf(stderr, RED"No se pude interpretar el enum: %d"STD"\n", parsed->keyword);
+		}
+
+		destruir_operacion(*parsed);
+	}else{
+		fprintf(stderr, RED"La request no es valida"STD"\n");
+	}
+	return EXIT_SUCCESS; //MOMENTANEO
 }

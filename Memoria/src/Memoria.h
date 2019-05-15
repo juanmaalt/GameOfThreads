@@ -24,6 +24,7 @@
 #include <semaphore.h>
 
 #include "Consola.h"
+#include "APIMemoria.h"
 
 #define RED "\x1b[31m"
 #define STD "\x1b[0m"
@@ -42,9 +43,10 @@ typedef struct{
 
 //Estructuras de memoria
 
+typedef unsigned long long timestamp_t;
 typedef struct{
 	uint16_t key;
-	double timestamp;
+	timestamp_t timestamp;
 	char* value;
 }marco;  		// puede tener un __attribute__((packed, aligned(1))) para evitar el padding
 
@@ -56,6 +58,7 @@ typedef struct{
 	int numeroPagina;
 	bool flagModificado;
 	marco* marco;
+	timestamp_t timestampUso;
 }pagina;
 
 typedef struct{
@@ -102,6 +105,8 @@ int threadConnection(int serverSocket, void *funcionThread);
 int inicializar_memoriaPrincipal(Config_final_data config);
 
 int iniciar_consola();
+
+int ejecutarOperacion(char*);
 
 
 #endif /* MEMORIA_H_ */
