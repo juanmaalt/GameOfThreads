@@ -18,20 +18,29 @@
 #include "Unidad_de_ejecucion.h"
 
 //ESTRUCTURAS
+typedef enum{
+	STRING_COMANDO,
+	FILE_LQL
+}PCB_DataType;
+
 typedef struct{
 	void *data;
-	TipoDeMensaje tipo;
+	PCB_DataType tipo;
 	unsigned short quantumRemanente;
 }PCB;
 
+
 //GLOBALES
-t_queue *colaDeNew;
+t_queue *colaDeReady;
+sem_t unidadDeEjecucionDisponible;
+sem_t ordenDeEjecucion;
 
 //FUNCIONES
 int iniciar_planificador();
 int iniciar_unidades_de_ejecucion();
-int new(TipoDeMensaje tipo, void *data); //Esta funcion va a ser ejecutada desde la consola por el proceso de consola
+int new(PCB_DataType tipo, void *data); //Esta funcion va a ser ejecutada desde la consola por el proceso de consola
 int ready(); //Esta es la funcion donde desencadena el proceso padre
+PCB seleccionar_siguiente();
 
 
 #endif /* PLANIFICADOR_H_ */

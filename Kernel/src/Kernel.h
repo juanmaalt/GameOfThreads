@@ -41,7 +41,7 @@ t_log* logger_visible;
 t_log* logger_invisible;
 Config_final_data config;
 pthread_t idConsola;
-t_list *pidsProcesadores; //TODO: ver como liberar esto al final del programa, poca importancia
+t_list *idsExecInstances; //TODO: ver como liberar esto al final del programa, poca importancia
 sem_t disponibilidadPlanificador; //Para que la consola no pueda mandarle algo al planificador si no se inicio
 sem_t scriptEnReady; //Para saber si hay algo en ready o no, y no estar preguntando permanentemente
 

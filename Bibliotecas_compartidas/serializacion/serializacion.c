@@ -13,7 +13,8 @@ int send_msg(int socket, TipoDeMensaje tipo, char *mensaje){
 			}
 		break;
 		default:
-			;
+			printf(RED"Todavia no soportamos el TipoDeMensaje numero %d"STD"\n", tipo);
+			return EXIT_FAILURE;
 	}
 	int longitudMensaje = strlen(mensaje);
 	size_t total = sizeof(TipoDeMensaje) + sizeof(int) + sizeof(char) * longitudMensaje; //tipo de envio + longitud del mensaje + el mensaje
