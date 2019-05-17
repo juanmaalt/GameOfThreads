@@ -32,15 +32,14 @@ typedef struct{
 
 //GLOBALES
 t_queue *colaDeReady;
-sem_t unidadDeEjecucionDisponible;
-sem_t ordenDeEjecucion;
+
 
 //FUNCIONES
 int iniciar_planificador();
+int comunicarse_con_memoria();
 int iniciar_unidades_de_ejecucion();
 int new(PCB_DataType tipo, void *data); //Esta funcion va a ser ejecutada desde la consola por el proceso de consola
-int ready(); //Esta es la funcion donde desencadena el proceso padre
-PCB seleccionar_siguiente();
+PCB *seleccionar_siguiente();
 
 
 #endif /* PLANIFICADOR_H_ */

@@ -57,6 +57,8 @@ int iniciar_consola(){
 int configuracion_inicial(){
 	sem_init(&disponibilidadPlanificador, 0, 0); //el ultimo valor indica el valor con el que inicia el semaforo
 	sem_init(&scriptEnReady, 0, 0);
+	sem_init(&dormirProcesoPadre, 1, 0);
+	sem_init(&entrarAReadyDeAUno, 0, 1);
 
 	logger_visible = iniciar_logger(true);
 	if(logger_visible == NULL){

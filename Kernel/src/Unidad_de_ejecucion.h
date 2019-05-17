@@ -16,6 +16,8 @@
 
 //FUNCIONES
 void *exec(void *);
-
+int exec_file_lql(PCB *pcb);
+int exec_string_comando(PCB *pcb);
+Comando *decodificar_siguiente_instruccion(FILE *lql);
 
 #endif /* UNIDAD_DE_EJECUCION_H_ */
