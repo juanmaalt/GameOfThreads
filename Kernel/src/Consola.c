@@ -71,7 +71,7 @@ int new_lql(char *path){
 		if(line != NULL)
 			free(line);
 	}
-	if(new(FILE_LQL, lql) == EXIT_FAILURE){
+	if(new(FILE_LQL, (void*)lql) == EXIT_FAILURE){
 		printf(RED"Consola.c: new_lql: el archivo LQL no pudo ingresar a new"STD"\n");
 		return EXIT_FAILURE;
 	}
