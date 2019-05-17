@@ -10,6 +10,14 @@
 
 #include "Memoria.h"
 
+typedef struct segmento segmento_t;
+typedef struct pagina pagina_t;
+
+//Funciones complementarias
+bool verificarExistenciaSegmento(char*,segmento_t*);
+
+bool contieneKey(segmento_t*,uint16_t,char*);
+
 //API	TODO: valores de retorno Resultado
 void selectAPI(char*, Comando);
 void insertAPI(char*,Comando);
