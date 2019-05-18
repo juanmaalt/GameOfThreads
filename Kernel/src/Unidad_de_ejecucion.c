@@ -13,10 +13,9 @@ void *exec(void *null){
 	for(;;){
 		//La cpu por default esta disponible si esta en este wait
 		sem_wait(&scriptEnReady);
-		sem_wait(&entrarAReadyDeAUno);
+		sem_wait(&extraerDeReadyDeAUno);
 		PCB *pcb = seleccionar_siguiente();
-		sem_post(&entrarAReadyDeAUno);
-
+		sem_post(&extraerDeReadyDeAUno);
 		switch(pcb->tipo){
 		case STRING_COMANDO:
 			resultado = exec_string_comando(pcb);
@@ -30,18 +29,42 @@ void *exec(void *null){
 }
 
 int exec_string_comando(PCB *pcb){
-
-	return EXIT_SUCCESS;
+	char *userInput = (char*)pcb->data;
+	Comando comando = parsear_comando(userInput);
+	printf("CPU: %d esta ejecutando operacion unitaria: %s\n", process_get_thread_id(), userInput);
+	destruir_operacion(comando);
+	if(userInput != NULL)
+		free(userInput);
+	return EJECUTO;
 }
 
 int exec_file_lql(PCB *pcb){
-	Comando *comando;
+	Comando comando;
+	char buffer[MAX_BUFFER_SIZE_FOR_LQL_LINE];
+	char *line;
+	FILE *lql;
+
+	lql = (FILE *)pcb->data; //Como el FILE nunca se cerro, cada vez que entre, va a continuar donde se habia quedado
 	for(int i=1; i<=config.quantum; ++i){
-		comando = decodificar_siguiente_instruccion(pcb->data);
-		//codigo
+		line = fgets(buffer, MAX_BUFFER_SIZE_FOR_LQL_LINE, lql);
+		if(line == NULL || feof(lql)){
+			fclose(lql);
+			printf("\n");
+			//free(pcb->data);
+			//free(pcb);
+			return FINALIZO;
+		}
+		comando = parsear_comando(line);
+		printf("CPU: %d | FILE: %p | linea de LQL: %s", process_get_thread_id(), lql, line);
 		destruir_operacion(comando);
-	}
-	if(comando != NULL)
-		free(comando);
-	return EXIT_SUCCESS;
+	}printf("\n");
+	sem_wait(&meterEnReadyDeAUno);
+	desalojar(pcb);
+	sem_post(&meterEnReadyDeAUno);
+	sem_post(&scriptEnReady); //Ya que se metio a la lista de vuelta
+	if(line != NULL)
+		;//free(line);
+	simular_retardo();
+	return DESALOJO;
 }
+

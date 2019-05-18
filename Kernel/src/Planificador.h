@@ -18,16 +18,17 @@
 #include "Unidad_de_ejecucion.h"
 
 //ESTRUCTURAS
-typedef enum{
+typedef enum PCB_DataType_e{
 	STRING_COMANDO,
 	FILE_LQL
 }PCB_DataType;
 
-typedef struct{
+
+typedef struct pcb_t{
 	void *data;
 	PCB_DataType tipo;
-	unsigned short quantumRemanente;
 }PCB;
+
 
 
 //GLOBALES
@@ -40,6 +41,7 @@ int comunicarse_con_memoria();
 int iniciar_unidades_de_ejecucion();
 int new(PCB_DataType tipo, void *data); //Esta funcion va a ser ejecutada desde la consola por el proceso de consola
 PCB *seleccionar_siguiente();
-
+void desalojar(PCB *pcb);
+void simular_retardo(void);
 
 #endif /* PLANIFICADOR_H_ */

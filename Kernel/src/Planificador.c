@@ -32,14 +32,13 @@ int iniciar_planificador(){
 
 int new(PCB_DataType tipo, void *data){
 	PCB *pcb = malloc(sizeof(PCB)); //TODO: no olvidarse que hay que liberarlo en algun momento
-	pcb->quantumRemanente = config.quantum;
 	pcb->data = data; //pcb->data almacena la direccion data
 	switch(tipo){
 	case STRING_COMANDO:
-		pcb->tipo = STRING_COMANDO;printf("Comando encolado en new\n");
+		pcb->tipo = STRING_COMANDO;
 		break;
 	case FILE_LQL:
-		pcb->tipo = FILE_LQL;printf("LQL encolado en new\n");
+		pcb->tipo = FILE_LQL;
 		break;
 	default:
 		printf(RED"Planificador.c: new: no se reconoce el tipo de dato a ejecutar"STD"\n");
@@ -82,4 +81,12 @@ int iniciar_unidades_de_ejecucion(){
 
 PCB *seleccionar_siguiente(){
 	return (PCB*)queue_pop(colaDeReady);
+}
+
+void desalojar(PCB *pcb){
+	queue_push(colaDeReady, pcb);
+}
+
+void simular_retardo(void){
+	usleep(config.retardo);
 }
