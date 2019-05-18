@@ -20,10 +20,12 @@
 #include <cliente/cliente.h>
 #include <parser/parser_comando.h>
 #include <server_multithread/server_multithread.h>
+#include <epoch/epoch.h>
 #include <pthread.h>
 #include <semaphore.h>
 
 #include "Consola.h"
+#include "APIMemoria.h"
 
 #define RED "\x1b[31m"
 #define STD "\x1b[0m"
@@ -42,38 +44,52 @@ typedef struct{
 
 //Estructuras de memoria
 
+typedef unsigned long long timestamp_t;
 typedef struct{
 	uint16_t key;
-	double timestamp;
+	timestamp_t timestamp;
 	char* value;
-}marco;  		// puede tener un __attribute__((packed, aligned(1))) para evitar el padding
+}marco_t;  		// puede tener un __attribute__((packed, aligned(1))) para evitar el padding
+
+typedef struct pagina{
+	int numeroPagina;
+	bool flagModificado;
+	marco_t* marco;
+	int countUso;
+}pagina_t;
 
 typedef struct{
 	t_list* paginas;
-}tabla_de_paginas;
+}tabla_de_paginas_t;
 
-typedef struct{
-	int numeroPagina;
-	bool flagModificado;
-	marco* marco;
-}pagina;
+typedef struct segmento{
+	char* pathTabla;
+	tabla_de_paginas_t* tablaPaginas;
+}segmento_t;
 
 typedef struct{
 	t_list* listaSegmentos;
-}tabla_de_segmentos;
+}tabla_de_segmentos_t;
 
-typedef struct{
-	char* pathTabla;
-	tabla_de_paginas* tablaPaginas;
-}segmento;
+//GLOBALES
+tabla_de_segmentos_t tablaSegmentos;
+
 
 //Bloque de Memoria
 
 typedef struct{
-	void* memoria;
+	void* memoria;	//Bloque de memoria
 	int index;		//Indica nro de bytes ocupados
 	int cantMaxPaginas;
 }memoria_principal;
+
+//Funciones Memoria
+
+void agregarMarcoAMemoria(marco_t *);
+void mostrarContenidoMemoria(void);
+//GLOBALES
+memoria_principal memoriaPrincipal;
+
 
 //GLOBALES
 
@@ -86,8 +102,10 @@ t_config* configFile;
 Config_final_data config;
 
 pthread_t idConsola;
-tabla_de_segmentos tablaSegmentos;
-memoria_principal memoriaPrincipal;
+
+//Para evitar levantar el LFS
+int	tamanioValue;
+char *pathLFS;
 
 //FUNCIONES
 int configuracion_inicial();
@@ -99,9 +117,13 @@ int conectarLFS(Config_final_data *config, t_log* logger_invisible);
 int handshakeLFS(int socketLFS);
 int threadConnection(int serverSocket, void *funcionThread);
 
-int inicializar_memoriaPrincipal(Config_final_data config);
+int inicializar_memoriaPrincipal();
+
+void memoriaConUnSegmentoYUnaPagina(void);
 
 int iniciar_consola();
+
+int ejecutarOperacion(char*);
 
 
 #endif /* MEMORIA_H_ */

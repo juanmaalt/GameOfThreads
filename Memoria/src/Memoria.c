@@ -56,7 +56,12 @@ int main(void) {
 	int	tamanio_value = handshakeLFS(lfsSocket);
 	printf("TAMAÑO_VALUE= %d\n", tamanio_value);
 	*/
-	int	tamanio_value=4;
+
+	tamanioValue=4;
+	pathLFS= malloc(strlen("/puntoDeMontajeQueMeDaJuanEnElHandshake/")*sizeof(char)+1);
+	strcpy(pathLFS,"/puntoDeMontajeQueMeDaJuanEnElHandshake/");
+
+
 	//Habilita el server y queda en modo en listen / * Inicializar la memoria principal
 	if(inicializar_memoriaPrincipal(config)==EXIT_FAILURE){
 		printf(RED"Memoria.c: main: no se pudo inicializar la memoria principal"STD"\n");
@@ -64,7 +69,11 @@ int main(void) {
 	}
 	printf("Memoria Inicializada correctamente\n");
 
-	//GOSSIPING
+
+	//TODO:GOSSIPING
+
+	//FUNCION PARA TEST DE SELECT
+	memoriaConUnSegmentoYUnaPagina();
 
 	//Inicio consola
 
@@ -73,14 +82,58 @@ int main(void) {
 			return EXIT_FAILURE;
 	}
 	pthread_join(idConsola,NULL);
+
 	/*int miSocket = enable_server(config.ip, config.puerto);
 	log_info(logger_invisible, "Servidor encendido, esperando conexiones");
 	threadConnection(miSocket, connection_handler);
 */
+	if(memoriaPrincipal.memoria!=NULL)
+		free(memoriaPrincipal.memoria);
 	config_destroy(configFile);
 	log_destroy(logger_invisible);
 	log_destroy(logger_visible);
 }
+
+
+void agregarMarcoAMemoria(marco_t *marco){
+	memcpy(memoriaPrincipal.memoria+memoriaPrincipal.index,marco, sizeof(marco_t));
+	memoriaPrincipal.index+= sizeof(marco_t);
+}
+
+void mostrarContenidoMemoria(){
+	marco_t* marcoIndice;
+	for(int i=0; i<memoriaPrincipal.index; i+=sizeof(marco_t)){
+		marcoIndice=memoriaPrincipal.memoria+i;
+		printf("Key marco: %d\nValue marco: %s\nTimestamp marco: %llu\n", marcoIndice->key,marcoIndice->value,marcoIndice->timestamp);
+	}
+}
+
+void memoriaConUnSegmentoYUnaPagina(void){
+	marco_t* marcoEjemplo= malloc(sizeof(marco_t));
+	//Crear un segmento con un path determinado
+	//Crear su tabla de paginas
+	//Agregar una pagina con una referencia a un marco que se escribira en memoria
+
+	//Preparo un marco y lo agrego a memoria
+	marcoEjemplo->key=1;
+	marcoEjemplo->timestamp=getCurrentTime();
+	marcoEjemplo->value=malloc(sizeof(char)*tamanioValue);
+	strcpy(marcoEjemplo->value,"Car");
+	printf("El marco es: %d %s %llu\n",marcoEjemplo->key, marcoEjemplo->value, marcoEjemplo-> timestamp);
+
+	agregarMarcoAMemoria(marcoEjemplo);
+
+
+	free(marcoEjemplo);
+}
+
+
+
+
+
+
+
+
 
 int configuracion_inicial(){
 
@@ -108,14 +161,16 @@ int configuracion_inicial(){
 
 
 
-int inicializar_memoriaPrincipal(Config_final_data config){
+int inicializar_memoriaPrincipal(){
 	int tamanioMemoria=atoi(config.tamanio_memoria);
 	memoriaPrincipal.index=0;
-	memoriaPrincipal.cantMaxPaginas= tamanioMemoria/ sizeof(marco);
+	memoriaPrincipal.cantMaxPaginas= tamanioMemoria/ sizeof(marco_t);
 
 	memoriaPrincipal.memoria = malloc(tamanioMemoria);
 	if(!memoriaPrincipal.memoria)
 			return EXIT_FAILURE;
+
+	tablaSegmentos.listaSegmentos=list_create();
 
 	return EXIT_SUCCESS;
 }
@@ -202,4 +257,34 @@ int handshakeLFS(int socketLFS){
 
 
 	return *tamanio;
+}
+
+int ejecutarOperacion(char* input){ //TODO: TIPO de retorno Resultado
+	Comando *parsed = malloc(sizeof(Comando));
+	*parsed = parsear_comando(input);
+	//TODO: funciones pasandole userInput y parsed por si necesito enviar algo o usar algun dato parseado
+
+	if(parsed->valido){
+		switch(parsed->keyword){
+			case SELECT:
+				selectAPI(input,*parsed);
+				break;
+			case INSERT:
+				insertAPI(input,*parsed);
+				break;
+			case CREATE:
+			case DESCRIBE:
+			case DROP:
+			case JOURNAL:
+				printf("Entro un comando\n");
+				break;
+			default:
+				fprintf(stderr, RED"No se pude interpretar el enum: %d"STD"\n", parsed->keyword);
+		}
+
+		destruir_operacion(*parsed);
+	}else{
+		fprintf(stderr, RED"La request no es valida"STD"\n");
+	}
+	return EXIT_SUCCESS; //MOMENTANEO
 }
