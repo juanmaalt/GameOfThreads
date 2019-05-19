@@ -10,7 +10,6 @@
 
 #include "LFS.h"
 
-
 void *connection_handler(void *nSocket){
     int socket = *(int*)nSocket;
     TipoDeMensaje tipo;
@@ -36,10 +35,6 @@ void *connection_handler(void *nSocket){
 	return NULL;
 }
 
-
-
-
-
 int main(void) {
 	Config_final_data config;
 
@@ -58,9 +53,6 @@ int main(void) {
 	log_info(logger_invisible, "Servidor encendido, esperando conexiones");
 	threadConnection(miSocket, connection_handler);
 
-
-
-	/*
 	switch(comando_parseado.keyword){
 		case SELECT:
 			selectAPI(comando_parseado);
@@ -76,7 +68,6 @@ int main(void) {
 			createAPI(comando_parseado);
 			log_info(logger_invisible, "%s",input);
 
-
 			break;
 		case DESCRIBE:
 			describeAPI(comando_parseado);
@@ -91,34 +82,43 @@ int main(void) {
 		default:
 			return EXIT_FAILURE;
 	}
-	*/
 
 	config_destroy(configFile);
 	return EXIT_SUCCESS;
 }
 
-
-
 void selectAPI(Comando comando){
-
+	if (!memtable) {
+		memtable = createMemtable();
+	}
+	char* nombreTabla = comando.argumentos.SELECT.nombreTabla;
+	char* key = comando.argumentos.INSERT.key;
+	char* valueFromMemtable = select(memtable, nombreTabla, key);
 }
+
 void insertAPI(Comando comando){
-
-
+	if (!memtable) {
+		memtable = createMemtable();
+	}
+	char* nombreTabla = comando.argumentos.INSERT.nombreTabla;
+	char* key = comando.argumentos.INSERT.key;
+	char* timestamp = comando.argumentos.INSERT.timestamp;
+	char* value = comando.argumentos.INSERT.value;
+	insert(memtable, nombreTabla, key, timestamp, value);
 }
+
 void createAPI(Comando comando){
 
 
 }
+
 void describeAPI(Comando comando){
 
 }
+
 void dropAPI(Comando comando){
 
 }
-
-
-
 
 
 t_log* iniciar_logger(bool visible) {
@@ -126,15 +126,9 @@ t_log* iniciar_logger(bool visible) {
 }
 
 
-
-
-
 t_config* leer_config(){
 	return config_create("LFS.config");
 }
-
-
-
 
 
 void extraer_data_config(Config_final_data *config, t_config* configFile) {
@@ -148,8 +142,6 @@ void extraer_data_config(Config_final_data *config, t_config* configFile) {
 }
 
 
-
-
 void ver_config(Config_final_data *config, t_log* logger_visible){
 	log_info(logger_visible, "IP=%s", config->ip);
 	log_info(logger_visible, "PUERTO_ESCUCHA=%s", config->puerto_escucha);
@@ -158,8 +150,6 @@ void ver_config(Config_final_data *config, t_log* logger_visible){
 	log_info(logger_visible, "TAMANIO_VALUE=%s", config->tamanio_value);
 	//log_info(logger_visible, "TIEMPO_DUMP=%s", config->tiempo_dump);
 }
-
-
 
 
 void handshakeMemoria(int socketMemoria){

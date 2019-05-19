@@ -7,13 +7,13 @@
 
 #ifndef LFS_H_
 #define LFS_H_
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <commons/string.h>
 #include <commons/config.h>
 #include <commons/log.h>
 #include <cliente/cliente.h>
+#include "./Memtable.h"
 
 //ESTRUCTURAS
 typedef struct{
@@ -27,6 +27,7 @@ typedef struct{
 	//char *tiempo_dump; //Esta config la dejamos como variable.
 }Config_final_data;
 
+Memtable* memtable;
 
 //FUNCIONES
 t_log* iniciar_logger(bool);
@@ -42,6 +43,5 @@ void insertAPI(Comando);
 void createAPI(Comando);
 void describeAPI(Comando);
 void dropAPI(Comando);
-
 
 #endif /* LFS_H_ */
