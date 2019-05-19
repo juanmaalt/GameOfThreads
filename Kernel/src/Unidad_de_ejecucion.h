@@ -12,12 +12,21 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <commons/process.h>
 #include "Planificador.h"
 
+typedef struct pcb_t PCB;
+typedef enum flag_e Flag;
+
+typedef enum{
+	EJECUTO,
+	DESALOJO,
+	FINALIZO
+}ResultadoEjecucionInterno;
+
 //FUNCIONES
-void *exec(void *);
+void *exec(void *null);
 int exec_file_lql(PCB *pcb);
 int exec_string_comando(PCB *pcb);
-Comando *decodificar_siguiente_instruccion(FILE *lql);
 
 #endif /* UNIDAD_DE_EJECUCION_H_ */

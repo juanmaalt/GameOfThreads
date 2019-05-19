@@ -32,7 +32,7 @@ int main(void) {
 	}
 
 	//Rutinas de finalizacion
-	printf(RED"Advertencia: se esta finalizando el Kernel"STD);
+	printf(RED"manc.c: (Warning) se esta finalizando el Kernel"STD"\n");
 	return 0;
 }
 
@@ -58,7 +58,8 @@ int configuracion_inicial(){
 	sem_init(&disponibilidadPlanificador, 0, 0); //el ultimo valor indica el valor con el que inicia el semaforo
 	sem_init(&scriptEnReady, 0, 0);
 	sem_init(&dormirProcesoPadre, 1, 0);
-	sem_init(&entrarAReadyDeAUno, 0, 1);
+	sem_init(&extraerDeReadyDeAUno, 0, 1);
+	sem_init(&meterEnReadyDeAUno, 0, 1);
 
 	logger_visible = iniciar_logger(true);
 	if(logger_visible == NULL){
@@ -108,8 +109,12 @@ void extraer_data_config(Config_final_data *config, t_config* configFile) {
 	config->multiprocesamiento = config_get_int_value(configFile, "MULTIPROCESAMIENTO");
 	config->refreshMetadata = config_get_int_value(configFile, "REFRESH_METADATA");
 	config->retardo = config_get_int_value(configFile, "RETARDO");
+	if(config->quantum <= 0)
+		printf(RED"main.c: extraer_data_config: (Warning) el quantum con valores menores o iguales a 0 genera comportamiento indefinido"STD"\n");
 	//TODO: Si yo hago un get de un valor que en el config no existe, va a tirar core dump. Arreglar eso.
 	//La inversa no pasa nada, o sea , si agrego cosas al config y no les hago get aca no pasa nada
+
+	//TODO: hacer que algunas se ajusten en tiempo real
 }
 
 

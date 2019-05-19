@@ -44,8 +44,9 @@ pthread_t idConsola;
 t_list *idsExecInstances; //TODO: ver como liberar esto al final del programa, poca importancia
 sem_t disponibilidadPlanificador; //Para que la consola no pueda mandarle algo al planificador si no se inicio
 sem_t scriptEnReady; //Para saber si hay algo en ready o no, y no estar preguntando permanentemente
-sem_t entrarAReadyDeAUno;
+sem_t extraerDeReadyDeAUno;
 sem_t dormirProcesoPadre;
+sem_t meterEnReadyDeAUno;
 
 //FUNCIONES
 int configuracion_inicial();

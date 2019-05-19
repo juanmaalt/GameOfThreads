@@ -14,9 +14,13 @@
 #include <readline/readline.h>
 #include "Kernel.h"
 
+typedef enum PCB_DataType_e PCB_DataType;
+
 //FUNCIONES
 void *recibir_comandos(void *);
 int new_lql(char* path);
-int new_comando(TipoDeMensaje tipo, char *data);
+int new_comando(PCB_DataType tipo, char *data);
+
+void funcion_loca_de_testeo_de_concurrencia(void);
 
 #endif /* CONSOLA_H_ */

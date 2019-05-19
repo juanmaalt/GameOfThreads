@@ -1,0 +1,7 @@
+SELECT nombreTabla Key
+INSERT nombreTabla key value timestamp
+CREATE nombreTabla tipoConsistencia numeroParticiones compactacionTime
+DESCRIBE nombreTabla
+DROP nombreTabla
+JOURNAL
+ADD MEMORY numero TO criterio
