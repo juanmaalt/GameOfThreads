@@ -14,7 +14,7 @@ typedef struct segmento segmento_t;
 typedef struct pagina pagina_t;
 
 //Funciones complementarias
-segmento_t* verificarExistenciaSegmento(char*);
+bool verificarExistenciaSegmento(char*,segmento_t**);
 
 bool contieneKey(segmento_t*,uint16_t,char*);
 

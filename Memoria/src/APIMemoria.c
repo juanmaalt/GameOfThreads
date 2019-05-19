@@ -26,8 +26,8 @@
  *
  * */
 
-segmento_t * verificarExistenciaSegmento(char* nombreTabla) {
-	segmento_t * segmentoAVerificar;
+bool verificarExistenciaSegmento(char* nombreTabla, segmento_t ** segmentoAVerificar ) {
+	//segmento_t * segmentoAVerificar;
 	char* pathSegmentoBuscado = malloc(
 			sizeof(char) * strlen(nombreTabla) + strlen(pathLFS) + 1);
 	strcpy(pathSegmentoBuscado, pathLFS);
@@ -72,16 +72,16 @@ segmento_t * verificarExistenciaSegmento(char* nombreTabla) {
 
 	if (list_is_empty(listaConSegmentoBuscado)) {
 		printf(RED"APIMemoria.c: NO SE ENCONTRO EL SEGMENTO"STD"\n");
-		return segmentoAVerificar;
+		return false;
 	}
 	//Tomo de la lista filtrada el segmento con el path coincidente
 
-	segmentoAVerificar = (segmento_t*) list_get(listaConSegmentoBuscado, 0);
+	*segmentoAVerificar = (segmento_t*) list_get(listaConSegmentoBuscado, 0);
 
 	//Elimino la lista filtrada
 	list_destroy(listaConSegmentoBuscado);
 
-	return segmentoAVerificar;
+	return true;
 }
 
 //Busca en cada pagina de la tabla de paginas la referencia al marco y me fijo si coincide la key
@@ -127,9 +127,10 @@ void selectAPI(char* input, Comando comando) {
 
 	char* value = malloc(sizeof(char) * tamanioValue);
 
-	segmentoSeleccionado=verificarExistenciaSegmento(comando.argumentos.SELECT.nombreTabla);
+	//segmentoSeleccionado=verificarExistenciaSegmento(comando.argumentos.SELECT.nombreTabla);
+	//if (segmentoSeleccionado!=NULL)
 
-	if (segmentoSeleccionado!=NULL) {
+	if (verificarExistenciaSegmento(comando.argumentos.SELECT.nombreTabla, &segmentoSeleccionado)) {
 		if (contieneKey(segmentoSeleccionado, keyBuscada, value)) {
 			printf("El value es: %s\n", value);
 
@@ -139,14 +140,14 @@ void selectAPI(char* input, Comando comando) {
 		}
 		printf(RED"APIMemoria.c: select: no encontro la key. Enviar a LFS la request"STD"\n");
 		/*else{
-		 //Enviar a LFS la request
+		 //TODO: Enviar a LFS la request
 		 //Recibo el valor (el marcoRecibido/registro entero ya parseado al ser recibido como un char*)
 		 //
 		 solicitarPagina(segmentoSeleccionado,marcoRecibido);
 		 }*/
 
 	}/*else{
-	 //Enviar a LFS la request
+	 //TODO: Enviar a LFS la request
 	 //crearSegmento(segmentoSeleccionado); -> me lo agrega a la tabla de segmentos (inicializar el segmento)
 	 //solicitaPagina(segmentoSeleccionado,marcoRecibido)
 	 }*/
