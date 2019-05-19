@@ -67,6 +67,8 @@ typedef struct segmento{
 	tabla_de_paginas_t* tablaPaginas;
 }segmento_t;
 
+char* obtenerPath(segmento_t* segmento);
+
 typedef struct{
 	t_list* listaSegmentos;
 }tabla_de_segmentos_t;
@@ -85,7 +87,7 @@ typedef struct{
 
 //Funciones Memoria
 
-void agregarMarcoAMemoria(marco_t *);
+marco_t * agregarMarcoAMemoria(marco_t *);
 void mostrarContenidoMemoria(void);
 //GLOBALES
 memoria_principal memoriaPrincipal;

@@ -26,101 +26,138 @@
  *
  * */
 
-bool verificarExistenciaSegmento(char* nombreTabla,segmento_t* segmentoAVerificar) {
+segmento_t * verificarExistenciaSegmento(char* nombreTabla) {
+	segmento_t * segmentoAVerificar;
 	char* pathSegmentoBuscado = malloc(
-			sizeof(char) * strlen(nombreTabla)
-					+ strlen(pathLFS) + 1);
+			sizeof(char) * strlen(nombreTabla) + strlen(pathLFS) + 1);
 	strcpy(pathSegmentoBuscado, pathLFS);
 	strcat(pathSegmentoBuscado, nombreTabla);
+
 	//Recorro tabla de segmentos buscando pathSegmentoBuscado
 
+	/*for(int i=0;i<list_size(tablaSegmentos.listaSegmentos);++i){
+	 segmentoAVerificar= (segmento_t *)list_get(tablaSegmentos.listaSegmentos, i);
+	 if(!strcmp(pathSegmentoBuscado, segmentoAVerificar->pathTabla)){
+	 printf(RED"ENCONTRO COINCIDENCIA"STD"\n");
+	 flagCoincidencia=true; //Valor que se devuelve
+	 break;
+	 }else{
+	 flagCoincidencia=false; //Valor que se devuelve
+	 }
+	 }
+
+	 free(pathSegmentoBuscado);
+
+	 if(flagCoincidencia){
+	 return flagCoincidencia;
+	 }else{
+	 return flagCoincidencia;
+	 }*/
+
 	bool compararConPath(void* comparado) {
-		if (strcmp(pathSegmentoBuscado, comparado)) {
+		//printf(RED"pathSegmentoBuscado: %s\npathComparado: %s"STD"\n",pathSegmentoBuscado,obtenerPath((segmento_t*)comparado));
+		if (strcmp(pathSegmentoBuscado, obtenerPath((segmento_t*) comparado))) {
 			return false;
 		}
 		return true;
 	}
 
-	t_list* listaConSegmentoBuscado = list_filter(tablaSegmentos.listaSegmentos,compararConPath);
+	t_list* listaConSegmentoBuscado = list_filter(tablaSegmentos.listaSegmentos,
+			compararConPath);
+
 	//Para ver que el path es el correcto
 
-	printf("El path del segmento buscado es: %s\n", pathSegmentoBuscado);
+	//printf("El path del segmento buscado es: %s\n", pathSegmentoBuscado);
 	free(pathSegmentoBuscado);
 
 	if (list_is_empty(listaConSegmentoBuscado)) {
-		return false;
+		printf(RED"APIMemoria.c: NO SE ENCONTRO EL SEGMENTO"STD"\n");
+		return segmentoAVerificar;
 	}
+	//Tomo de la lista filtrada el segmento con el path coincidente
 
-	//Quito de la lista filtrada el segmento con el path coincidente
-	segmentoAVerificar = (segmento_t*) list_remove(listaConSegmentoBuscado, 1);
+	segmentoAVerificar = (segmento_t*) list_get(listaConSegmentoBuscado, 0);
 
-	return true;
+	//Elimino la lista filtrada
+	list_destroy(listaConSegmentoBuscado);
+
+	return segmentoAVerificar;
 }
 
 //Busca en cada pagina de la tabla de paginas la referencia al marco y me fijo si coincide la key
 bool contieneKey(segmento_t* segmentoElegido, uint16_t keyBuscada, char* value) {
 	//1. Tomo la tabla de paginas del segmento
+
 	t_list * paginasDelSegmentoElegido = segmentoElegido->tablaPaginas->paginas;
-	marco_t marcoBuscador;
+
 	//2. Por cada pagina de la tabla, miro la referencia al marco
 	//3. En cada marco me fijo si la key que tiene == keyBuscada
 	//3.1 En caso de que la key sea la keyBuscada tomo el valor del value, y countUso++
 	//3.2 Si la key NO es la buscada sigo con el siguiente marco
 
 	bool compararConMarco(void* paginaComparada) {
-		if(((pagina_t*)paginaComparada)->marco->key == keyBuscada){
-			++((pagina_t*)paginaComparada)->countUso;
+		if (((pagina_t*) paginaComparada)->marco->key == keyBuscada) {
+			++((pagina_t*) paginaComparada)->countUso;
 			return true;
 		}
 		return false;
 	}
 
-	t_list* listaConPaginaBuscada = list_filter(paginasDelSegmentoElegido,compararConMarco);
+	t_list* listaConPaginaBuscada = list_filter(paginasDelSegmentoElegido,
+			compararConMarco);
+
 	if (list_is_empty(listaConPaginaBuscada)) {
 		list_destroy(listaConPaginaBuscada);
 		return false;
 	}
 
-	pagina_t * paginaResultado = (pagina_t*) list_remove(listaConPaginaBuscada, 1);
+	pagina_t * paginaResultado = (pagina_t*) list_remove(listaConPaginaBuscada,0);
 	list_destroy(listaConPaginaBuscada);
 
-	strcpy(value,paginaResultado->marco->value);
+	strcpy(value, paginaResultado->marco->value);
 
 	return true;
 
 }
 
 void selectAPI(char* input, Comando comando) {
-segmento_t *segmentoSeleccionado = NULL;
-uint16_t keyBuscada = atoi(comando.argumentos.SELECT.key); //TODO: se verifica que la key sea numerica?
-char* value = malloc(sizeof(char)*tamanioValue);
+	segmento_t *segmentoSeleccionado = NULL;
 
-if (verificarExistenciaSegmento(comando.argumentos.SELECT.nombreTabla,
-		segmentoSeleccionado)) {
-	if (contieneKey(segmentoSeleccionado, keyBuscada, value)) {
-		printf("El value es: %s", value);
+	uint16_t keyBuscada = atoi(comando.argumentos.SELECT.key); //TODO: se verifica que la key sea numerica?
 
-		free(value);
+	char* value = malloc(sizeof(char) * tamanioValue);
 
-		return; //TODO: se debe devolver el value
+	segmentoSeleccionado=verificarExistenciaSegmento(comando.argumentos.SELECT.nombreTabla);
+
+	if (segmentoSeleccionado!=NULL) {
+		if (contieneKey(segmentoSeleccionado, keyBuscada, value)) {
+			printf("El value es: %s\n", value);
+
+			free(value);
+
+			return; //TODO: se debe devolver el value
+		}
+		printf(RED"APIMemoria.c: select: no encontro la key. Enviar a LFS la request"STD"\n");
+		/*else{
+		 //Enviar a LFS la request
+		 //Recibo el valor (el marcoRecibido/registro entero ya parseado al ser recibido como un char*)
+		 //
+		 solicitarPagina(segmentoSeleccionado,marcoRecibido);
+		 }*/
+
 	}/*else{
 	 //Enviar a LFS la request
-	 //Recibo el valor (el marcoRecibido/registro entero ya parseado al ser recibido como un char*)
-	 //
-	 solicitarPagina(segmentoSeleccionado,marcoRecibido);
+	 //crearSegmento(segmentoSeleccionado); -> me lo agrega a la tabla de segmentos (inicializar el segmento)
+	 //solicitaPagina(segmentoSeleccionado,marcoRecibido)
 	 }*/
 
-}/*else{
- //Enviar a LFS la request
- //crearSegmento(segmentoSeleccionado); -> me lo agrega a la tabla de segmentos (inicializar el segmento)
- //solicitaPagina(segmentoSeleccionado,marcoRecibido)
- }*/
+	printf(RED"APIMemoria.c: select: no encontro el path. Enviar a LFS la request"STD"\n");
 
-printf("La linea recibida es: %s\n", input);
-printf("La key es: %d\n", keyBuscada);
-printf("NO se encontro el value para la key\n");
+	printf("La linea recibida es: %s\n", input);
+	printf("La key es: %d\n", keyBuscada);
+	printf("NO se encontro el value para la key\n");
 
-free(value);
+	free(value);
 }
 /*
  * La operación Insert permite la creación y/o actualización de una key dentro de una tabla. Para esto, se utiliza la siguiente nomenclatura:
@@ -148,5 +185,5 @@ free(value);
  * */
 
 void insertAPI(char* input, Comando comando) {
-printf("La linea recibida es: %s\n", input);
+	printf("La linea recibida es: %s\n", input);
 }

@@ -39,7 +39,16 @@ void *connection_handler(void *nSocket){
 }
 
 
+void mostrarPathSegmentos(){
+	segmento_t * segmentoAux;
 
+	for(int i=0;i<list_size(tablaSegmentos.listaSegmentos);++i){
+		segmentoAux= (segmento_t *)list_get(tablaSegmentos.listaSegmentos, i);
+		printf("EL PATH DEL SEGMENTO ES: %s\n",obtenerPath(segmentoAux));
+
+	}
+
+}
 
 //TODO: cada printf en rojo que indique el error se debe poner en el log
 
@@ -72,8 +81,11 @@ int main(void) {
 
 	//TODO:GOSSIPING
 
-	//FUNCION PARA TEST DE SELECT
+	//FUNCIONES PARA TEST DE SELECT
 	memoriaConUnSegmentoYUnaPagina();
+
+	//mostrarContenidoMemoria();
+	mostrarPathSegmentos();
 
 	//Inicio consola
 
@@ -94,10 +106,14 @@ int main(void) {
 	log_destroy(logger_visible);
 }
 
+char* obtenerPath(segmento_t* segmento){
+		return segmento->pathTabla;
+	}
 
-void agregarMarcoAMemoria(marco_t *marco){
-	memcpy(memoriaPrincipal.memoria+memoriaPrincipal.index,marco, sizeof(marco_t));
+marco_t * agregarMarcoAMemoria(marco_t *marco){
+	marco_t* marcoEnMemoria=memcpy(memoriaPrincipal.memoria+memoriaPrincipal.index,marco, sizeof(marco_t));
 	memoriaPrincipal.index+= sizeof(marco_t);
+	return marcoEnMemoria;
 }
 
 void mostrarContenidoMemoria(){
@@ -108,20 +124,50 @@ void mostrarContenidoMemoria(){
 	}
 }
 
+
+
+
+void asignarPathASegmento(segmento_t * segmentoANombrar,char* nombreTabla){
+	segmentoANombrar->pathTabla=malloc(sizeof(char)*(strlen(pathLFS)+strlen(nombreTabla))+1);
+	strcpy(segmentoANombrar->pathTabla,pathLFS);
+	strcat(segmentoANombrar->pathTabla,nombreTabla);
+}
+
+void crearPaginaEnTabla(marco_t* marcoDePagina, tabla_de_paginas_t *tablaDondeSeEncuentra){
+	pagina_t *paginaACrear= malloc(sizeof(pagina_t));
+	paginaACrear->countUso=0;
+	paginaACrear->flagModificado=0;
+	paginaACrear->marco=marcoDePagina;
+	paginaACrear->numeroPagina=(list_size(tablaDondeSeEncuentra->paginas))+1;
+	list_add(tablaDondeSeEncuentra->paginas, (pagina_t*) paginaACrear);
+
+
+}
 void memoriaConUnSegmentoYUnaPagina(void){
 	marco_t* marcoEjemplo= malloc(sizeof(marco_t));
-	//Crear un segmento con un path determinado
-	//Crear su tabla de paginas
-	//Agregar una pagina con una referencia a un marco que se escribira en memoria
 
-	//Preparo un marco y lo agrego a memoria
+	//Preparo un marco de EJEMPLO
 	marcoEjemplo->key=1;
 	marcoEjemplo->timestamp=getCurrentTime();
 	marcoEjemplo->value=malloc(sizeof(char)*tamanioValue);
 	strcpy(marcoEjemplo->value,"Car");
 	printf("El marco es: %d %s %llu\n",marcoEjemplo->key, marcoEjemplo->value, marcoEjemplo-> timestamp);
 
-	agregarMarcoAMemoria(marcoEjemplo);
+	//Crear un segmento
+	segmento_t* segmentoEjemplo=malloc(sizeof(segmento_t));
+
+	//Asignar path determinado
+	asignarPathASegmento(segmentoEjemplo,"tablaEjemplo");
+
+	//Crear su tabla de paginas
+	segmentoEjemplo->tablaPaginas=malloc(sizeof(tabla_de_paginas_t));
+	segmentoEjemplo->tablaPaginas->paginas=list_create();
+
+	//Crear pagina con una referencia a un marco que se escribe en memoria
+	crearPaginaEnTabla(agregarMarcoAMemoria(marcoEjemplo),segmentoEjemplo->tablaPaginas);
+
+	//Agregar a tabla de segmentos
+	list_add(tablaSegmentos.listaSegmentos, (segmento_t*) segmentoEjemplo);
 
 
 	free(marcoEjemplo);
