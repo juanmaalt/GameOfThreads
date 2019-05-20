@@ -26,99 +26,6 @@
  *
  * */
 
-bool verificarExistenciaSegmento(char* nombreTabla, segmento_t ** segmentoAVerificar ) {
-	//segmento_t * segmentoAVerificar;
-	char* pathSegmentoBuscado = malloc(
-			sizeof(char) * strlen(nombreTabla) + strlen(pathLFS) + 1);
-	strcpy(pathSegmentoBuscado, pathLFS);
-	strcat(pathSegmentoBuscado, nombreTabla);
-
-	//Recorro tabla de segmentos buscando pathSegmentoBuscado
-
-	/*for(int i=0;i<list_size(tablaSegmentos.listaSegmentos);++i){
-	 segmentoAVerificar= (segmento_t *)list_get(tablaSegmentos.listaSegmentos, i);
-	 if(!strcmp(pathSegmentoBuscado, segmentoAVerificar->pathTabla)){
-	 printf(RED"ENCONTRO COINCIDENCIA"STD"\n");
-	 flagCoincidencia=true; //Valor que se devuelve
-	 break;
-	 }else{
-	 flagCoincidencia=false; //Valor que se devuelve
-	 }
-	 }
-
-	 free(pathSegmentoBuscado);
-
-	 if(flagCoincidencia){
-	 return flagCoincidencia;
-	 }else{
-	 return flagCoincidencia;
-	 }*/
-
-	bool compararConPath(void* comparado) {
-		//printf(RED"pathSegmentoBuscado: %s\npathComparado: %s"STD"\n",pathSegmentoBuscado,obtenerPath((segmento_t*)comparado));
-		if (strcmp(pathSegmentoBuscado, obtenerPath((segmento_t*) comparado))) {
-			return false;
-		}
-		return true;
-	}
-
-	t_list* listaConSegmentoBuscado = list_filter(tablaSegmentos.listaSegmentos,
-			compararConPath);
-
-	//Para ver que el path es el correcto
-
-	//printf("El path del segmento buscado es: %s\n", pathSegmentoBuscado);
-	free(pathSegmentoBuscado);
-
-	if (list_is_empty(listaConSegmentoBuscado)) {
-		printf(RED"APIMemoria.c: NO SE ENCONTRO EL SEGMENTO"STD"\n");
-		return false;
-	}
-	//Tomo de la lista filtrada el segmento con el path coincidente
-
-	*segmentoAVerificar = (segmento_t*) list_get(listaConSegmentoBuscado, 0);
-
-	//Elimino la lista filtrada
-	list_destroy(listaConSegmentoBuscado);
-
-	return true;
-}
-
-//Busca en cada pagina de la tabla de paginas la referencia al marco y me fijo si coincide la key
-bool contieneKey(segmento_t* segmentoElegido, uint16_t keyBuscada, char* value) {
-	//1. Tomo la tabla de paginas del segmento
-
-	t_list * paginasDelSegmentoElegido = segmentoElegido->tablaPaginas->paginas;
-
-	//2. Por cada pagina de la tabla, miro la referencia al marco
-	//3. En cada marco me fijo si la key que tiene == keyBuscada
-	//3.1 En caso de que la key sea la keyBuscada tomo el valor del value, y countUso++
-	//3.2 Si la key NO es la buscada sigo con el siguiente marco
-
-	bool compararConMarco(void* paginaComparada) {
-		if (((pagina_t*) paginaComparada)->marco->key == keyBuscada) {
-			++((pagina_t*) paginaComparada)->countUso;
-			return true;
-		}
-		return false;
-	}
-
-	t_list* listaConPaginaBuscada = list_filter(paginasDelSegmentoElegido,
-			compararConMarco);
-
-	if (list_is_empty(listaConPaginaBuscada)) {
-		list_destroy(listaConPaginaBuscada);
-		return false;
-	}
-
-	pagina_t * paginaResultado = (pagina_t*) list_remove(listaConPaginaBuscada,0);
-	list_destroy(listaConPaginaBuscada);
-
-	strcpy(value, paginaResultado->marco->value);
-
-	return true;
-
-}
 
 void selectAPI(char* input, Comando comando) {
 	segmento_t *segmentoSeleccionado = NULL;
@@ -188,3 +95,78 @@ void selectAPI(char* input, Comando comando) {
 void insertAPI(char* input, Comando comando) {
 	printf("La linea recibida es: %s\n", input);
 }
+
+bool verificarExistenciaSegmento(char* nombreTabla, segmento_t ** segmentoAVerificar ) {
+	char* pathSegmentoBuscado = malloc(
+			sizeof(char) * strlen(nombreTabla) + strlen(pathLFS) + 1);
+	strcpy(pathSegmentoBuscado, pathLFS);
+	strcat(pathSegmentoBuscado, nombreTabla);
+
+	//Recorro tabla de segmentos buscando pathSegmentoBuscado
+
+	bool compararConPath(void* comparado) {
+		//printf(RED"pathSegmentoBuscado: %s\npathComparado: %s"STD"\n",pathSegmentoBuscado,obtenerPath((segmento_t*)comparado));
+		if (strcmp(pathSegmentoBuscado, obtenerPath((segmento_t*) comparado))) {
+			return false;
+		}
+		return true;
+	}
+
+	t_list* listaConSegmentoBuscado = list_filter(tablaSegmentos.listaSegmentos,
+			compararConPath);
+
+	//Para ver que el path es el correcto
+
+	//printf("El path del segmento buscado es: %s\n", pathSegmentoBuscado);
+	free(pathSegmentoBuscado);
+
+	if (list_is_empty(listaConSegmentoBuscado)) {
+		printf(RED"APIMemoria.c: NO SE ENCONTRO EL SEGMENTO"STD"\n");
+		return false;
+	}
+	//Tomo de la lista filtrada el segmento con el path coincidente
+
+	*segmentoAVerificar = (segmento_t*) list_get(listaConSegmentoBuscado, 0);
+
+	//Elimino la lista filtrada
+	list_destroy(listaConSegmentoBuscado);
+
+	return true;
+}
+
+//Busca en cada pagina de la tabla de paginas la referencia al marco y me fijo si coincide la key
+bool contieneKey(segmento_t* segmentoElegido, uint16_t keyBuscada, char* value) {
+	//1. Tomo la tabla de paginas del segmento
+
+	t_list * paginasDelSegmentoElegido = segmentoElegido->tablaPaginas->paginas;
+
+	//2. Por cada pagina de la tabla, miro la referencia al marco
+	//3. En cada marco me fijo si la key que tiene == keyBuscada
+	//3.1 En caso de que la key sea la keyBuscada tomo el valor del value, y countUso++
+	//3.2 Si la key NO es la buscada sigo con el siguiente marco
+
+	bool compararConMarco(void* paginaComparada) {
+		if (((pagina_t*) paginaComparada)->marco->key == keyBuscada) {
+			++((pagina_t*) paginaComparada)->countUso;
+			return true;
+		}
+		return false;
+	}
+
+	t_list* listaConPaginaBuscada = list_filter(paginasDelSegmentoElegido,
+			compararConMarco);
+
+	if (list_is_empty(listaConPaginaBuscada)) {
+		list_destroy(listaConPaginaBuscada);
+		return false;
+	}
+
+	pagina_t * paginaResultado = (pagina_t*) list_remove(listaConPaginaBuscada,0);
+	list_destroy(listaConPaginaBuscada);
+
+	strcpy(value, paginaResultado->marco->value);
+
+	return true;
+
+}
+
