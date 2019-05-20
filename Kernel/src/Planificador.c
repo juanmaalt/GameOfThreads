@@ -52,7 +52,7 @@ int new(PCB_DataType tipo, void *data){
 
 int comunicarse_con_memoria(){
 	for(int i=1; i<=6; ++i){
-		if(connect_to_server(config.ip_memoria, config.puerto_memoria) == EXIT_FAILURE){
+		if(connect_to_server(fconfig.ip_memoria, fconfig.puerto_memoria) == EXIT_FAILURE){
 			printf(RED"Planificador.c: comunicarse_con_memoria: error al conectarse al servidor memoria... Reintentando (%d)"STD"\n", i);
 			sleep(3);
 		}else{
@@ -66,7 +66,7 @@ int comunicarse_con_memoria(){
 
 int iniciar_unidades_de_ejecucion(){
 	idsExecInstances = list_create();
-	for(int i=0; i<config.multiprocesamiento; ++i){
+	for(int i=0; i<fconfig.multiprocesamiento; ++i){
 		pthread_t *id = malloc(sizeof(pthread_t)); //Lo hago asi por que los salames que hicieron la funcion list_add nada mas linkean el puntero, no le copian el valor. Por ende voy a necesitar un malloc de int por cada valor que quiera guardar, y no hacerles free de nada
 		//TODO: todos estos mallocs de int se liberan supuestamente al finalizar el programa, pero no perderlo de vista xq podria haber algun error purulando
 		int res = pthread_create(id, NULL, exec, NULL);
@@ -88,5 +88,5 @@ void desalojar(PCB *pcb){
 }
 
 void simular_retardo(void){
-	usleep(config.retardo);
+	usleep(vconfig.retardo);
 }

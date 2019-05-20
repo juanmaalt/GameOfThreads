@@ -10,14 +10,13 @@
 
 #include "Kernel.h"
 
-
 int main(void) {
 	//Se hacen las configuraciones iniciales para log, config y se inician semaforos
 	if(configuracion_inicial() == EXIT_FAILURE){
 		printf(RED"Kernel.c: main: no se pudo generar la configuracion inicial"STD"\n");
 		return EXIT_FAILURE;
 	}
-	ver_config(&config, logger_visible);
+	mostrar_por_pantalla_config(logger_visible);
 
 	//Se inicia un proceso de consola
 	if(iniciar_consola() == EXIT_FAILURE){
@@ -32,10 +31,9 @@ int main(void) {
 	}
 
 	//Rutinas de finalizacion
-	printf(RED"manc.c: (Warning) se esta finalizando el Kernel"STD"\n");
-	return 0;
+	rutinas_de_finalizacion();
+	return EXIT_SUCCESS;
 }
-
 
 
 
@@ -73,18 +71,18 @@ int configuracion_inicial(){
 		return EXIT_FAILURE;
 	}
 
-	t_config* configFile = leer_config();
-	if(configFile == NULL){
-		printf(RED"Kernel.c: configuracion_inicial: error en el archivo 'Kernel.config'"STD"\n");
+	logger_error = iniciar_logger(true);
+	if(logger_visible == NULL){
+		printf(RED"Kernel.c: configuracion_inicial: error en 'logger_error = iniciar_logger(true);'"STD"\n");
 		return EXIT_FAILURE;
 	}
-	extraer_data_config(&config, configFile);
-	config_destroy(configFile);
+
+	if(inicializar_configs() == EXIT_FAILURE){
+		printf(RED"Kernel.c: configuracion_inicial: error en la extraccion de datos del archivo de configuracion"STD"\n");
+		return EXIT_FAILURE;
+	}
 	return EXIT_SUCCESS;
 }
-
-
-
 
 
 
@@ -94,35 +92,80 @@ t_log* iniciar_logger(bool visible) {
 	return log_create("Kernel.log", "Kernel", visible, LOG_LEVEL_INFO);
 }
 
-t_config* leer_config(){
-	return config_create("Kernel.config");
-}
 
-void extraer_data_config(Config_final_data *config, t_config* configFile) {
-	config->ip_memoria = calloc(strlen(config_get_string_value(configFile, "IP_MEMORIA")), sizeof(char));
-	strcpy(config->ip_memoria, config_get_string_value(configFile, "IP_MEMORIA")); //Para poder liberar el configFile
 
-	config->puerto_memoria = calloc(strlen(config_get_string_value(configFile, "PUERTO_MEMORIA")), sizeof(char));
-	strcpy(config->puerto_memoria, config_get_string_value(configFile, "PUERTO_MEMORIA"));
 
-	config->quantum = config_get_int_value(configFile, "QUANTUM");
-	config->multiprocesamiento = config_get_int_value(configFile, "MULTIPROCESAMIENTO");
-	config->refreshMetadata = config_get_int_value(configFile, "REFRESH_METADATA");
-	config->retardo = config_get_int_value(configFile, "RETARDO");
-	if(config->quantum <= 0)
-		printf(RED"main.c: extraer_data_config: (Warning) el quantum con valores menores o iguales a 0 genera comportamiento indefinido"STD"\n");
+
+int inicializar_configs() {
+	configFile = config_create("Kernel.config");
+	if(configFile == NULL){
+		printf(RED"Kernel.c: extraer_data_config: no se encontro el archivo 'Kernel.config'. Deberia estar junto al ejecutable"STD"\n");
+		return EXIT_FAILURE;
+	}
+
+	//Config_datos_fijos
+	fconfig.ip_memoria = config_get_string_value(configFile, "IP_MEMORIA");
+	fconfig.puerto_memoria = config_get_string_value(configFile, "PUERTO_MEMORIA");
+	fconfig.multiprocesamiento = config_get_int_value(configFile, "MULTIPROCESAMIENTO");
+
+	//Config_datos_variables
+	vconfig.quantum = extraer_quantum_config;
+	vconfig.refreshMetadata = extraer_refresMetadata_config;
+	vconfig.retardo = extraer_retardo_config;
+
+	if(vconfig.quantum() <= 0)
+		printf(RED"Kernel.c: extraer_data_config: (Warning) el quantum con valores menores o iguales a 0 genera comportamiento indefinido"STD"\n");
 	//TODO: Si yo hago un get de un valor que en el config no existe, va a tirar core dump. Arreglar eso.
 	//La inversa no pasa nada, o sea , si agrego cosas al config y no les hago get aca no pasa nada
 
 	//TODO: hacer que algunas se ajusten en tiempo real
+	return EXIT_SUCCESS;
 }
 
 
-void ver_config(Config_final_data *config, t_log* logger_visible){
-	log_info(logger_visible, "IP_MEMORIA=%s", config->ip_memoria);
-	log_info(logger_visible, "PUERTO_MEMORIA=%s", config->puerto_memoria);
-	log_info(logger_visible, "QUANTUM=%d", config->quantum);
-	log_info(logger_visible, "MULTIPROCESAMIENTO=%d", config->multiprocesamiento);
-	log_info(logger_visible, "REFRESH_METADATA=%d", config->refreshMetadata);
-	log_info(logger_visible, "RETARDO=%d", config->retardo);
+
+
+
+
+int extraer_quantum_config(){return config_get_int_value(configFile, "QUANTUM");}
+int extraer_refresMetadata_config(){return config_get_int_value(configFile, "REFRESH_METADATA");}
+int extraer_retardo_config(){return config_get_int_value(configFile, "RETARDO");}
+
+
+
+
+
+void mostrar_por_pantalla_config(t_log* logger_visible){
+	log_info(logger_visible, "IP_MEMORIA=%s", fconfig.ip_memoria);
+	log_info(logger_visible, "PUERTO_MEMORIA=%s", fconfig.puerto_memoria);
+	log_info(logger_visible, "QUANTUM=%d", vconfig.quantum);
+	log_info(logger_visible, "MULTIPROCESAMIENTO=%d", fconfig.multiprocesamiento);
+	log_info(logger_visible, "REFRESH_METADATA=%d", vconfig.refreshMetadata);
+	log_info(logger_visible, "RETARDO=%d", vconfig.retardo);
+}
+
+
+
+
+
+void finalizar_todos_los_hilos(){
+	pthread_cancel(idConsola);
+	void cancelar(void *hilo){
+		pthread_cancel(*(pthread_t*)hilo);
+	}
+	list_iterate(idsExecInstances, cancelar);
+}
+
+
+
+
+
+void rutinas_de_finalizacion(){
+	printf(RED"(Warning) se esta finalizando el Kernel"STD"\n");
+	finalizar_todos_los_hilos();
+	fflush(stdout);
+	config_destroy(configFile);
+	log_destroy(logger_visible);
+	log_destroy(logger_invisible);
+	log_destroy(logger_error);
 }

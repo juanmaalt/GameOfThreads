@@ -26,20 +26,34 @@
 
 
 //ESTRUCTURAS
-typedef struct{
-	char *ip_memoria;
-	char *puerto_memoria;
-	int quantum;
+struct Config_datos_fijos{
+	const char *ip_memoria;
+	const char *puerto_memoria;
 	int multiprocesamiento;
-	int refreshMetadata;
-	int retardo;
-}Config_final_data;
+};
+
+typedef struct Config_datos_fijos fConfig;
+
+struct Config_datos_variables{
+	int (*quantum)();
+	int (*refreshMetadata)();
+	int (*retardo)();
+}; //Se actualizan en tiempo de ejecucion
+
+typedef struct Config_datos_variables vConfig;
 
 
-//GLOBALES
+//GLOBALES: Loggeo
 t_log* logger_visible;
 t_log* logger_invisible;
-Config_final_data config;
+t_log* logger_error;
+
+//GLOBALES: Config
+t_config *configFile; //Contiene lo que sea que haya en el config
+fConfig fconfig; //Contiene solo los datos fijos del config
+vConfig vconfig; //Contiene solo los datos variables del config
+
+//GLOBALES: Hilos y semaforos
 pthread_t idConsola;
 t_list *idsExecInstances; //TODO: ver como liberar esto al final del programa, poca importancia
 sem_t disponibilidadPlanificador; //Para que la consola no pueda mandarle algo al planificador si no se inicio
@@ -48,15 +62,18 @@ sem_t extraerDeReadyDeAUno;
 sem_t dormirProcesoPadre;
 sem_t meterEnReadyDeAUno;
 
+
 //FUNCIONES
 int configuracion_inicial();
 int iniciar_consola();
-void finalizar_procesos_hijos();
-void esperar_procesos_hijos();
 t_log* iniciar_logger(bool);
-t_config* leer_config();
-void extraer_data_config(Config_final_data *config, t_config* configFile);
-void ver_config(Config_final_data *config, t_log* logger_visible);
+int inicializar_configs();
+int extraer_quantum_config();
+int extraer_refresMetadata_config();
+int extraer_retardo_config();
+void mostrar_por_pantalla_config(t_log* logger_visible);
+void finalizar_todos_los_hilos();
+void rutinas_de_finalizacion();
 
 /*Descripcion de hilos:
  * padre (proceso): inicia todas las rutinas y termina haciendose cargo de la funcion ready() en planificador.c
