@@ -1,0 +1,45 @@
+SELECT:	*SELECT [NOMBRE_TABLA] [KEY]
+	existeTabla([NOMBRE_TABLA]); //Verificar que la tabla exista en el file system.
+	getMetadata([NOMBRE_TABLA]); //Obtener la metadata asociada a dicha tabla.
+	calcularParticionNbr([KEY]); //Calcular cual es la partición que contiene dicho KEY.
+	buscarValue([KEY]){
+		buscarEnMemtable([KEY]);
+		buscarEnArchivos([KEY]);
+		buscarEnArchivosTemp([KEY]);
+	};	//Escanear la partición objetivo, todos los archivos temporales y la memoria temporal de dicha tabla (si existe) buscando la key deseada.
+	getMasReciente([KEY]); //Encontradas las entradas para dicha Key, se retorna el valor con el Timestamp más grande.
+
+
+INSERT:	*INSERT [NOMBRE_TABLA] [KEY] [VALUE] [Timestamp]
+	existeTabla([NOMBRE_TABLA]); //Verificar que la tabla exista en el file system. En caso que no exista, informa el error y continúa su ejecución.
+	getMetadata([NOMBRE_TABLA]); //Obtener la metadata asociada a dicha tabla.
+	checkExisteMemoria(); //Verificar si existe en memoria una lista de datos a dumpear. De no existir, alocar dicha memoria.
+	addTimestamp(); //El parámetro Timestamp es opcional. En caso que un request no lo provea (por ejemplo insertando un valor desde la consola), se usará el valor actual del Epoch UNIX.
+	insertData(); //Insertar en la memoria temporal del punto anterior una nueva entrada que contenga los datos enviados en la request.
+
+
+CREATE:	*CREATE [NOMBRE_TABLA] [TIPO_CONSISTENCIA] [NUMERO_PARTICIONES] [COMPACTION_TIME]
+	existeTabla([NOMBRE_TABLA]); //Verificar que la tabla no exista en el file system. Por convención, una tabla existe si ya hay otra con el mismo nombre. Para dichos nombres de las tablas siempre tomaremos sus valores en UPPERCASE (mayúsculas). En caso que exista, se guardará el resultado en un archivo .log y se retorna un error indicando dicho resultado.
+	crearDirectorio(); //Crear el directorio para dicha tabla.
+	crearMetadata(); //Crear el archivo Metadata asociado al mismo.
+	escribirMetadata(); //Grabar en dicho archivo los parámetros pasados por el request.
+	crearArchivosBinarios(); //Crear los archivos binarios asociados a cada partición de la tabla y asignar a cada uno un bloque
+	crearMemtable(); //Crea tabla en la Memtable
+
+DESCRIBE: *DESCRIBE [NOMBRE_TABLA]?
+	if([NOMBRE_TABLA]==NULL){
+		lookupDirectorios(); //Recorrer el directorio de árboles de tablas y descubrir cuales son las tablas que dispone el sistema.
+		leerArchivosMetadata(); //Leer los archivos Metadata de cada tabla.
+		devolverMetadataInfo(); //Retornar el contenido de dichos archivos Metadata.
+	}
+	else{
+		existeTabla([NOMBRE_TABLA]); //Verificar que la tabla exista en el file system.
+		leerArchivosMetadata(); //Leer el archivo Metadata de dicha tabla.
+		devolverMetadataInfo(); //Retornar el contenido del archivo.
+	}
+
+
+DROP: *DROP [NOMBRE_TABLA]
+	existeTabla([NOMBRE_TABLA]); //Verificar que la tabla exista en el file system.
+	eliminarTodo([NOMBRE_TABLA]); //Eliminar directorio y todos los archivos de dicha tabla.
+
