@@ -50,11 +50,19 @@ void *recibir_comandos(void *null){
 	return NULL;
 }
 
-int new_comando(PCB_DataType tipo, char* data){
+
+
+
+
+static int new_comando(PCB_DataType tipo, char* data){
 	return new(tipo, (void*)data);
 }
 
-int new_lql(char *path){
+
+
+
+
+static int new_lql(char *path){
 	FILE *lql = fopen(path, "r");
 	if(lql == NULL){
 		printf(RED"Consola.c: new_lql: el path indicado no es valido"STD"\n");
@@ -80,6 +88,10 @@ int new_lql(char *path){
 	//TODO: acordarse de cerrar el archivo una vez que se ejecute
 	return EXIT_SUCCESS;
 }
+
+
+
+
 
 void funcion_loca_de_testeo_de_concurrencia(void){
 	/*Hacer en la carpeta donde se encuentre el ejecutable 4 archivos que se llamen:

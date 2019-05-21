@@ -7,8 +7,6 @@
 
 #ifndef UNIDAD_DE_EJECUCION_H_
 #define UNIDAD_DE_EJECUCION_H_
-#define RED "\x1b[31m"
-#define STD "\x1b[0m"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,9 +22,11 @@ typedef enum{
 	FINALIZO
 }ResultadoEjecucionInterno;
 
-//FUNCIONES
+//FUNCIONES: Publicas
 void *exec(void *null);
-int exec_file_lql(PCB *pcb);
-int exec_string_comando(PCB *pcb);
+
+//FUNCIONES: Privadas
+static int exec_file_lql(PCB *pcb);
+static int exec_string_comando(PCB *pcb);
 
 #endif /* UNIDAD_DE_EJECUCION_H_ */

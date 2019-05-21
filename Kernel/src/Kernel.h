@@ -7,8 +7,7 @@
 
 #ifndef KERNEL_H_
 #define KERNEL_H_
-#define RED "\x1b[31m"
-#define STD "\x1b[0m"
+#define STANDARD_PATH_KERNEL_CONFIG "Kernel.config"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,8 +26,8 @@
 
 //ESTRUCTURAS
 struct Config_datos_fijos{
-	const char *ip_memoria;
-	const char *puerto_memoria;
+	char *ip_memoria;
+	char *puerto_memoria;
 	int multiprocesamiento;
 };
 
@@ -63,17 +62,19 @@ sem_t dormirProcesoPadre;
 sem_t meterEnReadyDeAUno;
 
 
-//FUNCIONES
-int configuracion_inicial();
-int iniciar_consola();
-t_log* iniciar_logger(bool);
-int inicializar_configs();
-int extraer_quantum_config();
-int extraer_refresMetadata_config();
-int extraer_retardo_config();
+//FUNCIONES: Publicas
 void mostrar_por_pantalla_config(t_log* logger_visible);
-void finalizar_todos_los_hilos();
-void rutinas_de_finalizacion();
+
+//FUNCIONES: Privadas
+static int configuracion_inicial();
+static int iniciar_consola();
+static t_log* iniciar_logger(bool);
+static int inicializar_configs();
+static int extraer_quantum_config();
+static int extraer_refresMetadata_config();
+static int extraer_retardo_config();
+static void finalizar_todos_los_hilos();
+static void rutinas_de_finalizacion();
 
 /*Descripcion de hilos:
  * padre (proceso): inicia todas las rutinas y termina haciendose cargo de la funcion ready() en planificador.c
