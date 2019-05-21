@@ -45,11 +45,15 @@ typedef struct{
 //Estructuras de memoria
 
 typedef unsigned long long timestamp_t;
-typedef struct{
+
+typedef struct marco{
 	uint16_t key;
 	timestamp_t timestamp;
 	char* value;
 }marco_t;  		// puede tener un __attribute__((packed, aligned(1))) para evitar el padding
+
+//Experimento
+//typedef void* marco_t;
 
 typedef struct pagina{
 	int numeroPagina;

@@ -32,14 +32,21 @@ void selectAPI(char* input, Comando comando) {
 
 	uint16_t keyBuscada = atoi(comando.argumentos.SELECT.key); //TODO: se verifica que la key sea numerica?
 
+	marco_t *marcoBuscado=NULL;
+
 	char* value = malloc(sizeof(char) * tamanioValue);
 
 	//segmentoSeleccionado=verificarExistenciaSegmento(comando.argumentos.SELECT.nombreTabla);
 	//if (segmentoSeleccionado!=NULL)
 
+
+	void leerValue(char* value,marco_t* marco){
+		strcpy(value,marco->value);
+	}
+
 	if (verificarExistenciaSegmento(comando.argumentos.SELECT.nombreTabla, &segmentoSeleccionado)) {
-		if (contieneKey(segmentoSeleccionado, keyBuscada, value)) {
-			printf("El value es: %s\n", value);
+		if (contieneKey(segmentoSeleccionado, keyBuscada, &marcoBuscado)) {
+			printf("El value es: %s\n", marcoBuscado->value);
 
 			free(value);
 
@@ -93,7 +100,30 @@ void selectAPI(char* input, Comando comando) {
  * */
 
 void insertAPI(char* input, Comando comando) {
-	printf("La linea recibida es: %s\n", input);
+	segmento_t *segmentoSeleccionado = NULL;
+
+	uint16_t keyBuscada = atoi(comando.argumentos.INSERT.key); //TODO: se verifica que la key sea numerica?
+
+	marco_t *marcoBuscado=NULL;
+
+	//Verifica si existe el segmento de la tabla en la memoria principal.
+	if (verificarExistenciaSegmento(comando.argumentos.INSERT.nombreTabla, &segmentoSeleccionado)) {
+		//Busca en sus páginas si contiene la key solicitada y de contenerla actualiza el valor insertando el Timestamp actual.
+			if (contieneKey(segmentoSeleccionado, keyBuscada, &marcoBuscado)) {
+
+				//En los request solo se utilizarán las comillas (“”)
+				//para enmascarar el Value que se envíe. No se proveerán request con comillas en otros puntos.
+
+				//TODO: ojo con pasarse del tamanio maximo para value
+				//TODO: funcion que actue sobre el marco:
+				//podria en lugar de tener un marco buscado, una pagina buscada y despues la mando a una funcion que entre al marco
+				strcpy(marcoBuscado->value,comando.argumentos.INSERT.value);
+				marcoBuscado->timestamp=getCurrentTime();
+				printf("Se realizo el INSERT\n");
+				printf("Muestro contenido memoria\n");
+				mostrarContenidoMemoria();
+			}
+	}
 }
 
 bool verificarExistenciaSegmento(char* nombreTabla, segmento_t ** segmentoAVerificar ) {
@@ -134,8 +164,12 @@ bool verificarExistenciaSegmento(char* nombreTabla, segmento_t ** segmentoAVerif
 	return true;
 }
 
+
 //Busca en cada pagina de la tabla de paginas la referencia al marco y me fijo si coincide la key
-bool contieneKey(segmento_t* segmentoElegido, uint16_t keyBuscada, char* value) {
+
+//En vez de pasarle value le paso la operación que quiero hacer con value (modificarlo con insert o tomarlo con select)
+
+bool contieneKey(segmento_t* segmentoElegido, uint16_t keyBuscada, marco_t** marcoBuscado) {
 	//1. Tomo la tabla de paginas del segmento
 
 	t_list * paginasDelSegmentoElegido = segmentoElegido->tablaPaginas->paginas;
@@ -164,7 +198,7 @@ bool contieneKey(segmento_t* segmentoElegido, uint16_t keyBuscada, char* value) 
 	pagina_t * paginaResultado = (pagina_t*) list_remove(listaConPaginaBuscada,0);
 	list_destroy(listaConPaginaBuscada);
 
-	strcpy(value, paginaResultado->marco->value);
+	*marcoBuscado=paginaResultado->marco;
 
 	return true;
 
