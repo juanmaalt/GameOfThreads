@@ -39,7 +39,7 @@ int main(void) {
 
 
 
-int iniciar_consola(){
+static int iniciar_consola(){
 	if(pthread_create(&idConsola, NULL, recibir_comandos, NULL)){
 		printf(RED"Kernel.c: iniciar_consola: fallo la creacion de la consola"STD"\n");
 		return EXIT_FAILURE;
@@ -52,7 +52,7 @@ int iniciar_consola(){
 
 
 
-int configuracion_inicial(){
+static int configuracion_inicial(){
 	sem_init(&disponibilidadPlanificador, 0, 0); //el ultimo valor indica el valor con el que inicia el semaforo
 	sem_init(&scriptEnReady, 0, 0);
 	sem_init(&dormirProcesoPadre, 1, 0);
@@ -88,7 +88,7 @@ int configuracion_inicial(){
 
 
 
-t_log* iniciar_logger(bool visible) {
+static t_log* iniciar_logger(bool visible) {
 	return log_create("Kernel.log", "Kernel", visible, LOG_LEVEL_INFO);
 }
 
@@ -96,7 +96,7 @@ t_log* iniciar_logger(bool visible) {
 
 
 
-int inicializar_configs() {
+static int inicializar_configs() {
 	configFile = config_create("Kernel.config");
 	if(configFile == NULL){
 		printf(RED"Kernel.c: extraer_data_config: no se encontro el archivo 'Kernel.config'. Deberia estar junto al ejecutable"STD"\n");
@@ -127,9 +127,24 @@ int inicializar_configs() {
 
 
 
-int extraer_quantum_config(){return config_get_int_value(configFile, "QUANTUM");}
-int extraer_refresMetadata_config(){return config_get_int_value(configFile, "REFRESH_METADATA");}
-int extraer_retardo_config(){return config_get_int_value(configFile, "RETARDO");}
+static int extraer_quantum_config(){
+	t_config *tmpConfigFile = config_create(STANDARD_PATH_KERNEL_CONFIG); //Muhcho overhead pero no encontre otra forma, ya que el config una vez que esta abierto, no recibe las modificaciones en tiempo real. Hay que abrirlo y cerrarlo cada vez
+	int res = config_get_int_value(tmpConfigFile, "QUANTUM");
+	config_destroy(tmpConfigFile);
+	return res;
+}
+static int extraer_refresMetadata_config(){
+	t_config *tmpConfigFile = config_create(STANDARD_PATH_KERNEL_CONFIG);
+	int res = config_get_int_value(configFile, "REFRESH_METADATA");
+	config_destroy(tmpConfigFile);
+	return res;
+}
+static int extraer_retardo_config(){
+	t_config *tmpConfigFile = config_create(STANDARD_PATH_KERNEL_CONFIG);
+	int res = config_get_int_value(configFile, "RETARDO");
+	config_destroy(tmpConfigFile);
+	return res;
+}
 
 
 
@@ -138,17 +153,17 @@ int extraer_retardo_config(){return config_get_int_value(configFile, "RETARDO");
 void mostrar_por_pantalla_config(t_log* logger_visible){
 	log_info(logger_visible, "IP_MEMORIA=%s", fconfig.ip_memoria);
 	log_info(logger_visible, "PUERTO_MEMORIA=%s", fconfig.puerto_memoria);
-	log_info(logger_visible, "QUANTUM=%d", vconfig.quantum);
+	log_info(logger_visible, "QUANTUM=%d", vconfig.quantum());
 	log_info(logger_visible, "MULTIPROCESAMIENTO=%d", fconfig.multiprocesamiento);
-	log_info(logger_visible, "REFRESH_METADATA=%d", vconfig.refreshMetadata);
-	log_info(logger_visible, "RETARDO=%d", vconfig.retardo);
+	log_info(logger_visible, "REFRESH_METADATA=%d", vconfig.refreshMetadata());
+	log_info(logger_visible, "RETARDO=%d", vconfig.retardo());
 }
 
 
 
 
 
-void finalizar_todos_los_hilos(){
+static void finalizar_todos_los_hilos(){
 	pthread_cancel(idConsola);
 	void cancelar(void *hilo){
 		pthread_cancel(*(pthread_t*)hilo);
@@ -160,7 +175,7 @@ void finalizar_todos_los_hilos(){
 
 
 
-void rutinas_de_finalizacion(){
+static void rutinas_de_finalizacion(){
 	printf(RED"(Warning) se esta finalizando el Kernel"STD"\n");
 	finalizar_todos_los_hilos();
 	fflush(stdout);

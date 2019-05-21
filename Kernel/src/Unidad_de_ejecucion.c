@@ -28,7 +28,11 @@ void *exec(void *null){
 	return NULL;
 }
 
-int exec_string_comando(PCB *pcb){
+
+
+
+
+static int exec_string_comando(PCB *pcb){
 	char *userInput = (char*)pcb->data;
 	Comando comando = parsear_comando(userInput);
 	printf("CPU: %d | Operacion unitaria: %s\n", process_get_thread_id(), userInput);
@@ -39,14 +43,18 @@ int exec_string_comando(PCB *pcb){
 	return EJECUTO;
 }
 
-int exec_file_lql(PCB *pcb){
+
+
+
+
+static int exec_file_lql(PCB *pcb){
 	Comando comando;
 	char buffer[MAX_BUFFER_SIZE_FOR_LQL_LINE];
 	char *line;
 	FILE *lql;
 
 	lql = (FILE *)pcb->data; //Como el FILE nunca se cerro, cada vez que entre, va a continuar donde se habia quedado
-	for(int i=1; i<=vconfig.quantum; ++i){
+	for(int i=1; i<=vconfig.quantum(); ++i){
 		line = fgets(buffer, MAX_BUFFER_SIZE_FOR_LQL_LINE, lql);
 		if(line == NULL || feof(lql)){
 			fclose(lql);

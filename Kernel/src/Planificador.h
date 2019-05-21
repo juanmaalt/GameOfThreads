@@ -7,8 +7,6 @@
 
 #ifndef PLANIFICADOR_H_
 #define PLANIFICADOR_H_
-#define RED "\x1b[31m"
-#define STD "\x1b[0m"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,13 +33,16 @@ typedef struct pcb_t{
 t_queue *colaDeReady;
 
 
-//FUNCIONES
+//FUNCIONES: Globales
 int iniciar_planificador();
-int comunicarse_con_memoria();
-int iniciar_unidades_de_ejecucion();
 int new(PCB_DataType tipo, void *data); //Esta funcion va a ser ejecutada desde la consola por el proceso de consola
 PCB *seleccionar_siguiente();
 void desalojar(PCB *pcb);
 void simular_retardo(void);
+
+//FUNCIONES: Privadas
+static int comunicarse_con_memoria();
+static int iniciar_unidades_de_ejecucion();
+
 
 #endif /* PLANIFICADOR_H_ */
