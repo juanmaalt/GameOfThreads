@@ -1,3 +1,5 @@
+/*
+
 #include "Memtable.h"
 
 char* select(Memtable* memtable, char* nombreTabla, char* key) {
@@ -79,3 +81,4 @@ void destroyTable(Memtable* memtable) {
 	destroy(node);
 	free(memtable);
 }
+*/
