@@ -9,6 +9,8 @@
 #define KERNEL_H_
 #define STANDARD_PATH_KERNEL_CONFIG "Kernel.config"
 
+#define RETURN_ERROR(mensaje) {logger_error != NULL ? log_error(logger_error, "%s", mensaje) : printf(RED"%s"STD"\n", mensaje); return EXIT_FAILURE;}
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <commons/log.h>
@@ -20,6 +22,7 @@
 #include <parser/parser_comando.h>
 #include <pthread.h>
 #include <semaphore.h>
+#include <colores/colores.h>
 #include "Consola.h"
 #include "Planificador.h"
 
@@ -63,12 +66,12 @@ sem_t meterEnReadyDeAUno;
 
 
 //FUNCIONES: Publicas
-void mostrar_por_pantalla_config(t_log* logger_visible);
+void mostrar_por_pantalla_config();
 
 //FUNCIONES: Privadas
 static int configuracion_inicial();
 static int iniciar_consola();
-static t_log* iniciar_logger(bool);
+static t_log* iniciar_logger(char *fileName, bool visibilidad, t_log_level level);
 static int inicializar_configs();
 static int extraer_quantum_config();
 static int extraer_refresMetadata_config();

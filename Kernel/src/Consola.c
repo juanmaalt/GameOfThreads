@@ -65,8 +65,7 @@ static int new_comando(PCB_DataType tipo, char* data){
 static int new_lql(char *path){
 	FILE *lql = fopen(path, "r");
 	if(lql == NULL){
-		printf(RED"Consola.c: new_lql: el path indicado no es valido"STD"\n");
-		return EXIT_FAILURE;
+		RETURN_ERROR("Consola.c: new_lql: el path indicado no es valido");
 	}
 	char buffer[MAX_BUFFER_SIZE_FOR_LQL_LINE];
 	char *line;

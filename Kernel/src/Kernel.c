@@ -12,23 +12,19 @@
 
 int main(void) {
 	//Se hacen las configuraciones iniciales para log, config y se inician semaforos
-	if(configuracion_inicial() == EXIT_FAILURE){
-		printf(RED"Kernel.c: main: no se pudo generar la configuracion inicial"STD"\n");
-		return EXIT_FAILURE;
-	}
+	if(configuracion_inicial() == EXIT_FAILURE)
+		RETURN_ERROR("Kernel.c: main: no se pudo generar la configuracion inicial");
+
 	mostrar_por_pantalla_config(logger_visible);
 
 	//Se inicia un proceso de consola
-	if(iniciar_consola() == EXIT_FAILURE){
-		printf(RED"Kernel.c: main: no se pudo levantar la consola"STD"\n");
-		return EXIT_FAILURE;
-	}
+	if(iniciar_consola() == EXIT_FAILURE)
+		RETURN_ERROR("Kernel.c: main: no se pudo levantar la consola");
+
 
 	//Se entra en un estado de planificacion del cual no se sale hasta que la planificacion termine
-	if(iniciar_planificador() == EXIT_FAILURE){
-		printf(RED"Kernel.c: main: hubo un problema en la planificacion"STD"\n");
-		return EXIT_FAILURE;
-	}
+	if(iniciar_planificador() == EXIT_FAILURE)
+		RETURN_ERROR("Kernel.c: main: hubo un problema en la planificacion");
 
 	//Rutinas de finalizacion
 	rutinas_de_finalizacion();
@@ -40,10 +36,8 @@ int main(void) {
 
 
 static int iniciar_consola(){
-	if(pthread_create(&idConsola, NULL, recibir_comandos, NULL)){
-		printf(RED"Kernel.c: iniciar_consola: fallo la creacion de la consola"STD"\n");
-		return EXIT_FAILURE;
-	}
+	if(pthread_create(&idConsola, NULL, recibir_comandos, NULL))
+		RETURN_ERROR("Kernel.c: iniciar_consola: fallo la creacion de la consola")
 	//No hay pthread_join. Alternativamente hay pthread_detach en la funcion recibir_comando. Hacen casi lo mismo
 	return EXIT_SUCCESS;
 }
@@ -59,28 +53,21 @@ static int configuracion_inicial(){
 	sem_init(&extraerDeReadyDeAUno, 0, 1);
 	sem_init(&meterEnReadyDeAUno, 0, 1);
 
-	logger_visible = iniciar_logger(true);
-	if(logger_visible == NULL){
-		printf(RED"Kernel.c: configuracion_inicial: error en 'logger_visible = iniciar_logger(true);'"STD"\n");
-		return EXIT_FAILURE;
-	}
+	logger_visible = iniciar_logger("KernelResumen.log", true, LOG_LEVEL_INFO);
+	if(logger_visible == NULL)
+		RETURN_ERROR("Kernel.c: configuracion_inicial: error en 'logger_visible = iniciar_logger(true);'");
 
-	logger_invisible = iniciar_logger(false);
-	if(logger_visible == NULL){
-		printf(RED"Kernel.c: configuracion_inicial: error en 'logger_invisible = iniciar_logger(false);'"STD"\n");
-		return EXIT_FAILURE;
-	}
+	logger_invisible = iniciar_logger("KernelTodo.log", false, LOG_LEVEL_INFO);
+	if(logger_visible == NULL)
+		RETURN_ERROR("Kernel.c: configuracion_inicial: error en 'logger_invisible = iniciar_logger(false);'")
 
-	logger_error = iniciar_logger(true);
-	if(logger_visible == NULL){
-		printf(RED"Kernel.c: configuracion_inicial: error en 'logger_error = iniciar_logger(true);'"STD"\n");
-		return EXIT_FAILURE;
-	}
+	logger_error = iniciar_logger("KernelErrores.log", true, LOG_LEVEL_ERROR);
+	if(logger_visible == NULL)
+		RETURN_ERROR("Kernel.c: configuracion_inicial: error en 'logger_error = iniciar_logger(true);'");
 
-	if(inicializar_configs() == EXIT_FAILURE){
-		printf(RED"Kernel.c: configuracion_inicial: error en la extraccion de datos del archivo de configuracion"STD"\n");
-		return EXIT_FAILURE;
-	}
+	if(inicializar_configs() == EXIT_FAILURE)
+		RETURN_ERROR("Kernel.c: configuracion_inicial: error en la extraccion de datos del archivo de configuracion");
+
 	return EXIT_SUCCESS;
 }
 
@@ -88,8 +75,8 @@ static int configuracion_inicial(){
 
 
 
-static t_log* iniciar_logger(bool visible) {
-	return log_create("Kernel.log", "Kernel", visible, LOG_LEVEL_INFO);
+static t_log* iniciar_logger(char* fileName, bool visibilidad, t_log_level level) {
+	return log_create(fileName, "Kernel", visibilidad, level);
 }
 
 
@@ -97,11 +84,9 @@ static t_log* iniciar_logger(bool visible) {
 
 
 static int inicializar_configs() {
-	configFile = config_create("Kernel.config");
-	if(configFile == NULL){
-		printf(RED"Kernel.c: extraer_data_config: no se encontro el archivo 'Kernel.config'. Deberia estar junto al ejecutable"STD"\n");
-		return EXIT_FAILURE;
-	}
+	configFile = config_create(STANDARD_PATH_KERNEL_CONFIG);
+	if(configFile == NULL)
+		RETURN_ERROR("Kernel.c: extraer_data_config: no se encontro el archivo 'Kernel.config'. Deberia estar junto al ejecutable")
 
 	//Config_datos_fijos
 	fconfig.ip_memoria = config_get_string_value(configFile, "IP_MEMORIA");
@@ -114,7 +99,7 @@ static int inicializar_configs() {
 	vconfig.retardo = extraer_retardo_config;
 
 	if(vconfig.quantum() <= 0)
-		printf(RED"Kernel.c: extraer_data_config: (Warning) el quantum con valores menores o iguales a 0 genera comportamiento indefinido"STD"\n");
+		log_error(logger_error, "Kernel.c: extraer_data_config: (Warning) el quantum con valores menores o iguales a 0 genera comportamiento indefinido");
 	//TODO: Si yo hago un get de un valor que en el config no existe, va a tirar core dump. Arreglar eso.
 	//La inversa no pasa nada, o sea , si agrego cosas al config y no les hago get aca no pasa nada
 
@@ -150,7 +135,7 @@ static int extraer_retardo_config(){
 
 
 
-void mostrar_por_pantalla_config(t_log* logger_visible){
+void mostrar_por_pantalla_config(){
 	log_info(logger_visible, "IP_MEMORIA=%s", fconfig.ip_memoria);
 	log_info(logger_visible, "PUERTO_MEMORIA=%s", fconfig.puerto_memoria);
 	log_info(logger_visible, "QUANTUM=%d", vconfig.quantum());
@@ -176,7 +161,6 @@ static void finalizar_todos_los_hilos(){
 
 
 static void rutinas_de_finalizacion(){
-	printf(RED"(Warning) se esta finalizando el Kernel"STD"\n");
 	finalizar_todos_los_hilos();
 	fflush(stdout);
 	config_destroy(configFile);

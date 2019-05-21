@@ -1,7 +1,6 @@
 #ifndef SERIALIZACION_SERIALIZACION_H_
 #define SERIALIZACION_SERIALIZACION_H_
-#define RED "\x1b[31m"
-#define STD "\x1b[0m"
+#include "../colores/colores.h"
 
 //INCLUDES
 #include <stdio.h> // Por dependencia de readline en algunas distros de linux
