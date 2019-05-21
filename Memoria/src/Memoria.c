@@ -150,7 +150,7 @@ void memoriaConUnSegmentoYUnaPagina(void){
 	marcoEjemplo->key=1;
 	marcoEjemplo->timestamp=getCurrentTime();
 	marcoEjemplo->value=malloc(sizeof(char)*tamanioValue);
-	strcpy(marcoEjemplo->value,"Car");
+	strcpy(marcoEjemplo->value,"Carlos");
 	printf("El marco es: %d %s %llu\n",marcoEjemplo->key, marcoEjemplo->value, marcoEjemplo-> timestamp);
 
 	//Crear un segmento
@@ -308,6 +308,7 @@ int handshakeLFS(int socketLFS){
 int ejecutarOperacion(char* input){ //TODO: TIPO de retorno Resultado
 	Comando *parsed = malloc(sizeof(Comando));
 	*parsed = parsear_comando(input);
+
 	//TODO: funciones pasandole userInput y parsed por si necesito enviar algo o usar algun dato parseado
 
 	if(parsed->valido){
