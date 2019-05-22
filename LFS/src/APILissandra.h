@@ -14,7 +14,7 @@
 
 //API
 int selectAPI(Comando comando);
-void insertAPI(Comando comando);
+int insertAPI(Comando comando);
 void createAPI(Comando);
 void describeAPI(Comando);
 void dropAPI(Comando);

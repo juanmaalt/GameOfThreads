@@ -12,21 +12,18 @@
 /*INICIO FUNCIONES API*/
 
 int selectAPI(Comando comando){
-	printf("Previo a memtable check\n");
 	if (!memtable) {
 		log_error(logger_invisible, "No existe una memtable creada, no se puede realizar la operación.");
 		return EXIT_FAILURE;
 	}
 
-	printf("Post memtable check previo Existetabla\n");
 	if(!(existeTabla(comando.argumentos.SELECT.nombreTabla))){
 		log_error(logger_invisible, "No existe una tabla asociada a la key solicitada.");
 		//avisar a la memoria?
 		return EXIT_FAILURE;
 	}
 
-	t_list* data = list_create();
-	data = getData(comando.argumentos.SELECT.nombreTabla);
+	t_list* data = getData(comando.argumentos.SELECT.nombreTabla);
 
 	Metadata_tabla* metadata = getMetadataValues(data);
 
@@ -34,41 +31,52 @@ int selectAPI(Comando comando){
 
 	int particionNbr = calcularParticionNbr(comando.argumentos.SELECT.key, metadata->partitions);
 
-	t_list* listaDeValues = buscarValue(data, comando.argumentos.SELECT.key, particionNbr);
+	t_list* listaDeValues = list_create();
+	listaDeValues = buscarValue(data, comando.argumentos.SELECT.key, particionNbr);
 
 	recorrerTabla(listaDeValues);
 
-	getValueMasReciente(listaDeValues); //Encontradas las entradas para dicha Key, se retorna el valor con el Timestamp más grande.
+	getValueMasReciente(listaDeValues);
 
 
-	list_destroy(data);
+	//list_destroy(data);
 	list_destroy(listaDeValues);
 
 	return EXIT_SUCCESS;
 }
 
 
-void insertAPI(Comando comando){
-	printf("Previo a memtable check\n");
+int insertAPI(Comando comando){
 	if (!memtable) {
-		memtable = inicializarMemtable();
-		printf("Memtable creada\n");
+		log_error(logger_invisible, "No existe una memtable creada, no se puede realizar la operación.");
+		return EXIT_FAILURE;
 	}
 
-	char* nombreTabla = comando.argumentos.INSERT.nombreTabla;
-	printf("Post memtable check previo Existetabla\n");
-	if(!(existeTabla(nombreTabla))){
+	if(!(existeTabla(comando.argumentos.SELECT.nombreTabla))){
 		log_error(logger_invisible, "No existe una tabla asociada a la key solicitada.");
 		//avisar a la memoria?
 		return EXIT_FAILURE;
 	}
 
-	t_list* data = getData(nombreTabla);
+	//checkExisteMemoria(); //Verificar si existe en memoria una lista de datos a dumpear. De no existir, alocar dicha memoria.
+	//addTimestamp(); //El parámetro Timestamp es opcional
+
 	Registro* reg = malloc(sizeof(Registro));
-	reg->key = comando.argumentos.INSERT.key;
-	reg->timestamp = comando.argumentos.INSERT.timestamp;
+	reg->key = atoi(comando.argumentos.INSERT.key);
+	reg->timestamp = atoll(comando.argumentos.INSERT.timestamp);
 	reg->value = comando.argumentos.INSERT.value;
+
+	t_list* data = getData(comando.argumentos.INSERT.nombreTabla);
 	list_add(data, reg);
+
+	printf("Registro1->Timestamp= %llu\n", reg->timestamp);
+	printf("Registro1->Key= %d\n", reg->key);
+	printf("Registro1->Value= %s\n", reg->value);
+
+
+
+
+	return EXIT_SUCCESS;
 }
 
 
@@ -155,7 +163,10 @@ void getValueMasReciente(t_list* lista){
 	printf("Registro->Key= %d\n", reg->key);
 	printf("Registro->Value= %s\n", reg->value);
 
+	free(reg);
+
 }
+
 
 /*FIN FUNCIONES COMPLEMENTARIAS*/
 

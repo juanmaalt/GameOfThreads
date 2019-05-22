@@ -24,7 +24,6 @@
 #include <pthread.h>
 #include <semaphore.h>
 
-#include "./Memtable.h"
 #include "Consola.h"
 #include "APILissandra.h"
 
