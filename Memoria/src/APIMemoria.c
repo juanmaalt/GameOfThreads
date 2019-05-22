@@ -45,7 +45,7 @@ void selectAPI(char* input, Comando comando) {
 	}
 
 	if (verificarExistenciaSegmento(comando.argumentos.SELECT.nombreTabla, &segmentoSeleccionado)) {
-		if (contieneKey(segmentoSeleccionado, keyBuscada, &marcoBuscado)) {
+		if (contieneKey(segmentoSeleccionado, keyBuscada, &marcoBuscado)) { //TODO: que pase la direccion de la pagina que contiene la key
 			printf("El value es: %s\n", marcoBuscado->value);
 
 			free(value);
@@ -55,6 +55,9 @@ void selectAPI(char* input, Comando comando) {
 		printf(RED"APIMemoria.c: select: no encontro la key. Enviar a LFS la request"STD"\n");
 		/*else{
 		 //TODO: Enviar a LFS la request
+		  * send_msg
+		  * recv
+		  *
 		 //Recibo el valor (el marcoRecibido/registro entero ya parseado al ser recibido como un char*)
 		 //
 		 solicitarPagina(segmentoSeleccionado,marcoRecibido);
