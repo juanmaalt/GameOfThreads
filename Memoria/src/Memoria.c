@@ -30,14 +30,14 @@ int main(void) {
 			return EXIT_FAILURE;
 		}
 	mostrar_por_pantalla_config();
-
+/*
 	if(realizarHandshake()==EXIT_FAILURE){
 		printf(RED"Memoria.c: main: no se pudo inicializar la memoria principal"STD"\n");
 				return EXIT_FAILURE;
 	}
-
+*/
 	tamanioValue=4;
-
+	
 	pathLFS= malloc(strlen("/puntoDeMontajeQueMeDaJuanEnElHandshake/")*sizeof(char)+1);
 	strcpy(pathLFS,"/puntoDeMontajeQueMeDaJuanEnElHandshake/");
 
@@ -66,12 +66,15 @@ int main(void) {
 	}
 
 	pthread_join(idConsola,NULL);
-	/*
-	int miSocket = enable_server(config.ip, config.puerto);
+
+
+/*
+	int miSocket = enable_server(fconfig.ip, fconfig.puerto);
 	log_info(logger_invisible, "Servidor encendido, esperando conexiones");
 	threadConnection(miSocket, connection_handler);
 */
 
+	//TODO: liberar todo
 	if(memoriaPrincipal.memoria!=NULL)
 		free(memoriaPrincipal.memoria);
 	config_destroy(configFile);
@@ -82,8 +85,8 @@ int main(void) {
 
 int realizarHandshake(void){
 	int lfsSocket = conectarLFS();
-	int	tamanio_value = handshakeLFS(lfsSocket);
-	printf("TAMAÑO_VALUE= %d\n", tamanio_value);
+	tamanioValue = handshakeLFS(lfsSocket);
+	printf("TAMAÑO_VALUE= %d\n", tamanioValue);
 	return EXIT_SUCCESS;
 }
 
@@ -119,18 +122,8 @@ char* obtenerPath(segmento_t* segmento){
 		return segmento->pathTabla;
 	}
 
-marco_t * agregarMarcoAMemoria(marco_t *marco){
-	marco_t* marcoEnMemoria=memcpy(memoriaPrincipal.memoria+memoriaPrincipal.index,marco, sizeof(marco_t));
-	memoriaPrincipal.index+= sizeof(marco_t);
-	return marcoEnMemoria;
-}
-
 void mostrarContenidoMemoria(){
-	marco_t* marcoIndice;
-	for(int i=0; i<memoriaPrincipal.index; i+=sizeof(marco_t)){
-		marcoIndice=memoriaPrincipal.memoria+i;
-		printf("Key marco: %d\nValue marco: %s\nTimestamp marco: %llu\n", marcoIndice->key,marcoIndice->value,marcoIndice->timestamp);
-	}
+
 }
 
 
@@ -142,26 +135,34 @@ void asignarPathASegmento(segmento_t * segmentoANombrar,char* nombreTabla){
 	strcat(segmentoANombrar->pathTabla,nombreTabla);
 }
 
-void crearPaginaEnTabla(marco_t* marcoDePagina, tabla_de_paginas_t *tablaDondeSeEncuentra){
+pagina_t* crearPaginaEnTabla(tabla_de_paginas_t *tablaDondeSeEncuentra){
 	pagina_t *paginaACrear= malloc(sizeof(pagina_t));
 	paginaACrear->countUso=0;
 	paginaACrear->flagModificado=0;
-	paginaACrear->marco=marcoDePagina;
 	paginaACrear->numeroPagina=(list_size(tablaDondeSeEncuentra->paginas))+1;
 	list_add(tablaDondeSeEncuentra->paginas, (pagina_t*) paginaACrear);
-
-
+	return paginaACrear;
 }
+
+marco_t *crearMarcoEnMemoria(timestamp_t timestamp,uint16_t key, char* value, int * limiteMarco){
+
+	*limiteMarco=sizeof(timestamp_t)+sizeof(uint16_t)+(sizeof(char)*strlen(value)+1);
+
+	marco_t* baseMarco=memcpy(memoriaPrincipal.memoria+memoriaPrincipal.index,&timestamp,sizeof(timestamp_t));
+	memoriaPrincipal.index+=sizeof(timestamp_t);
+
+	memcpy(memoriaPrincipal.memoria+memoriaPrincipal.index,&key,sizeof(uint16_t));
+	memoriaPrincipal.index+=sizeof(uint16_t);
+
+	memcpy(memoriaPrincipal.memoria+memoriaPrincipal.index,value,sizeof(char)*strlen(value)+1);
+	memoriaPrincipal.index+=sizeof(char)*strlen(value)+1;
+
+	return baseMarco;
+}
+
 void memoriaConUnSegmentoYUnaPagina(void){
-	marco_t* marcoEjemplo= malloc(sizeof(marco_t));
 
-	//Preparo un marco de EJEMPLO
-	marcoEjemplo->key=1;
-	marcoEjemplo->timestamp=getCurrentTime();
-	marcoEjemplo->value=malloc(sizeof(char)*tamanioValue);
-	strcpy(marcoEjemplo->value,"Car");
-	printf("El marco es: %d %s %llu\n",marcoEjemplo->key, marcoEjemplo->value, marcoEjemplo-> timestamp);
-
+	pagina_t * paginaEjemplo;
 	//Crear un segmento
 	segmento_t* segmentoEjemplo=malloc(sizeof(segmento_t));
 
@@ -171,15 +172,16 @@ void memoriaConUnSegmentoYUnaPagina(void){
 	//Crear su tabla de paginas
 	segmentoEjemplo->tablaPaginas=malloc(sizeof(tabla_de_paginas_t));
 	segmentoEjemplo->tablaPaginas->paginas=list_create();
+	//Crear pagina
 
-	//Crear pagina con una referencia a un marco que se escribe en memoria
-	crearPaginaEnTabla(agregarMarcoAMemoria(marcoEjemplo),segmentoEjemplo->tablaPaginas);
+	paginaEjemplo=crearPaginaEnTabla(segmentoEjemplo->tablaPaginas);
+
+	//Preparo un marco de EJEMPLO
+	paginaEjemplo->baseMarco=crearMarcoEnMemoria(getCurrentTime(),1, "Carlos", &(paginaEjemplo->limiteMarco));
 
 	//Agregar a tabla de segmentos
 	list_add(tablaSegmentos.listaSegmentos, (segmento_t*) segmentoEjemplo);
 
-
-	free(marcoEjemplo);
 }
 
 

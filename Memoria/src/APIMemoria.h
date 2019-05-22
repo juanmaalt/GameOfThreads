@@ -12,14 +12,13 @@
 
 typedef struct segmento segmento_t;
 typedef struct pagina pagina_t;
-typedef struct marco marco_t;
 
 //Funciones complementarias
 bool verificarExistenciaSegmento(char*,segmento_t**);
 
-bool contieneKey(segmento_t* segmentoElegido, uint16_t keyBuscada, marco_t **marco);
+bool contieneKey(segmento_t* , uint16_t , pagina_t **);
 
-//bool contieneKey(segmento_t*,uint16_t,char*);
+char* obtenerValue( pagina_t * );
 
 //API	TODO: valores de retorno Resultado
 void selectAPI(char*, Comando);

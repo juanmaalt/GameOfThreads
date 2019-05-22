@@ -32,24 +32,15 @@ void selectAPI(char* input, Comando comando) {
 
 	uint16_t keyBuscada = atoi(comando.argumentos.SELECT.key); //TODO: se verifica que la key sea numerica?
 
-	marco_t *marcoBuscado=NULL;
+	pagina_t *paginaBuscada=NULL;
 
-	char* value = malloc(sizeof(char) * tamanioValue);
-
-	//segmentoSeleccionado=verificarExistenciaSegmento(comando.argumentos.SELECT.nombreTabla);
-	//if (segmentoSeleccionado!=NULL)
-
-
-	void leerValue(char* value,marco_t* marco){
-		strcpy(value,marco->value);
-	}
+	char* value;
 
 	if (verificarExistenciaSegmento(comando.argumentos.SELECT.nombreTabla, &segmentoSeleccionado)) {
-		if (contieneKey(segmentoSeleccionado, keyBuscada, &marcoBuscado)) { //TODO: que pase la direccion de la pagina que contiene la key
-			printf("El value es: %s\n", marcoBuscado->value);
-
+		if (contieneKey(segmentoSeleccionado, keyBuscada, &paginaBuscada)) {
+			value=obtenerValue(paginaBuscada);
+			printf("El value es: %s\n",value);
 			free(value);
-
 			return; //TODO: se debe devolver el value
 		}
 		printf(RED"APIMemoria.c: select: no encontro la key. Enviar a LFS la request"STD"\n");
@@ -75,7 +66,7 @@ void selectAPI(char* input, Comando comando) {
 	printf("La key es: %d\n", keyBuscada);
 	printf("NO se encontro el value para la key\n");
 
-	free(value);
+
 }
 /*
  * La operación Insert permite la creación y/o actualización de una key dentro de una tabla. Para esto, se utiliza la siguiente nomenclatura:
@@ -108,7 +99,7 @@ void insertAPI(char* input, Comando comando) {
 	uint16_t keyBuscada = atoi(comando.argumentos.INSERT.key); //TODO: se verifica que la key sea numerica?
 
 	marco_t *marcoBuscado=NULL;
-
+/*
 	//Verifica si existe el segmento de la tabla en la memoria principal.
 	if (verificarExistenciaSegmento(comando.argumentos.INSERT.nombreTabla, &segmentoSeleccionado)) {
 		//Busca en sus páginas si contiene la key solicitada y de contenerla actualiza el valor insertando el Timestamp actual.
@@ -127,6 +118,7 @@ void insertAPI(char* input, Comando comando) {
 				mostrarContenidoMemoria();
 			}
 	}
+*/
 }
 
 bool verificarExistenciaSegmento(char* nombreTabla, segmento_t ** segmentoAVerificar ) {
@@ -172,7 +164,7 @@ bool verificarExistenciaSegmento(char* nombreTabla, segmento_t ** segmentoAVerif
 
 //En vez de pasarle value le paso la operación que quiero hacer con value (modificarlo con insert o tomarlo con select)
 
-bool contieneKey(segmento_t* segmentoElegido, uint16_t keyBuscada, marco_t** marcoBuscado) {
+bool contieneKey(segmento_t* segmentoElegido, uint16_t keyBuscada, pagina_t** paginaResultado) {
 	//1. Tomo la tabla de paginas del segmento
 
 	t_list * paginasDelSegmentoElegido = segmentoElegido->tablaPaginas->paginas;
@@ -183,10 +175,14 @@ bool contieneKey(segmento_t* segmentoElegido, uint16_t keyBuscada, marco_t** mar
 	//3.2 Si la key NO es la buscada sigo con el siguiente marco
 
 	bool compararConMarco(void* paginaComparada) {
-		if (((pagina_t*) paginaComparada)->marco->key == keyBuscada) {
+		uint16_t *keyMarco=malloc(sizeof(uint16_t));
+		memcpy(keyMarco,((pagina_t*) paginaComparada)->baseMarco + sizeof(timestamp_t),sizeof(uint16_t));
+		if (*keyMarco == keyBuscada) {
 			++((pagina_t*) paginaComparada)->countUso;
+			free(keyMarco);
 			return true;
 		}
+		free(keyMarco);
 		return false;
 	}
 
@@ -198,12 +194,18 @@ bool contieneKey(segmento_t* segmentoElegido, uint16_t keyBuscada, marco_t** mar
 		return false;
 	}
 
-	pagina_t * paginaResultado = (pagina_t*) list_remove(listaConPaginaBuscada,0);
+	*paginaResultado = (pagina_t*) list_remove(listaConPaginaBuscada,0);
 	list_destroy(listaConPaginaBuscada);
-
-	*marcoBuscado=paginaResultado->marco;
 
 	return true;
 
 }
 
+char* obtenerValue(pagina_t *pagina){
+	int sizeValue=(pagina->limiteMarco) - sizeof(timestamp_t)- sizeof(uint16_t);
+
+	char*value=malloc(sizeof(char)*sizeValue);
+
+	strcpy(value,((pagina->baseMarco) +sizeof(timestamp_t)+ sizeof(uint16_t) ));
+	return value;
+}

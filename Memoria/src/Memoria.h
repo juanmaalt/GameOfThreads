@@ -95,20 +95,20 @@ t_log* logger_invisible;
 //Estructuras de memoria
 
 typedef unsigned long long timestamp_t;
-
+/*
 typedef struct marco{
 	uint16_t key;
 	timestamp_t timestamp;
 	char* value;
 }marco_t;  		// puede tener un __attribute__((packed, aligned(1))) para evitar el padding
-
-//Experimento
-//typedef void* marco_t;
+*/
+typedef void marco_t;
 
 typedef struct pagina{
 	int numeroPagina;
 	bool flagModificado;
-	marco_t* marco;
+	marco_t* baseMarco;
+	int limiteMarco;
 	int countUso;
 }pagina_t;
 
@@ -136,7 +136,7 @@ tabla_de_segmentos_t tablaSegmentos;
 typedef struct{
 	void* memoria;	//Bloque de memoria
 	int index;		//Indica nro de bytes ocupados
-	int cantMaxPaginas;
+	int cantMaxPaginas; //PROBABLEMENTE SE BORRE
 }memoria_principal;
 
 //Funciones Memoria
