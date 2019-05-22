@@ -82,7 +82,27 @@ int insertAPI(Comando comando){
 }
 
 
-void createAPI(Comando comando){
+int createAPI(Comando comando){
+	if(!(existeTabla(comando.argumentos.CREATE.nombreTabla))){
+		log_error(logger_invisible, "No existe una tabla asociada a la key solicitada.");
+		//avisar a la memoria?
+		return EXIT_FAILURE;
+	}
+
+	//crearDirectorio(); //Crear el directorio para dicha tabla.
+	//crearMetadata(); //Crear el archivo Metadata asociado al mismo.
+	//escribirMetadata(); //Grabar en dicho archivo los parámetros pasados por el request.
+	//crearArchivosBinarios(); //Crear los archivos binarios asociados a cada partición de la tabla y asignar a cada uno un bloque
+
+	Metadata_tabla* meta = malloc(sizeof(Metadata_tabla));
+
+	meta->compaction_time=atoi(comando.argumentos.CREATE.compactacionTime);
+	meta->consistency=comando.argumentos.CREATE.tipoConsistencia;
+	meta->partitions=atoi(comando.argumentos.CREATE.numeroParticiones);
+
+	crearTablaEnMemtable(comando.argumentos.CREATE.nombreTabla);
+
+	return EXIT_SUCCESS;
 }
 
 void describeAPI(Comando comando){
@@ -179,6 +199,12 @@ timestamp_t checkTimestamp(char* timestamp){
 	}
 }
 
+void crearTablaEnMemtable(char* nombreTabla){
+	t_list* lista = list_create();
+	char* tabla=nombreTabla;
+
+	dictionary_put(memtable, tabla, lista);
+}
 
 /*FIN FUNCIONES COMPLEMENTARIAS*/
 

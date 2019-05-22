@@ -15,7 +15,7 @@
 //API
 int selectAPI(Comando comando);
 int insertAPI(Comando comando);
-void createAPI(Comando);
+int createAPI(Comando);
 void describeAPI(Comando);
 void dropAPI(Comando);
 
@@ -27,6 +27,7 @@ int calcularParticionNbr(char* key, int particiones);
 t_list* buscarValue(t_list* data, char* key, int particionNbr);
 void getValueMasReciente(t_list* lista);
 timestamp_t checkTimestamp(char* timestamp);
+void crearTablaEnMemtable(char* nombreTabla);
 
 //AD-HOC
 void mostrarMetadata(Metadata_tabla* metadata);
