@@ -23,9 +23,7 @@ void *connection_handler(void *nSocket){
 	if(tipo == COMANDO)
 		ejecutarOperacion(resultado);
 	if(tipo == TEXTO_PLANO){
-		Comando *parsed = malloc(sizeof(Comando));
-		*parsed = parsear_comando(resultado);
-		//if(strcmp(parsed->argumentos, "handshake"))
+		if(strcmp(resultado, "handshake")==0)
 			handshakeMemoria(socket);
 	}else
 			printf("No se pudo conectar la Memoria\n");
@@ -42,15 +40,20 @@ int main(void) {
 		printf(RED"Memoria.c: main: no se pudo generar la configuracion inicial"STD"\n");
 		return EXIT_FAILURE;
 	}
-	ver_config(&config, logger_visible);
+	ver_config();
 	/*Meter funcion para levantar las variables de tiempo retardo y tiempo_dump*/
 
 	memtable = inicializarMemtable();
 
 	//Habilita el server y queda en modo en listen / * Inicializar la File System principal
+	/*
 	int miSocket = enable_server(config.ip, config.puerto_escucha);
 	log_info(logger_invisible, "Servidor encendido, esperando conexiones");
 	threadConnection(miSocket, connection_handler);
+	*/
+
+	printf("Antes de agregarDatos\n");
+	agregarDatos(memtable);//funcion para pruebas
 
 	//Inicio consola
 	if(iniciar_consola() == EXIT_FAILURE){
@@ -58,8 +61,6 @@ int main(void) {
 			return EXIT_FAILURE;
 	}
 	pthread_join(idConsola,NULL);
-
-
 
 
 	config_destroy(configFile);
@@ -71,22 +72,22 @@ int main(void) {
 int configuracion_inicial(){
 	logger_visible = iniciar_logger(true);
 	if(logger_visible == NULL){
-		printf(RED"Memoria.c: configuracion_inicial: error en 'logger_visible = iniciar_logger(true);'"STD"\n");
+		printf(RED"Lissandra.c: configuracion_inicial: error en 'logger_visible = iniciar_logger(true);'"STD"\n");
 		return EXIT_FAILURE;
 	}
 
 	logger_invisible = iniciar_logger(false);
 	if(logger_visible == NULL){
-		printf(RED"Memoria.c: configuracion_inicial: error en 'logger_invisible = iniciar_logger(false);'"STD"\n");
+		printf(RED"Lissandra.c: configuracion_inicial: error en 'logger_invisible = iniciar_logger(false);'"STD"\n");
 		return EXIT_FAILURE;
 	}
 
 	configFile = leer_config();
 	if(configFile == NULL){
-		printf(RED"Memoria.c: configuracion_inicial: error en el archivo 'Kernel.config'"STD"\n");
+		printf(RED"Lissandra.c: configuracion_inicial: error en el archivo 'LFS.config'"STD"\n");
 		return EXIT_FAILURE;
 	}
-	extraer_data_config(&config, configFile);
+	extraer_data_config();
 
 	return EXIT_SUCCESS;
 }
@@ -102,23 +103,23 @@ t_config* leer_config(){
 }
 
 
-void extraer_data_config(Config_final_data *config, t_config* configFile) {
-	config->ip = config_get_string_value(configFile, "IP");
-	config->puerto_escucha = config_get_string_value(configFile, "PUERTO_ESCUCHA");
-	config->punto_montaje = config_get_string_value(configFile, "PUNTO_MONTAJE");
-	//config->retardo = config_get_string_value(configFile, "RETARDO");
-	config->tamanio_value = config_get_string_value(configFile, "TAMANIO_VALUE");
-	//config->tiempo_dump = config_get_string_value(configFile, "TIEMPO_DUMP");
+void extraer_data_config() {
+	config.ip = config_get_string_value(configFile, "IP");
+	config.puerto_escucha = config_get_string_value(configFile, "PUERTO_ESCUCHA");
+	config.punto_montaje = config_get_string_value(configFile, "PUNTO_MONTAJE");
+	//config.retardo = config_get_string_value(configFile, "RETARDO");
+	config.tamanio_value = config_get_string_value(configFile, "TAMANIO_VALUE");
+	//config.tiempo_dump = config_get_string_value(configFile, "TIEMPO_DUMP");
 }
 
 
-void ver_config(Config_final_data *config, t_log* logger_visible){
-	log_info(logger_visible, "IP=%s", config->ip);
-	log_info(logger_visible, "PUERTO_ESCUCHA=%s", config->puerto_escucha);
-	log_info(logger_visible, "PUNTO_MONTAJE=%s", config->punto_montaje);
-	//log_info(logger_visible, "RETARDO=%s", config->retardo);
-	log_info(logger_visible, "TAMANIO_VALUE=%s", config->tamanio_value);
-	//log_info(logger_visible, "TIEMPO_DUMP=%s", config->tiempo_dump);
+void ver_config(){
+	log_info(logger_visible, "IP=%s", config.ip);
+	log_info(logger_visible, "PUERTO_ESCUCHA=%s", config.puerto_escucha);
+	log_info(logger_visible, "PUNTO_MONTAJE=%s", config.punto_montaje);
+	//log_info(logger_visible, "RETARDO=%s", config.retardo);
+	log_info(logger_visible, "TAMANIO_VALUE=%s", config.tamanio_value);
+	//log_info(logger_visible, "TIEMPO_DUMP=%s", config.tiempo_dump);
 }
 /*FIN FUNCIONES CONFIG*/
 
@@ -135,12 +136,58 @@ void handshakeMemoria(int socketMemoria){
 	send_msg(socketMemoria, TEXTO_PLANO, tamanio);
 }
 
+void agregarDatos(t_dictionary* memtable){
+	Metadata_tabla* meta = malloc(sizeof(Metadata_tabla));
+
+	meta->compaction_time=60000;
+	meta->consistency="SC";
+	meta->partitions=4;
+
+	Registro* reg1 = malloc(sizeof(Registro));
+	Registro* reg2 = malloc(sizeof(Registro));
+	Registro* reg3 = malloc(sizeof(Registro));
+	Registro* reg4 = malloc(sizeof(Registro));
+
+	reg1->key=3;
+	reg1->timestamp=1558492233084;
+	reg1->value="pepe";
+
+	reg2->key=4;
+	reg2->timestamp=1558492233085;
+	reg2->value="carlos";
+
+	reg3->key=3;
+	reg3->timestamp=1558492233086;
+	reg3->value="pepe2";
+
+	reg4->key=4;
+	reg4->timestamp=1558492233087;
+	reg4->value="carlos2";
+
+	t_list* lista = list_create();
+	char* tabla="tabla";
+
+	dictionary_put(memtable, tabla, lista);//Agrego una tabla y su data;
+
+	lista = dictionary_get(memtable, tabla);//obtengo la data, en el insert debería checkear que este dato no sea null
+
+	list_add(lista,meta);
+	list_add(lista,reg1);
+	list_add(lista,reg2);
+	list_add(lista,reg3);
+	list_add(lista,reg4);
+
+	printf("Fin de agregarDatos\n");
+
+}
+
 
 int iniciar_consola(){
 	if(pthread_create(&idConsola, NULL, recibir_comandos, NULL)){
 		printf(RED"Memoria.c: iniciar_consola: fallo la creacion de la consola"STD"\n");
 		return EXIT_FAILURE;
 	}
+
 	//No hay pthread_join. Alternativamente hay pthread_detach en la funcion recibir_comando. Hacen casi lo mismo
 	return EXIT_SUCCESS;
 }
@@ -174,6 +221,10 @@ int ejecutarOperacion(char* input){ //TODO: TIPO de retorno Resultado
 	return EXIT_SUCCESS; //MOMENTANEO
 }
 
-uint16_t obtenerKey(registro* registro){
+uint16_t obtenerKey(Registro* registro){
 		return registro->key;
+}
+
+timestamp_t obtenerTimestamp(Registro* registro){
+		return registro->timestamp;
 }

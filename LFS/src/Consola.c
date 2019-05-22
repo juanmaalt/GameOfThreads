@@ -8,8 +8,9 @@
 #include "Consola.h"
 
 void *recibir_comandos(void *null){
-	//pthread_detach(pthread_self());
+	pthread_detach(pthread_self());
 
+	printf("Esperando recibir comandos\n");
 
 	for(;;){
 		char *userInput = readline("> ");
