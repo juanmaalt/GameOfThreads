@@ -32,12 +32,12 @@
 #define RED "\x1b[31m"
 #define STD "\x1b[0m"
 
+//Para evitar levantar el LFS
+int	tamanioValue;
+char *pathLFS;
+
+
 //ESTRUCTURAS
-typedef struct{
-
-}Config_final_data;
-
-
 struct Config_datos_fijos{
 	char *ip;
 	char *puerto;
@@ -61,7 +61,9 @@ struct Config_datos_variables{
 typedef struct Config_datos_variables vConfig;
 
 
-int configuracion_inicial();
+int configuracion_inicial(void);
+int realizarHandshake(void);
+void *connection_handler(void *);
 
 t_log* iniciar_logger(bool);
 int inicializar_configs();
@@ -146,12 +148,9 @@ memoria_principal memoriaPrincipal;
 
 pthread_t idConsola;
 
-//Para evitar levantar el LFS
-int	tamanioValue;
-char *pathLFS;
 
 //FUNCIONES
-int conectarLFS(Config_final_data *config, t_log* logger_invisible);
+int conectarLFS();
 int handshakeLFS(int socketLFS);
 int threadConnection(int serverSocket, void *funcionThread);
 

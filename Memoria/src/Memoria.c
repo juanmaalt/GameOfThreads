@@ -10,35 +10,6 @@
 
 #include "Memoria.h"
 
-
-void *connection_handler(void *nSocket){
-    int socket = *(int*)nSocket;
-    TipoDeMensaje tipo;
-    char *resultado = recv_msg(socket, &tipo);
-
-    //Es importante realizar este chequeo devolviendo EXIT_FAILURE
-	if(resultado == NULL){
-		return NULL;
-	}
-
-	printf("Hemos recibido algo!\n");
-
-	if(tipo == COMANDO)
-		comando_mostrar(parsear_comando(resultado));//ejecutarOperacion
-	if(tipo == TEXTO_PLANO)
-		printf("%s\n", resultado);
-
-
-	//Podríamos meter un counter y que cada X mensajes recibidos corra el gossiping
-	send_msg(socket, COMANDO, resultado);
-
-	if(resultado != NULL)
-		free(resultado);
-
-	return NULL;
-}
-
-
 void mostrarPathSegmentos(){
 	segmento_t * segmentoAux;
 
@@ -60,11 +31,10 @@ int main(void) {
 		}
 	mostrar_por_pantalla_config();
 
-/*
-	int lfsSocket = conectarLFS();
-	int	tamanio_value = handshakeLFS(lfsSocket);
-	printf("TAMAÑO_VALUE= %d\n", tamanio_value);
-*/
+	if(realizarHandshake()==EXIT_FAILURE){
+		printf(RED"Memoria.c: main: no se pudo inicializar la memoria principal"STD"\n");
+				return EXIT_FAILURE;
+	}
 
 	tamanioValue=4;
 
@@ -110,9 +80,40 @@ int main(void) {
 }
 
 
+int realizarHandshake(void){
+	int lfsSocket = conectarLFS();
+	int	tamanio_value = handshakeLFS(lfsSocket);
+	printf("TAMAÑO_VALUE= %d\n", tamanio_value);
+	return EXIT_SUCCESS;
+}
 
 
+int handshakeLFS(int socketLFS){
+	send_msg(socketLFS, TEXTO_PLANO, "handshake");
 
+    TipoDeMensaje tipo;
+    char *tamanio = recv_msg(socketLFS, &tipo);
+
+	if(tipo == COMANDO)
+		printf("Handshake falló. No se recibió el tamaño del value.\n");
+	if(tipo == TEXTO_PLANO)
+		printf("Handshake exitoso. Se recibió el tamaño del value, es: %d\n", *tamanio);
+
+	return *tamanio;
+}
+
+
+int conectarLFS(){
+	//Obtiene el socket por el cual se va a conectar al LFS como cliente / * Conectarse al proceso File System
+	int socket = connect_to_server(fconfig.ip_fileSystem, fconfig.puerto_fileSystem);
+	if(socket == EXIT_FAILURE){
+		log_error(logger_invisible, "El LFS no está levantado. Cerrar la Memoria, levantar el LFS y volver a levantar la Memoria");
+		return EXIT_FAILURE;
+	}
+	log_error(logger_invisible, "Conectado al LFS. Iniciando Handshake.");
+
+	return socket;
+}
 
 char* obtenerPath(segmento_t* segmento){
 		return segmento->pathTabla;
@@ -158,7 +159,7 @@ void memoriaConUnSegmentoYUnaPagina(void){
 	marcoEjemplo->key=1;
 	marcoEjemplo->timestamp=getCurrentTime();
 	marcoEjemplo->value=malloc(sizeof(char)*tamanioValue);
-	strcpy(marcoEjemplo->value,"Carlos");
+	strcpy(marcoEjemplo->value,"Car");
 	printf("El marco es: %d %s %llu\n",marcoEjemplo->key, marcoEjemplo->value, marcoEjemplo-> timestamp);
 
 	//Crear un segmento
@@ -318,39 +319,31 @@ void mostrar_por_pantalla_config() {
 	log_info(logger_visible, "MEMORY_NUMBER=%s", fconfig.numero_memoria);
 }
 
-
-/*
-
-int conectarLFS(){
-	//Obtiene el socket por el cual se va a conectar al LFS como cliente / * Conectarse al proceso File System
-	int socket = connect_to_server(fconfig.ip_fileSystem, fconfig.puerto_fileSystem);
-	if(socket == EXIT_FAILURE){
-		log_error(logger_invisible, "El LFS no está levantado. Cerrar la Memoria, levantar el LFS y volver a levantar la Memoria");
-		return EXIT_FAILURE;
-	}
-	log_error(logger_invisible, "Conectado al LFS. Iniciando Handshake.");
-
-	return socket;
-}
-
-*/
-
-
-
-int handshakeLFS(int socketLFS){
-	send_msg(socketLFS, TEXTO_PLANO, "handshake");
-
+void *connection_handler(void *nSocket){
+    int socket = *(int*)nSocket;
     TipoDeMensaje tipo;
-    char *tamanio = recv_msg(socketLFS, &tipo);
+    char *resultado = recv_msg(socket, &tipo);
+
+    //Es importante realizar este chequeo devolviendo EXIT_FAILURE
+	if(resultado == NULL){
+		return NULL;
+	}
+
+	printf("Hemos recibido algo!\n");
 
 	if(tipo == COMANDO)
-		printf("Handshake falló. No se recibió el tamaño del value.\n");
+		comando_mostrar(parsear_comando(resultado));//ejecutarOperacion
 	if(tipo == TEXTO_PLANO)
-		printf("Handshake exitoso. Se recibió el tamaño del value, es: %d\n", *tamanio);
+		printf("%s\n", resultado);
 
 
+	//Podríamos meter un counter y que cada X mensajes recibidos corra el gossiping
+	send_msg(socket, COMANDO, resultado);
 
-	return *tamanio;
+	if(resultado != NULL)
+		free(resultado);
+
+	return NULL;
 }
 
 int ejecutarOperacion(char* input){ //TODO: TIPO de retorno Resultado
