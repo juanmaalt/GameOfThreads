@@ -51,7 +51,6 @@ t_log* logger_invisible;
 t_log* logger_error;
 
 //GLOBALES: Config
-t_config *configFile; //Contiene lo que sea que haya en el config
 fConfig fconfig; //Contiene solo los datos fijos del config
 vConfig vconfig; //Contiene solo los datos variables del config
 

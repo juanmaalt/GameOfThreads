@@ -84,26 +84,31 @@ static t_log* iniciar_logger(char* fileName, bool visibilidad, t_log_level level
 
 
 static int inicializar_configs() {
-	configFile = config_create(STANDARD_PATH_KERNEL_CONFIG);
+	t_config *configFile = config_create(STANDARD_PATH_KERNEL_CONFIG);
 	if(configFile == NULL)
-		RETURN_ERROR("Kernel.c: extraer_data_config: no se encontro el archivo 'Kernel.config'. Deberia estar junto al ejecutable")
+		RETURN_ERROR("Kernel.c: extraer_data_config: no se encontro el archivo 'Kernel.config'. Deberia estar junto al ejecutable");
 
 	//Config_datos_fijos
-	fconfig.ip_memoria = config_get_string_value(configFile, "IP_MEMORIA");
-	fconfig.puerto_memoria = config_get_string_value(configFile, "PUERTO_MEMORIA");
+	fconfig.ip_memoria = malloc(sizeof(char) * strlen(config_get_string_value(configFile, "IP_MEMORIA"))+1);
+	strcpy(fconfig.ip_memoria, config_get_string_value(configFile, "IP_MEMORIA"));
+
+	fconfig.puerto_memoria = malloc(sizeof(char) * strlen(config_get_string_value(configFile, "PUERTO_MEMORIA"))+1);
+	strcpy(fconfig.puerto_memoria, config_get_string_value(configFile, "PUERTO_MEMORIA"));
+
 	fconfig.multiprocesamiento = config_get_int_value(configFile, "MULTIPROCESAMIENTO");
+
+	config_destroy(configFile);
 
 	//Config_datos_variables
 	vconfig.quantum = extraer_quantum_config;
 	vconfig.refreshMetadata = extraer_refresMetadata_config;
 	vconfig.retardo = extraer_retardo_config;
 
+	if(fconfig.multiprocesamiento <= 0)
+		log_error(logger_error, "Kernel.c: extraer_data_config: (Warning) el multiprocesamiento con valores menores o iguales a 0 genera comportamiento indefinido");
 	if(vconfig.quantum() <= 0)
 		log_error(logger_error, "Kernel.c: extraer_data_config: (Warning) el quantum con valores menores o iguales a 0 genera comportamiento indefinido");
-	//TODO: Si yo hago un get de un valor que en el config no existe, va a tirar core dump. Arreglar eso.
-	//La inversa no pasa nada, o sea , si agrego cosas al config y no les hago get aca no pasa nada
 
-	//TODO: hacer que algunas se ajusten en tiempo real
 	return EXIT_SUCCESS;
 }
 
@@ -120,13 +125,13 @@ static int extraer_quantum_config(){
 }
 static int extraer_refresMetadata_config(){
 	t_config *tmpConfigFile = config_create(STANDARD_PATH_KERNEL_CONFIG);
-	int res = config_get_int_value(configFile, "REFRESH_METADATA");
+	int res = config_get_int_value(tmpConfigFile, "REFRESH_METADATA");
 	config_destroy(tmpConfigFile);
 	return res;
 }
 static int extraer_retardo_config(){
 	t_config *tmpConfigFile = config_create(STANDARD_PATH_KERNEL_CONFIG);
-	int res = config_get_int_value(configFile, "RETARDO");
+	int res = config_get_int_value(tmpConfigFile, "RETARDO");
 	config_destroy(tmpConfigFile);
 	return res;
 }
@@ -163,7 +168,6 @@ static void finalizar_todos_los_hilos(){
 static void rutinas_de_finalizacion(){
 	finalizar_todos_los_hilos();
 	fflush(stdout);
-	config_destroy(configFile);
 	log_destroy(logger_visible);
 	log_destroy(logger_invisible);
 	log_destroy(logger_error);
