@@ -50,7 +50,7 @@ typedef struct{
 	timestamp_t timestamp;
 	uint16_t key;
 	char* value;
-}registro;
+}Registro;
 
 //GLOBALES
 t_log* logger_visible;
@@ -67,17 +67,18 @@ t_dictionary* memtable;
 int configuracion_inicial();
 t_log* iniciar_logger(bool);
 t_config* leer_config();
-void extraer_data_config(Config_final_data *config, t_config* configFile);
-void ver_config(Config_final_data *config, t_log* logger_visible);
+void extraer_data_config();
+void ver_config();
 t_dictionary* inicializarMemtable();
 void handshakeMemoria(int socket);
 int threadConnection(int serverSocket, void *funcionThread);
 int iniciar_consola();
 int ejecutarOperacion(char*);
 
+void agregarDatos();
 
-uint16_t obtenerKey(registro* registro);
-
+uint16_t obtenerKey(Registro* registro);
+timestamp_t obtenerTimestamp(Registro* registro);
 
 #endif /* LISSANDRA_H_ */
 
