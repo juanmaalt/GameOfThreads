@@ -26,6 +26,7 @@ Metadata_tabla* getMetadataValues(t_list* data);
 int calcularParticionNbr(char* key, int particiones);
 t_list* buscarValue(t_list* data, char* key, int particionNbr);
 void getValueMasReciente(t_list* lista);
+timestamp_t checkTimestamp(char* timestamp);
 
 //AD-HOC
 void mostrarMetadata(Metadata_tabla* metadata);

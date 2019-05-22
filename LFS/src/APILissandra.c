@@ -59,12 +59,14 @@ int insertAPI(Comando comando){
 	}
 
 	//checkExisteMemoria(); //Verificar si existe en memoria una lista de datos a dumpear. De no existir, alocar dicha memoria.
-	//addTimestamp(); //El parámetro Timestamp es opcional
+
+	printf("antes del strcmp\n");
+
 
 	Registro* reg = malloc(sizeof(Registro));
 	reg->key = atoi(comando.argumentos.INSERT.key);
-	reg->timestamp = atoll(comando.argumentos.INSERT.timestamp);
 	reg->value = comando.argumentos.INSERT.value;
+	reg->timestamp=checkTimestamp(comando.argumentos.INSERT.timestamp);
 
 	t_list* data = getData(comando.argumentos.INSERT.nombreTabla);
 	list_add(data, reg);
@@ -165,6 +167,16 @@ void getValueMasReciente(t_list* lista){
 
 	free(reg);
 
+}
+
+timestamp_t checkTimestamp(char* timestamp){
+	if(timestamp==NULL){
+		return getCurrentTime();
+	}
+	else{
+		printf("time= %llu\n",atoll(timestamp));
+		return atoll(timestamp);
+	}
 }
 
 
