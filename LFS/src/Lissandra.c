@@ -218,6 +218,7 @@ int ejecutarOperacion(char* input){ //TODO: TIPO de retorno Resultado
 	}else{
 		fprintf(stderr, RED"La request no es valida"STD"\n");
 	}
+	free(parsed);
 	return EXIT_SUCCESS; //MOMENTANEO
 }
 
