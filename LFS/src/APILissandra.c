@@ -28,8 +28,7 @@ int selectAPI(Comando comando){
 	t_list* data = list_create();
 	data = getData(comando.argumentos.SELECT.nombreTabla);
 
-	Metadata_tabla* metadata=NULL;
-	metadata = getMetadataValues(data);
+	Metadata_tabla* metadata = getMetadataValues(data);
 
 	mostrarMetadata(metadata);//funcion adhoc para testing
 
@@ -50,9 +49,26 @@ int selectAPI(Comando comando){
 
 
 void insertAPI(Comando comando){
-	/*
+	printf("Previo a memtable check\n");
+	if (!memtable) {
+		memtable = inicializarMemtable();
+		printf("Memtable creada\n");
+	}
 
-	*/
+	char* nombreTabla = comando.argumentos.INSERT.nombreTabla;
+	printf("Post memtable check previo Existetabla\n");
+	if(!(existeTabla(nombreTabla))){
+		log_error(logger_invisible, "No existe una tabla asociada a la key solicitada.");
+		//avisar a la memoria?
+		return EXIT_FAILURE;
+	}
+
+	t_list* data = getData(nombreTabla);
+	Registro* reg = malloc(sizeof(Registro));
+	reg->key = comando.argumentos.INSERT.key;
+	reg->timestamp = comando.argumentos.INSERT.timestamp;
+	reg->value = comando.argumentos.INSERT.value;
+	list_add(data, reg);
 }
 
 
