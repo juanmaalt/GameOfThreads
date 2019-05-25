@@ -23,13 +23,19 @@ int selectAPI(Comando comando){
 		return EXIT_FAILURE;
 	}
 
+	t_config* metadataFile = leerMetadata(comando.argumentos.SELECT.nombreTabla);
+	if(metadataFile == NULL){
+		printf(RED"APILissandra.c: leerMetadata: error en el archivo 'Metadata' de la tabla %s"STD"\n", comando.argumentos.SELECT.nombreTabla);
+		return EXIT_FAILURE;
+	}
+	extraerMetadata(metadataFile);
+
+	mostrarMetadata();//funcion adhoc para testing
+
+
 	t_list* data = getData(comando.argumentos.SELECT.nombreTabla);
 
-	Metadata_tabla* metadata = getMetadataValues(data);
-
-	mostrarMetadata(metadata);//funcion adhoc para testing
-
-	int particionNbr = calcularParticionNbr(comando.argumentos.SELECT.key, metadata->partitions);
+	int particionNbr = calcularParticionNbr(comando.argumentos.SELECT.key, metadata.partitions);
 
 	t_list* listaDeValues = list_create();
 	listaDeValues = buscarValue(data, comando.argumentos.SELECT.key, particionNbr);
@@ -39,8 +45,8 @@ int selectAPI(Comando comando){
 	getValueMasReciente(listaDeValues);
 
 
-	//list_destroy(data);
 	list_destroy(listaDeValues);
+	config_destroy(metadataFile);
 
 	return EXIT_SUCCESS;
 }
@@ -60,8 +66,6 @@ int insertAPI(Comando comando){
 
 	//checkExisteMemoria(); //Verificar si existe en memoria una lista de datos a dumpear. De no existir, alocar dicha memoria.
 
-	printf("antes del strcmp\n");
-
 
 	Registro* reg = malloc(sizeof(Registro));
 	reg->key = atoi(comando.argumentos.INSERT.key);
@@ -71,11 +75,9 @@ int insertAPI(Comando comando){
 	t_list* data = getData(comando.argumentos.INSERT.nombreTabla);
 	list_add(data, reg);
 
-	printf("Registro1->Timestamp= %llu\n", reg->timestamp);
-	printf("Registro1->Key= %d\n", reg->key);
-	printf("Registro1->Value= %s\n", reg->value);
-
-
+	printf("Registro->Timestamp= %llu\n", reg->timestamp);
+	printf("Registro->Key= %d\n", reg->key);
+	printf("Registro->Value= %s\n", reg->value);
 
 
 	return EXIT_SUCCESS;
@@ -118,13 +120,34 @@ bool existeTabla(char* nombreTabla){
 	return dictionary_has_key(memtable, nombreTabla);
 }
 
+t_config* leerMetadata(char* nombreTabla){
+	char* path = malloc(100 * sizeof(char));
+
+	strcpy(path,config.punto_montaje);
+	strcat(path, "Tables/");
+	strcat(path, nombreTabla);
+	strcat(path, "/");
+	strcat(path, "Metadata");
+
+	return config_create(path);
+}
+
+void extraerMetadata(t_config* metadataFile) {
+	metadata.compaction_time = config_get_int_value(metadataFile, "COMPACTION_TIME");
+	metadata.consistency = config_get_string_value(metadataFile, "CONSISTENCY");
+	metadata.partitions= config_get_int_value(metadataFile, "PARTITIONS");
+}
+
+void mostrarMetadata(){
+	log_info(logger_visible, "\nMetadata->compaction_time= %d\n", metadata.compaction_time);
+	log_info(logger_visible, "Metadata->consistency= %s\n", metadata.consistency);
+	log_info(logger_visible, "Metadata->partitions= %d\n", metadata.partitions);
+}
+
 t_list*	getData(char* nombreTabla){
 	return dictionary_get(memtable, nombreTabla);
 }
 
-Metadata_tabla* getMetadataValues(t_list* data){
-	return list_get(data,0);
-}
 
 int calcularParticionNbr(char* key, int particiones){
 	return atoi(key)%particiones;
@@ -143,12 +166,6 @@ t_list* buscarValue(t_list* data, char* key, int particionNbr){
 	return list_filter(data, compararConItem);
 }
 
-void mostrarMetadata(Metadata_tabla* metadata){
-	printf("\nMetadata->compaction_time= %d\n", metadata->compaction_time);
-	printf("Metadata->consistency= %s\n", metadata->consistency);
-	printf("Metadata->partitions= %d\n", metadata->partitions);
-
-}
 
 void recorrerTabla(t_list* lista){
 	Registro* reg= NULL;
@@ -157,9 +174,9 @@ void recorrerTabla(t_list* lista){
 	while(!(list_get(lista, i)==NULL)){
 		reg = list_get(lista, i);
 
-		printf("Registro1->Timestamp= %llu\n", reg->timestamp);
-		printf("Registro1->Key= %d\n", reg->key);
-		printf("Registro1->Value= %s\n", reg->value);
+		printf("Registro->Timestamp= %llu\n", reg->timestamp);
+		printf("Registro->Key= %d\n", reg->key);
+		printf("Registro->Value= %s\n", reg->value);
 
 		i++;
 	}

@@ -52,7 +52,6 @@ int main(void) {
 	threadConnection(miSocket, connection_handler);
 	*/
 
-	printf("Antes de agregarDatos\n");
 	agregarDatos(memtable);//funcion para pruebas
 
 	//Inicio consola
@@ -137,12 +136,6 @@ void handshakeMemoria(int socketMemoria){
 }
 
 void agregarDatos(t_dictionary* memtable){
-	Metadata_tabla* meta = malloc(sizeof(Metadata_tabla));
-
-	meta->compaction_time=60000;
-	meta->consistency="SC";
-	meta->partitions=4;
-
 	Registro* reg1 = malloc(sizeof(Registro));
 	Registro* reg2 = malloc(sizeof(Registro));
 	Registro* reg3 = malloc(sizeof(Registro));
@@ -171,13 +164,10 @@ void agregarDatos(t_dictionary* memtable){
 
 	lista = dictionary_get(memtable, tabla);//obtengo la data, en el insert debería checkear que este dato no sea null
 
-	list_add(lista,meta);
 	list_add(lista,reg1);
 	list_add(lista,reg2);
 	list_add(lista,reg3);
 	list_add(lista,reg4);
-
-	printf("Fin de agregarDatos\n");
 
 }
 
