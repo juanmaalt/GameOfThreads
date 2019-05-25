@@ -23,6 +23,7 @@ void dropAPI(Comando);
 
 //COMPLEMENTARIAS
 bool existeTabla(char* key);
+int getMetadata(char* nombreTabla, t_config* metadataFile);
 t_config* leerMetadata(char* nombreTabla);
 void extraerMetadata(t_config* metadataFile);
 t_list* getData(char* nombreTabla);
@@ -31,6 +32,12 @@ t_list* buscarValue(t_list* data, char* key, int particionNbr);
 void getValueMasReciente(t_list* lista);
 timestamp_t checkTimestamp(char* timestamp);
 void crearTablaEnMemtable(char* nombreTabla);
+void setPathTabla(char* path, char* nombreTabla);
+void crearDirectorioTabla(char* nombreTabla);
+void crearArchivo(char* path, char* nombre);
+void escribirArchivoMetadata(char* path, Comando comando);
+void crearArchivosBinarios(char* path, int particiones);
+
 
 //AD-HOC
 void mostrarMetadata();

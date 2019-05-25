@@ -27,6 +27,11 @@
 #include "Consola.h"
 #include "APILissandra.h"
 
+#include <dirent.h>
+#include <errno.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
 
 
 #define RED "\x1b[31m"
@@ -68,11 +73,15 @@ t_log* iniciar_logger(bool);
 t_config* leer_config();
 void extraer_data_config();
 void ver_config();
+char* directorioTablas();
+int crearDirectorio(char* path);
 t_dictionary* inicializarMemtable();
 void handshakeMemoria(int socket);
 int threadConnection(int serverSocket, void *funcionThread);
 int iniciar_consola();
 int ejecutarOperacion(char*);
+
+void *connection_handler(void *nSocket);
 
 void agregarDatos(t_dictionary* memtable);
 

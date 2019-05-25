@@ -10,6 +10,45 @@
 
 #include "Lissandra.h"
 
+
+int main(void) {
+	/*Configuración inicial para log y config*/
+	if(configuracion_inicial() == EXIT_FAILURE){
+		printf(RED"Memoria.c: main: no se pudo generar la configuracion inicial"STD"\n");
+		return EXIT_FAILURE;
+	}
+	ver_config();
+	//Meter funcion para levantar las variables de tiempo retardo y tiempo_dump
+
+	/*Inicio la Memtable*/
+	memtable = inicializarMemtable();
+	/*Creo el directorio de tablas*/
+	crearDirectorio(directorioTablas());
+
+	/*Habilita al File System como server y queda en modo en listen*/
+	/*
+	int miSocket = enable_server(config.ip, config.puerto_escucha);
+	log_info(logger_invisible, "Servidor encendido, esperando conexiones");
+	threadConnection(miSocket, connection_handler);
+	*/
+
+	agregarDatos(memtable);//funcion para pruebas
+
+	/*Inicio la consola*/
+	if(iniciar_consola() == EXIT_FAILURE){
+			printf(RED"Memoria.c: main: no se pudo levantar la consola"STD"\n");
+			return EXIT_FAILURE;
+	}
+	pthread_join(idConsola,NULL);
+
+	/*Libero recursos*/
+	config_destroy(configFile);
+	dictionary_destroy(memtable);
+
+	return EXIT_SUCCESS;
+}
+
+/*INICIO FUNCION PARA MANEJO DE HILOS*/
 void *connection_handler(void *nSocket){
     int socket = *(int*)nSocket;
     TipoDeMensaje tipo;
@@ -33,38 +72,7 @@ void *connection_handler(void *nSocket){
 
 	return NULL;
 }
-
-int main(void) {
-	//Se hacen las configuraciones iniciales para log y config
-	if(configuracion_inicial() == EXIT_FAILURE){
-		printf(RED"Memoria.c: main: no se pudo generar la configuracion inicial"STD"\n");
-		return EXIT_FAILURE;
-	}
-	ver_config();
-	/*Meter funcion para levantar las variables de tiempo retardo y tiempo_dump*/
-
-	memtable = inicializarMemtable();
-
-	//Habilita el server y queda en modo en listen / * Inicializar la File System principal
-	/*
-	int miSocket = enable_server(config.ip, config.puerto_escucha);
-	log_info(logger_invisible, "Servidor encendido, esperando conexiones");
-	threadConnection(miSocket, connection_handler);
-	*/
-
-	agregarDatos(memtable);//funcion para pruebas
-
-	//Inicio consola
-	if(iniciar_consola() == EXIT_FAILURE){
-			printf(RED"Memoria.c: main: no se pudo levantar la consola"STD"\n");
-			return EXIT_FAILURE;
-	}
-	pthread_join(idConsola,NULL);
-
-
-	config_destroy(configFile);
-	return EXIT_SUCCESS;
-}
+/*FIN FUNCION PARA MANEJO DE HILOS*/
 
 
 /*INICIO FUNCIONES CONFIG*/
@@ -122,11 +130,38 @@ void ver_config(){
 }
 /*FIN FUNCIONES CONFIG*/
 
+/*INICIO FUNCIONES COMPLEMENTARIAS*/
+char* directorioTablas(){
+	char* path = malloc(23 * sizeof(char));
+	strcpy(path,config.punto_montaje);
+	strcat(path, "Tables");
+
+	return path;
+}
+
+int crearDirectorio(char* path){
+	DIR* dir = opendir(path);
+
+	if (dir){
+		/*El directorio*/
+	    closedir(dir);
+	}
+	else if (ENOENT == errno){
+		/*El directorio no existe, lo creo*/
+		mkdir(path, 0777);
+	}
+	else{
+		/*En caso de que falle la creación del directorio*/
+		crearDirectorio(path);
+	}
+	return 0;
+}
+
 
 t_dictionary* inicializarMemtable(){
 	return dictionary_create();
 }
-
+/*FIN FUNCIONES COMPLEMENTARIAS*/
 
 void handshakeMemoria(int socketMemoria){
 	printf("Se conectó la Memoria\n");
@@ -197,8 +232,11 @@ int ejecutarOperacion(char* input){ //TODO: TIPO de retorno Resultado
 				insertAPI(*parsed);
 				break;
 			case CREATE:
+				createAPI(*parsed);
+				break;
 			case DESCRIBE:
 			case DROP:
+				printf("No desarrollado aún.\n");
 				break;
 			default:
 				fprintf(stderr, RED"No se pude interpretar el enum: %d"STD"\n", parsed->keyword);
