@@ -125,7 +125,18 @@ void insertAPI(char* input, Comando comando) {
 	}
 
 }
+/*
+CREATE [TABLA] [TIPO_CONSISTENCIA] [NUMERO_PARTICIONES] [COMPACTION_TIME]
+Ej:
+CREATE TABLA1 SC 4 60000
+Esta operación incluye los siguientes pasos:
+	1.Se envía al FileSystem la operación para crear la tabla.
+	2.Tanto si el FileSystem indica que la operación se realizó de forma exitosa o en caso de falla por tabla ya existente, continúa su ejecución normalmente.
+*/
 
+void create(char*input, Comando comando){
+
+}
 bool verificarExistenciaSegmento(char* nombreTabla, segmento_t ** segmentoAVerificar ) {
 	char* pathSegmentoBuscado = malloc(
 			sizeof(char) * strlen(nombreTabla) + strlen(pathLFS) + 1);
