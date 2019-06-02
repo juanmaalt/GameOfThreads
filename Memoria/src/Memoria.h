@@ -18,6 +18,7 @@
 #include <commons/log.h>
 #include <commons/string.h>
 #include <commons/collections/list.h>
+#include <commons/collections/queue.h>
 #include <readline/readline.h>
 #include <cliente/cliente.h>
 #include <parser/parser_comando.h>
@@ -102,18 +103,18 @@ typedef struct marco{
 	char* value;
 }marco_t;  		// puede tener un __attribute__((packed, aligned(1))) para evitar el padding
 */
-typedef void marco_t;
 
-typedef struct pagina{
-	int numeroPagina;
-	bool flagModificado;
-	marco_t* baseMarco;
-	int limiteMarco;
-	int countUso;
-}pagina_t;
+//typedef void pagina_t;
+
+typedef struct registroTablaPag{
+	int numeroPagina; //coincide con el numero de marco en memoria
+
+	bool flagModificado; //EN REVISION
+	int countUso;		//EN REVISION
+}registroTablaPag_t;
 
 typedef struct{
-	t_list* paginas;
+	t_list* registrosPag;
 }tabla_de_paginas_t;
 
 typedef struct segmento{
@@ -130,18 +131,26 @@ typedef struct{
 //GLOBALES
 tabla_de_segmentos_t tablaSegmentos;
 
+//MarcoCtrlBlock
+
+typedef struct MCB{
+	int nroMarco;
+	//Faltan cosas
+}MCB_t;
 
 //Bloque de Memoria
 
 typedef struct{
 	void* memoria;	//Bloque de memoria
-	int index;		//Indica nro de bytes ocupados
-	int cantMaxPaginas; //PROBABLEMENTE SE BORRE
+	int tamanioMarco;
+	int cantidadMarcos;
+	t_queue *marcosLibres;
+	t_list* listaAdminMarcos;
 }memoria_principal;
 
 //Funciones Memoria
 
-marco_t * agregarMarcoAMemoria(marco_t *);
+//marco_t * agregarMarcoAMemoria(marco_t *);
 void mostrarContenidoMemoria(void);
 //GLOBALES
 memoria_principal memoriaPrincipal;

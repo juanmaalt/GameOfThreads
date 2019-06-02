@@ -32,15 +32,11 @@ void selectAPI(char* input, Comando comando) {
 
 	uint16_t keyBuscada = atoi(comando.argumentos.SELECT.key); //TODO: se verifica que la key sea numerica?
 
-	pagina_t *paginaBuscada=NULL;
-
-	char* value;
+	registroTablaPag_t *registroBuscado=NULL;
 
 	if (verificarExistenciaSegmento(comando.argumentos.SELECT.nombreTabla, &segmentoSeleccionado)) {
-		if (contieneKey(segmentoSeleccionado, keyBuscada, &paginaBuscada)) {
-			value=obtenerValue(paginaBuscada);
-			printf("El value es: %s\n",value);
-			free(value);
+		if (contieneKey(segmentoSeleccionado, keyBuscada, &registroBuscado)) {
+			mostrarContenidoPagina(*registroBuscado);
 			return; //TODO: se debe devolver el value
 		}
 		printf(RED"APIMemoria.c: select: no encontro la key. Enviar a LFS la request"STD"\n");
@@ -98,7 +94,7 @@ void insertAPI(char* input, Comando comando) {
 
 	uint16_t keyBuscada = atoi(comando.argumentos.INSERT.key); //TODO: se verifica que la key sea numerica?
 
-	marco_t *marcoBuscado=NULL;
+	//marco_t *marcoBuscado=NULL;
 /*
 	//Verifica si existe el segmento de la tabla en la memoria principal.
 	if (verificarExistenciaSegmento(comando.argumentos.INSERT.nombreTabla, &segmentoSeleccionado)) {
@@ -160,52 +156,62 @@ bool verificarExistenciaSegmento(char* nombreTabla, segmento_t ** segmentoAVerif
 }
 
 
-//Busca en cada pagina de la tabla de paginas la referencia al marco y me fijo si coincide la key
+//Busca en cada registro de la tabla de paginas el indice de marco y me fijo si coincide la key
 
 //En vez de pasarle value le paso la operación que quiero hacer con value (modificarlo con insert o tomarlo con select)
 
-bool contieneKey(segmento_t* segmentoElegido, uint16_t keyBuscada, pagina_t** paginaResultado) {
+bool contieneKey(segmento_t* segmentoElegido, uint16_t keyBuscada,registroTablaPag_t ** registroResultado) {
 	//1. Tomo la tabla de paginas del segmento
 
-	t_list * paginasDelSegmentoElegido = segmentoElegido->tablaPaginas->paginas;
+	t_list * regsDelSegmentoElegido = segmentoElegido->tablaPaginas->registrosPag;
 
-	//2. Por cada pagina de la tabla, miro la referencia al marco
+	//2. Por cada registro de la tabla, me meto en la memoria y tomo la key
 	//3. En cada marco me fijo si la key que tiene == keyBuscada
 	//3.1 En caso de que la key sea la keyBuscada tomo el valor del value, y countUso++
 	//3.2 Si la key NO es la buscada sigo con el siguiente marco
 
-	bool compararConMarco(void* paginaComparada) {
-		uint16_t *keyMarco=malloc(sizeof(uint16_t));
-		memcpy(keyMarco,((pagina_t*) paginaComparada)->baseMarco + sizeof(timestamp_t),sizeof(uint16_t));
-		if (*keyMarco == keyBuscada) {
-			++((pagina_t*) paginaComparada)->countUso;
-			free(keyMarco);
+	bool compararConPagina(void* registroAComparar) {
+		uint16_t *keyPagina=malloc(sizeof(uint16_t));
+
+		void* direccionPagina=memoriaPrincipal.memoria+ memoriaPrincipal.tamanioMarco*(((registroTablaPag_t*) registroAComparar)->numeroPagina);
+		memcpy(keyPagina,direccionPagina+sizeof(timestamp_t),sizeof(uint16_t));
+
+		if (*keyPagina == keyBuscada) {
+			//Aumento el uso de la pagina
+			free(keyPagina);
 			return true;
 		}
-		free(keyMarco);
+		free(keyPagina);
 		return false;
 	}
 
-	t_list* listaConPaginaBuscada = list_filter(paginasDelSegmentoElegido,
-			compararConMarco);
 
-	if (list_is_empty(listaConPaginaBuscada)) {
-		list_destroy(listaConPaginaBuscada);
+
+	t_list* listaConRegistroBuscado = list_filter(regsDelSegmentoElegido, compararConPagina);
+
+	if (list_is_empty(listaConRegistroBuscado)) {
+		list_destroy(listaConRegistroBuscado);
 		return false;
 	}
 
-	*paginaResultado = (pagina_t*) list_remove(listaConPaginaBuscada,0);
-	list_destroy(listaConPaginaBuscada);
+	*registroResultado = (registroTablaPag_t*) list_remove(listaConRegistroBuscado,0);
+	list_destroy(listaConRegistroBuscado);
 
 	return true;
 
 }
 
-char* obtenerValue(pagina_t *pagina){
-	int sizeValue=(pagina->limiteMarco) - sizeof(timestamp_t)- sizeof(uint16_t);
+void mostrarContenidoPagina(registroTablaPag_t registro) {
 
-	char*value=malloc(sizeof(char)*sizeValue);
+	void * direccionMarco = memoriaPrincipal.memoria + memoriaPrincipal.tamanioMarco * registro.numeroPagina;
+	timestamp_t timestamp;
+	uint16_t key;
 
-	strcpy(value,((pagina->baseMarco) +sizeof(timestamp_t)+ sizeof(uint16_t) ));
-	return value;
+	char* value = malloc (sizeof(char)*tamanioValue);
+	memcpy(&timestamp,direccionMarco,sizeof(timestamp_t));
+	memcpy(&key,direccionMarco+sizeof(timestamp_t),sizeof(uint16_t));
+	strcpy(value,direccionMarco+sizeof(timestamp_t)+ sizeof(uint16_t) );
+
+	printf("Timestamp: %llu\nKey:%d\nValue: %s\n",timestamp,key,value);
+
 }
