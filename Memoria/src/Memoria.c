@@ -42,7 +42,7 @@ int main(void) {
 	strcpy(pathLFS,"/puntoDeMontajeQueMeDaJuanEnElHandshake/");
 
 
-	//Habilita el server y queda en modo en listen / * Inicializar la memoria principal
+	// Inicializar la memoria principal
 	if(inicializar_memoriaPrincipal()==EXIT_FAILURE){
 		printf(RED"Memoria.c: main: no se pudo inicializar la memoria principal"STD"\n");
 		return EXIT_FAILURE;
@@ -68,7 +68,7 @@ int main(void) {
 
 	pthread_join(idConsola,NULL);
 
-
+	//Habilita el server y queda en modo en listen
 /*
 	int miSocket = enable_server(fconfig.ip, fconfig.puerto);
 	log_info(logger_invisible, "Servidor encendido, esperando conexiones");
