@@ -147,8 +147,12 @@ void mostrarContenidoMemoria(void);
 memoria_principal memoriaPrincipal;
 
 pthread_t idConsola;
+pthread_t idGossipSend;
+pthread_t idGossipReciv;
 
 
+char **IPs;
+char **IPsPorts;
 //FUNCIONES
 int conectarLFS();
 int handshakeLFS(int socketLFS);
@@ -161,6 +165,14 @@ void memoriaConUnSegmentoYUnaPagina(void);
 int iniciar_consola();
 
 int ejecutarOperacion(char*);
+int iniciar_gossiping();
+
+void liberarIPs(char** );
+void quitarCaracteresPpioFin(char* );
+int conectarConSeed(char**,char**);
+void *conectar_seeds(void*);
+void *recibir_seeds(void*);
+
 
 
 #endif /* MEMORIA_H_ */

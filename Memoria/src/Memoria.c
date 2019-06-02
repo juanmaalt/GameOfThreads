@@ -51,6 +51,7 @@ int main(void) {
 
 
 	//TODO:GOSSIPING
+	iniciar_gossiping();
 
 	//FUNCIONES PARA TEST DE SELECT
 	memoriaConUnSegmentoYUnaPagina();
@@ -377,4 +378,84 @@ int ejecutarOperacion(char* input){ //TODO: TIPO de retorno Resultado
 		fprintf(stderr, RED"La request no es valida"STD"\n");
 	}
 	return EXIT_SUCCESS; //MOMENTANEO
+}
+
+
+int iniciar_gossiping(){
+
+	quitarCaracteresPpioFin(fconfig.ip_seeds);
+	IPs=string_split(fconfig.ip_seeds,",");
+
+	quitarCaracteresPpioFin(fconfig.puerto_seeds);
+	IPsPorts=string_split(fconfig.puerto_seeds,",");
+	for(int i=0;IPs[i]!=NULL;++i)	//Muestro por pantalla las IP seeds
+	                printf("IP %d: %s\n",i,IPs[i]);
+
+
+	if(pthread_create(&idGossipSend, NULL, conectar_seeds, NULL)){
+		printf(RED"Memoria.c: iniciar_gossiping: fallo la creacion hilo gossiping envios"STD"\n");
+		return EXIT_FAILURE;
+	}
+	//if(pthread_create(&idConsola, NULL, recibir_comandos, NULL)){
+	if(pthread_create(&idGossipReciv, NULL, recibir_seeds, NULL)){
+			printf(RED"Memoria.c: iniciar_gossiping: fallo la creacion hilo gossiping escucha"STD"\n");
+			return EXIT_FAILURE;
+		}
+
+	return EXIT_SUCCESS;
+}
+
+
+void *conectar_seeds(void *null){ // hilo envia a las seeds
+	//pthread_detach(pthread_self());
+	int i;
+	i=conectarConSeed(IPs, IPsPorts);
+	i++;
+	liberarIPs(IPs);
+	liberarIPs(IPsPorts);
+	for(;;){
+		// Envia mensaje a las seeds que conoce
+	}
+	return NULL;
+}
+
+
+void *recibir_seeds(void *null){ // hilo que responde con las memorias conocidas
+	//pthread_detach(pthread_self());
+
+
+	for(;;){
+		//Escucha todo el tiempo y cuando llegue mensaje devuelve las memorias que conoce y estan activas
+	}
+	return NULL;
+}
+void quitarCaracteresPpioFin(char* cadena){
+	for(int i=0;i<strlen(cadena)+1 ; ++i){
+		cadena[i]=cadena[i+1];
+	}
+	cadena[strlen(cadena)-1]='\0';
+}
+
+void liberarIPs(char** IPs){
+	if(IPs!=NULL){
+	for(int i = 0; IPs[i]!=NULL; ++i)
+		free(*(IPs+i));
+	free (IPs);
+	}
+}
+
+int conectarConSeed(char** IPs, char ** IPsPorts){
+	// Se conecta con la seed para hacer el gossiping
+	int conteo_seeds = 0; //Static
+	for(;IPs[conteo_seeds]!=NULL;){
+	int socket = connect_to_server(IPs[conteo_seeds], IPsPorts[conteo_seeds]);
+	if(socket == EXIT_FAILURE){
+		log_error(logger_invisible, "La memoria no esta activa");
+		conteo_seeds++;
+		return EXIT_FAILURE;
+	}
+	log_error(logger_invisible, "Memoria conocida. Envia rmensaje");
+	conteo_seeds++;
+	return socket; //
+	}
 }
