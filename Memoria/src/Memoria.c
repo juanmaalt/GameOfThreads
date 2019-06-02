@@ -169,8 +169,10 @@ void crearRegistroEnTabla(tabla_de_paginas_t *tablaDondeSeEncuentra,
 
 //Retorna el numero de marco donde se encuentra la pagina
 
-int colocarPaginaEnMemoria(timestamp_t timestamp, uint16_t key, char* value) {
-
+int colocarPaginaEnMemoria(timestamp_t timestamp, uint16_t key, char* value) { //DEBE DEVOLVER ERROR_MEMORIA_FULL si la cola esta vacia
+	if(queue_is_empty(memoriaPrincipal.marcosLibres)){
+		return ERROR_MEMORIA_FULL;
+	}
 	MCB_t * marcoObjetivo = (MCB_t *) queue_pop(memoriaPrincipal.marcosLibres);
 
 	void * direccionMarco = memoriaPrincipal.memoria + memoriaPrincipal.tamanioMarco * marcoObjetivo->nroMarco;

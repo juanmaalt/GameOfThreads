@@ -32,6 +32,7 @@
 
 #define RED "\x1b[31m"
 #define STD "\x1b[0m"
+#define ERROR_MEMORIA_FULL -1
 
 //Para evitar levantar el LFS
 int	tamanioValue;

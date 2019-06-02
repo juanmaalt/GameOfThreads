@@ -65,12 +65,7 @@ void selectAPI(char* input, Comando comando) {
 
 }
 /*
- * La operación Insert permite la creación y/o actualización de una key dentro de una tabla. Para esto, se utiliza la siguiente nomenclatura:
- INSERT [NOMBRE_TABLA] [KEY] “[VALUE]”
- Ej:
- INSERT TABLA1 3 “Mi nombre es Lissandra”
-
- Esta operación incluye los siguientes pasos:
+ Pasos:
  1. Verifica si existe el segmento de la tabla en la memoria principal.
  De existir, busca en sus páginas si contiene la key solicitada y de contenerla actualiza el valor insertando el Timestamp actual.
  En caso que no contenga la Key, se solicita una nueva página para almacenar la misma.
@@ -89,32 +84,46 @@ void selectAPI(char* input, Comando comando) {
  dentro de la memoria principal.
  * */
 
+// INSERT [NOMBRE_TABLA] [KEY] “[VALUE]”
+//Ej:
+//INSERT TABLA1 3 “Mi nombre es Lissandra”
 void insertAPI(char* input, Comando comando) {
 	segmento_t *segmentoSeleccionado = NULL;
 
 	uint16_t keyBuscada = atoi(comando.argumentos.INSERT.key); //TODO: se verifica que la key sea numerica?
 
+	registroTablaPag_t *registroBuscado=NULL;
 	//marco_t *marcoBuscado=NULL;
-/*
+
 	//Verifica si existe el segmento de la tabla en la memoria principal.
 	if (verificarExistenciaSegmento(comando.argumentos.INSERT.nombreTabla, &segmentoSeleccionado)) {
 		//Busca en sus páginas si contiene la key solicitada y de contenerla actualiza el valor insertando el Timestamp actual.
-			if (contieneKey(segmentoSeleccionado, keyBuscada, &marcoBuscado)) {
+			if (contieneKey(segmentoSeleccionado, keyBuscada, &registroBuscado)) {
 
 				//En los request solo se utilizarán las comillas (“”)
 				//para enmascarar el Value que se envíe. No se proveerán request con comillas en otros puntos.
-
 				//TODO: ojo con pasarse del tamanio maximo para value
-				//TODO: funcion que actue sobre el marco:
-				//podria en lugar de tener un marco buscado, una pagina buscada y despues la mando a una funcion que entre al marco
-				strcpy(marcoBuscado->value,comando.argumentos.INSERT.value);
-				marcoBuscado->timestamp=getCurrentTime();
+
+				quitarCaracteresPpioFin(comando.argumentos.INSERT.value);
+				void * direccionMarco = memoriaPrincipal.memoria + memoriaPrincipal.tamanioMarco * registroBuscado->numeroPagina;
+				timestamp_t tsActualizado=getCurrentTime();
+
+				memcpy(direccionMarco,&tsActualizado,sizeof(timestamp_t));
+				strcpy(direccionMarco+sizeof(timestamp_t)+ sizeof(uint16_t),comando.argumentos.INSERT.value);
 				printf("Se realizo el INSERT\n");
-				printf("Muestro contenido memoria\n");
-				mostrarContenidoMemoria();
+
+				mostrarContenidoPagina(*registroBuscado); //Para ver lo que se inserto
+			}else{ //se solicita una nueva página para almacenar la key
+
 			}
+	}else {//NO EXISTE SEGMENTO
+		/*
+		 * se creará y se agregará la nueva Key con el Timestamp actual,
+ 	 	   junto con el nombre de la tabla en el segmento. Para esto se debe generar el nuevo segmento y solicitar una nueva página
+		 */
+
 	}
-*/
+
 }
 
 bool verificarExistenciaSegmento(char* nombreTabla, segmento_t ** segmentoAVerificar ) {
