@@ -132,6 +132,8 @@ typedef struct{
 //GLOBALES
 tabla_de_segmentos_t tablaSegmentos;
 
+
+
 //MarcoCtrlBlock
 
 typedef struct MCB{
@@ -157,12 +159,7 @@ void mostrarContenidoMemoria(void);
 memoria_principal memoriaPrincipal;
 
 pthread_t idConsola;
-pthread_t idGossipSend;
-pthread_t idGossipReciv;
 
-
-char **IPs;
-char **IPsPorts;
 //FUNCIONES
 int conectarLFS();
 int handshakeLFS(int socketLFS);
@@ -175,6 +172,26 @@ void memoriaConUnSegmentoYUnaPagina(void);
 int iniciar_consola();
 
 int ejecutarOperacion(char*);
+
+//GOSSIPING
+
+//Memorias conocidas
+typedef struct knownMemory {
+	int memory_number;
+	char *ip ;
+	char *ip_port;
+}knownMemory_t;
+
+t_list* listaMemoriasConocidas;
+
+
+pthread_t idGossipSend;
+pthread_t idGossipReciv;
+
+
+char **IPs;
+char **IPsPorts;
+
 int iniciar_gossiping();
 
 void liberarIPs(char** );
@@ -182,6 +199,7 @@ void quitarCaracteresPpioFin(char* );
 int conectarConSeed(char**,char**);
 void *conectar_seeds(void*);
 void *recibir_seeds(void*);
+int ConsultoPorMemoriasConocidas(int );
 
 
 

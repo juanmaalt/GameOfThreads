@@ -26,8 +26,8 @@ void mostrarPathSegmentos() {
 int main(void) {
 	//Se hacen las configuraciones iniciales para log y config
 	if (configuracion_inicial() == EXIT_FAILURE) {
-		printf(
-				RED"Memoria.c: main: no se pudo generar la configuracion inicial"STD"\n");
+		log_error(logger_invisible, "Memoria.c: main: no se pudo generar la configuracion inicial");
+
 		return EXIT_FAILURE;
 	}
 	mostrar_por_pantalla_config();
@@ -46,8 +46,8 @@ int main(void) {
 
 	// Inicializar la memoria principal
 	if (inicializar_memoriaPrincipal() == EXIT_FAILURE) {
-		printf(
-				RED"Memoria.c: main: no se pudo inicializar la memoria principal"STD"\n");
+		log_error(logger_invisible, "Memoria.c: main: no se pudo inicializar la memoria principal");
+
 		return EXIT_FAILURE;
 	}
 	printf("Memoria Inicializada correctamente\n");
@@ -64,7 +64,8 @@ int main(void) {
 	//Inicio consola
 
 	if (iniciar_consola() == EXIT_FAILURE) {
-		printf(RED"Memoria.c: main: no se pudo levantar la consola"STD"\n");
+		log_error(logger_invisible, "Memoria.c: main: no se pudo levantar la consola");
+
 		return EXIT_FAILURE;
 	}
 
@@ -252,8 +253,8 @@ int inicializar_memoriaPrincipal() {
 
 int iniciar_consola() {
 	if (pthread_create(&idConsola, NULL, recibir_comandos, NULL)) {
-		printf(
-				RED"Memoria.c: iniciar_consola: fallo la creacion de la consola"STD"\n");
+		log_error(logger_invisible, "Memoria.c: iniciar_consola: fallo la creacion de la consola");
+
 		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;
@@ -263,21 +264,23 @@ int configuracion_inicial() {
 
 	logger_visible = iniciar_logger(true);
 	if (logger_visible == NULL) {
-		printf(
-				RED"Memoria.c: configuracion_inicial: error en 'logger_visible = iniciar_logger(true);'"STD"\n");
+		log_error(logger_invisible, "Memoria.c: configuracion_inicial: error en 'logger_visible = iniciar_logger(true)");
+		//printf(
+		//		RED"Memoria.c: configuracion_inicial: error en 'logger_visible = iniciar_logger(true);'"STD"\n");
 		return EXIT_FAILURE;
 	}
 
 	logger_invisible = iniciar_logger(false);
 	if (logger_visible == NULL) {
-		printf(
-				RED"Memoria.c: configuracion_inicial: error en 'logger_invisible = iniciar_logger(false);'"STD"\n");
+		log_error(logger_invisible, "Memoria.c: configuracion_inicial: error en 'logger_invisible = iniciar_logger(false)");
+		//printf(
+			//	RED"Memoria.c: configuracion_inicial: error en 'logger_invisible = iniciar_logger(false);'"STD"\n");
 		return EXIT_FAILURE;
 	}
 
 	if (inicializar_configs() == EXIT_FAILURE) {
-		printf(
-				RED"Memoria.c: configuracion_inicial: error en el archivo 'Memoria.config'"STD"\n");
+		log_error(logger_invisible, "Memoria.c: configuracion_inicial: error en el archivo 'Memoria.config'");
+
 		return EXIT_FAILURE;
 	}
 
@@ -455,9 +458,9 @@ int iniciar_gossiping() {
 
 void *conectar_seeds(void *null) { // hilo envia a las seeds
 	//pthread_detach(pthread_self());
-	int i;
-	i = conectarConSeed(IPs, IPsPorts);
-	i++;
+	int puertoSocket;
+	puertoSocket = conectarConSeed(IPs, IPsPorts);
+	// puertoSocket = ConsultoPorMemoriasConocidas(puertoSocket);
 	liberarIPs(IPs);
 	liberarIPs(IPsPorts);
 	for (;;) {
@@ -502,6 +505,24 @@ int conectarConSeed(char** IPs, char ** IPsPorts) {
 		}
 		log_error(logger_invisible, "Memoria conocida. Envia rmensaje");
 		conteo_seeds++;
-		return socket; //
+		return ConsultoPorMemoriasConocidas(socket); //
 	}
 }
+
+
+
+int ConsultoPorMemoriasConocidas(int socketSEEDS) {
+	send_msg(socketSEEDS, TEXTO_PLANO, "memorias activas");
+
+	TipoDeMensaje tipo;
+	char *tamanio = recv_msg(socketSEEDS, &tipo);
+
+	if (tipo == COMANDO)
+		printf("Consulta de memorias conocidas falló. No se recibió respuesta.\n");
+	if (tipo == TEXTO_PLANO)
+		printf("Consulta exitosa. Se recibieron las memorias: %d\n",
+				*tamanio);
+
+	return *tamanio;
+}
+
