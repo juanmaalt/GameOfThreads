@@ -176,7 +176,7 @@ Esta operación incluye los siguientes pasos:
 	2.Tanto si el FileSystem indica que la operación se realizó de forma exitosa o en caso de falla por tabla ya existente, continúa su ejecución normalmente.
 */
 
-void create(char*input, Comando comando){
+void createAPI(char*input, Comando comando){
 
 }
 bool verificarExistenciaSegmento(char* nombreTabla, segmento_t ** segmentoAVerificar ) {

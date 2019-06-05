@@ -69,7 +69,7 @@ int main(void) {
 		return EXIT_FAILURE;
 	}
 
-	pthread_join(idConsola, NULL);
+	pthread_join(idConsola, NULL); //detach cuando se agregue threadConnection
 
 	//Habilita el server y queda en modo en listen
 	/*
@@ -410,6 +410,8 @@ int ejecutarOperacion(char* input) { //TODO: TIPO de retorno Resultado
 			insertAPI(input, *parsed);
 			break;
 		case CREATE:
+			createAPI(input, *parsed);
+			break;
 		case DESCRIBE:
 		case DROP:
 		case JOURNAL:

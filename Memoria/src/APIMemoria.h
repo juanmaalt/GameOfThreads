@@ -28,7 +28,7 @@ void insertarPaginaDeSegmento(char* , uint16_t , segmento_t * );
 //API	TODO: valores de retorno Resultado
 void selectAPI(char*, Comando);
 void insertAPI(char*,Comando);
-void create(char*,Comando);
+void createAPI(char*,Comando);
 void describeAPI();
 void dropAPI();
 void journalAPI();
