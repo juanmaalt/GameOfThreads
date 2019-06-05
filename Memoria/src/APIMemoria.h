@@ -21,6 +21,10 @@ bool contieneKey(segmento_t* , uint16_t , registroTablaPag_t **);
 
 void mostrarContenidoPagina(registroTablaPag_t);
 
+int hayPaginaDisponible(void);
+
+void insertarPaginaDeSegmento(char* , uint16_t , segmento_t * );
+
 //API	TODO: valores de retorno Resultado
 void selectAPI(char*, Comando);
 void insertAPI(char*,Comando);

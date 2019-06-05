@@ -155,6 +155,11 @@ typedef struct{
 
 //marco_t * agregarMarcoAMemoria(marco_t *);
 void mostrarContenidoMemoria(void);
+
+void asignarPathASegmento(segmento_t * , char* );
+int colocarPaginaEnMemoria(timestamp_t , uint16_t , char* );
+void crearRegistroEnTabla(tabla_de_paginas_t *, int );
+
 //GLOBALES
 memoria_principal memoriaPrincipal;
 

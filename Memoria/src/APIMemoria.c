@@ -104,16 +104,24 @@ void insertAPI(char* input, Comando comando) {
 				//para enmascarar el Value que se envíe. No se proveerán request con comillas en otros puntos.
 				//TODO: ojo con pasarse del tamanio maximo para value
 
+				//TODO: Funcion para actualizar key
+
 				quitarCaracteresPpioFin(comando.argumentos.INSERT.value);
+
 				void * direccionMarco = memoriaPrincipal.memoria + memoriaPrincipal.tamanioMarco * registroBuscado->numeroPagina;
 				timestamp_t tsActualizado=getCurrentTime();
 
 				memcpy(direccionMarco,&tsActualizado,sizeof(timestamp_t));
 				strcpy(direccionMarco+sizeof(timestamp_t)+ sizeof(uint16_t),comando.argumentos.INSERT.value);
+
 				printf("Se realizo el INSERT\n");
 
 				mostrarContenidoPagina(*registroBuscado); //Para ver lo que se inserto
-			}else{ //se solicita una nueva página para almacenar la key
+
+
+			}else{	//No contiene la KEY, se solicita una nueva página para almacenar la misma.
+
+				insertarPaginaDeSegmento(comando.argumentos.INSERT.value, keyBuscada,segmentoSeleccionado);
 
 			}
 	}else {//NO EXISTE SEGMENTO
@@ -122,9 +130,43 @@ void insertAPI(char* input, Comando comando) {
  	 	   junto con el nombre de la tabla en el segmento. Para esto se debe generar el nuevo segmento y solicitar una nueva página
 		 */
 
+		//Crear un segmento
+		segmento_t* segmentoNuevo = malloc(sizeof(segmento_t));
+
+		//Asignar path determinado
+		asignarPathASegmento(segmentoNuevo, comando.argumentos.INSERT.nombreTabla);
+
+		//Crear su tabla de paginas
+		segmentoNuevo->tablaPaginas = malloc(sizeof(tabla_de_paginas_t));
+		segmentoNuevo->tablaPaginas->registrosPag = list_create();
+
+		insertarPaginaDeSegmento(comando.argumentos.INSERT.value, keyBuscada,segmentoNuevo);
+
+		//Agregar segmento Nuevo a tabla de segmentos
+		list_add(tablaSegmentos.listaSegmentos, (segmento_t*) segmentoNuevo);
 	}
 
 }
+
+int hayPaginaDisponible(void){
+	return queue_is_empty(memoriaPrincipal.marcosLibres) != true;
+}
+
+void insertarPaginaDeSegmento(char* value, uint16_t key, segmento_t * segmento){
+	if(hayPaginaDisponible()){
+		printf("Hay pagina disponible\n");
+
+		quitarCaracteresPpioFin(value);
+
+		crearRegistroEnTabla(segmento->tablaPaginas, colocarPaginaEnMemoria(getCurrentTime(), key, value));
+
+		printf("Se realizo el INSERT\n");
+
+	}else{//aplicar el algoritmo de reemplazo (LRU) y en caso de que la memoria se encuentre full iniciar el proceso Journal.
+
+	}
+}
+
 /*
 CREATE [TABLA] [TIPO_CONSISTENCIA] [NUMERO_PARTICIONES] [COMPACTION_TIME]
 Ej:
@@ -138,10 +180,11 @@ void create(char*input, Comando comando){
 
 }
 bool verificarExistenciaSegmento(char* nombreTabla, segmento_t ** segmentoAVerificar ) {
-	char* pathSegmentoBuscado = malloc(
-			sizeof(char) * strlen(nombreTabla) + strlen(pathLFS) + 1);
+	char* pathSegmentoBuscado = malloc(sizeof(char) * (strlen(nombreTabla) + strlen(pathLFS)) + 1);
+
 	strcpy(pathSegmentoBuscado, pathLFS);
 	strcat(pathSegmentoBuscado, nombreTabla);
+
 
 	//Recorro tabla de segmentos buscando pathSegmentoBuscado
 

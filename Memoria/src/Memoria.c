@@ -157,14 +157,12 @@ void asignarPathASegmento(segmento_t * segmentoANombrar, char* nombreTabla) {
 	strcat(segmentoANombrar->pathTabla, nombreTabla);
 }
 
-void crearRegistroEnTabla(tabla_de_paginas_t *tablaDondeSeEncuentra,
-		int indiceMarco) {
+void crearRegistroEnTabla(tabla_de_paginas_t *tablaDondeSeEncuentra, int indiceMarco) {
 	registroTablaPag_t *registroACrear = malloc(sizeof(registroTablaPag_t));
 
 	registroACrear->numeroPagina = indiceMarco;
 
-	list_add(tablaDondeSeEncuentra->registrosPag,
-			(registroTablaPag_t*) registroACrear);
+	list_add(tablaDondeSeEncuentra->registrosPag, (registroTablaPag_t*) registroACrear);
 
 }
 
@@ -174,7 +172,7 @@ int colocarPaginaEnMemoria(timestamp_t timestamp, uint16_t key, char* value) { /
 	if(queue_is_empty(memoriaPrincipal.marcosLibres)){
 		return ERROR_MEMORIA_FULL;
 	}
-	MCB_t * marcoObjetivo = (MCB_t *) queue_pop(memoriaPrincipal.marcosLibres);
+	MCB_t * marcoObjetivo = (MCB_t *) queue_pop(memoriaPrincipal.marcosLibres); //No se elimina porque el MCB tambien esta en listaAdministrativaMarcos
 
 	void * direccionMarco = memoriaPrincipal.memoria + memoriaPrincipal.tamanioMarco * marcoObjetivo->nroMarco;
 
@@ -201,14 +199,13 @@ void memoriaConUnSegmentoYUnaPagina(void) {
 	segmentoEjemplo->tablaPaginas->registrosPag = list_create();
 
 	//Insertar pagina Ejemplo en Memoria Principal
-	int indiceMarcoEjemplo = colocarPaginaEnMemoria(getCurrentTime(), 1,
-			"Car");
+	int indiceMarcoEjemplo = colocarPaginaEnMemoria(getCurrentTime(), 1,"Car");
 
 	//Crear registro de pagina en la tabla
 
 	crearRegistroEnTabla(segmentoEjemplo->tablaPaginas, indiceMarcoEjemplo);
 
-	//Agregar a tabla de segmentos
+	//Agregar segmento Ejemplo a tabla de segmentos
 	list_add(tablaSegmentos.listaSegmentos, (segmento_t*) segmentoEjemplo);
 
 }
@@ -222,7 +219,6 @@ int inicializar_memoriaPrincipal() {
 		return EXIT_FAILURE;
 
 	//Fijo el tamanio de un marco en memoria
-
 	memoriaPrincipal.tamanioMarco = sizeof(timestamp_t) + sizeof(uint16_t)
 			+ (sizeof(char) * tamanioValue);
 
