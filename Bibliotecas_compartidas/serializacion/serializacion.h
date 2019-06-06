@@ -12,15 +12,26 @@
 #include <unistd.h> // Para close
 #include <stdbool.h> ////Para bool que se usan en la funcion log (relativamente opcional)
 
+#include "../epoch/epoch.h"
 #include "../parser/parser_comando.h" //Para poder enviar estructuras de tipo Comando
 
 
 //ENUM
 typedef enum{
-	TEXTO_PLANO,
-	COMANDO,
-	LQL
+	TEXTO_PLANO, 	//char*
+	COMANDO,		//REQUEST
+	REGISTRO,  	    // IMPLICA TIMESTAMP, KEY Y VALUE EN ESE ORDEN
+	ERROR,			//char* con detalle de error
+
 }TipoDeMensaje;
+
+typedef struct{
+	TipoDeMensaje codigoOperacion;
+	char *mensaje; //detalle del mensaje (para ERROR)
+	timestamp_t timestamp;
+	uint16_t key;
+	char* value;	//value del registro en una key determinada
+}resultado;
 
 
 //FUNCIONES
