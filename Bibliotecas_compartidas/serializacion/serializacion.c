@@ -9,11 +9,11 @@ int send_msg(int socket, Operacion operacion) {
 
 	case TEXTO_PLANO:
 		longCadena = strlen(operacion.Argumentos.TEXTO_PLANO.texto);
-		total = sizeof(int) + sizeof(char) * longCadena;
+		total = sizeof(int) + sizeof(int) + sizeof(char) * longCadena; //Enum + cantidad caracteres cadena + cadena
 		content = malloc(total);
-		memcpy(content, &longCadena, sizeof(int));
-		memcpy(content + sizeof(int), operacion.Argumentos.TEXTO_PLANO.texto,
-				total);
+		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
+		memcpy(content+sizeof(int), &longCadena, sizeof(int));
+		memcpy(content+2*sizeof(int), operacion.Argumentos.TEXTO_PLANO.texto, total);
 		break;
 
 	case COMANDO:
@@ -25,34 +25,32 @@ int send_msg(int socket, Operacion operacion) {
 			return EXIT_FAILURE;
 		}
 		longCadena = strlen(operacion.Argumentos.COMANDO.comandoParseable);
-		total = sizeof(int) + sizeof(char) * longCadena;
+		total = sizeof(int) + sizeof(int) + sizeof(char) * longCadena;
 		content = malloc(total);
-		memcpy(content, &longCadena, sizeof(int));
-		memcpy(content + sizeof(int),
-				operacion.Argumentos.COMANDO.comandoParseable, total);
+		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
+		memcpy(content+sizeof(int), &longCadena, sizeof(int));
+		memcpy(content+2*sizeof(int),operacion.Argumentos.COMANDO.comandoParseable, total);
 		break;
 
 	case REGISTRO:
 		longCadena = strlen(operacion.Argumentos.REGISTRO.value);
 		size_t tamValue = sizeof(char) * longCadena;
-		total = sizeof(timestamp_t) + sizeof(uint16_t) + sizeof(int) + tamValue;
+		total = sizeof(int) + sizeof(timestamp_t) + sizeof(uint16_t) + sizeof(int) + tamValue;
 		content = malloc(total);
-		memcpy(content, &(operacion.Argumentos.REGISTRO.timestamp),
-				sizeof(timestamp_t));
-		memcpy(content + sizeof(timestamp_t),
-				&(operacion.Argumentos.REGISTRO.key), sizeof(uint16_t));
-		memcpy(content + sizeof(timestamp_t) + sizeof(uint16_t), &longCadena,
-				sizeof(int));
-		memcpy(content + sizeof(timestamp_t) + sizeof(uint16_t) + sizeof(int),
-				operacion.Argumentos.REGISTRO.value, tamValue);
+		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
+		memcpy(content+sizeof(int), &(operacion.Argumentos.REGISTRO.timestamp), sizeof(timestamp_t));
+		memcpy(content+sizeof(int)+sizeof(timestamp_t), &(operacion.Argumentos.REGISTRO.key), sizeof(uint16_t));
+		memcpy(content+sizeof(int)+sizeof(timestamp_t) + sizeof(uint16_t), &longCadena, sizeof(int));
+		memcpy(content+sizeof(int)+sizeof(timestamp_t) + sizeof(uint16_t) + sizeof(int), operacion.Argumentos.REGISTRO.value, tamValue);
 		break;
 
 	case ERROR:
 		longCadena = strlen(operacion.Argumentos.ERROR.mensajeError);
-		total = sizeof(int) + sizeof(char) * longCadena;
+		total = sizeof(int) + sizeof(int) + sizeof(char) * longCadena;
 		content = malloc(total);
-		memcpy(content, &longCadena, sizeof(int));
-		memcpy(content + sizeof(int), operacion.Argumentos.ERROR.mensajeError,
+		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
+		memcpy(content+sizeof(int), &longCadena, sizeof(int));
+		memcpy(content+2*sizeof(int), operacion.Argumentos.ERROR.mensajeError,
 				total);
 		break;
 	default:
@@ -99,8 +97,7 @@ Operacion recv_msg(int socket) {
 				sizeof(char) * longitud, 0);
 		break;
 	case REGISTRO:
-		recv(socket, &(retorno.Argumentos.REGISTRO.timestamp),
-				sizeof(timestamp_t), 0);
+		recv(socket, &(retorno.Argumentos.REGISTRO.timestamp), sizeof(timestamp_t), 0);
 		recv(socket, &(retorno.Argumentos.REGISTRO.key), sizeof(uint16_t), 0);
 		recv(socket, &longitud, sizeof(int), 0);
 		retorno.Argumentos.REGISTRO.value = calloc(longitud, sizeof(char));

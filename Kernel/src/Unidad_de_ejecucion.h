@@ -27,5 +27,6 @@ void *exec(void *null);
 //FUNCIONES: Privadas
 static int exec_file_lql(PCB *pcb);
 static int exec_string_comando(PCB *pcb);
+static void loggear_operacion(Operacion op);
 
 #endif /* UNIDAD_DE_EJECUCION_H_ */

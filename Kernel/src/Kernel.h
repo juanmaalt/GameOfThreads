@@ -44,6 +44,8 @@ struct Config_datos_variables{
 
 typedef struct Config_datos_variables vConfig;
 
+//GLOBALES: Socket
+int socketMemoriaPrincipal;
 
 //GLOBALES: Loggeo
 t_log* logger_visible;
