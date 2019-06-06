@@ -41,7 +41,7 @@ void *recibir_comandos(void *null){
 	                fprintf(stderr, RED"No se pude interpretar el enum: %d"STD"\n", parsed->keyword);
 	        }
 
-	        destruir_operacion(*parsed);
+	        destruir_comando(*parsed);
 	    }else{
 	        fprintf(stderr, RED"La linea no es valida"STD"\n");
 	    }
@@ -84,7 +84,7 @@ static int new_lql(char *path){
 		printf(RED"Consola.c: new_lql: el archivo LQL no pudo ingresar a new"STD"\n");
 		return EXIT_FAILURE;
 	}
-	//TODO: acordarse de cerrar el archivo una vez que se ejecute
+	//el archivo FILE lql se cierra en unidad_de_ejecucion.c, exec_file_lql()
 	return EXIT_SUCCESS;
 }
 

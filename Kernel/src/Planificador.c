@@ -39,7 +39,7 @@ int new(PCB_DataType tipo, void *data){
 	default:
 		RETURN_ERROR("Planificador.c: new: no se reconoce el tipo de dato a ejecutar");
 	}
-	queue_push(colaDeReady, pcb); //TODO: IMPORTANTE esto no anda
+	queue_push(colaDeReady, pcb);
 	sem_post(&scriptEnReady); //Como esta funcion va a ser llamada por la consola, el semaforo tambien tiene que ser compartido por el proceso consola
 	return EXIT_SUCCESS;
 }

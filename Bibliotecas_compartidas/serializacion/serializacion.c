@@ -1,27 +1,53 @@
 #include "serializacion.h"
 
-int send_msg(int socket, TipoDeMensaje tipo, char *mensaje){
-	//Restricciones
-	switch(tipo){
-		case TEXTO_PLANO:
-			//Ninguna
+int send_msg(int socket, Operacion operacion){
+	size_t total;
+	void* content;
+	int longCadena=0;
+
+	switch(operacion.TipoDeMensaje){
+
+	case TEXTO_PLANO:
+		longCadena = strlen(operacion.Argumentos.TEXTO_PLANO.texto);
+		total = sizeof(int) + sizeof(char) * longCadena;
+		content = malloc(total);
+		memcpy(content, &longCadena, sizeof(int));
+		memcpy(content+sizeof(int), operacion.Argumentos.TEXTO_PLANO.texto, total);
 		break;
-		case COMANDO:
-			if(comando_validar(parsear_comando(mensaje)) == EXIT_FAILURE){
-				printf(RED"serializacion.c: send_command: error en el envio de comando, probablemente este intentando enviar un comando invalido"STD"\n");
-				return EXIT_FAILURE;
-			}
-		break;
-		default:
-			printf(RED"Todavia no soportamos el TipoDeMensaje numero %d"STD"\n", tipo);
+
+	case COMANDO:
+		if(comando_validar(parsear_comando(operacion.Argumentos.COMANDO.comandoParseable)) == EXIT_FAILURE){
+			printf(RED"serializacion.c: send_command: el comando no es parseable"STD"\n");
 			return EXIT_FAILURE;
+		}
+		longCadena = strlen(operacion.Argumentos.COMANDO.comandoParseable);
+		total = sizeof(int) + sizeof(char) * longCadena;
+		content = malloc(total);
+		memcpy(content, &longCadena, sizeof(int));
+		memcpy(content+sizeof(int), operacion.Argumentos.COMANDO.comandoParseable, total);
+		break;
+
+	case REGISTRO:
+		longCadena = strlen(operacion.Argumentos.REGISTRO.value);
+		size_t tamValue = sizeof(char) * longCadena;
+		total = sizeof(timestamp_t) + sizeof(uint16_t) + sizeof(int) + tamValue;
+		content = malloc(total);
+		memcpy(content, &(operacion.Argumentos.REGISTRO.timestamp), sizeof(timestamp_t));
+		memcpy(content+sizeof(timestamp_t), &(operacion.Argumentos.REGISTRO.key), sizeof(uint16_t));
+		memcpy(content+sizeof(timestamp_t)+sizeof(uint16_t), &longCadena, sizeof(int));
+		memcpy(content+sizeof(timestamp_t)+sizeof(uint16_t)+sizeof(int), operacion.Argumentos.REGISTRO.value, tamValue);
+		break;
+
+	case ERROR:
+		longCadena = strlen(operacion.Argumentos.ERROR.mensajeError);
+		total = sizeof(int) + sizeof(char) * longCadena;
+		content = malloc(total);
+		memcpy(content, &longCadena, sizeof(int));
+		memcpy(content+sizeof(int), operacion.Argumentos.ERROR.mensajeError, total);
+		break;
+	default:
+		return EXIT_FAILURE;
 	}
-	int longitudMensaje = strlen(mensaje);
-	size_t total = sizeof(TipoDeMensaje) + sizeof(int) + sizeof(char) * longitudMensaje; //tipo de envio + longitud del mensaje + el mensaje
-	void *content = malloc(total);
-	memcpy(content, &tipo, sizeof(TipoDeMensaje));
-	memcpy(content+sizeof(TipoDeMensaje), &longitudMensaje, sizeof(int));
-	memcpy(content+sizeof(int)+sizeof(TipoDeMensaje), mensaje, sizeof(char)*longitudMensaje);
 
 	int result = send(socket, content, total, 0);
 	if(result <= 0){
@@ -34,28 +60,54 @@ int send_msg(int socket, TipoDeMensaje tipo, char *mensaje){
 }
 
 
-char *recv_msg(int socket, TipoDeMensaje *tipo){
-	int result = recv(socket, tipo, sizeof(int), 0);
+Operacion recv_msg(int socket){
+	Operacion retorno;
+	int longitud = 0;
+	int result = recv(socket, &(retorno.TipoDeMensaje), sizeof(int), 0);
 	if(result <= 0){
-		return NULL;
+		strcpy(retorno.Argumentos.ERROR.mensajeError, "Error en la recepcion del resultado.");
+		retorno.TipoDeMensaje = ERROR;
+		return retorno;
 	}
 
-	int longitudMensaje;
-	result = recv(socket, &longitudMensaje, sizeof(int), 0);
-	if(result <= 0){
-		return NULL;
+	switch(retorno.TipoDeMensaje){
+	case TEXTO_PLANO:
+		recv(socket, &longitud, sizeof(int), 0);
+		retorno.Argumentos.TEXTO_PLANO.texto = calloc(longitud, sizeof(char));
+		recv(socket, retorno.Argumentos.TEXTO_PLANO.texto, sizeof(char)*longitud, 0);
+		break;
+	case COMANDO:
+		recv(socket, &longitud, sizeof(int), 0);
+		retorno.Argumentos.COMANDO.comandoParseable = calloc(longitud, sizeof(char));
+		recv(socket, retorno.Argumentos.COMANDO.comandoParseable, sizeof(char)*longitud, 0);
+		break;
+	case REGISTRO:
+		recv(socket, &(retorno.Argumentos.REGISTRO.timestamp), sizeof(timestamp_t), 0);
+		recv(socket, &(retorno.Argumentos.REGISTRO.key), sizeof(uint16_t), 0);
+		recv(socket, &longitud, sizeof(int), 0);
+		retorno.Argumentos.REGISTRO.value = calloc(longitud, sizeof(char));
+		recv(socket, retorno.Argumentos.REGISTRO.value, sizeof(char)*longitud, 0);
+		break;
+	case ERROR:
+		recv(socket, &longitud, sizeof(int), 0);
+		retorno.Argumentos.ERROR.mensajeError = calloc(longitud, sizeof(char));
+		recv(socket, retorno.Argumentos.ERROR.mensajeError, sizeof(char)*longitud, 0);
+		break;
 	}
-
-	char *mensaje = calloc(longitudMensaje, sizeof(char));
-	result = recv(socket, mensaje, sizeof(char)*longitudMensaje, 0);
-	if(result <= 0){
-		return NULL;
-	}
-	return mensaje;
+	return retorno;
 }
 
 
-
+void destruir_operacion(Operacion op){
+	if(op.Argumentos.COMANDO.comandoParseable != NULL)
+		free(op.Argumentos.COMANDO.comandoParseable);
+	if(op.Argumentos.TEXTO_PLANO.texto != NULL)
+		free(op.Argumentos.TEXTO_PLANO.texto);
+	if(op.Argumentos.REGISTRO.value != NULL)
+		free(op.Argumentos.REGISTRO.value);
+	if(op.Argumentos.ERROR.mensajeError != NULL)
+		free(op.Argumentos.ERROR.mensajeError);
+}
 
 
 

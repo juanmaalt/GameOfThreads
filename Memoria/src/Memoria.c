@@ -424,7 +424,7 @@ int ejecutarOperacion(char* input) { //TODO: TIPO de retorno Resultado
 					parsed->keyword);
 		}
 
-		destruir_operacion(*parsed);
+		destruir_comando(*parsed);
 	} else {
 		fprintf(stderr, RED"La request no es valida"STD"\n");
 	}

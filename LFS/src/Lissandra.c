@@ -242,7 +242,7 @@ int ejecutarOperacion(char* input){ //TODO: TIPO de retorno Resultado
 				fprintf(stderr, RED"No se pude interpretar el enum: %d"STD"\n", parsed->keyword);
 		}
 
-		destruir_operacion(*parsed);
+		destruir_comando(*parsed);
 	}else{
 		fprintf(stderr, RED"La request no es valida"STD"\n");
 	}

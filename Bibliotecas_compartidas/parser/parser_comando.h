@@ -92,7 +92,7 @@
 	* @PARAMS:
 	* 		op - Una operacion obtenida del parse
 	*/
-	void destruir_operacion(Comando op);
+	void destruir_comando(Comando op);
 
 	/**
 	* @NAME: mostrar

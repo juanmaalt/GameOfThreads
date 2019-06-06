@@ -8,7 +8,7 @@
 					   }*/ //En principio no interesa este chequeo
 
 
-void destruir_operacion(Comando op){
+void destruir_comando(Comando op){
 	if(op._raw){
 		string_iterate_lines(op._raw, (void*) free);
 		free(op._raw);

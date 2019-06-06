@@ -17,7 +17,6 @@ typedef struct pcb_t PCB;
 typedef enum flag_e Flag;
 
 typedef enum{
-	EJECUTO,
 	DESALOJO,
 	FINALIZO
 }ResultadoEjecucionInterno;

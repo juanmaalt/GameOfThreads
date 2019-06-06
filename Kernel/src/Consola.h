@@ -7,7 +7,6 @@
 
 #ifndef CONSOLA_H_
 #define CONSOLA_H_
-#define MAX_BUFFER_SIZE_FOR_LQL_LINE 100
 
 #include <stdio.h>
 #include <stdlib.h>

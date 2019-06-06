@@ -16,22 +16,30 @@
 #include "../parser/parser_comando.h" //Para poder enviar estructuras de tipo Comando
 
 
-//ENUM
-typedef enum{
-	TEXTO_PLANO, 	//char*
-	COMANDO,		//REQUEST
-	REGISTRO,  	    // IMPLICA TIMESTAMP, KEY Y VALUE EN ESE ORDEN
-	ERROR,			//char* con detalle de error
-
-}TipoDeMensaje;
-
 typedef struct{
-	TipoDeMensaje codigoOperacion;
-	char *mensaje; //detalle del mensaje (para ERROR)
-	timestamp_t timestamp;
-	uint16_t key;
-	char* value;	//value del registro en una key determinada
-}resultado;
+	enum{
+		TEXTO_PLANO,
+		COMANDO,
+		REGISTRO,
+		ERROR,
+	}TipoDeMensaje;
+	union{
+		struct{
+			char *texto;
+		}TEXTO_PLANO;
+		struct{
+			char* comandoParseable;
+		}COMANDO;
+		struct{
+			timestamp_t timestamp;
+			uint16_t key;
+			char* value;
+		}REGISTRO;
+		struct{
+			char* mensajeError;
+		}ERROR;
+	}Argumentos;
+}Operacion;
 
 
 //FUNCIONES
@@ -44,10 +52,8 @@ typedef struct{
 	* 		 valido con parsi_validar()
 	* @PARAMS:
 	* 		socket - el socket destino
-	* 		tipo - tipo de mensaje a enviar
-	* 		mensaje - mensaje a enviar
 	*/
-	int send_msg(int socket, TipoDeMensaje tipo, char* mensaje);
+	int send_msg(int socket, Operacion operacionAEnviar);
 
 
 	/**
@@ -57,9 +63,17 @@ typedef struct{
 	* 		 de cadena char*
 	* @PARAMS:
 	* 		socket - el socket origen (el socket que nos envio el mensaje)
-	* 		tipo - puntero usado para recibir el tipo de mensaje, liberarlo en el codigo propio.
 	*/
-	char *recv_msg(int socket, TipoDeMensaje *tipo);
+	Operacion recv_msg(int socket);
+
+	/**
+	* @NAME: destruir_operacion
+	* @DESC:
+	* @PARAMS:
+	* 		operacion
+	*/
+	void destruir_operacion(Operacion operacion);
+
 
 
 #endif /* SERIALIZACION_SERIALIZACION_H_ */
