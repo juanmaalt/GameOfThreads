@@ -172,6 +172,7 @@ int colocarPaginaEnMemoria(timestamp_t timestamp, uint16_t key, char* value) { /
 	if(queue_is_empty(memoriaPrincipal.marcosLibres)){
 		return ERROR_MEMORIA_FULL;
 	}
+	//wSEMAFORO
 	MCB_t * marcoObjetivo = (MCB_t *) queue_pop(memoriaPrincipal.marcosLibres); //No se elimina porque el MCB tambien esta en listaAdministrativaMarcos
 
 	void * direccionMarco = memoriaPrincipal.memoria + memoriaPrincipal.tamanioMarco * marcoObjetivo->nroMarco;
@@ -182,7 +183,7 @@ int colocarPaginaEnMemoria(timestamp_t timestamp, uint16_t key, char* value) { /
 
 	memcpy(direccionMarco + sizeof(timestamp_t) + sizeof(uint16_t), value,
 			(sizeof(char) * tamanioValue));
-
+	//sSEMAFORO
 	return marcoObjetivo->nroMarco;
 }
 
@@ -407,6 +408,7 @@ int ejecutarOperacion(char* input) { //TODO: TIPO de retorno Resultado
 			selectAPI(input, *parsed);
 			break;
 		case INSERT:
+			//TODO: ojo con pasarse del tamanio maximo para value
 			insertAPI(input, *parsed);
 			break;
 		case CREATE:

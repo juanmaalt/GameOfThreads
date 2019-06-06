@@ -102,7 +102,7 @@ void insertAPI(char* input, Comando comando) {
 
 				//En los request solo se utilizarán las comillas (“”)
 				//para enmascarar el Value que se envíe. No se proveerán request con comillas en otros puntos.
-				//TODO: ojo con pasarse del tamanio maximo para value
+
 
 				//TODO: Funcion para actualizar key
 
