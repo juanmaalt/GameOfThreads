@@ -27,7 +27,7 @@ int hayPaginaDisponible(void);
 void insertarPaginaDeSegmento(char* , uint16_t , segmento_t * );
 
 //API	TODO: valores de retorno Resultado
-int ejecutarOperacion(char*);
+Operacion ejecutarOperacion(char*);
 
 Operacion selectAPI(char*, Comando);
 Operacion insertAPI(char*,Comando);

@@ -8,12 +8,12 @@
 #include "Consola.h"
 
 void *recibir_comandos(void *null){
-	//pthread_detach(pthread_self());
-
-
+	pthread_detach(pthread_self());
+	Operacion retorno;
 	for(;;){
 		char *userInput = readline("> ");
-		ejecutarOperacion(userInput);
+		retorno = ejecutarOperacion(userInput);
+		//mostrar Retorno
 	    free(userInput);
 	}
 	return NULL;

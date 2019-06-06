@@ -69,31 +69,110 @@ int main(void) {
 		return EXIT_FAILURE;
 	}
 
-	pthread_join(idConsola, NULL); //detach cuando se agregue threadConnection
+	//pthread_join(idConsola, NULL); //detach cuando se agregue threadConnection
 
+
+	if(iniciar_serverMemoria()== EXIT_FAILURE){
+		log_error(logger_invisible, "Memoria.c: main: no se pudo levantar el servidor");
+
+		return EXIT_FAILURE;
+
+	}
 	//Habilita el server y queda en modo en listen
 	/*
-	 int miSocket = enable_server(fconfig.ip, fconfig.puerto);
-	 log_info(logger_invisible, "Servidor encendido, esperando conexiones");
-	 threadConnection(miSocket, connection_handler);
+
 	 */
 
 	//TODO: liberar todo
+	liberarRecursos();
+}
+
+int iniciar_serverMemoria (void){
+	int miSocket = enable_server(fconfig.ip, fconfig.puerto);
+	if(miSocket== EXIT_FAILURE)
+		return EXIT_FAILURE;
+
+	log_info(logger_invisible, "Servidor encendido, esperando conexiones");
+
+	threadConnection(miSocket, connection_handler);
+
+	return EXIT_SUCCESS;
+}
+
+void *connection_handler(void *nSocket) {
+	pthread_detach(pthread_self());
+	int socket = *(int*) nSocket;
+	Operacion resultado;
+
+	resultado = recv_msg(socket);
+
+	printf("Hemos recibido algo!\n");
+
+	switch(resultado.TipoDeMensaje){
+		case COMANDO:
+			//TODO: logear comando recibido
+			resultado=ejecutarOperacion(resultado.Argumentos.COMANDO.comandoParseable);
+			send_msg(socket, resultado);
+
+			break;
+		case TEXTO_PLANO:
+		case REGISTRO:
+		case ERROR:
+		default:
+			fprintf(stderr, RED"No se pude interpretar el enum "STD"\n");
+	}
+
+	//Podríamos meter un counter y que cada X mensajes recibidos corra el gossiping
+
+
+	destruir_operacion(resultado);
+
+	return NULL;
+}
+
+
+
+
+
+void liberarMCBs(void* MCBAdestruir){
+	if((MCB_t *) MCBAdestruir != NULL)
+		free (MCBAdestruir);
+}
+
+void liberarTablaPags(void* registroAdestruir){
+	if((registroTablaPag_t *) registroAdestruir != NULL)
+		free (registroAdestruir);
+}
+
+void liberarSegmentos(void* segmentoAdestruir){
+	if(((segmento_t *)segmentoAdestruir)->pathTabla!= NULL)
+		free (((segmento_t *)segmentoAdestruir)->pathTabla);
+
+	list_destroy_and_destroy_elements(((segmento_t *)segmentoAdestruir)->tablaPaginas->registrosPag, liberarTablaPags);
+
+	if(((segmento_t *)segmentoAdestruir)->tablaPaginas !=NULL)
+		free(((segmento_t *)segmentoAdestruir)->tablaPaginas);
+
+	if((segmento_t *) segmentoAdestruir != NULL)
+		free (segmentoAdestruir);
+}
+
+void liberarRecursos(void){
 	if (memoriaPrincipal.memoria != NULL)
-		free(memoriaPrincipal.memoria);
+			free(memoriaPrincipal.memoria);
+	queue_clean(memoriaPrincipal.marcosLibres);
+	queue_destroy(memoriaPrincipal.marcosLibres);
+
+	list_destroy_and_destroy_elements(memoriaPrincipal.listaAdminMarcos, liberarMCBs);
+
+	list_destroy_and_destroy_elements(tablaSegmentos.listaSegmentos, liberarSegmentos);
+
+	if(pathLFS!=NULL)
+		free(pathLFS);
+
 	config_destroy(configFile);
 	log_destroy(logger_invisible);
 	log_destroy(logger_visible);
-
-	//free en memoriaPrincipal
-	/*
-	 *
-	 *
-	 queue_clean(memoriaPrincipal.marcosLibres);
-
-	 list_destroy_and_destroy_elements(memoriaPrincipal.listaAdminMarcos, free());
-
-	 */
 }
 /*
 int realizarHandshake(void) {
@@ -151,8 +230,7 @@ void mostrarContenidoMemoria() {
 }
 
 void asignarPathASegmento(segmento_t * segmentoANombrar, char* nombreTabla) {
-	segmentoANombrar->pathTabla = malloc(
-			sizeof(char) * (strlen(pathLFS) + strlen(nombreTabla)) + 1);
+	segmentoANombrar->pathTabla = malloc(sizeof(char) * (strlen(pathLFS) + strlen(nombreTabla)) + 1);
 	strcpy(segmentoANombrar->pathTabla, pathLFS);
 	strcat(segmentoANombrar->pathTabla, nombreTabla);
 }
@@ -369,33 +447,8 @@ void mostrar_por_pantalla_config() {
 			vconfig.retardoGossiping());
 	log_info(logger_visible, "MEMORY_NUMBER=%s", fconfig.numero_memoria);
 }
-/*
-void *connection_handler(void *nSocket) {
-	int socket = *(int*) nSocket;
-	Operacion tipo;
-	char *resultado = recv_msg(socket, &tipo);
 
-	//Es importante realizar este chequeo devolviendo EXIT_FAILURE
-	if (resultado == NULL) {
-		return NULL;
-	}
 
-	printf("Hemos recibido algo!\n");
-
-	if (tipo.TipoDeMensaje == COMANDO)
-		comando_mostrar(parsear_comando(resultado));	//ejecutarOperacion
-	if (tipo.TipoDeMensaje == TEXTO_PLANO)
-		printf("%s\n", resultado);
-
-	//Podríamos meter un counter y que cada X mensajes recibidos corra el gossiping
-	send_msg(socket, COMANDO, resultado);
-
-	if (resultado != NULL)
-		free(resultado);
-
-	return NULL;
-}
-*/
 
 /*
 int iniciar_gossiping() {

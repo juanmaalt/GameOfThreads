@@ -23,6 +23,7 @@
 #include <cliente/cliente.h>
 #include <parser/parser_comando.h>
 #include <server_multithread/server_multithread.h>
+#include <serializacion/serializacion.h>
 #include <epoch/epoch.h>
 #include <pthread.h>
 #include <semaphore.h>
@@ -69,6 +70,9 @@ void *connection_handler(void *);
 
 t_log* iniciar_logger(bool);
 int inicializar_configs();
+
+
+void liberarRecursos();
 
 void extraer_data_fija_config(void);
 void mostrar_por_pantalla_config();
@@ -175,8 +179,9 @@ int inicializar_memoriaPrincipal();
 void memoriaConUnSegmentoYUnaPagina(void);
 
 int iniciar_consola();
+int iniciar_serverMemoria (void);
 
-int ejecutarOperacion(char*);
+
 
 //GOSSIPING
 

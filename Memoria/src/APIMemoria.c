@@ -7,21 +7,27 @@
 
 #include "APIMemoria.h"
 
-int ejecutarOperacion(char* input) { //TODO: TIPO de retorno Resultado
+Operacion ejecutarOperacion(char* input) { //TODO: TIPO de retorno Resultado
 	Comando *parsed = malloc(sizeof(Comando));
+	Operacion retorno;
 	*parsed = parsear_comando(input);
 
 	if (parsed->valido) {
 		switch (parsed->keyword) {
 		case SELECT:
-			selectAPI(input, *parsed);
-			break;
+			return selectAPI(input, *parsed);
+			//break;
 		case INSERT:
-			//TODO: ojo con pasarse del tamanio maximo para value
-			insertAPI(input, *parsed);
-			break;
+			if((strlen(parsed->argumentos.INSERT.value)+1) > tamanioValue){
+				retorno.Argumentos.ERROR.mensajeError=malloc(sizeof(char)* (strlen("Error en el tamanio del value.")+1));
+				strcpy(retorno.Argumentos.ERROR.mensajeError, "Error en el tamanio del value.");
+				retorno.TipoDeMensaje = ERROR;
+				return retorno;
+			}
+			return insertAPI(input, *parsed);
+			//break;
 		case CREATE:
-			createAPI(input, *parsed);
+			return createAPI(input, *parsed);
 			break;
 		case DESCRIBE:
 		case DROP:
@@ -37,7 +43,10 @@ int ejecutarOperacion(char* input) { //TODO: TIPO de retorno Resultado
 	} else {
 		fprintf(stderr, RED"La request no es valida"STD"\n");
 	}
-	return EXIT_SUCCESS; //MOMENTANEO
+	retorno.Argumentos.ERROR.mensajeError=malloc(sizeof(char)* (strlen("Error en la recepcion del resultado.")+1));
+	strcpy(retorno.Argumentos.ERROR.mensajeError, "Error en la recepcion del resultado.");
+	retorno.TipoDeMensaje = ERROR;
+	return retorno;
 }
 
 /*
@@ -170,7 +179,7 @@ Operacion insertAPI(char* input, Comando comando) {
 
 			resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
 			resultadoInsert.Argumentos.TEXTO_PLANO.texto = malloc(
-					sizeof(char) * strlen("INSERT REALIZADO CON EXITO") + 1);
+					sizeof(char) * (strlen("INSERT REALIZADO CON EXITO") + 1));
 
 			strcpy(resultadoInsert.Argumentos.TEXTO_PLANO.texto,
 					"INSERT REALIZADO CON EXITO");
@@ -186,7 +195,7 @@ Operacion insertAPI(char* input, Comando comando) {
 
 			resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
 			resultadoInsert.Argumentos.TEXTO_PLANO.texto = malloc(
-					sizeof(char) * strlen("INSERT REALIZADO CON EXITO") + 1);
+					sizeof(char) *(strlen("INSERT REALIZADO CON EXITO") + 1));
 
 			strcpy(resultadoInsert.Argumentos.TEXTO_PLANO.texto,
 					"INSERT REALIZADO CON EXITO");
@@ -218,7 +227,7 @@ Operacion insertAPI(char* input, Comando comando) {
 
 		resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
 		resultadoInsert.Argumentos.TEXTO_PLANO.texto = malloc(
-				sizeof(char) * strlen("INSERT REALIZADO CON EXITO") + 1);
+				sizeof(char) * (strlen("INSERT REALIZADO CON EXITO") + 1));
 
 		strcpy(resultadoInsert.Argumentos.TEXTO_PLANO.texto,
 				"INSERT REALIZADO CON EXITO");
