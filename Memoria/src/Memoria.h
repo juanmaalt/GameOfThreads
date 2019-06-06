@@ -23,6 +23,7 @@
 #include <cliente/cliente.h>
 #include <parser/parser_comando.h>
 #include <server_multithread/server_multithread.h>
+#include <serializacion/serializacion.h>
 #include <epoch/epoch.h>
 #include <pthread.h>
 #include <semaphore.h>
@@ -66,6 +67,8 @@ typedef struct Config_datos_variables vConfig;
 int configuracion_inicial(void);
 int realizarHandshake(void);
 void *connection_handler(void *);
+
+void liberarRecursos();
 
 t_log* iniciar_logger(bool);
 int inicializar_configs();
@@ -176,7 +179,7 @@ void memoriaConUnSegmentoYUnaPagina(void);
 
 int iniciar_consola();
 
-int ejecutarOperacion(char*);
+
 
 //GOSSIPING
 

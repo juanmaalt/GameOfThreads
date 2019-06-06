@@ -62,7 +62,6 @@ int main(void) {
 	mostrarPathSegmentos();
 
 	//Inicio consola
-
 	if (iniciar_consola() == EXIT_FAILURE) {
 		log_error(logger_invisible, "Memoria.c: main: no se pudo levantar la consola");
 
@@ -79,21 +78,55 @@ int main(void) {
 	 */
 
 	//TODO: liberar todo
-	if (memoriaPrincipal.memoria != NULL)
-		free(memoriaPrincipal.memoria);
-	config_destroy(configFile);
-	log_destroy(logger_invisible);
-	log_destroy(logger_visible);
+	liberarRecursos();
 
-	//free en memoriaPrincipal
-	/*
-	 *
-	 *
+	/*free en memoriaPrincipal
 	 queue_clean(memoriaPrincipal.marcosLibres);
 
 	 list_destroy_and_destroy_elements(memoriaPrincipal.listaAdminMarcos, free());
 
 	 */
+}
+
+void liberarMCBs(void* MCBAdestruir){
+	if((MCB_t *) MCBAdestruir != NULL)
+		free (MCBAdestruir);
+}
+
+void liberarTablaPags(void* registroAdestruir){
+	if((registroTablaPag_t *) registroAdestruir != NULL)
+		free (registroAdestruir);
+}
+
+void liberarSegmentos(void* segmentoAdestruir){
+	if(((segmento_t *)segmentoAdestruir)->pathTabla!= NULL)
+		free (((segmento_t *)segmentoAdestruir)->pathTabla);
+
+	list_destroy_and_destroy_elements(((segmento_t *)segmentoAdestruir)->tablaPaginas->registrosPag, liberarTablaPags);
+
+	if(((segmento_t *)segmentoAdestruir)->tablaPaginas !=NULL)
+		free(((segmento_t *)segmentoAdestruir)->tablaPaginas);
+
+	if((segmento_t *) segmentoAdestruir != NULL)
+		free (segmentoAdestruir);
+}
+
+void liberarRecursos(void){
+	if (memoriaPrincipal.memoria != NULL)
+			free(memoriaPrincipal.memoria);
+	queue_clean(memoriaPrincipal.marcosLibres);
+	queue_destroy(memoriaPrincipal.marcosLibres);
+
+	list_destroy_and_destroy_elements(memoriaPrincipal.listaAdminMarcos, liberarMCBs);
+
+	list_destroy_and_destroy_elements(tablaSegmentos.listaSegmentos, liberarSegmentos);
+
+	if(pathLFS!=NULL)
+		free(pathLFS);
+
+	config_destroy(configFile);
+	log_destroy(logger_invisible);
+	log_destroy(logger_visible);
 }
 
 int realizarHandshake(void) {
@@ -140,6 +173,7 @@ void mostrarContenidoMemoria() {
 	timestamp_t timestamp;
 	uint16_t key;
 	char* value = malloc (sizeof(char)*tamanioValue);
+
 	memcpy(&timestamp,memoriaPrincipal.memoria,sizeof(timestamp_t));
 	memcpy(&key,memoriaPrincipal.memoria+sizeof(timestamp_t),sizeof(uint16_t));
 	strcpy(value,memoriaPrincipal.memoria+sizeof(timestamp_t)+ sizeof(uint16_t) );
@@ -151,8 +185,7 @@ void mostrarContenidoMemoria() {
 }
 
 void asignarPathASegmento(segmento_t * segmentoANombrar, char* nombreTabla) {
-	segmentoANombrar->pathTabla = malloc(
-			sizeof(char) * (strlen(pathLFS) + strlen(nombreTabla)) + 1);
+	segmentoANombrar->pathTabla = malloc(sizeof(char) * (strlen(pathLFS) + strlen(nombreTabla)) + 1);
 	strcpy(segmentoANombrar->pathTabla, pathLFS);
 	strcat(segmentoANombrar->pathTabla, nombreTabla);
 }
@@ -396,40 +429,7 @@ void *connection_handler(void *nSocket) {
 	return NULL;
 }
 
-int ejecutarOperacion(char* input) { //TODO: TIPO de retorno Resultado
-	Comando *parsed = malloc(sizeof(Comando));
-	*parsed = parsear_comando(input);
 
-	//TODO: funciones pasandole userInput y parsed por si necesito enviar algo o usar algun dato parseado
-
-	if (parsed->valido) {
-		switch (parsed->keyword) {
-		case SELECT:
-			selectAPI(input, *parsed);
-			break;
-		case INSERT:
-			//TODO: ojo con pasarse del tamanio maximo para value
-			insertAPI(input, *parsed);
-			break;
-		case CREATE:
-			createAPI(input, *parsed);
-			break;
-		case DESCRIBE:
-		case DROP:
-		case JOURNAL:
-			printf("Entro un comando\n");
-			break;
-		default:
-			fprintf(stderr, RED"No se pude interpretar el enum: %d"STD"\n",
-					parsed->keyword);
-		}
-
-		destruir_operacion(*parsed);
-	} else {
-		fprintf(stderr, RED"La request no es valida"STD"\n");
-	}
-	return EXIT_SUCCESS; //MOMENTANEO
-}
 
 int iniciar_gossiping() {
 
