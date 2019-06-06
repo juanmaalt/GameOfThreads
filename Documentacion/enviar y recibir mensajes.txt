@@ -1,6 +1,6 @@
 --SEND_MSG--
 
-int send_msg(int socket, TipoDeMensaje tipo, char *mensaje)
+int send_msg(int socket, Operacion operacion)
 
 
 
@@ -8,9 +8,7 @@ int send_msg(int socket, TipoDeMensaje tipo, char *mensaje)
 
 socket: destinatario del mensaje
 
-tipo: el tipo del mensaje, puede ser texto plano o comando. Hay una estructura que los define asi que solo se van a poder poner los que admita la estructura. La diferencia entre cual esar que la validacion, si mando texto plano puedo mandar cualquier cosa, si mando un comando, se verifica que realmente sea un comando por medio de parsi_validar()
-
-mensaje: el mensaje que se manda
+operacion: variable que contiene lo que se quiere enviar
 
 retorno: EXIT_FAILURE o EXIT_SUCCESS
 
@@ -18,8 +16,8 @@ retorno: EXIT_FAILURE o EXIT_SUCCESS
 
 --Ejemplo--
 
-char* input = "ejemplo"
-int resultado = send_msg(socket, TEXTO_PLANO, input);
+Operacion op = iniciarConValores(); //Para iniciar los valores, ver mas adelante
+int resultado = send_msg(socket, op);
 
 if (resultado == EXIT_FAILURE)
 	//Salio mal, hacer algo
@@ -37,7 +35,7 @@ free(input);
 
 --RECV_MSG--
 
-char* recv_msg(int socket, TipoDeMensaje *tipo)
+Operacion recv_msg(int socket)
 
 
 
@@ -45,32 +43,58 @@ char* recv_msg(int socket, TipoDeMensaje *tipo)
 
 socket: el emisor del mensaje
 
-tipo: una vez llamada a la funcion, va a contener el tipo del mensaje que se recibio en este parametro. Existen dos maneras de usarlo, ver ejemplos
-
-retorno: el mensaje que se recibio, o NULL si no se hubo un error
+retorno: el mensaje operacion que se recibio. En caso de error, devuelve un enum ERROR
 
 
 
 --Ejemplo--
 
-TipoDeMensaje tipo; //Defino una variable que a futuro va a contener el tipo
-char *resultado = recv_msg(socket, &tipo); //La funcion se encarga de inicializar la variable resultado y asignarle valor a tipo
+Operacion resultado = recv_msg(socket);
 
-if(resultado == NULL)
-	//Salio mal, hacer algo
+switch(resultado.TipoDeMensaje){
+	case TEXTO_PLANO:
+		resultado.Argumentos.TEXTO_PLANO.texto; //Variable que contiene el texto de TEXTO_PLANO
+		break;
+	case REGISTRO:
+		resultado.Argumentos.COMANDO.key;
+		resultado.Argumentos.COMANDO.timestamp;
+		resultado.Argumentos.COMANDO.value;
+		break;
+	case COMANDO:
+		resultado.Argumentos.REGISTRO.comandoParseable;
+		break;
+	case ERROR:
+		resultado.Argumentos.ERROR.mensajeError;
+}
 
-if(tipo == COMANDO)
-	parsi_mostrar(parse(resultado));
-if(tipo == TEXTO_PLANO)
-	printf("%s\n", resultado);
+destruir_operacion(resultado);
 
 
-free(resultado);
 
 
-La otra variante es definir tipo como
-TipoDeMensaje *tipo = malloc(sizeof(TipoDeMensaje));
-y enviarlo de la siguiente manera
-char *resultado = recv_msg(socket, tipo);
-La diferencia esta en que de esta manera, puedo hacer free(tipo) cuando yo quiera. El otro caso, va a liberar tipo automaticamente cuando se acabe la funcion que lo definio
 
+
+
+
+
+
+--OPERACION--
+
+La estructura operacion esta definida para que se pueda elegir uno de los siguientes enums:
+TEXTO_PLANO,
+REGISTRO,
+COMANDO,
+ERROR,
+Y por cada enum, se pueden inicializar sus respectivos argumentos:
+TEXTO_PLANO contiene un char* texto
+REGISTRO contiene un timestamp_t timestamp, uint16_t key, char* value
+COMANDO contiene un char* comandoParseable que mas adelante se deberia poder parsear y ser entendible
+ERROR que contiene un char* mensajeError para informar detalles del error
+
+
+--Ejemplo--
+
+Operacion op;
+op.TipoDeMensaje = ERROR;
+op.Argumentos.ERROR.mensajeError = malloc(sizeof(char)*strlen("Hubo error"));
+strcpy(op.Argumentos.ERROR.mensajeError, "Hubo error");
