@@ -53,7 +53,7 @@ int main(void) {
 	printf("Memoria Inicializada correctamente\n");
 
 	//TODO:GOSSIPING
-	iniciar_gossiping();
+	//iniciar_gossiping();
 
 	//FUNCIONES PARA TEST DE SELECT
 	memoriaConUnSegmentoYUnaPagina();
@@ -95,29 +95,29 @@ int main(void) {
 
 	 */
 }
-
+/*
 int realizarHandshake(void) {
 	int lfsSocket = conectarLFS();
 	tamanioValue = handshakeLFS(lfsSocket);
 	printf("TAMAÑO_VALUE= %d\n", tamanioValue);
 	return EXIT_SUCCESS;
-}
-
+}*/
+/*
 int handshakeLFS(int socketLFS) {
 	send_msg(socketLFS, TEXTO_PLANO, "handshake");
 
-	TipoDeMensaje tipo;
+	Operacion tipo;
 	char *tamanio = recv_msg(socketLFS, &tipo);
 
-	if (tipo == COMANDO)
+	if (tipo.TipoDeMensaje == COMANDO)
 		printf("Handshake falló. No se recibió el tamaño del value.\n");
-	if (tipo == TEXTO_PLANO)
+	if (tipo.TipoDeMensaje == TEXTO_PLANO)
 		printf("Handshake exitoso. Se recibió el tamaño del value, es: %d\n",
 				*tamanio);
 
 	return *tamanio;
 }
-
+*/
 int conectarLFS() {
 	//Obtiene el socket por el cual se va a conectar al LFS como cliente / * Conectarse al proceso File System
 	int socket = connect_to_server(fconfig.ip_fileSystem,
@@ -369,10 +369,10 @@ void mostrar_por_pantalla_config() {
 			vconfig.retardoGossiping());
 	log_info(logger_visible, "MEMORY_NUMBER=%s", fconfig.numero_memoria);
 }
-
+/*
 void *connection_handler(void *nSocket) {
 	int socket = *(int*) nSocket;
-	TipoDeMensaje tipo;
+	Operacion tipo;
 	char *resultado = recv_msg(socket, &tipo);
 
 	//Es importante realizar este chequeo devolviendo EXIT_FAILURE
@@ -382,9 +382,9 @@ void *connection_handler(void *nSocket) {
 
 	printf("Hemos recibido algo!\n");
 
-	if (tipo == COMANDO)
+	if (tipo.TipoDeMensaje == COMANDO)
 		comando_mostrar(parsear_comando(resultado));	//ejecutarOperacion
-	if (tipo == TEXTO_PLANO)
+	if (tipo.TipoDeMensaje == TEXTO_PLANO)
 		printf("%s\n", resultado);
 
 	//Podríamos meter un counter y que cada X mensajes recibidos corra el gossiping
@@ -395,42 +395,9 @@ void *connection_handler(void *nSocket) {
 
 	return NULL;
 }
+*/
 
-int ejecutarOperacion(char* input) { //TODO: TIPO de retorno Resultado
-	Comando *parsed = malloc(sizeof(Comando));
-	*parsed = parsear_comando(input);
-
-	//TODO: funciones pasandole userInput y parsed por si necesito enviar algo o usar algun dato parseado
-
-	if (parsed->valido) {
-		switch (parsed->keyword) {
-		case SELECT:
-			selectAPI(input, *parsed);
-			break;
-		case INSERT:
-			//TODO: ojo con pasarse del tamanio maximo para value
-			insertAPI(input, *parsed);
-			break;
-		case CREATE:
-			createAPI(input, *parsed);
-			break;
-		case DESCRIBE:
-		case DROP:
-		case JOURNAL:
-			printf("Entro un comando\n");
-			break;
-		default:
-			fprintf(stderr, RED"No se pude interpretar el enum: %d"STD"\n",
-					parsed->keyword);
-		}
-
-		destruir_comando(*parsed);
-	} else {
-		fprintf(stderr, RED"La request no es valida"STD"\n");
-	}
-	return EXIT_SUCCESS; //MOMENTANEO
-}
-
+/*
 int iniciar_gossiping() {
 
 	quitarCaracteresPpioFin(fconfig.ip_seeds);
@@ -455,7 +422,8 @@ int iniciar_gossiping() {
 
 	return EXIT_SUCCESS;
 }
-
+*/
+/*
 void *conectar_seeds(void *null) { // hilo envia a las seeds
 	//pthread_detach(pthread_self());
 	int puertoSocket;
@@ -468,6 +436,7 @@ void *conectar_seeds(void *null) { // hilo envia a las seeds
 	}
 	return NULL;
 }
+*/
 
 void *recibir_seeds(void *null) { // hilo que responde con las memorias conocidas
 	//pthread_detach(pthread_self());
@@ -491,7 +460,7 @@ void liberarIPs(char** IPs) {
 		free(IPs);
 	}
 }
-
+/*
 int conectarConSeed(char** IPs, char ** IPsPorts) {
 	// Se conecta con la seed para hacer el gossiping
 	int conteo_seeds = 0; //Static
@@ -508,21 +477,21 @@ int conectarConSeed(char** IPs, char ** IPsPorts) {
 		return ConsultoPorMemoriasConocidas(socket); //
 	}
 }
+*/
 
-
-
+/*
 int ConsultoPorMemoriasConocidas(int socketSEEDS) {
 	send_msg(socketSEEDS, TEXTO_PLANO, "memorias activas");
 
-	TipoDeMensaje tipo;
+	Operacion tipo;
 	char *tamanio = recv_msg(socketSEEDS, &tipo);
 
-	if (tipo == COMANDO)
+	if (tipo.TipoDeMensaje == COMANDO)
 		printf("Consulta de memorias conocidas falló. No se recibió respuesta.\n");
-	if (tipo == TEXTO_PLANO)
+	if (tipo.TipoDeMensaje == TEXTO_PLANO)
 		printf("Consulta exitosa. Se recibieron las memorias: %d\n",
 				*tamanio);
 
 	return *tamanio;
 }
-
+*/
