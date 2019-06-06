@@ -18,7 +18,9 @@ Operacion ejecutarOperacion(char* input) { //TODO: TIPO de retorno Resultado
 			return selectAPI(input, *parsed);
 			//break;
 		case INSERT:
-			if((strlen(parsed->argumentos.INSERT.value)+1) > tamanioValue){
+			//TODO: OJO QUE ESTA TOMANDO LAS COMILLAS. SOLUCIONAR ESO
+			if((strlen(parsed->argumentos.INSERT.value)+1-2) > tamanioValue){
+			printf("TamValue teorico: %d\n TamValue real: %d\n",tamanioValue, (strlen(parsed->argumentos.INSERT.value)+1));
 				retorno.Argumentos.ERROR.mensajeError=malloc(sizeof(char)* (strlen("Error en el tamanio del value.")+1));
 				strcpy(retorno.Argumentos.ERROR.mensajeError, "Error en el tamanio del value.");
 				retorno.TipoDeMensaje = ERROR;
@@ -85,11 +87,6 @@ Operacion selectAPI(char* input, Comando comando) {
 			resultadoSelect = tomarContenidoPagina(*registroBuscado);
 
 			resultadoSelect.TipoDeMensaje = REGISTRO;
-
-			printf("Timestamp: %llu\nKey:%d\nValue: %s\n",
-					resultadoSelect.Argumentos.REGISTRO.timestamp,
-					resultadoSelect.Argumentos.REGISTRO.key,
-					resultadoSelect.Argumentos.REGISTRO.value);
 
 			return resultadoSelect;
 		}

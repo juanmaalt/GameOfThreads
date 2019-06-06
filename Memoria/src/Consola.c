@@ -6,15 +6,31 @@
  */
 
 #include "Consola.h"
+void mostrarRetorno(Operacion retorno) {
+	switch (retorno.TipoDeMensaje) {
+	case REGISTRO:
+		printf("Timestamp: %llu\nKey:%d\nValue: %s\n",
+				retorno.Argumentos.REGISTRO.timestamp,
+				retorno.Argumentos.REGISTRO.key,
+				retorno.Argumentos.REGISTRO.value);
+		return;
+	case TEXTO_PLANO:
+		printf("Resultado: %s\n",retorno.Argumentos.TEXTO_PLANO.texto);
+		return;
+	case ERROR:
+		printf("ERROR: %s \n",retorno.Argumentos.ERROR.mensajeError);
+	}
+}
 
-void *recibir_comandos(void *null){
+void *recibir_comandos(void *null) {
 	pthread_detach(pthread_self());
 	Operacion retorno;
-	for(;;){
+	for (;;) {
 		char *userInput = readline("> ");
 		retorno = ejecutarOperacion(userInput);
+		mostrarRetorno(retorno);
 		//mostrar Retorno
-	    free(userInput);
+		free(userInput);
 	}
 	return NULL;
 }
