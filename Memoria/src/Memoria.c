@@ -26,7 +26,8 @@ void mostrarPathSegmentos() {
 int main(void) {
 	//Se hacen las configuraciones iniciales para log y config
 	if (configuracion_inicial() == EXIT_FAILURE) {
-		log_error(logger_invisible, "Memoria.c: main: no se pudo generar la configuracion inicial");
+		log_error(logger_invisible,
+				"Memoria.c: main: no se pudo generar la configuracion inicial");
 
 		return EXIT_FAILURE;
 	}
@@ -46,7 +47,8 @@ int main(void) {
 
 	// Inicializar la memoria principal
 	if (inicializar_memoriaPrincipal() == EXIT_FAILURE) {
-		log_error(logger_invisible, "Memoria.c: main: no se pudo inicializar la memoria principal");
+		log_error(logger_invisible,
+				"Memoria.c: main: no se pudo inicializar la memoria principal");
 
 		return EXIT_FAILURE;
 	}
@@ -64,16 +66,17 @@ int main(void) {
 	//Inicio consola
 
 	if (iniciar_consola() == EXIT_FAILURE) {
-		log_error(logger_invisible, "Memoria.c: main: no se pudo levantar la consola");
+		log_error(logger_invisible,
+				"Memoria.c: main: no se pudo levantar la consola");
 
 		return EXIT_FAILURE;
 	}
 
 	//pthread_join(idConsola, NULL); //detach cuando se agregue threadConnection
 
-
-	if(iniciar_serverMemoria()== EXIT_FAILURE){
-		log_error(logger_invisible, "Memoria.c: main: no se pudo levantar el servidor");
+	if (iniciar_serverMemoria() == EXIT_FAILURE) {
+		log_error(logger_invisible,
+				"Memoria.c: main: no se pudo levantar el servidor");
 
 		return EXIT_FAILURE;
 
@@ -87,9 +90,9 @@ int main(void) {
 	liberarRecursos();
 }
 
-int iniciar_serverMemoria (void){
+int iniciar_serverMemoria(void) {
 	int miSocket = enable_server(fconfig.ip, fconfig.puerto);
-	if(miSocket== EXIT_FAILURE)
+	if (miSocket == EXIT_FAILURE)
 		return EXIT_FAILURE;
 
 	log_info(logger_invisible, "Servidor encendido, esperando conexiones");
@@ -108,66 +111,65 @@ void *connection_handler(void *nSocket) {
 
 	printf("Hemos recibido algo!\n");
 
-	switch(resultado.TipoDeMensaje){
-		case COMANDO:
-			//TODO: logear comando recibido
-			resultado=ejecutarOperacion(resultado.Argumentos.COMANDO.comandoParseable);
-			send_msg(socket, resultado);
-
-			break;
-		case TEXTO_PLANO:
-		case REGISTRO:
-		case ERROR:
-		default:
-			fprintf(stderr, RED"No se pude interpretar el enum "STD"\n");
+	switch (resultado.TipoDeMensaje) {
+	case COMANDO:
+		//TODO: logear comando recibido
+		resultado = ejecutarOperacion(resultado.Argumentos.COMANDO.comandoParseable);
+		send_msg(socket, resultado);
+		break;
+	case TEXTO_PLANO:
+	case REGISTRO:
+	case ERROR:
+	default:
+		fprintf(stderr, RED"No se pude interpretar el enum %d"STD"\n",
+				resultado.TipoDeMensaje);
 	}
 
 	//Podríamos meter un counter y que cada X mensajes recibidos corra el gossiping
-
 
 	destruir_operacion(resultado);
 
 	return NULL;
 }
 
-
-
-
-
-void liberarMCBs(void* MCBAdestruir){
-	if((MCB_t *) MCBAdestruir != NULL)
-		free (MCBAdestruir);
+void liberarMCBs(void* MCBAdestruir) {
+	if ((MCB_t *) MCBAdestruir != NULL)
+		free(MCBAdestruir);
 }
 
-void liberarTablaPags(void* registroAdestruir){
-	if((registroTablaPag_t *) registroAdestruir != NULL)
-		free (registroAdestruir);
+void liberarTablaPags(void* registroAdestruir) {
+	if ((registroTablaPag_t *) registroAdestruir != NULL)
+		free(registroAdestruir);
 }
 
-void liberarSegmentos(void* segmentoAdestruir){
-	if(((segmento_t *)segmentoAdestruir)->pathTabla!= NULL)
-		free (((segmento_t *)segmentoAdestruir)->pathTabla);
+void liberarSegmentos(void* segmentoAdestruir) {
+	if (((segmento_t *) segmentoAdestruir)->pathTabla != NULL)
+		free(((segmento_t *) segmentoAdestruir)->pathTabla);
 
-	list_destroy_and_destroy_elements(((segmento_t *)segmentoAdestruir)->tablaPaginas->registrosPag, liberarTablaPags);
+	list_destroy_and_destroy_elements(
+			((segmento_t *) segmentoAdestruir)->tablaPaginas->registrosPag,
+			liberarTablaPags);
 
-	if(((segmento_t *)segmentoAdestruir)->tablaPaginas !=NULL)
-		free(((segmento_t *)segmentoAdestruir)->tablaPaginas);
+	if (((segmento_t *) segmentoAdestruir)->tablaPaginas != NULL)
+		free(((segmento_t *) segmentoAdestruir)->tablaPaginas);
 
-	if((segmento_t *) segmentoAdestruir != NULL)
-		free (segmentoAdestruir);
+	if ((segmento_t *) segmentoAdestruir != NULL)
+		free(segmentoAdestruir);
 }
 
-void liberarRecursos(void){
+void liberarRecursos(void) {
 	if (memoriaPrincipal.memoria != NULL)
-			free(memoriaPrincipal.memoria);
+		free(memoriaPrincipal.memoria);
 	queue_clean(memoriaPrincipal.marcosLibres);
 	queue_destroy(memoriaPrincipal.marcosLibres);
 
-	list_destroy_and_destroy_elements(memoriaPrincipal.listaAdminMarcos, liberarMCBs);
+	list_destroy_and_destroy_elements(memoriaPrincipal.listaAdminMarcos,
+			liberarMCBs);
 
-	list_destroy_and_destroy_elements(tablaSegmentos.listaSegmentos, liberarSegmentos);
+	list_destroy_and_destroy_elements(tablaSegmentos.listaSegmentos,
+			liberarSegmentos);
 
-	if(pathLFS!=NULL)
+	if (pathLFS != NULL)
 		free(pathLFS);
 
 	config_destroy(configFile);
@@ -175,28 +177,28 @@ void liberarRecursos(void){
 	log_destroy(logger_visible);
 }
 /*
-int realizarHandshake(void) {
-	int lfsSocket = conectarLFS();
-	tamanioValue = handshakeLFS(lfsSocket);
-	printf("TAMAÑO_VALUE= %d\n", tamanioValue);
-	return EXIT_SUCCESS;
-}*/
+ int realizarHandshake(void) {
+ int lfsSocket = conectarLFS();
+ tamanioValue = handshakeLFS(lfsSocket);
+ printf("TAMAÑO_VALUE= %d\n", tamanioValue);
+ return EXIT_SUCCESS;
+ }*/
 /*
-int handshakeLFS(int socketLFS) {
-	send_msg(socketLFS, TEXTO_PLANO, "handshake");
+ int handshakeLFS(int socketLFS) {
+ send_msg(socketLFS, TEXTO_PLANO, "handshake");
 
-	Operacion tipo;
-	char *tamanio = recv_msg(socketLFS, &tipo);
+ Operacion tipo;
+ char *tamanio = recv_msg(socketLFS, &tipo);
 
-	if (tipo.TipoDeMensaje == COMANDO)
-		printf("Handshake falló. No se recibió el tamaño del value.\n");
-	if (tipo.TipoDeMensaje == TEXTO_PLANO)
-		printf("Handshake exitoso. Se recibió el tamaño del value, es: %d\n",
-				*tamanio);
+ if (tipo.TipoDeMensaje == COMANDO)
+ printf("Handshake falló. No se recibió el tamaño del value.\n");
+ if (tipo.TipoDeMensaje == TEXTO_PLANO)
+ printf("Handshake exitoso. Se recibió el tamaño del value, es: %d\n",
+ *tamanio);
 
-	return *tamanio;
-}
-*/
+ return *tamanio;
+ }
+ */
 int conectarLFS() {
 	//Obtiene el socket por el cual se va a conectar al LFS como cliente / * Conectarse al proceso File System
 	int socket = connect_to_server(fconfig.ip_fileSystem,
@@ -218,42 +220,48 @@ char* obtenerPath(segmento_t* segmento) {
 void mostrarContenidoMemoria() {
 	timestamp_t timestamp;
 	uint16_t key;
-	char* value = malloc (sizeof(char)*tamanioValue);
-	memcpy(&timestamp,memoriaPrincipal.memoria,sizeof(timestamp_t));
-	memcpy(&key,memoriaPrincipal.memoria+sizeof(timestamp_t),sizeof(uint16_t));
-	strcpy(value,memoriaPrincipal.memoria+sizeof(timestamp_t)+ sizeof(uint16_t) );
+	char* value = malloc(sizeof(char) * tamanioValue);
+	memcpy(&timestamp, memoriaPrincipal.memoria, sizeof(timestamp_t));
+	memcpy(&key, memoriaPrincipal.memoria + sizeof(timestamp_t),
+			sizeof(uint16_t));
+	strcpy(value,
+			memoriaPrincipal.memoria + sizeof(timestamp_t) + sizeof(uint16_t));
 
-	printf("Timestamp: %llu\nKey:%d\nValue: %s\n",timestamp,key,value);
+	printf("Timestamp: %llu\nKey:%d\nValue: %s\n", timestamp, key, value);
 
 	free(value);
 
 }
 
 void asignarPathASegmento(segmento_t * segmentoANombrar, char* nombreTabla) {
-	segmentoANombrar->pathTabla = malloc(sizeof(char) * (strlen(pathLFS) + strlen(nombreTabla)) + 1);
+	segmentoANombrar->pathTabla = malloc(
+			sizeof(char) * (strlen(pathLFS) + strlen(nombreTabla)) + 1);
 	strcpy(segmentoANombrar->pathTabla, pathLFS);
 	strcat(segmentoANombrar->pathTabla, nombreTabla);
 }
 
-void crearRegistroEnTabla(tabla_de_paginas_t *tablaDondeSeEncuentra, int indiceMarco) {
+void crearRegistroEnTabla(tabla_de_paginas_t *tablaDondeSeEncuentra,
+		int indiceMarco) {
 	registroTablaPag_t *registroACrear = malloc(sizeof(registroTablaPag_t));
 
 	registroACrear->numeroPagina = indiceMarco;
 
-	list_add(tablaDondeSeEncuentra->registrosPag, (registroTablaPag_t*) registroACrear);
+	list_add(tablaDondeSeEncuentra->registrosPag,
+			(registroTablaPag_t*) registroACrear);
 
 }
 
 //Retorna el numero de marco donde se encuentra la pagina
 
 int colocarPaginaEnMemoria(timestamp_t timestamp, uint16_t key, char* value) { //DEBE DEVOLVER ERROR_MEMORIA_FULL si la cola esta vacia
-	if(queue_is_empty(memoriaPrincipal.marcosLibres)){
+	if (queue_is_empty(memoriaPrincipal.marcosLibres)) {
 		return ERROR_MEMORIA_FULL;
 	}
 	//wSEMAFORO
 	MCB_t * marcoObjetivo = (MCB_t *) queue_pop(memoriaPrincipal.marcosLibres); //No se elimina porque el MCB tambien esta en listaAdministrativaMarcos
 
-	void * direccionMarco = memoriaPrincipal.memoria + memoriaPrincipal.tamanioMarco * marcoObjetivo->nroMarco;
+	void * direccionMarco = memoriaPrincipal.memoria
+			+ memoriaPrincipal.tamanioMarco * marcoObjetivo->nroMarco;
 
 	memcpy(direccionMarco, &timestamp, sizeof(timestamp_t));
 
@@ -278,7 +286,7 @@ void memoriaConUnSegmentoYUnaPagina(void) {
 	segmentoEjemplo->tablaPaginas->registrosPag = list_create();
 
 	//Insertar pagina Ejemplo en Memoria Principal
-	int indiceMarcoEjemplo = colocarPaginaEnMemoria(getCurrentTime(), 1,"Car");
+	int indiceMarcoEjemplo = colocarPaginaEnMemoria(getCurrentTime(), 1, "Car");
 
 	//Crear registro de pagina en la tabla
 
@@ -328,7 +336,8 @@ int inicializar_memoriaPrincipal() {
 
 int iniciar_consola() {
 	if (pthread_create(&idConsola, NULL, recibir_comandos, NULL)) {
-		log_error(logger_invisible, "Memoria.c: iniciar_consola: fallo la creacion de la consola");
+		log_error(logger_invisible,
+				"Memoria.c: iniciar_consola: fallo la creacion de la consola");
 
 		return EXIT_FAILURE;
 	}
@@ -339,7 +348,8 @@ int configuracion_inicial() {
 
 	logger_visible = iniciar_logger(true);
 	if (logger_visible == NULL) {
-		log_error(logger_invisible, "Memoria.c: configuracion_inicial: error en 'logger_visible = iniciar_logger(true)");
+		log_error(logger_invisible,
+				"Memoria.c: configuracion_inicial: error en 'logger_visible = iniciar_logger(true)");
 		//printf(
 		//		RED"Memoria.c: configuracion_inicial: error en 'logger_visible = iniciar_logger(true);'"STD"\n");
 		return EXIT_FAILURE;
@@ -347,14 +357,16 @@ int configuracion_inicial() {
 
 	logger_invisible = iniciar_logger(false);
 	if (logger_visible == NULL) {
-		log_error(logger_invisible, "Memoria.c: configuracion_inicial: error en 'logger_invisible = iniciar_logger(false)");
+		log_error(logger_invisible,
+				"Memoria.c: configuracion_inicial: error en 'logger_invisible = iniciar_logger(false)");
 		//printf(
-			//	RED"Memoria.c: configuracion_inicial: error en 'logger_invisible = iniciar_logger(false);'"STD"\n");
+		//	RED"Memoria.c: configuracion_inicial: error en 'logger_invisible = iniciar_logger(false);'"STD"\n");
 		return EXIT_FAILURE;
 	}
 
 	if (inicializar_configs() == EXIT_FAILURE) {
-		log_error(logger_invisible, "Memoria.c: configuracion_inicial: error en el archivo 'Memoria.config'");
+		log_error(logger_invisible,
+				"Memoria.c: configuracion_inicial: error en el archivo 'Memoria.config'");
 
 		return EXIT_FAILURE;
 	}
@@ -448,48 +460,46 @@ void mostrar_por_pantalla_config() {
 	log_info(logger_visible, "MEMORY_NUMBER=%s", fconfig.numero_memoria);
 }
 
-
-
 /*
-int iniciar_gossiping() {
+ int iniciar_gossiping() {
 
-	quitarCaracteresPpioFin(fconfig.ip_seeds);
-	IPs = string_split(fconfig.ip_seeds, ",");
+ quitarCaracteresPpioFin(fconfig.ip_seeds);
+ IPs = string_split(fconfig.ip_seeds, ",");
 
-	quitarCaracteresPpioFin(fconfig.puerto_seeds);
-	IPsPorts = string_split(fconfig.puerto_seeds, ",");
-	for (int i = 0; IPs[i] != NULL; ++i)	//Muestro por pantalla las IP seeds
-		printf("IP %d: %s\n", i, IPs[i]);
+ quitarCaracteresPpioFin(fconfig.puerto_seeds);
+ IPsPorts = string_split(fconfig.puerto_seeds, ",");
+ for (int i = 0; IPs[i] != NULL; ++i)	//Muestro por pantalla las IP seeds
+ printf("IP %d: %s\n", i, IPs[i]);
 
-	if (pthread_create(&idGossipSend, NULL, conectar_seeds, NULL)) {
-		printf(
-				RED"Memoria.c: iniciar_gossiping: fallo la creacion hilo gossiping envios"STD"\n");
-		return EXIT_FAILURE;
-	}
-	//if(pthread_create(&idConsola, NULL, recibir_comandos, NULL)){
-	if (pthread_create(&idGossipReciv, NULL, recibir_seeds, NULL)) {
-		printf(
-				RED"Memoria.c: iniciar_gossiping: fallo la creacion hilo gossiping escucha"STD"\n");
-		return EXIT_FAILURE;
-	}
+ if (pthread_create(&idGossipSend, NULL, conectar_seeds, NULL)) {
+ printf(
+ RED"Memoria.c: iniciar_gossiping: fallo la creacion hilo gossiping envios"STD"\n");
+ return EXIT_FAILURE;
+ }
+ //if(pthread_create(&idConsola, NULL, recibir_comandos, NULL)){
+ if (pthread_create(&idGossipReciv, NULL, recibir_seeds, NULL)) {
+ printf(
+ RED"Memoria.c: iniciar_gossiping: fallo la creacion hilo gossiping escucha"STD"\n");
+ return EXIT_FAILURE;
+ }
 
-	return EXIT_SUCCESS;
-}
-*/
+ return EXIT_SUCCESS;
+ }
+ */
 /*
-void *conectar_seeds(void *null) { // hilo envia a las seeds
-	//pthread_detach(pthread_self());
-	int puertoSocket;
-	puertoSocket = conectarConSeed(IPs, IPsPorts);
-	// puertoSocket = ConsultoPorMemoriasConocidas(puertoSocket);
-	liberarIPs(IPs);
-	liberarIPs(IPsPorts);
-	for (;;) {
-		// Envia mensaje a las seeds que conoce
-	}
-	return NULL;
-}
-*/
+ void *conectar_seeds(void *null) { // hilo envia a las seeds
+ //pthread_detach(pthread_self());
+ int puertoSocket;
+ puertoSocket = conectarConSeed(IPs, IPsPorts);
+ // puertoSocket = ConsultoPorMemoriasConocidas(puertoSocket);
+ liberarIPs(IPs);
+ liberarIPs(IPsPorts);
+ for (;;) {
+ // Envia mensaje a las seeds que conoce
+ }
+ return NULL;
+ }
+ */
 
 void *recibir_seeds(void *null) { // hilo que responde con las memorias conocidas
 	//pthread_detach(pthread_self());
@@ -514,37 +524,37 @@ void liberarIPs(char** IPs) {
 	}
 }
 /*
-int conectarConSeed(char** IPs, char ** IPsPorts) {
-	// Se conecta con la seed para hacer el gossiping
-	int conteo_seeds = 0; //Static
-	for (; IPs[conteo_seeds] != NULL;) {
-		int socket = connect_to_server(IPs[conteo_seeds],
-				IPsPorts[conteo_seeds]);
-		if (socket == EXIT_FAILURE) {
-			log_error(logger_invisible, "La memoria no esta activa");
-			conteo_seeds++;
-			return EXIT_FAILURE;
-		}
-		log_error(logger_invisible, "Memoria conocida. Envia rmensaje");
-		conteo_seeds++;
-		return ConsultoPorMemoriasConocidas(socket); //
-	}
-}
-*/
+ int conectarConSeed(char** IPs, char ** IPsPorts) {
+ // Se conecta con la seed para hacer el gossiping
+ int conteo_seeds = 0; //Static
+ for (; IPs[conteo_seeds] != NULL;) {
+ int socket = connect_to_server(IPs[conteo_seeds],
+ IPsPorts[conteo_seeds]);
+ if (socket == EXIT_FAILURE) {
+ log_error(logger_invisible, "La memoria no esta activa");
+ conteo_seeds++;
+ return EXIT_FAILURE;
+ }
+ log_error(logger_invisible, "Memoria conocida. Envia rmensaje");
+ conteo_seeds++;
+ return ConsultoPorMemoriasConocidas(socket); //
+ }
+ }
+ */
 
 /*
-int ConsultoPorMemoriasConocidas(int socketSEEDS) {
-	send_msg(socketSEEDS, TEXTO_PLANO, "memorias activas");
+ int ConsultoPorMemoriasConocidas(int socketSEEDS) {
+ send_msg(socketSEEDS, TEXTO_PLANO, "memorias activas");
 
-	Operacion tipo;
-	char *tamanio = recv_msg(socketSEEDS, &tipo);
+ Operacion tipo;
+ char *tamanio = recv_msg(socketSEEDS, &tipo);
 
-	if (tipo.TipoDeMensaje == COMANDO)
-		printf("Consulta de memorias conocidas falló. No se recibió respuesta.\n");
-	if (tipo.TipoDeMensaje == TEXTO_PLANO)
-		printf("Consulta exitosa. Se recibieron las memorias: %d\n",
-				*tamanio);
+ if (tipo.TipoDeMensaje == COMANDO)
+ printf("Consulta de memorias conocidas falló. No se recibió respuesta.\n");
+ if (tipo.TipoDeMensaje == TEXTO_PLANO)
+ printf("Consulta exitosa. Se recibieron las memorias: %d\n",
+ *tamanio);
 
-	return *tamanio;
-}
-*/
+ return *tamanio;
+ }
+ */

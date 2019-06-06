@@ -91,7 +91,7 @@ Operacion selectAPI(char* input, Comando comando) {
 					resultadoSelect.Argumentos.REGISTRO.key,
 					resultadoSelect.Argumentos.REGISTRO.value);
 
-			return resultadoSelect; //TODO: se debe devolver el value
+			return resultadoSelect;
 		}
 		printf(
 				RED"APIMemoria.c: select: no encontro la key. Enviar a LFS la request"STD"\n"); //TODO: meter en log
