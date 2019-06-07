@@ -16,13 +16,14 @@ Operacion ejecutarOperacion(char* input) { //TODO: TIPO de retorno Resultado
 	if (parsed->valido) {
 		switch (parsed->keyword) {
 		case SELECT:
-			return selectAPI(input, *parsed);
-			//break;
+			retorno = selectAPI(input, *parsed);
+			break;
 		case INSERT:
 			//TODO: OJO QUE ESTA TOMANDO LAS COMILLAS. SOLUCIONAR ESO
+
 			valueInsert = quitarCaracteresPpioFin(parsed->argumentos.INSERT.value);
 			printf("EL VALOR DESPUES DE QUITAR %s\n",valueInsert);
-			free(parsed->argumentos.INSERT.value);
+			//free(parsed->argumentos.INSERT.value);
 			parsed->argumentos.INSERT.value=valueInsert;
 
 			if((strlen(parsed->argumentos.INSERT.value)+1) > tamanioValue){
@@ -32,8 +33,9 @@ Operacion ejecutarOperacion(char* input) { //TODO: TIPO de retorno Resultado
 				retorno.TipoDeMensaje = ERROR;
 				return retorno;
 			}
-			return insertAPI(input, *parsed);
-			//break;
+			retorno = insertAPI(input, *parsed);
+			//return insertAPI(input, *parsed);
+			break;
 		case CREATE:
 			return createAPI(input, *parsed);
 			break;
@@ -43,17 +45,21 @@ Operacion ejecutarOperacion(char* input) { //TODO: TIPO de retorno Resultado
 			printf("Entro un comando\n");
 			break;
 		default:
+
 			fprintf(stderr, RED"No se pude interpretar el enum: %d"STD"\n",
 					parsed->keyword);
 		}
 
 		destruir_comando(*parsed);
+		return retorno;
 	} else {
 		fprintf(stderr, RED"La request no es valida"STD"\n");
 	}
+
+	retorno.TipoDeMensaje = ERROR;
 	retorno.Argumentos.ERROR.mensajeError=malloc(sizeof(char)* (strlen("Error en la recepcion del resultado.")+1));
 	strcpy(retorno.Argumentos.ERROR.mensajeError, "Error en la recepcion del resultado.");
-	retorno.TipoDeMensaje = ERROR;
+
 	return retorno;
 }
 
