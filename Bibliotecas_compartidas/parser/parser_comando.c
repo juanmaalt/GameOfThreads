@@ -126,7 +126,7 @@ Comando parsear_comando(char* line){
 		ret.keyword = INSERT;
 		ret.argumentos.INSERT.nombreTabla =  split[1];
 		ret.argumentos.INSERT.key =  split[2];
-		remover_comillas(split[3]);
+		//remover_comillas(split[3]);
 		ret.argumentos.INSERT.value =  split[3];
 		ret.argumentos.INSERT.timestamp =  split[4];
 	} else if(string_equals_ignore_case(keyword, "CREATE")){

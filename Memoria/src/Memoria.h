@@ -205,7 +205,7 @@ char **IPsPorts;
 int iniciar_gossiping();
 
 void liberarIPs(char** );
-void quitarCaracteresPpioFin(char* );
+char* quitarCaracteresPpioFin(char* );
 int conectarConSeed(char**,char**);
 void *conectar_seeds(void*);
 void *recibir_seeds(void*);

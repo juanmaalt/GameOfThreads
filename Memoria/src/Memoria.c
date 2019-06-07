@@ -510,11 +510,15 @@ void *recibir_seeds(void *null) { // hilo que responde con las memorias conocida
 	}
 	return NULL;
 }
-void quitarCaracteresPpioFin(char* cadena) {
-	for (int i = 0; i < strlen(cadena) + 1; ++i) {
-		cadena[i] = cadena[i + 1];
+char* quitarCaracteresPpioFin(char* cadena) {
+	char * temporal = malloc(sizeof(char)*(strlen(cadena)-1)); //Me sobran 2 de comillas (-2) y +1 para el '\0'
+	int i;
+	for (i = 0; cadena[i+2] != '\0' ; ++i) {
+		temporal[i] = cadena[i + 1];
 	}
-	cadena[strlen(cadena) - 1] = '\0';
+	temporal[i] = '\0';
+	return temporal;
+
 }
 
 void liberarIPs(char** IPs) {
