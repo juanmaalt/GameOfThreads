@@ -95,7 +95,7 @@ static void loggear_operacion(Operacion op){
 		log_info(logger_visible,"CPU: %d | Timestamp: %llu, Key: %d, Value: %s", process_get_thread_id(), op.Argumentos.REGISTRO.timestamp, op.Argumentos.REGISTRO.key, op.Argumentos.REGISTRO.value);
 		return;
 	case ERROR:
-		log_error(logger_error,"CPU: %d | Kernel panic: ", process_get_thread_id(), op.Argumentos.ERROR.mensajeError);
+		log_error(logger_error,"CPU: %d | Kernel panic: %s", process_get_thread_id(), op.Argumentos.ERROR.mensajeError);
 		return;
 	}
 }

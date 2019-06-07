@@ -25,6 +25,7 @@
 	#include <stdio.h>
 	#include <stdbool.h>
 	#include <commons/string.h>
+	#include <string.h>
 
 	typedef struct {
 		bool valido;
@@ -114,6 +115,18 @@
 	* 		comando - Una comando cualquiera
 	*/
 	int comando_validar(Comando comando);
+
+	/**
+	* @NAME: remover_comillas
+	* @DESC: remueve las comillas de una cadena pasada por parametro. Tiene efecto de lado.
+	* 		 Si le pasas "hola" te la transforma a hola. Si le pasas hola no hace nada.
+	* 		 Se puede usar con cualquier cadena, pero en el parser, hay que pasarle split[n]
+	* @PARAMS:
+	* 		comando - Una comando cualquiera
+	*/
+	void remover_comillas(char* cadena);
+
+
 
 
 

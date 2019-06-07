@@ -126,6 +126,7 @@ Comando parsear_comando(char* line){
 		ret.keyword = INSERT;
 		ret.argumentos.INSERT.nombreTabla =  split[1];
 		ret.argumentos.INSERT.key =  split[2];
+		remover_comillas(split[3]);
 		ret.argumentos.INSERT.value =  split[3];
 		ret.argumentos.INSERT.timestamp =  split[4];
 	} else if(string_equals_ignore_case(keyword, "CREATE")){
@@ -237,4 +238,12 @@ int comando_validar(Comando parsed){
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
+}
+
+void remover_comillas(char* splitViejo){
+	if(string_starts_with(splitViejo, "\"") && string_ends_with(splitViejo, "\"")){
+		char *splitTemp = string_duplicate(splitViejo);
+		free(splitViejo);
+		splitViejo = string_substring(splitTemp, 1, strlen(splitTemp)-2);
+	}
 }

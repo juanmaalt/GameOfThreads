@@ -13,7 +13,7 @@ int send_msg(int socket, Operacion operacion) {
 		content = malloc(total);
 		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
 		memcpy(content+sizeof(int), &longCadena, sizeof(int));
-		memcpy(content+2*sizeof(int), operacion.Argumentos.TEXTO_PLANO.texto, total);
+		memcpy(content+2*sizeof(int), operacion.Argumentos.TEXTO_PLANO.texto, sizeof(char)*longCadena);
 		break;
 
 	case COMANDO:
@@ -29,7 +29,7 @@ int send_msg(int socket, Operacion operacion) {
 		content = malloc(total);
 		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
 		memcpy(content+sizeof(int), &longCadena, sizeof(int));
-		memcpy(content+2*sizeof(int),operacion.Argumentos.COMANDO.comandoParseable, total);
+		memcpy(content+2*sizeof(int),operacion.Argumentos.COMANDO.comandoParseable, sizeof(char)*longCadena);
 		break;
 
 	case REGISTRO:
@@ -50,8 +50,7 @@ int send_msg(int socket, Operacion operacion) {
 		content = malloc(total);
 		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
 		memcpy(content+sizeof(int), &longCadena, sizeof(int));
-		memcpy(content+2*sizeof(int), operacion.Argumentos.ERROR.mensajeError,
-				total);
+		memcpy(content+2*sizeof(int), operacion.Argumentos.ERROR.mensajeError, sizeof(char)*longCadena);
 		break;
 	default:
 		return EXIT_FAILURE;
@@ -59,8 +58,7 @@ int send_msg(int socket, Operacion operacion) {
 
 	int result = send(socket, content, total, 0);
 	if (result <= 0) {
-		printf(
-				RED"serializacion.c: send_command: no se pudo enviar el mensaje"STD"\n");
+		printf(RED"serializacion.c: send_command: no se pudo enviar el mensaje"STD"\n");
 		return EXIT_FAILURE;
 	}
 	if (content != NULL)
@@ -73,11 +71,7 @@ Operacion recv_msg(int socket) {
 	int longitud = 0;
 	int result = recv(socket, &(retorno.TipoDeMensaje), sizeof(int), 0);
 	if (result <= 0) {
-		retorno.Argumentos.ERROR.mensajeError = malloc(
-				sizeof(char)
-						* (strlen("Error en la recepcion del resultado.") + 1));
-		strcpy(retorno.Argumentos.ERROR.mensajeError,
-				"Error en la recepcion del resultado.");
+		retorno.Argumentos.ERROR.mensajeError = "Error en la recepcion del resultado.";
 		retorno.TipoDeMensaje = ERROR;
 		return retorno;
 	}
@@ -91,24 +85,20 @@ Operacion recv_msg(int socket) {
 		break;
 	case COMANDO:
 		recv(socket, &longitud, sizeof(int), 0);
-		retorno.Argumentos.COMANDO.comandoParseable = calloc(longitud,
-				sizeof(char));
-		recv(socket, retorno.Argumentos.COMANDO.comandoParseable,
-				sizeof(char) * longitud, 0);
+		retorno.Argumentos.COMANDO.comandoParseable = calloc(longitud,sizeof(char));
+		recv(socket, retorno.Argumentos.COMANDO.comandoParseable,sizeof(char) * longitud, 0);
 		break;
 	case REGISTRO:
 		recv(socket, &(retorno.Argumentos.REGISTRO.timestamp), sizeof(timestamp_t), 0);
 		recv(socket, &(retorno.Argumentos.REGISTRO.key), sizeof(uint16_t), 0);
 		recv(socket, &longitud, sizeof(int), 0);
 		retorno.Argumentos.REGISTRO.value = calloc(longitud, sizeof(char));
-		recv(socket, retorno.Argumentos.REGISTRO.value, sizeof(char) * longitud,
-				0);
+		recv(socket, retorno.Argumentos.REGISTRO.value, sizeof(char) * longitud,0);
 		break;
 	case ERROR:
 		recv(socket, &longitud, sizeof(int), 0);
 		retorno.Argumentos.ERROR.mensajeError = calloc(longitud, sizeof(char));
-		recv(socket, retorno.Argumentos.ERROR.mensajeError,
-				sizeof(char) * longitud, 0);
+		recv(socket, retorno.Argumentos.ERROR.mensajeError, sizeof(char) * longitud, 0);
 		break;
 	}
 	return retorno;

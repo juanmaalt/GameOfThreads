@@ -14,7 +14,7 @@ void *recibir_comandos(void *null){
 	for(;;){
 		char *userImput = readline(""); //TODO: el userInput va a pasar a formar parte del PCB probablemente, asi que tenerlo en cuenta para la liberacion, todavia no se como lo voy a hacer
 		*parsed = parsear_comando(userImput);
-
+		comando_mostrar(*parsed);
 	    if(parsed->valido){
 	        switch(parsed->keyword){
 	            case SELECT:

@@ -10,8 +10,8 @@
 int iniciar_planificador(){
 	if(iniciar_unidades_de_ejecucion() == EXIT_FAILURE)
 		RETURN_ERROR("Planificador.c: iniciar_planificador: no se pudieron iniciar las unidades de ejecucion");
-	if(comunicarse_con_memoria() == EXIT_FAILURE)
-		RETURN_ERROR("Planificador.c: iniciar_planificador: no se pudo establecer una conexion con la memoria principal");
+	//if(comunicarse_con_memoria() == EXIT_FAILURE)
+		//RETURN_ERROR("Planificador.c: iniciar_planificador: no se pudo establecer una conexion con la memoria principal");
 
 	colaDeReady = queue_create();
 	sem_post(&disponibilidadPlanificador); //No queremos que la consola agregue algo a la cola de news si todavia no existe la cola de news
@@ -54,6 +54,7 @@ static int comunicarse_con_memoria(){
 			log_error(logger_error, "Planificador.c: comunicarse_con_memoria: error al conectarse al servidor memoria... Reintentando (%d)", i);
 			sleep(3);
 		}else{
+			log_info(logger_visible, "Conectado a la memoria principal");
 			return EXIT_SUCCESS;
 		}
 	}
