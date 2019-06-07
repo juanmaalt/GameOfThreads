@@ -11,7 +11,6 @@ Operacion ejecutarOperacion(char* input) {
 	Comando *parsed = malloc(sizeof(Comando));
 	Operacion retorno;
 	*parsed = parsear_comando(input);
-	char* valueInsert;
 
 	if (parsed->valido) {
 		switch (parsed->keyword) {
@@ -24,9 +23,10 @@ Operacion ejecutarOperacion(char* input) {
 				retorno.Argumentos.ERROR.mensajeError=malloc(sizeof(char)* (strlen("Error en el tamanio del value.")+1));
 				strcpy(retorno.Argumentos.ERROR.mensajeError, "Error en el tamanio del value.");
 				retorno.TipoDeMensaje = ERROR;
-				return retorno;
+			}else{
+				retorno = insertAPI(input, *parsed);
 			}
-			retorno = insertAPI(input, *parsed);
+
 			break;
 		case CREATE:
 			return createAPI(input, *parsed);
@@ -43,14 +43,19 @@ Operacion ejecutarOperacion(char* input) {
 		}
 
 		destruir_comando(*parsed);
+		free(parsed);
 		return retorno;
 	} else {
 		fprintf(stderr, RED"La request no es valida"STD"\n");
+
+		destruir_comando(*parsed);
+		free(parsed);
 	}
 
 	retorno.TipoDeMensaje = ERROR;
 	retorno.Argumentos.ERROR.mensajeError=malloc(sizeof(char)* (strlen("Error en la recepcion del resultado.")+1));
 	strcpy(retorno.Argumentos.ERROR.mensajeError, "Error en la recepcion del resultado.");
+
 
 	return retorno;
 }
@@ -227,8 +232,7 @@ Operacion insertAPI(char* input, Comando comando) {
 		list_add(tablaSegmentos.listaSegmentos, (segmento_t*) segmentoNuevo);
 
 		resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
-		resultadoInsert.Argumentos.TEXTO_PLANO.texto = malloc(
-				sizeof(char) * (strlen("INSERT REALIZADO CON EXITO") + 1));
+		resultadoInsert.Argumentos.TEXTO_PLANO.texto = malloc(sizeof(char) * (strlen("INSERT REALIZADO CON EXITO") + 1));
 
 		strcpy(resultadoInsert.Argumentos.TEXTO_PLANO.texto,
 				"INSERT REALIZADO CON EXITO");
@@ -297,6 +301,7 @@ bool verificarExistenciaSegmento(char* nombreTabla,
 	free(pathSegmentoBuscado);
 
 	if (list_is_empty(listaConSegmentoBuscado)) {
+		list_destroy(listaConSegmentoBuscado);
 		printf(RED"APIMemoria.c: NO SE ENCONTRO EL SEGMENTO"STD"\n");
 		return false;
 	}
