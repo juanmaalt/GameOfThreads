@@ -7,7 +7,7 @@
 
 #include "APIMemoria.h"
 
-Operacion ejecutarOperacion(char* input) { //TODO: TIPO de retorno Resultado
+Operacion ejecutarOperacion(char* input) {
 	Comando *parsed = malloc(sizeof(Comando));
 	Operacion retorno;
 	*parsed = parsear_comando(input);
@@ -19,13 +19,6 @@ Operacion ejecutarOperacion(char* input) { //TODO: TIPO de retorno Resultado
 			retorno = selectAPI(input, *parsed);
 			break;
 		case INSERT:
-			//TODO: OJO QUE ESTA TOMANDO LAS COMILLAS. SOLUCIONAR ESO
-
-			valueInsert = quitarCaracteresPpioFin(parsed->argumentos.INSERT.value);
-			printf("EL VALOR DESPUES DE QUITAR %s\n",valueInsert);
-			//free(parsed->argumentos.INSERT.value);
-			parsed->argumentos.INSERT.value=valueInsert;
-
 			if((strlen(parsed->argumentos.INSERT.value)+1) > tamanioValue){
 				printf("TamValue teorico: %d\n TamValue real: %d\n",tamanioValue, (strlen(parsed->argumentos.INSERT.value)+1));
 				retorno.Argumentos.ERROR.mensajeError=malloc(sizeof(char)* (strlen("Error en el tamanio del value.")+1));
@@ -34,7 +27,6 @@ Operacion ejecutarOperacion(char* input) { //TODO: TIPO de retorno Resultado
 				return retorno;
 			}
 			retorno = insertAPI(input, *parsed);
-			//return insertAPI(input, *parsed);
 			break;
 		case CREATE:
 			return createAPI(input, *parsed);
