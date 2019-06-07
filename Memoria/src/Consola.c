@@ -19,6 +19,9 @@ void mostrarRetorno(Operacion retorno) {
 		return;
 	case ERROR:
 		printf("ERROR: %s \n",retorno.Argumentos.ERROR.mensajeError);
+		return;
+	case COMANDO:
+		return;
 	}
 }
 
@@ -29,7 +32,6 @@ void *recibir_comandos(void *null) {
 		char *userInput = readline("> ");
 		retorno = ejecutarOperacion(userInput);
 		mostrarRetorno(retorno);
-		//mostrar Retorno
 		free(userInput);
 	}
 	return NULL;

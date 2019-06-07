@@ -72,25 +72,22 @@ int main(void) {
 		return EXIT_FAILURE;
 	}
 
-	//pthread_join(idConsola, NULL); //detach cuando se agregue threadConnection
-
+	//Habilita el server y queda en modo en listen
 	if (iniciar_serverMemoria() == EXIT_FAILURE) {
 		log_error(logger_invisible,
 				"Memoria.c: main: no se pudo levantar el servidor");
 
 		return EXIT_FAILURE;
-
 	}
-	//Habilita el server y queda en modo en listen
-	/*
 
-	 */
 
 	//TODO: liberar todo
 	liberarRecursos();
 }
 
 int iniciar_serverMemoria(void) {
+
+	//TODO: separar en enable y escuchar
 	int miSocket = enable_server(fconfig.ip, fconfig.puerto);
 	if (miSocket == EXIT_FAILURE)
 		return EXIT_FAILURE;
@@ -119,8 +116,11 @@ void *connection_handler(void *nSocket) {
 		send_msg(socket, resultado);
 		break;
 	case TEXTO_PLANO:
+		break;
 	case REGISTRO:
+		break;
 	case ERROR:
+		break;
 	default:
 		fprintf(stderr, RED"No se pude interpretar el enum %d"STD"\n",
 				resultado.TipoDeMensaje);
