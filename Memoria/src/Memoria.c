@@ -72,8 +72,6 @@ int main(void) {
 		return EXIT_FAILURE;
 	}
 
-	//pthread_join(idConsola, NULL); //detach cuando se agregue threadConnection
-
 	//Habilita el server y queda en modo en listen
 	if (iniciar_serverMemoria() == EXIT_FAILURE) {
 		log_error(logger_invisible,
@@ -118,8 +116,11 @@ void *connection_handler(void *nSocket) {
 		send_msg(socket, resultado);
 		break;
 	case TEXTO_PLANO:
+		break;
 	case REGISTRO:
+		break;
 	case ERROR:
+		break;
 	default:
 		fprintf(stderr, RED"No se pude interpretar el enum %d"STD"\n",
 				resultado.TipoDeMensaje);
