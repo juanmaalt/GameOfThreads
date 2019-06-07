@@ -12,9 +12,8 @@ void *recibir_comandos(void *null){
 	sem_wait(&disponibilidadPlanificador);
 	Comando *parsed = malloc(sizeof(Comando));
 	for(;;){
-		char *userImput = readline(""); //TODO: el userInput va a pasar a formar parte del PCB probablemente, asi que tenerlo en cuenta para la liberacion, todavia no se como lo voy a hacer
+		char *userImput = readline("");
 		*parsed = parsear_comando(userImput);
-		comando_mostrar(*parsed);
 	    if(parsed->valido){
 	        switch(parsed->keyword){
 	            case SELECT:
@@ -76,8 +75,6 @@ static int new_lql(char *path){
 				free(line);
 			return EXIT_FAILURE;
 		}
-		if(line != NULL)
-			;//free(line);
 	}
 	fseek(lql, 0, SEEK_SET);//Restauro el puntero del archivo al inicio
 	if(new(FILE_LQL, (void*)lql) == EXIT_FAILURE){

@@ -9,7 +9,6 @@
 
 void *exec(void *null){
 	pthread_detach(pthread_self());
-	int resultado;
 	for(;;){
 		//La cpu por default esta disponible si esta en este wait
 		sem_wait(&scriptEnReady);
@@ -18,10 +17,10 @@ void *exec(void *null){
 		sem_post(&extraerDeReadyDeAUno);
 		switch(pcb->tipo){
 		case STRING_COMANDO:
-			resultado = exec_string_comando(pcb);
+			exec_string_comando(pcb);
 			break;
 		case FILE_LQL:
-			resultado = exec_file_lql(pcb);
+			exec_file_lql(pcb);
 			break;
 		}
 	}
@@ -40,7 +39,9 @@ static int exec_string_comando(PCB *pcb){
 	request = recv_msg(socketMemoriaPrincipal);
 	//printf("CPU: %d | Operacion unitaria: %s\n", process_get_thread_id(), userInput);
 	loggear_operacion(request);
-	//TODO: ver tema free
+	destruir_operacion(request);
+	free(pcb->data);
+	free(pcb);
 	return FINALIZO;
 }
 
@@ -59,11 +60,9 @@ static int exec_file_lql(PCB *pcb){
 	for(int i=1; i<=quantumBuffer; ++i){
 		line = fgets(buffer, MAX_BUFFER_SIZE_FOR_LQL_LINE, lql);
 		if(line == NULL || feof(lql)){
-			fclose(lql);
 			printf("\n");
-			//free(pcb->data);
-			//free(pcb);
 			fclose(lql);
+			free(pcb);
 			return FINALIZO;
 		}
 		request.Argumentos.COMANDO.comandoParseable = line;
@@ -71,14 +70,13 @@ static int exec_file_lql(PCB *pcb){
 		//printf("CPU: %d | FILE: %p | linea de LQL: %s", process_get_thread_id(), lql, line);
 		request = recv_msg(socketMemoriaPrincipal);
 		loggear_operacion(request);
+		destruir_operacion(request);
 	}
 	printf("\n");
 	sem_wait(&meterEnReadyDeAUno);
 	desalojar(pcb);
 	sem_post(&meterEnReadyDeAUno);
 	sem_post(&scriptEnReady); //Ya que se metio a la lista de vuelta
-	if(line != NULL)
-		;//free(line);
 	simular_retardo();
 	return DESALOJO;
 }

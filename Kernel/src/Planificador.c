@@ -27,7 +27,7 @@ int iniciar_planificador(){
 
 
 int new(PCB_DataType tipo, void *data){
-	PCB *pcb = malloc(sizeof(PCB)); //TODO: no olvidarse que hay que liberarlo en algun momento
+	PCB *pcb = malloc(sizeof(PCB));
 	pcb->data = data; //pcb->data almacena la direccion data
 	switch(tipo){
 	case STRING_COMANDO:
@@ -51,8 +51,8 @@ int new(PCB_DataType tipo, void *data){
 static int comunicarse_con_memoria(){
 	for(int i=1; i<=6; ++i){
 		if((socketMemoriaPrincipal = connect_to_server(fconfig.ip_memoria, fconfig.puerto_memoria)) == EXIT_FAILURE){
-			log_error(logger_error, "Planificador.c: comunicarse_con_memoria: error al conectarse al servidor memoria... Reintentando (%d)", i);
-			sleep(3);
+			log_error(logger_error, "Planificador.c: comunicarse_con_memoria: error al conectarse al servidor memoria... Reintentando (%d/6)", i);
+			sleep(1);
 		}else{
 			log_info(logger_visible, "Conectado a la memoria principal");
 			return EXIT_SUCCESS;

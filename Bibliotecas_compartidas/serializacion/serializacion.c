@@ -71,7 +71,9 @@ Operacion recv_msg(int socket) {
 	int longitud = 0;
 	int result = recv(socket, &(retorno.TipoDeMensaje), sizeof(int), 0);
 	if (result <= 0) {
-		retorno.Argumentos.ERROR.mensajeError = "Error en la recepcion del resultado.";
+		retorno.Argumentos.ERROR.mensajeError = string_from_format("Error en la recepcion del resultado.");
+		//retorno.Argumentos.ERROR.mensajeError = calloc(strlen("Error en la recepcion del resultado.")+1, sizeof(char));
+		//strcpy(retorno.Argumentos.ERROR.mensajeError, "Error en la recepcion del resultado.\0");
 		retorno.TipoDeMensaje = ERROR;
 		return retorno;
 	}
@@ -80,8 +82,7 @@ Operacion recv_msg(int socket) {
 	case TEXTO_PLANO:
 		recv(socket, &longitud, sizeof(int), 0);
 		retorno.Argumentos.TEXTO_PLANO.texto = calloc(longitud, sizeof(char));
-		recv(socket, retorno.Argumentos.TEXTO_PLANO.texto,
-				sizeof(char) * longitud, 0);
+		recv(socket, retorno.Argumentos.TEXTO_PLANO.texto, sizeof(char) * longitud, 0);
 		break;
 	case COMANDO:
 		recv(socket, &longitud, sizeof(int), 0);
