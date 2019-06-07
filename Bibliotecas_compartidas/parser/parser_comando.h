@@ -119,12 +119,13 @@
 	/**
 	* @NAME: remover_comillas
 	* @DESC: remueve las comillas de una cadena pasada por parametro. Tiene efecto de lado.
+	* 		 Para usarla pasarle la direccion de un puntero a char. Ejemplo char *cadena, le paso &cadena
 	* 		 Si le pasas "hola" te la transforma a hola. Si le pasas hola no hace nada.
 	* 		 Se puede usar con cualquier cadena, pero en el parser, hay que pasarle split[n]
 	* @PARAMS:
 	* 		comando - Una comando cualquiera
 	*/
-	void remover_comillas(char* cadena);
+	void remover_comillas(char** cadena);
 
 
 
