@@ -19,8 +19,8 @@ Operacion ejecutarOperacion(char* input) { //TODO: TIPO de retorno Resultado
 			//break;
 		case INSERT:
 			//TODO: OJO QUE ESTA TOMANDO LAS COMILLAS. SOLUCIONAR ESO
-			if((strlen(parsed->argumentos.INSERT.value)+1-2) > tamanioValue){
-			printf("TamValue teorico: %d\n TamValue real: %d\n",tamanioValue, (strlen(parsed->argumentos.INSERT.value)+1));
+			if((strlen(parsed->argumentos.INSERT.value)+1) > tamanioValue){
+				//printf("TamValue teorico: %d\n TamValue real: %d\n",tamanioValue, (strlen(parsed->argumentos.INSERT.value)+1));
 				retorno.Argumentos.ERROR.mensajeError=malloc(sizeof(char)* (strlen("Error en el tamanio del value.")+1));
 				strcpy(retorno.Argumentos.ERROR.mensajeError, "Error en el tamanio del value.");
 				retorno.TipoDeMensaje = ERROR;
@@ -161,7 +161,7 @@ Operacion insertAPI(char* input, Comando comando) {
 
 			//TODO: Funcion para actualizar key
 
-			quitarCaracteresPpioFin(comando.argumentos.INSERT.value);
+			//quitarCaracteresPpioFin(comando.argumentos.INSERT.value);
 
 			void * direccionMarco = memoriaPrincipal.memoria
 					+ memoriaPrincipal.tamanioMarco
@@ -239,7 +239,7 @@ int hayPaginaDisponible(void) {
 
 void insertarPaginaDeSegmento(char* value, uint16_t key, segmento_t * segmento) {
 	if (hayPaginaDisponible()) {
-		quitarCaracteresPpioFin(value);
+		//quitarCaracteresPpioFin(value);
 
 		crearRegistroEnTabla(segmento->tablaPaginas,
 				colocarPaginaEnMemoria(getCurrentTime(), key, value));
