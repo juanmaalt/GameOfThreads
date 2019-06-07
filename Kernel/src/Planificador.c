@@ -68,7 +68,7 @@ static int comunicarse_con_memoria(){
 static int iniciar_unidades_de_ejecucion(){
 	idsExecInstances = list_create();
 	for(int i=0; i<fconfig.multiprocesamiento; ++i){
-		pthread_t *id = malloc(sizeof(pthread_t)); //Lo hago asi por que los salames que hicieron la funcion list_add nada mas linkean el puntero, no le copian el valor. Por ende voy a necesitar un malloc de int por cada valor que quiera guardar, y no hacerles free de nada
+		pthread_t *id = malloc(sizeof(pthread_t)); //la funcion list_add nada mas linkean el puntero, no le copian el valor. Por ende voy a necesitar un malloc de int por cada valor que quiera guardar, y no hacerles free de nada
 		//TODO: todos estos mallocs de int se liberan supuestamente al finalizar el programa, pero no perderlo de vista xq podria haber algun error purulando
 		int res = pthread_create(id, NULL, exec, NULL);
 		if(res != 0){
