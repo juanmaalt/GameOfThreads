@@ -1,8 +1,8 @@
 #include "serializacion.h"
 
 int send_msg(int socket, Operacion operacion) {
-	size_t total;
-	void* content;
+	size_t total=0;
+	void* content=NULL;
 	int longCadena = 0;
 
 	switch (operacion.TipoDeMensaje) {
@@ -17,11 +17,8 @@ int send_msg(int socket, Operacion operacion) {
 		break;
 
 	case COMANDO:
-		if (comando_validar(
-				parsear_comando(
-						operacion.Argumentos.COMANDO.comandoParseable)) == EXIT_FAILURE) {
-			printf(
-					RED"serializacion.c: send_command: el comando no es parseable"STD"\n");
+		if (comando_validar(parsear_comando(operacion.Argumentos.COMANDO.comandoParseable)) == EXIT_FAILURE) {
+			printf(RED"serializacion.c: send_command: el comando no es parseable"STD"\n");
 			return EXIT_FAILURE;
 		}
 		longCadena = strlen(operacion.Argumentos.COMANDO.comandoParseable);
@@ -57,12 +54,12 @@ int send_msg(int socket, Operacion operacion) {
 	}
 
 	int result = send(socket, content, total, 0);
+	if (content != NULL)
+			free(content);
 	if (result <= 0) {
 		printf(RED"serializacion.c: send_command: no se pudo enviar el mensaje"STD"\n");
 		return EXIT_FAILURE;
 	}
-	if (content != NULL)
-		free(content);
 	return EXIT_SUCCESS;
 }
 
