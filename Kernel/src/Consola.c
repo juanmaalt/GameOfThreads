@@ -13,7 +13,7 @@ void *recibir_comandos(void *null){
 	Comando *parsed = malloc(sizeof(Comando));
 	for(;;){
 		char *userImput = readline("");
-		*parsed = parsear_comando(userImput);
+		*parsed = parsear_comando(userImput);comando_mostrar(*parsed);
 	    if(parsed->valido){
 	        switch(parsed->keyword){
 	            case SELECT:
@@ -46,6 +46,7 @@ void *recibir_comandos(void *null){
 	    }
 	    //free(userImput);
 	}
+	free(parsed);
 	return NULL;
 }
 
@@ -68,13 +69,17 @@ static int new_lql(char *path){
 	}
 	char buffer[MAX_BUFFER_SIZE_FOR_LQL_LINE];
 	char *line;
+	Comando comando;//Se usa para verificar que el lql contenga comandos validos
 	for(int i=1; !feof(lql) && (line = fgets(buffer, MAX_BUFFER_SIZE_FOR_LQL_LINE, lql)) != NULL; ++i){
-		if(comando_validar(parsear_comando(line)) == EXIT_FAILURE){ //TODO: posible malgasto de memoria, no perder de vista
+		comando = parsear_comando(line);
+		if(comando_validar(comando) == EXIT_FAILURE){ //TODO: posible malgasto de memoria, no perder de vista
 			printf(RED"Consola.c: new_lql: la linea %d del LQL es invalida"STD"\n", i);
+			destruir_comando(comando);
 			if(line != NULL)
 				free(line);
 			return EXIT_FAILURE;
 		}
+		destruir_comando(comando);
 	}
 	fseek(lql, 0, SEEK_SET);//Restauro el puntero del archivo al inicio
 	if(new(FILE_LQL, (void*)lql) == EXIT_FAILURE){

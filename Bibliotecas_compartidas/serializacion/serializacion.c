@@ -4,6 +4,7 @@ int send_msg(int socket, Operacion operacion) {
 	size_t total=0;
 	void* content=NULL;
 	int longCadena = 0;
+	Comando comando; //solo se usa para un chequeo en case COMANDO
 
 	switch (operacion.TipoDeMensaje) {
 
@@ -16,11 +17,14 @@ int send_msg(int socket, Operacion operacion) {
 		memcpy(content+2*sizeof(int), operacion.Argumentos.TEXTO_PLANO.texto, sizeof(char)*longCadena);
 		break;
 
-	case COMANDO:
-		if (comando_validar(parsear_comando(operacion.Argumentos.COMANDO.comandoParseable)) == EXIT_FAILURE) {
+	case COMANDO://Nota: no puedo hacerlo todo en un paso tipo funcional
+		comando = parsear_comando(operacion.Argumentos.COMANDO.comandoParseable);
+		if (comando_validar(comando) == EXIT_FAILURE) {
 			printf(RED"serializacion.c: send_command: el comando no es parseable"STD"\n");
+			destruir_comando(comando);
 			return EXIT_FAILURE;
 		}
+		destruir_comando(comando);
 		longCadena = strlen(operacion.Argumentos.COMANDO.comandoParseable);
 		total = sizeof(int) + sizeof(int) + sizeof(char) * longCadena;
 		content = malloc(total);

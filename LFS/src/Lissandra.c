@@ -14,7 +14,7 @@
 int main(void) {
 	/*Configuración inicial para log y config*/
 	if(configuracion_inicial() == EXIT_FAILURE){
-		printf(RED"Memoria.c: main: no se pudo generar la configuracion inicial"STD"\n");
+		printf(RED"Lissandra.c: main: no se pudo generar la configuracion inicial"STD"\n");
 		return EXIT_FAILURE;
 	}
 	ver_config();
@@ -25,21 +25,21 @@ int main(void) {
 	/*Creo el directorio de tablas*/
 	crearDirectorio(directorioTablas());
 
+	agregarDatos(memtable);//funcion para pruebas
+
+	/*Inicio la consola*/
+	if(iniciar_consola() == EXIT_FAILURE){
+		log_error(logger_invisible,	"Lissandra.c: main: no se pudo levantar la consola");
+		return EXIT_FAILURE;
+	}
+	printf("despues de iniciar consola\n");
+
 	/*Habilita al File System como server y queda en modo en listen*/
 	/*
 	int miSocket = enable_server(config.ip, config.puerto_escucha);
 	log_info(logger_invisible, "Servidor encendido, esperando conexiones");
 	threadConnection(miSocket, connection_handler);
 	*/
-
-	agregarDatos(memtable);//funcion para pruebas
-
-	/*Inicio la consola*/
-	if(iniciar_consola() == EXIT_FAILURE){
-			printf(RED"Memoria.c: main: no se pudo levantar la consola"STD"\n");
-			return EXIT_FAILURE;
-	}
-	pthread_join(idConsola,NULL);
 
 	/*Libero recursos*/
 	config_destroy(configFile);
@@ -50,25 +50,31 @@ int main(void) {
 
 /*INICIO FUNCION PARA MANEJO DE HILOS*/
 void *connection_handler(void *nSocket){
-    int socket = *(int*)nSocket;
-    TipoDeMensaje tipo;
-    char *resultado = recv_msg(socket, &tipo);
+	pthread_detach(pthread_self());
+	int socket = *(int*) nSocket;
+	Operacion resultado;
 
-	if(resultado == NULL){
-		return NULL; //Es importante realizar este chequeo devolviendo EXIT_FAILURE
-	}
+	resultado = recv_msg(socket);
 
 	printf("Hemos recibido algo!\n");
-	if(tipo == COMANDO)
-		ejecutarOperacion(resultado);
-	if(tipo == TEXTO_PLANO){
-		if(strcmp(resultado, "handshake")==0)
-			handshakeMemoria(socket);
-	}else
-			printf("No se pudo conectar la Memoria\n");
 
-	if(resultado != NULL)
-		free(resultado);
+	switch (resultado.TipoDeMensaje){
+	case COMANDO:
+		//TODO: logear comando recibido
+		printf("Comando recibido: %s\n",resultado.Argumentos.COMANDO.comandoParseable);
+		resultado = ejecutarOperacion(resultado.Argumentos.COMANDO.comandoParseable);
+		send_msg(socket, resultado);
+		break;
+	case TEXTO_PLANO:
+		if(strcmp(resultado.Argumentos.COMANDO.comandoParseable, "handshake")==0)
+			handshakeMemoria(socket);
+		else{printf("No se pudo conectar la Memoria\n");}
+		break;
+	default:
+		fprintf(stderr, RED"No se pude interpretar el enum %d"STD"\n", resultado.TipoDeMensaje);
+	}
+
+	destruir_operacion(resultado);
 
 	return NULL;
 }
@@ -165,9 +171,12 @@ t_dictionary* inicializarMemtable(){
 
 void handshakeMemoria(int socketMemoria){
 	printf("Se conectó la Memoria\n");
-	char* tamanio = config.tamanio_value;
 
-	send_msg(socketMemoria, TEXTO_PLANO, tamanio);
+	Operacion tamanio;
+	tamanio.TipoDeMensaje=TEXTO_PLANO;
+	tamanio.Argumentos.TEXTO_PLANO.texto=config.tamanio_value;
+
+	send_msg(socketMemoria, tamanio);
 }
 
 void agregarDatos(t_dictionary* memtable){
@@ -178,22 +187,22 @@ void agregarDatos(t_dictionary* memtable){
 
 	reg1->key=3;
 	reg1->timestamp=1558492233084;
-	reg1->value="pepe";
+	reg1->value=string_from_format("pepe");
 
 	reg2->key=4;
 	reg2->timestamp=1558492233085;
-	reg2->value="carlos";
+	reg2->value=string_from_format("carlos");
 
 	reg3->key=3;
 	reg3->timestamp=1558492233086;
-	reg3->value="pepe2";
+	reg3->value=string_from_format("pepe2");
 
 	reg4->key=4;
 	reg4->timestamp=1558492233087;
-	reg4->value="carlos2";
+	reg4->value=string_from_format("carlos2");
 
 	t_list* lista = list_create();
-	char* tabla="tabla";
+	char* tabla=string_from_format("tabla");
 
 	dictionary_put(memtable, tabla, lista);//Agrego una tabla y su data;
 
@@ -206,48 +215,59 @@ void agregarDatos(t_dictionary* memtable){
 
 }
 
-
 int iniciar_consola(){
 	if(pthread_create(&idConsola, NULL, recibir_comandos, NULL)){
-		printf(RED"Memoria.c: iniciar_consola: fallo la creacion de la consola"STD"\n");
+		log_error(logger_invisible, "Lissandra.c: iniciar_consola: fallo la creacion de la consola");
 		return EXIT_FAILURE;
 	}
+	pthread_join(idConsola, NULL);
+
+	printf("en iniciar consola\n");
 
 	//No hay pthread_join. Alternativamente hay pthread_detach en la funcion recibir_comando. Hacen casi lo mismo
 	return EXIT_SUCCESS;
 }
 
 
-int ejecutarOperacion(char* input){ //TODO: TIPO de retorno Resultado
+Operacion ejecutarOperacion(char* input){ //TODO: TIPO de retorno Resultado
 	Comando *parsed = malloc(sizeof(Comando));
+	Operacion retorno;
 	*parsed = parsear_comando(input);
-	//TODO: funciones pasandole userInput y parsed por si necesito enviar algo o usar algun dato parseado
 
-	if(parsed->valido){
-		switch(parsed->keyword){
-			case SELECT:
-				selectAPI(*parsed);
-				break;
-			case INSERT:
-				insertAPI(*parsed);
-				break;
-			case CREATE:
-				createAPI(*parsed);
-				break;
-			case DESCRIBE:
-			case DROP:
-				printf("No desarrollado aún.\n");
-				break;
-			default:
-				fprintf(stderr, RED"No se pude interpretar el enum: %d"STD"\n", parsed->keyword);
+	if (parsed->valido) {
+		switch (parsed->keyword) {
+		case SELECT:
+			retorno = selectAPI(*parsed);
+			break;
+		case INSERT:
+			retorno = insertAPI(*parsed);
+			break;
+		case CREATE:
+			retorno = createAPI(*parsed);
+			break;
+		case DESCRIBE:
+		case DROP:
+			break;
+		default:
+			fprintf(stderr, RED"No se pude interpretar el enum: %d"STD"\n",parsed->keyword);
 		}
 
 		destruir_comando(*parsed);
-	}else{
+		free(parsed);
+		return retorno;
+	}else {
 		fprintf(stderr, RED"La request no es valida"STD"\n");
+
+		destruir_comando(*parsed);
+		free(parsed);
 	}
-	free(parsed);
-	return EXIT_SUCCESS; //MOMENTANEO
+
+	retorno.TipoDeMensaje = ERROR;
+	retorno.Argumentos.ERROR.mensajeError=malloc(sizeof(char)* (strlen("Error en la recepcion del resultado.")+1));
+	strcpy(retorno.Argumentos.ERROR.mensajeError, "Error en la recepcion del resultado.");
+
+
+	return retorno;
 }
 
 uint16_t obtenerKey(Registro* registro){

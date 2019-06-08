@@ -15,9 +15,9 @@
 Metadata_tabla metadata;
 
 //API
-int selectAPI(Comando comando);
-int insertAPI(Comando comando);
-int createAPI(Comando);
+Operacion selectAPI(Comando comando);
+Operacion insertAPI(Comando comando);
+Operacion createAPI(Comando);
 void describeAPI(Comando);
 void dropAPI(Comando);
 
@@ -29,7 +29,7 @@ void extraerMetadata(t_config* metadataFile);
 t_list* getData(char* nombreTabla);
 int calcularParticionNbr(char* key, int particiones);
 t_list* buscarValue(t_list* data, char* key, int particionNbr);
-void getValueMasReciente(t_list* lista);
+Operacion getValueMasReciente(t_list* lista);
 timestamp_t checkTimestamp(char* timestamp);
 void crearTablaEnMemtable(char* nombreTabla);
 void setPathTabla(char* path, char* nombreTabla);
