@@ -28,10 +28,11 @@ int main(void) {
 	agregarDatos(memtable);//funcion para pruebas
 
 	/*Habilita al File System como server y queda en modo en listen*/
+/*
 	int miSocket = enable_server(config.ip, config.puerto_escucha);
 	log_info(logger_invisible, "Servidor encendido, esperando conexiones");
 	threadConnection(miSocket, connection_handler);
-
+*/
 	/*Inicio la consola*/
 	if(iniciar_consola() == EXIT_FAILURE){
 		log_error(logger_invisible,	"Lissandra.c: main: no se pudo levantar la consola");
@@ -117,7 +118,7 @@ void extraer_data_config() {
 	config.ip = config_get_string_value(configFile, "IP");
 	config.puerto_escucha = config_get_string_value(configFile, "PUERTO_ESCUCHA");
 	config.punto_montaje = config_get_string_value(configFile, "PUNTO_MONTAJE");
-	//config.retardo = config_get_string_value(configFile, "RETARDO");
+	config.retardo = config_get_string_value(configFile, "RETARDO");
 	config.tamanio_value = config_get_string_value(configFile, "TAMANIO_VALUE");
 	//config.tiempo_dump = config_get_string_value(configFile, "TIEMPO_DUMP");
 }
@@ -127,7 +128,7 @@ void ver_config(){
 	log_info(logger_visible, "IP=%s", config.ip);
 	log_info(logger_visible, "PUERTO_ESCUCHA=%s", config.puerto_escucha);
 	log_info(logger_visible, "PUNTO_MONTAJE=%s", config.punto_montaje);
-	//log_info(logger_visible, "RETARDO=%s", config.retardo);
+	log_info(logger_visible, "RETARDO=%s", config.retardo);
 	log_info(logger_visible, "TAMANIO_VALUE=%s", config.tamanio_value);
 	//log_info(logger_visible, "TIEMPO_DUMP=%s", config.tiempo_dump);
 }
@@ -254,6 +255,8 @@ Operacion ejecutarOperacion(char* input){ //TODO: TIPO de retorno Resultado
 	Operacion retorno;
 	*parsed = parsear_comando(input);
 
+	usleep(atoi(config.retardo)*1000);
+
 	if (parsed->valido) {
 		switch (parsed->keyword) {
 		case SELECT:
@@ -285,7 +288,6 @@ Operacion ejecutarOperacion(char* input){ //TODO: TIPO de retorno Resultado
 	retorno.TipoDeMensaje = ERROR;
 	retorno.Argumentos.ERROR.mensajeError=malloc(sizeof(char)* (strlen("Error en la recepcion del resultado.")+1));
 	strcpy(retorno.Argumentos.ERROR.mensajeError, "Error en la recepcion del resultado.");
-
 
 	return retorno;
 }
