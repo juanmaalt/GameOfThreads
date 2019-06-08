@@ -11,21 +11,32 @@
 
 /*INICIO FUNCIONES API*/
 
-int selectAPI(Comando comando){
+Operacion selectAPI(Comando comando){
+	/*Creo variable resultado del tipo Operacion para devolver el mensaje*/
+	Operacion resultadoSelect;
+	resultadoSelect.TipoDeMensaje = ERROR;
+
 	/*Checkea existencia de la Memtable*/
 	if (!memtable) {
 		log_error(logger_invisible, "No existe una memtable creada, no se puede realizar la operación.");
-		return EXIT_FAILURE;
+		resultadoSelect.Argumentos.ERROR.mensajeError = malloc(sizeof(char) * (strlen("No existe una memtable creada, no se puede realizar la operación.") + 1));
+		strcpy(resultadoSelect.Argumentos.ERROR.mensajeError,"No existe una memtable creada, no se puede realizar la operación.");
+		return resultadoSelect;
 	}
 	/*Checkea existencia de la tabla solicitada*/
 	if(!(existeTabla(comando.argumentos.SELECT.nombreTabla))){
 		log_error(logger_invisible, "No existe una tabla asociada a la key solicitada.");
-		//avisar a la memoria?
-		return EXIT_FAILURE;
+		resultadoSelect.Argumentos.ERROR.mensajeError = malloc(sizeof(char) * (strlen("No existe una tabla asociada a la key solicitada.") + 1));
+		strcpy(resultadoSelect.Argumentos.ERROR.mensajeError,"No existe una tabla asociada a la key solicitada.");
+		return resultadoSelect;
 	}
 	/*Levanta la metadata de la tabla*/
 	t_config* metadataFile = leerMetadata(comando.argumentos.SELECT.nombreTabla);
-	getMetadata(comando.argumentos.SELECT.nombreTabla, metadataFile);
+	if(getMetadata(comando.argumentos.SELECT.nombreTabla, metadataFile)==EXIT_FAILURE){
+		resultadoSelect.Argumentos.ERROR.mensajeError = malloc(sizeof(char) * (strlen("No existe el archivo Metadata de la tabla solicitada.") + 1));
+		strcpy(resultadoSelect.Argumentos.ERROR.mensajeError,"No existe el archivo Metadata de la tabla solicitada.");
+		return resultadoSelect;
+	}
 
 	/*Levanta la lista de registros relacionados a la tabla*/
 	t_list* data = getData(comando.argumentos.SELECT.nombreTabla);
@@ -38,28 +49,35 @@ int selectAPI(Comando comando){
 	listaDeValues = buscarValue(data, comando.argumentos.SELECT.key, particionNbr);
 
 	/*Recorro la tabla y obtengo el valor más reciente*/
-	recorrerTabla(listaDeValues);//Función ad-hoc para testing
-	getValueMasReciente(listaDeValues);
+	//recorrerTabla(listaDeValues);//Función ad-hoc para testing
+	resultadoSelect = getValueMasReciente(listaDeValues);
 
 	/*Libero recursos en memoria*/
 	list_destroy(listaDeValues);
 	config_destroy(metadataFile);
 
-	return EXIT_SUCCESS;
+	return resultadoSelect;
 }
 
 
-int insertAPI(Comando comando){
+Operacion insertAPI(Comando comando){
+	/*Creo variable resultado del tipo Operacion para devolver el mensaje*/
+	Operacion resultadoInsert;
+	resultadoInsert.TipoDeMensaje = ERROR;
+
 	/*Checkea existencia de la Memtable*/
 	if (!memtable) {
 		log_error(logger_invisible, "No existe una memtable creada, no se puede realizar la operación.");
-		return EXIT_FAILURE;
+		resultadoInsert.Argumentos.ERROR.mensajeError = malloc(sizeof(char) * (strlen("No existe una memtable creada, no se puede realizar la operación.") + 1));
+		strcpy(resultadoInsert.Argumentos.ERROR.mensajeError,"No existe una memtable creada, no se puede realizar la operación.");
+		return resultadoInsert;
 	}
 	/*Checkea existencia de la tabla solicitada*/
-	if(!(existeTabla(comando.argumentos.SELECT.nombreTabla))){
+	if(!(existeTabla(comando.argumentos.INSERT.nombreTabla))){
 		log_error(logger_invisible, "No existe una tabla asociada a la key solicitada.");
-		//avisar a la memoria?
-		return EXIT_FAILURE;
+		resultadoInsert.Argumentos.ERROR.mensajeError = malloc(sizeof(char) * (strlen("No existe la tabla solicitada.") + 1));
+		strcpy(resultadoInsert.Argumentos.ERROR.mensajeError,"No existe la tabla solicitada.");
+		return resultadoInsert;
 	}
 
 	//checkExisteMemoria(); //Verificar si existe en memoria una lista de datos a dumpear. De no existir, alocar dicha memoria.
@@ -76,21 +94,31 @@ int insertAPI(Comando comando){
 	/*Agrego el registro a dicha lista*/
 	list_add(data, reg);
 
-	printf("Registro->Timestamp= %llu\n", reg->timestamp);
-	printf("Registro->Key= %d\n", reg->key);
-	printf("Registro->Value= %s\n", reg->value);
+	//printf("Registro->Timestamp= %llu\n", reg->timestamp);
+	//printf("Registro->Key= %d\n", reg->key);
+	//printf("Registro->Value= %s\n", reg->value);
 
+	/*Loggeo el INSERT exitoso y le aviso a la Memoria*/
+	log_info(logger_invisible, "INSERT exitoso.");
+	resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
+	resultadoInsert.Argumentos.TEXTO_PLANO.texto  = malloc(sizeof(char) * (strlen("INSERT exitoso.") + 1));
+	strcpy(resultadoInsert.Argumentos.TEXTO_PLANO.texto,"INSERT exitoso.");
 
-	return EXIT_SUCCESS;
+	return resultadoInsert;
 }
 
 
-int createAPI(Comando comando){
+Operacion createAPI(Comando comando){
+	/*Creo variable resultado del tipo Operacion para devolver el mensaje*/
+	Operacion resultadoCreate;
+	resultadoCreate.TipoDeMensaje = ERROR;
+
 	/*Checkeo la existencia de la tabla. De existir la misma loggeo un error*/
 	if(existeTabla(comando.argumentos.CREATE.nombreTabla)){
-		log_error(logger_invisible, "Existe una tabla asociada a la key solicitada.");
-		//avisar a la memoria?
-		return EXIT_FAILURE;
+		log_error(logger_invisible, "La tabla solicitada ya existe en el sistema.");
+		resultadoCreate.Argumentos.ERROR.mensajeError = malloc(sizeof(char) * (strlen("La tabla solicitada ya existe en el sistema.") + 1));
+		strcpy(resultadoCreate.Argumentos.ERROR.mensajeError,"La tabla solicitada ya existe en el sistema.");
+		return resultadoCreate;
 	}
 
 	/*Obtengo la ruta del directorio donde van a estar los archivos de la tabla*/
@@ -115,7 +143,13 @@ int createAPI(Comando comando){
 	/*Libero recursos*/
 	free(path);
 
-	return EXIT_SUCCESS;
+	/*Loggeo el CREATE exitoso y le aviso a la Memoria*/
+	log_info(logger_invisible, "CREATE exitoso.");
+	resultadoCreate.TipoDeMensaje = TEXTO_PLANO;
+	resultadoCreate.Argumentos.TEXTO_PLANO.texto  = malloc(sizeof(char) * (strlen("CREATE exitoso.") + 1));
+	strcpy(resultadoCreate.Argumentos.TEXTO_PLANO.texto,"CREATE exitoso.");
+
+	return resultadoCreate;
 }
 
 
@@ -215,7 +249,7 @@ void recorrerTabla(t_list* lista){
 }
 
 
-void getValueMasReciente(t_list* lista){
+Operacion getValueMasReciente(t_list* lista){
 
 	bool compararFechas(void* item1, void* item2){
 		if (obtenerTimestamp((Registro*) item1) < obtenerTimestamp((Registro*) item2)) {
@@ -226,17 +260,28 @@ void getValueMasReciente(t_list* lista){
 
 	list_sort(lista, compararFechas);
 
+	//Registro* reg = malloc(sizeof(Registro));
+	Registro* reg = list_get(lista, 0);
 
-	Registro* reg = malloc(sizeof(Registro));
-	reg = list_get(lista, 0);
+	//printf("\nEl registro más reciente es:\n");
+	//printf("Registro->Timestamp= %llu\n",reg->timestamp);
+	//printf("Registro->Key= %d\n", reg->key);
+	//printf("Registro->Value= %s\n", reg->value);
 
-	printf("\nEl registro más reciente es:\n");
-	printf("Registro->Timestamp= %llu\n",reg->timestamp );
-	printf("Registro->Key= %d\n", reg->key);
-	printf("Registro->Value= %s\n", reg->value);
+	Operacion op;
+	op.TipoDeMensaje = REGISTRO;
+	op.Argumentos.REGISTRO.timestamp=reg->timestamp;
+	op.Argumentos.REGISTRO.key=reg->key;
+	op.Argumentos.REGISTRO.value=reg->value;
 
-	free(reg);
+	//printf("\nEl registro más reciente es:\n");
+	//printf("Registro->Timestamp= %llu\n",op.Argumentos.REGISTRO.timestamp);
+	//printf("Registro->Key= %d\n", op.Argumentos.REGISTRO.key);
+	//printf("Registro->Value= %s\n", op.Argumentos.REGISTRO.value);
 
+	//free(reg);
+
+	return op;
 }
 
 
@@ -245,7 +290,7 @@ timestamp_t checkTimestamp(char* timestamp){
 		return getCurrentTime();
 	}
 	else{
-		printf("time= %llu\n",atoll(timestamp));
+		//printf("time= %llu\n",atoll(timestamp));
 		return atoll(timestamp);
 	}
 }
@@ -305,7 +350,7 @@ void escribirArchivoMetadata(char* path, Comando comando){
 
 void crearArchivosBinarios(char* path, int particiones){
 	char filename[8];
-	for(int i=1;i<particiones+1;i++){
+	for(int i=0;i<particiones;i++){
 		sprintf(filename, "%d.bin", i);
 		crearArchivo(path, filename);
 	}

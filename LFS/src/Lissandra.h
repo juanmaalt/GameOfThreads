@@ -79,7 +79,7 @@ t_dictionary* inicializarMemtable();
 void handshakeMemoria(int socket);
 int threadConnection(int serverSocket, void *funcionThread);
 int iniciar_consola();
-int ejecutarOperacion(char*);
+Operacion ejecutarOperacion(char*);
 
 void *connection_handler(void *nSocket);
 
