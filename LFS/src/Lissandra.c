@@ -28,9 +28,12 @@ int main(void) {
 	agregarDatos(memtable);//funcion para pruebas
 
 	/*Habilita al File System como server y queda en modo en listen*/
+
+///*
 	int miSocket = enable_server(config.ip, config.puerto_escucha);
 	log_info(logger_invisible, "Servidor encendido, esperando conexiones");
 	threadConnection(miSocket, connection_handler);
+//*/
 
 	/*Inicio la consola*/
 	if(iniciar_consola() == EXIT_FAILURE){
