@@ -166,6 +166,7 @@ static void finalizar_todos_los_hilos(){
 
 
 static void rutinas_de_finalizacion(){
+	printf(RED"Finalizando..."STD"\n");
 	finalizar_todos_los_hilos();
 	fflush(stdout);
 	log_destroy(logger_visible);

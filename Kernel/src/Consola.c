@@ -13,7 +13,7 @@ void *recibir_comandos(void *null){
 	Comando *parsed = malloc(sizeof(Comando));
 	for(;;){
 		char *userImput = readline("");
-		*parsed = parsear_comando(userImput);comando_mostrar(*parsed);
+		*parsed = parsear_comando(userImput);
 	    if(parsed->valido){
 	        switch(parsed->keyword){
 	            case SELECT:
