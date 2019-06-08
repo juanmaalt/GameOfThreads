@@ -10,7 +10,7 @@ int threadConnection(int socket, void *funcionThread){
 
 	printf("server_multithread.c: in threadConnection\n");
 
-	while((client_sock = accept(socket, (struct sockaddr *)&direccionCliente, &clienteLen))){
+	while((client_sock = accept(socket, (struct sockaddr *)&direccionCliente, &clienteLen)) != -1){
         //printf("server_multithread.c: connection accepted\n");
 
         pthread_t sniffer_thread;
