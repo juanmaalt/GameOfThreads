@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <libgen.h>
 #include <commons/string.h>
 #include <commons/config.h>
 #include <commons/log.h>
@@ -74,6 +75,7 @@ t_log* iniciar_logger(bool);
 t_config* leer_config();
 void extraer_data_config();
 void ver_config();
+void crearDirectorioDeMontaje(char* puntoMontaje);
 char* directorioTablas();
 int crearDirectorio(char* path);
 t_dictionary* inicializarMemtable();

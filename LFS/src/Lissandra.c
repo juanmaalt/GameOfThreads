@@ -22,6 +22,9 @@ int main(void) {
 
 	/*Inicio la Memtable*/
 	memtable = inicializarMemtable();
+
+	/*Creo el directorio de montaje*/
+	crearDirectorioDeMontaje(config.punto_montaje);
 	/*Creo el directorio de tablas*/
 	crearDirectorio(directorioTablas());
 
@@ -135,6 +138,19 @@ void ver_config(){
 /*FIN FUNCIONES CONFIG*/
 
 /*INICIO FUNCIONES COMPLEMENTARIAS*/
+
+void crearDirectorioDeMontaje(char* puntoMontaje){
+	char *subpath, *fullpath;
+
+	fullpath = strdup(puntoMontaje);
+	subpath = dirname(fullpath);
+
+	if(strlen(subpath)>1)
+		crearDirectorioDeMontaje(subpath);
+	crearDirectorio(puntoMontaje);
+	free(fullpath);
+}
+
 char* directorioTablas(){
 	char* path = malloc(23 * sizeof(char));
 	strcpy(path,config.punto_montaje);
