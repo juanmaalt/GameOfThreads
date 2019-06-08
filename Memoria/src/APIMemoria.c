@@ -11,7 +11,7 @@ Operacion ejecutarOperacion(char* input) {
 	Comando *parsed = malloc(sizeof(Comando));
 	Operacion retorno;
 	*parsed = parsear_comando(input);
-
+	usleep(vconfig.retardoMemoria()*1000);
 	if (parsed->valido) {
 		switch (parsed->keyword) {
 		case SELECT:
@@ -19,9 +19,8 @@ Operacion ejecutarOperacion(char* input) {
 			break;
 		case INSERT:
 			if((strlen(parsed->argumentos.INSERT.value)+1) > tamanioValue){
-				printf("TamValue teorico: %d\n TamValue real: %d\n",tamanioValue, (strlen(parsed->argumentos.INSERT.value)+1));
-				retorno.Argumentos.ERROR.mensajeError=malloc(sizeof(char)* (strlen("Error en el tamanio del value.")+1));
-				strcpy(retorno.Argumentos.ERROR.mensajeError, "Error en el tamanio del value.");
+				printf("TamValue teorico: %d\nTamValue real: %d\n",tamanioValue, (strlen(parsed->argumentos.INSERT.value)+1));
+				retorno.Argumentos.ERROR.mensajeError=string_from_format("Error en el tamanio del value.");
 				retorno.TipoDeMensaje = ERROR;
 			}else{
 				retorno = insertAPI(input, *parsed);

@@ -32,16 +32,16 @@ int main(void) {
 		return EXIT_FAILURE;
 	}
 	mostrar_por_pantalla_config();
-
+/*
 	 if(realizarHandshake()==EXIT_FAILURE){
 		 printf(RED"Memoria.c: main: no se pudo inicializar la memoria principal"STD"\n");
 		 return EXIT_FAILURE;
 	 }
+*/
+	tamanioValue = 4;
 
-	//tamanioValue = 4;
-
-	//pathLFS = malloc(strlen("/puntoDeMontajeQueMeDaJuanEnElHandshake/") * sizeof(char)+ 1);
-	//strcpy(pathLFS, "/puntoDeMontajeQueMeDaJuanEnElHandshake/");
+	pathLFS = malloc(strlen("/puntoDeMontajeQueMeDaJuanEnElHandshake/") * sizeof(char)+ 1);
+	strcpy(pathLFS, "/puntoDeMontajeQueMeDaJuanEnElHandshake/");
 
 	// Inicializar la memoria principal
 	if (inicializar_memoriaPrincipal() == EXIT_FAILURE) {
@@ -62,14 +62,14 @@ int main(void) {
 	mostrarPathSegmentos();
 
 	//Inicio consola
-
+/*
 	if (iniciar_consola() == EXIT_FAILURE) {
 		log_error(logger_invisible,
 				"Memoria.c: main: no se pudo levantar la consola");
 
 		return EXIT_FAILURE;
 	}
-
+*/
 	//Habilita el server y queda en modo en listen
 	if (iniciar_serverMemoria() == EXIT_FAILURE) {
 		log_error(logger_invisible,
@@ -97,7 +97,7 @@ int iniciar_serverMemoria(void) {
 }
 
 void *connection_handler(void *nSocket) {
-	pthread_detach(pthread_self());
+	//pthread_detach(pthread_self());
 	int socket = *(int*) nSocket;
 	Operacion resultado;
 
@@ -108,10 +108,8 @@ void *connection_handler(void *nSocket) {
 	switch (resultado.TipoDeMensaje) {
 	case COMANDO:
 		//TODO: logear comando recibido
-		printf("Comando recibido: %s\n",
-				resultado.Argumentos.COMANDO.comandoParseable);
-		resultado = ejecutarOperacion(
-				resultado.Argumentos.COMANDO.comandoParseable);
+		printf("Comando recibido: %s\n",resultado.Argumentos.COMANDO.comandoParseable);
+		resultado = ejecutarOperacion(resultado.Argumentos.COMANDO.comandoParseable);
 		send_msg(socket, resultado);
 		break;
 	case TEXTO_PLANO:
@@ -237,8 +235,8 @@ int handshakeLFS(int socketLFS) {
 				return EXIT_FAILURE;
 		}
 
-	log_info(logger_visible, "El size del value es: %d\n", tamanioValue);
-	log_info(logger_visible, "El punto de montaje es: %s\n",pathLFS);
+	log_info(logger_visible, "El size del value es: %d", tamanioValue);
+	log_info(logger_visible, "El punto de montaje es: %s",pathLFS);
 
 	return EXIT_SUCCESS;
 }
