@@ -53,7 +53,7 @@ Operacion selectAPI(Comando comando){
 	resultadoSelect = getValueMasReciente(listaDeValues);
 
 	/*Libero recursos en memoria*/
-	list_destroy(listaDeValues);
+	//list_destroy(listaDeValues);
 	config_destroy(metadataFile);
 
 	return resultadoSelect;

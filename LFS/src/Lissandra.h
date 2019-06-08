@@ -61,6 +61,7 @@ t_log* logger_visible;
 t_log* logger_invisible;
 t_config* configFile;
 Config_final_data config;
+int socketMemoria;
 
 pthread_t idConsola;
 

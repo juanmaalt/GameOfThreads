@@ -27,19 +27,19 @@ int main(void) {
 
 	agregarDatos(memtable);//funcion para pruebas
 
+	/*Obtiene socket de la Memoria*/
+	socketMemoria = connect_to_server(config.ip_memoria, config.puerto_memoria);
+
+	/*Habilita al File System como server y queda en modo en listen*/
+	int miSocket = enable_server(config.ip, config.puerto_escucha);
+	log_info(logger_invisible, "Servidor encendido, esperando conexiones");
+	threadConnection(miSocket, connection_handler);
+
 	/*Inicio la consola*/
 	if(iniciar_consola() == EXIT_FAILURE){
 		log_error(logger_invisible,	"Lissandra.c: main: no se pudo levantar la consola");
 		return EXIT_FAILURE;
 	}
-	printf("despues de iniciar consola\n");
-
-	/*Habilita al File System como server y queda en modo en listen*/
-	/*
-	int miSocket = enable_server(config.ip, config.puerto_escucha);
-	log_info(logger_invisible, "Servidor encendido, esperando conexiones");
-	threadConnection(miSocket, connection_handler);
-	*/
 
 	/*Libero recursos*/
 	config_destroy(configFile);
@@ -66,7 +66,7 @@ void *connection_handler(void *nSocket){
 		send_msg(socket, resultado);
 		break;
 	case TEXTO_PLANO:
-		if(strcmp(resultado.Argumentos.COMANDO.comandoParseable, "handshake")==0)
+		if(strcmp(resultado.Argumentos.TEXTO_PLANO.texto, "handshake")==0)
 			handshakeMemoria(socket);
 		else{printf("No se pudo conectar la Memoria\n");}
 		break;
@@ -172,11 +172,34 @@ t_dictionary* inicializarMemtable(){
 void handshakeMemoria(int socketMemoria){
 	printf("Se conectó la Memoria\n");
 
-	Operacion tamanio;
-	tamanio.TipoDeMensaje=TEXTO_PLANO;
-	tamanio.Argumentos.TEXTO_PLANO.texto=config.tamanio_value;
+	Operacion handshake;
+	handshake.TipoDeMensaje=TEXTO_PLANO;
+	handshake.Argumentos.TEXTO_PLANO.texto=string_from_format(config.tamanio_value);
 
-	send_msg(socketMemoria, tamanio);
+	/*Mando el tamaño del value*/
+	send_msg(socketMemoria, handshake);
+
+	/*Recibo un nuevo mensaje de la memoria*/
+	destruir_operacion(handshake);
+	handshake = recv_msg(socketMemoria);
+
+	switch(handshake.TipoDeMensaje){
+		case TEXTO_PLANO:
+			if(strcmp(handshake.Argumentos.TEXTO_PLANO.texto, "handshake pathLFS")==0){
+				destruir_operacion(handshake);
+				handshake.TipoDeMensaje=TEXTO_PLANO;
+				handshake.Argumentos.TEXTO_PLANO.texto=string_from_format(config.punto_montaje);
+				send_msg(socketMemoria, handshake);
+			}
+			else{printf("No se pudo conectar la Memoria\n");}
+			break;
+		case ERROR:
+		case COMANDO:
+		case REGISTRO:
+			break;
+	}
+
+
 }
 
 void agregarDatos(t_dictionary* memtable){
