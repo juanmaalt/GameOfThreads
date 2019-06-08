@@ -76,7 +76,7 @@ Operacion ejecutarOperacion(char* input) {
 
  En caso de no disponer de una página libre, se debe ejecutar el algoritmo de reemplazo y,
  en caso de no poder efectuarlo por estar la memoria full, ejecutar el Journal de la memoria.
- *
+
  * */
 
 Operacion selectAPI(char* input, Comando comando) {
@@ -117,10 +117,10 @@ Operacion selectAPI(char* input, Comando comando) {
 	 printf(RED"APIMemoria.c: select: no encontro el path. Enviar a LFS la request"STD"\n");
 	 }*/
 
-	printf("La linea recibida es: %s\n", input);
-	printf("La key es: %d\n", keyBuscada);
-	printf("NO se encontro el value para la key\n");
+	resultadoSelect.Argumentos.ERROR.mensajeError = malloc(sizeof(char) * (strlen("NO SE HA ENCONTRADO EL VALUE PARA DICHA KEY") + 1));
 
+	strcpy(resultadoSelect.Argumentos.ERROR.mensajeError,
+			"NO SE HA ENCONTRADO LA KEY");
 	return resultadoSelect;
 
 }
@@ -265,12 +265,22 @@ void insertarPaginaDeSegmento(char* value, uint16_t key, segmento_t * segmento) 
  CREATE TABLA1 SC 4 60000
  Esta operación incluye los siguientes pasos:
  1.Se envía al FileSystem la operación para crear la tabla.
- 2.Tanto si el FileSystem indica que la operación se realizó de forma exitosa o en caso de falla por tabla ya existente, continúa su ejecución normalmente.
+ 2.Tanto si el FileSystem indica que la operación se realizó de forma exitosa o en caso de falla
+   por tabla ya existente, continúa su ejecución normalmente.
  */
 
 Operacion createAPI(char*input, Comando comando) {
 	Operacion resultadoCreate;
-	resultadoCreate.TipoDeMensaje = ERROR;
+
+	//Enviar al FS la operacion
+	//TODO: CAMBIAR MALLOC Y STRCPY POR string_from_format
+	resultadoCreate.TipoDeMensaje = COMANDO;
+	resultadoCreate.Argumentos.COMANDO.comandoParseable= malloc(sizeof(char) * (strlen(input) + 1));
+	strcpy(resultadoCreate.Argumentos.TEXTO_PLANO.texto,input);
+
+	//Lo que recibo del FS lo retorno
+
+
 	return resultadoCreate;
 
 }
