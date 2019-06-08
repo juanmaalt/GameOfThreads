@@ -39,10 +39,10 @@ int main(void) {
 	 }
 
 	//tamanioValue = 4;
-
-	//pathLFS = malloc(strlen("/puntoDeMontajeQueMeDaJuanEnElHandshake/") * sizeof(char)+ 1);
-	//strcpy(pathLFS, "/puntoDeMontajeQueMeDaJuanEnElHandshake/");
-
+/*
+	pathLFS = malloc(strlen("/puntoDeMontajeQueMeDaJuanEnElHandshake/") * sizeof(char)+ 1);
+	strcpy(pathLFS, "/puntoDeMontajeQueMeDaJuanEnElHandshake/");
+*/
 	// Inicializar la memoria principal
 	if (inicializar_memoriaPrincipal() == EXIT_FAILURE) {
 		log_error(logger_invisible,
@@ -108,10 +108,8 @@ void *connection_handler(void *nSocket) {
 	switch (resultado.TipoDeMensaje) {
 	case COMANDO:
 		//TODO: logear comando recibido
-		printf("Comando recibido: %s\n",
-				resultado.Argumentos.COMANDO.comandoParseable);
-		resultado = ejecutarOperacion(
-				resultado.Argumentos.COMANDO.comandoParseable);
+		printf("Comando recibido: %s\n",resultado.Argumentos.COMANDO.comandoParseable);
+		resultado = ejecutarOperacion(resultado.Argumentos.COMANDO.comandoParseable);
 		send_msg(socket, resultado);
 		break;
 	case TEXTO_PLANO:
@@ -128,7 +126,7 @@ void *connection_handler(void *nSocket) {
 	//Podríamos meter un counter y que cada X mensajes recibidos corra el gossiping
 
 	destruir_operacion(resultado);
-
+	close(socket);
 	return NULL;
 }
 
@@ -158,6 +156,7 @@ void liberarSegmentos(void* segmentoAdestruir) {
 }
 
 void liberarRecursos(void) {
+	log_info(logger_visible,"Finalizando proceso Memoria...");
 	if (memoriaPrincipal.memoria != NULL)
 		free(memoriaPrincipal.memoria);
 	queue_clean(memoriaPrincipal.marcosLibres);
@@ -237,8 +236,8 @@ int handshakeLFS(int socketLFS) {
 				return EXIT_FAILURE;
 		}
 
-	log_info(logger_visible, "El size del value es: %d\n", tamanioValue);
-	log_info(logger_visible, "El punto de montaje es: %s\n",pathLFS);
+	log_info(logger_visible, "El size del value es: %d", tamanioValue);
+	log_info(logger_visible, "El punto de montaje es: %s",pathLFS);
 
 	return EXIT_SUCCESS;
 }
