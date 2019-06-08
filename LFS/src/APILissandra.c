@@ -220,7 +220,7 @@ int calcularParticionNbr(char* key, int particiones){
 
 
 t_list* buscarValue(t_list* data, char* key, int particionNbr){
-	printf("Numero de partición: %d\n", particionNbr);
+	printf("Numero de partición: %d\n\n", particionNbr);
 
 	bool compararConItem(void* item){
 		if (atoi(key) != obtenerKey((Registro*) item)) {

@@ -44,7 +44,7 @@ typedef struct{
 	char *ip_memoria;
 	char *puerto_memoria;
 	char *punto_montaje;
-	//char *retardo; //Esta config la dejamos como variable.
+	char *retardo; //Esta config la tengo que dejar como variable.
 	char *tamanio_value;
 	//char *tiempo_dump; //Esta config la dejamos como variable.
 }Config_final_data;
