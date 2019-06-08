@@ -30,10 +30,9 @@ void *recibir_comandos(void *null) {
 	Operacion retorno;
 	for (;;) {
 		char *userInput = readline("> ");
-		retorno = ejecutarOperacion(userInput);
+		retorno = ejecutarOperacion(userInput); //libera el userInput en la funcion
 		mostrarRetorno(retorno);
 		destruir_operacion(retorno);
-		free(userInput);
 	}
 	return NULL;
 }

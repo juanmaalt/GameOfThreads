@@ -43,6 +43,7 @@ Operacion ejecutarOperacion(char* input) {
 
 		destruir_comando(*parsed);
 		free(parsed);
+		free(input);
 		return retorno;
 	} else {
 		fprintf(stderr, RED"La request no es valida"STD"\n");
@@ -55,6 +56,7 @@ Operacion ejecutarOperacion(char* input) {
 	retorno.Argumentos.ERROR.mensajeError=malloc(sizeof(char)* (strlen("Error en la recepcion del resultado.")+1));
 	strcpy(retorno.Argumentos.ERROR.mensajeError, "Error en la recepcion del resultado.");
 
+	free(input);
 
 	return retorno;
 }
