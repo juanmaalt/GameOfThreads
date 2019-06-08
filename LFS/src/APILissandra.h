@@ -42,5 +42,6 @@ void crearArchivosBinarios(char* path, int particiones);
 //AD-HOC
 void mostrarMetadata();
 void recorrerTabla(t_list* lista);
+void insertInFile(char* path, int particionNbr, char* key, char* value);
 
 #endif /* APILISSANDRA_H_ */

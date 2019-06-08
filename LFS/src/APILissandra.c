@@ -94,6 +94,25 @@ Operacion insertAPI(Comando comando){
 	/*Agrego el registro a dicha lista*/
 	list_add(data, reg);
 
+	//INICIO AD-HOC//
+	/*Levanta la metadata de la tabla*/
+	t_config* metadataFile = leerMetadata(comando.argumentos.INSERT.nombreTabla);
+	if(getMetadata(comando.argumentos.SELECT.nombreTabla, metadataFile)==EXIT_FAILURE){
+		resultadoInsert.Argumentos.ERROR.mensajeError = malloc(sizeof(char) * (strlen("No existe el archivo Metadata de la tabla solicitada.") + 1));
+		strcpy(resultadoInsert.Argumentos.ERROR.mensajeError,"No existe el archivo Metadata de la tabla solicitada.");
+		return resultadoInsert;
+	}
+	int particionNbr = calcularParticionNbr(comando.argumentos.INSERT.key, metadata.partitions);
+
+
+	char* path = malloc(100 * sizeof(char));
+	setPathTabla(path, comando.argumentos.CREATE.nombreTabla);
+
+	insertInFile(path, particionNbr, comando.argumentos.INSERT.key, comando.argumentos.INSERT.value);
+
+	config_destroy(metadataFile);
+	//FIN AD-HOC//
+
 	//printf("Registro->Timestamp= %llu\n", reg->timestamp);
 	//printf("Registro->Key= %d\n", reg->key);
 	//printf("Registro->Value= %s\n", reg->value);
@@ -354,6 +373,34 @@ void crearArchivosBinarios(char* path, int particiones){
 		sprintf(filename, "%d.bin", i);
 		crearArchivo(path, filename);
 	}
+}
+
+void insertInFile(char* path, int particionNbr, char* key, char* value){
+	FILE* fParticion;
+
+	char* pathArchivo = malloc(2000 * sizeof(char));
+	char filename[6];
+	sprintf(filename, "%d.bin", particionNbr);
+
+	strcpy(pathArchivo,path);
+	strcat(pathArchivo, "/");
+	strcat(pathArchivo, filename);
+
+	fParticion = fopen(pathArchivo,"a");
+
+	char* keyValue = malloc(1000 * sizeof(char));
+	strcpy(keyValue, key);
+	strcat(keyValue, ";");
+	strcat(keyValue, value);
+
+
+
+	fprintf (fParticion, "%s",keyValue);
+
+	free(keyValue);
+	fclose(fParticion);
+	free(pathArchivo);
+
 }
 
 /*FIN FUNCIONES COMPLEMENTARIAS*/

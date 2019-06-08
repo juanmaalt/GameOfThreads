@@ -27,7 +27,7 @@ void mostrarRetorno(Operacion retorno) {
 }
 
 void *recibir_comandos(void *null){
-	//pthread_detach(pthread_self());
+	pthread_detach(pthread_self());
 
 	Operacion retorno;
 	for(;;){
