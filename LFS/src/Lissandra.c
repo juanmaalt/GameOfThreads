@@ -27,19 +27,17 @@ int main(void) {
 
 	agregarDatos(memtable);//funcion para pruebas
 
-	/*Habilita al File System como server y queda en modo en listen*/
-
-///*
-	int miSocket = enable_server(config.ip, config.puerto_escucha);
-	log_info(logger_invisible, "Servidor encendido, esperando conexiones");
-	threadConnection(miSocket, connection_handler);
-//*/
-
 	/*Inicio la consola*/
 	if(iniciar_consola() == EXIT_FAILURE){
 		log_error(logger_invisible,	"Lissandra.c: main: no se pudo levantar la consola");
 		return EXIT_FAILURE;
 	}
+
+	/*Habilita al File System como server y queda en modo en listen*/
+
+	int miSocket = enable_server(config.ip, config.puerto_escucha);
+	log_info(logger_invisible, "Servidor encendido, esperando conexiones");
+	threadConnection(miSocket, connection_handler);
 
 	/*Libero recursos*/
 	config_destroy(configFile);
@@ -243,7 +241,6 @@ int iniciar_consola(){
 		log_error(logger_invisible, "Lissandra.c: iniciar_consola: fallo la creacion de la consola");
 		return EXIT_FAILURE;
 	}
-	pthread_join(idConsola, NULL);
 
 	printf("en iniciar consola\n");
 

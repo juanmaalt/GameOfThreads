@@ -43,7 +43,7 @@ void desalojar(PCB *pcb);
 void simular_retardo(void);
 
 //FUNCIONES: Privadas
-static int comunicarse_con_memoria();
+int comunicarse_con_memoria();
 static int iniciar_unidades_de_ejecucion();
 
 

@@ -15,6 +15,7 @@ void *exec(void *null){
 		sem_wait(&extraerDeReadyDeAUno);
 		PCB *pcb = seleccionar_siguiente();
 		sem_post(&extraerDeReadyDeAUno);
+		comunicarse_con_memoria();
 		switch(pcb->tipo){
 		case STRING_COMANDO:
 			exec_string_comando(pcb);
@@ -23,6 +24,7 @@ void *exec(void *null){
 			exec_file_lql(pcb);
 			break;
 		}
+	close(socketMemoriaPrincipal);
 	}
 	return NULL;
 }
