@@ -27,9 +27,6 @@ int main(void) {
 
 	agregarDatos(memtable);//funcion para pruebas
 
-	/*Obtiene socket de la Memoria*/
-	socketMemoria = connect_to_server(config.ip_memoria, config.puerto_memoria);
-
 	/*Habilita al File System como server y queda en modo en listen*/
 	int miSocket = enable_server(config.ip, config.puerto_escucha);
 	log_info(logger_invisible, "Servidor encendido, esperando conexiones");
