@@ -169,6 +169,9 @@ memoria_principal memoriaPrincipal;
 
 pthread_t idConsola;
 
+//socket de FILE SYSTEM
+int lfsSocket;
+
 //FUNCIONES
 int conectarLFS();
 int handshakeLFS(int socketLFS);

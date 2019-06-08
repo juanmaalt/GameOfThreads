@@ -32,18 +32,16 @@ int main(void) {
 		return EXIT_FAILURE;
 	}
 	mostrar_por_pantalla_config();
-	/*
-	 if(realizarHandshake()==EXIT_FAILURE){
-	 printf(RED"Memoria.c: main: no se pudo inicializar la memoria principal"STD"\n");
-	 return EXIT_FAILURE;
-	 }
-	 */
-	tamanioValue = 4;
 
-	pathLFS = malloc(
-			strlen("/puntoDeMontajeQueMeDaJuanEnElHandshake/") * sizeof(char)
-					+ 1);
-	strcpy(pathLFS, "/puntoDeMontajeQueMeDaJuanEnElHandshake/");
+	 if(realizarHandshake()==EXIT_FAILURE){
+		 printf(RED"Memoria.c: main: no se pudo inicializar la memoria principal"STD"\n");
+		 return EXIT_FAILURE;
+	 }
+
+	//tamanioValue = 4;
+
+	//pathLFS = malloc(strlen("/puntoDeMontajeQueMeDaJuanEnElHandshake/") * sizeof(char)+ 1);
+	//strcpy(pathLFS, "/puntoDeMontajeQueMeDaJuanEnElHandshake/");
 
 	// Inicializar la memoria principal
 	if (inicializar_memoriaPrincipal() == EXIT_FAILURE) {
@@ -80,7 +78,6 @@ int main(void) {
 		return EXIT_FAILURE;
 	}
 
-
 	//TODO: liberar todo
 	liberarRecursos();
 }
@@ -111,8 +108,10 @@ void *connection_handler(void *nSocket) {
 	switch (resultado.TipoDeMensaje) {
 	case COMANDO:
 		//TODO: logear comando recibido
-		printf("Comando recibido: %s\n",resultado.Argumentos.COMANDO.comandoParseable);
-		resultado = ejecutarOperacion(resultado.Argumentos.COMANDO.comandoParseable);
+		printf("Comando recibido: %s\n",
+				resultado.Argumentos.COMANDO.comandoParseable);
+		resultado = ejecutarOperacion(
+				resultado.Argumentos.COMANDO.comandoParseable);
 		send_msg(socket, resultado);
 		break;
 	case TEXTO_PLANO:
@@ -177,39 +176,81 @@ void liberarRecursos(void) {
 	log_destroy(logger_invisible);
 	log_destroy(logger_visible);
 }
-/*
- int realizarHandshake(void) {
- int lfsSocket = conectarLFS();
- tamanioValue = handshakeLFS(lfsSocket);
- printf("TAMAÑO_VALUE= %d\n", tamanioValue);
- return EXIT_SUCCESS;
- }*/
-/*
- int handshakeLFS(int socketLFS) {
- send_msg(socketLFS, TEXTO_PLANO, "handshake");
 
- Operacion tipo;
- char *tamanio = recv_msg(socketLFS, &tipo);
-
- if (tipo.TipoDeMensaje == COMANDO)
- printf("Handshake falló. No se recibió el tamaño del value.\n");
- if (tipo.TipoDeMensaje == TEXTO_PLANO)
- printf("Handshake exitoso. Se recibió el tamaño del value, es: %d\n",
- *tamanio);
-
- return *tamanio;
- }
- */
-int conectarLFS() {
-	//Obtiene el socket por el cual se va a conectar al LFS como cliente / * Conectarse al proceso File System
-	int socket = connect_to_server(fconfig.ip_fileSystem,
-			fconfig.puerto_fileSystem);
-	if (socket == EXIT_FAILURE) {
-		log_error(logger_invisible,
-				"El LFS no está levantado. Cerrar la Memoria, levantar el LFS y volver a levantar la Memoria");
+int realizarHandshake(void) {
+	lfsSocket = conectarLFS();
+	if(handshakeLFS(lfsSocket)==EXIT_FAILURE){
 		return EXIT_FAILURE;
 	}
-	log_error(logger_invisible, "Conectado al LFS. Iniciando Handshake.");
+	printf("TAMAÑO_VALUE= %d\n", tamanioValue);
+	return EXIT_SUCCESS;
+}
+
+int handshakeLFS(int socketLFS) {
+	Operacion handshake;
+
+	handshake.TipoDeMensaje= TEXTO_PLANO;
+
+	handshake.Argumentos.TEXTO_PLANO.texto= string_from_format("handshake");
+
+	send_msg(socketLFS, handshake);
+
+	destruir_operacion(handshake);
+
+	//Recibo el tamanio
+	//while((handshake = recv_msg(socketLFS)).TipoDeMensaje)
+	handshake = recv_msg(socketLFS);
+
+	switch(handshake.TipoDeMensaje){
+		case TEXTO_PLANO:
+			tamanioValue=atoi(handshake.Argumentos.TEXTO_PLANO.texto);
+			destruir_operacion(handshake);
+			break;
+		case ERROR:
+		case REGISTRO:
+		case COMANDO:
+		default:
+			return EXIT_FAILURE;
+	}
+
+
+	//Pido el punto de montaje
+	handshake.TipoDeMensaje= TEXTO_PLANO;
+	handshake.Argumentos.TEXTO_PLANO.texto=string_from_format("handshake pathLFS");
+
+	send_msg(socketLFS, handshake);
+
+	destruir_operacion(handshake);
+
+	//Recibo el punto de montaje
+	handshake = recv_msg(socketLFS);
+
+	switch(handshake.TipoDeMensaje){
+			case TEXTO_PLANO:
+				pathLFS=string_from_format(handshake.Argumentos.TEXTO_PLANO.texto);
+				destruir_operacion(handshake);
+				break;
+			case ERROR:
+			case REGISTRO:
+			case COMANDO:
+			default:
+				return EXIT_FAILURE;
+		}
+
+	log_info(logger_visible, "El size del value es: %d\n", tamanioValue);
+	log_info(logger_visible, "El punto de montaje es: %s\n",pathLFS);
+
+	return EXIT_SUCCESS;
+}
+
+int conectarLFS() {
+	//Obtiene el socket por el cual se va a conectar al LFS como cliente / * Conectarse al proceso File System
+	int socket = connect_to_server(fconfig.ip_fileSystem, fconfig.puerto_fileSystem);
+	if (socket == EXIT_FAILURE) {
+		log_error(logger_visible,"El LFS no está levantado. Cerrar la Memoria, levantar el LFS y volver a levantar la Memoria");
+		return EXIT_FAILURE;
+	}
+	log_info(logger_visible, "Conectado al LFS. Iniciando Handshake.");
 
 	return socket;
 }
@@ -511,9 +552,9 @@ void *recibir_seeds(void *null) { // hilo que responde con las memorias conocida
 	return NULL;
 }
 char* quitarCaracteresPpioFin(char* cadena) {
-	char * temporal = malloc(sizeof(char)*(strlen(cadena)-1)); //Me sobran 2 de comillas (-2) y +1 para el '\0'
+	char * temporal = malloc(sizeof(char) * (strlen(cadena) - 1)); //Me sobran 2 de comillas (-2) y +1 para el '\0'
 	int i;
-	for (i = 0; cadena[i+2] != '\0' ; ++i) {
+	for (i = 0; cadena[i + 2] != '\0'; ++i) {
 		temporal[i] = cadena[i + 1];
 	}
 	temporal[i] = '\0';
