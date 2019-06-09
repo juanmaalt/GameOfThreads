@@ -86,7 +86,7 @@
 	* 		line - Una linea de un archivo ESI
 	*/
 	Comando parsear_comando(char* line);
-	
+
 	/**
 	* @NAME: destruir_operacion
 	* @DESC: limpia la operacion generada por el parse

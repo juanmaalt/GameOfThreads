@@ -4,13 +4,13 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-../parser/parsi_mod.c 
+../parser/parser_comando.c 
 
 OBJS += \
-./parser/parsi_mod.o 
+./parser/parser_comando.o 
 
 C_DEPS += \
-./parser/parsi_mod.d 
+./parser/parser_comando.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

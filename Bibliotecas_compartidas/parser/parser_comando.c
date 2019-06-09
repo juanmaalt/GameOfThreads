@@ -111,11 +111,11 @@ Comando parsear_comando(char* line){
 
 	/*if(string_length(clave) > 40){
 		fprintf(stderr, "La clave <%.40s...> es muy larga\n");
-		RETURN_ERROR; 
+		RETURN_ERROR;
 	}*/
 
 	//Fin chequeos sintacticos
-	
+
 	ret._raw = split;
 
 	if(string_equals_ignore_case(keyword, "SELECT")){
