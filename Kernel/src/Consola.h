@@ -18,10 +18,6 @@ typedef enum PCB_DataType_e PCB_DataType;
 //FUNCIONES: Globales
 void *recibir_comandos(void *);
 
-//FUNCIONES: Privadas
-static int new_lql(char* path);
-static int new_comando(PCB_DataType tipo, char *data);
-
 //FUNCIONES: Testeo
 void funcion_loca_de_testeo_de_concurrencia(void);
 

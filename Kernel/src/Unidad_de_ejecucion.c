@@ -7,6 +7,13 @@
 
 #include "Unidad_de_ejecucion.h"
 
+//FUNCIONES: Privadas. No van en el header.
+static int exec_file_lql(PCB *pcb);
+static int exec_string_comando(PCB *pcb);
+static void loggear_operacion(Operacion op);
+static int conectarse_con_memoria_segun_request(PCB *pcb);
+static int comunicarse_con_memoria();
+
 void *exec(void *null){
 	pthread_detach(pthread_self());
 	for(;;){
@@ -14,8 +21,8 @@ void *exec(void *null){
 		sem_wait(&scriptEnReady);
 		sem_wait(&extraerDeReadyDeAUno);
 		PCB *pcb = seleccionar_siguiente();
+		socketTarget = conectarse_con_memoria_segun_request(pcb);
 		sem_post(&extraerDeReadyDeAUno);
-		comunicarse_con_memoria();
 		switch(pcb->tipo){
 		case STRING_COMANDO:
 			exec_string_comando(pcb);
@@ -24,9 +31,32 @@ void *exec(void *null){
 			exec_file_lql(pcb);
 			break;
 		}
-	close(socketMemoriaPrincipal);
+		close(socketTarget);
 	}
 	return NULL;
+}
+
+
+
+
+
+static int conectarse_con_memoria_segun_request(PCB *pcb){
+	//hacer algo loco de para elegir segun criterio. Le paso la pcb por que tiene la request
+	return comunicarse_con_memoria(fconfig.ip_memoria, fconfig.puerto_memoria);
+}
+
+
+
+
+
+static int comunicarse_con_memoria(char *ip, char *puerto){
+	int socketServer;
+	if((socketServer = connect_to_server(ip, puerto)) == EXIT_FAILURE){
+		log_error(logger_error, "Planificador.c: comunicarse_con_memoria: error al conectarse al servidor memoria %s:%s", ip, puerto);
+		return EXIT_FAILURE;
+	}
+	log_info(logger_visible, "Conectado a la memoria %s:%s", ip, puerto);
+	return socketServer;
 }
 
 
@@ -37,9 +67,8 @@ static int exec_string_comando(PCB *pcb){
 	Operacion request;
 	request.TipoDeMensaje = COMANDO;
 	request.Argumentos.COMANDO.comandoParseable = (char*)pcb->data;
-	send_msg(socketMemoriaPrincipal, request);
-	request = recv_msg(socketMemoriaPrincipal);
-	//printf("CPU: %d | Operacion unitaria: %s\n", process_get_thread_id(), userInput);
+	send_msg(socketTarget, request);
+	request = recv_msg(socketTarget);
 	loggear_operacion(request);
 	destruir_operacion(request);
 	free(pcb->data);
@@ -68,9 +97,8 @@ static int exec_file_lql(PCB *pcb){
 			return FINALIZO;
 		}
 		request.Argumentos.COMANDO.comandoParseable = line;
-		send_msg(socketMemoriaPrincipal, request);
-		//printf("CPU: %d | FILE: %p | linea de LQL: %s", process_get_thread_id(), lql, line);
-		request = recv_msg(socketMemoriaPrincipal);
+		send_msg(socketTarget, request);
+		request = recv_msg(socketTarget);
 		loggear_operacion(request);
 		destruir_operacion(request);
 	}
@@ -82,6 +110,10 @@ static int exec_file_lql(PCB *pcb){
 	simular_retardo();
 	return DESALOJO;
 }
+
+
+
+
 
 static void loggear_operacion(Operacion op){
 	switch(op.TipoDeMensaje){

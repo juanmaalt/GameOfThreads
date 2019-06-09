@@ -7,6 +7,10 @@
 
 #include "Consola.h"
 
+//FUNCIONES: Privadas
+static int new_lql(char* path);
+static int new_comando(PCB_DataType tipo, char *data);
+
 void *recibir_comandos(void *null){
 	pthread_detach(pthread_self());
 	sem_wait(&disponibilidadPlanificador);

@@ -33,18 +33,14 @@ typedef struct pcb_t{
 
 //GLOBALES
 t_queue *colaDeReady;
+int socketTarget; //Cada hilo de CPU va a tener esta variable que se rellena con el socket de la memoria con la que tiene que hablar
 
 
-//FUNCIONES: Globales
+//FUNCIONES: Publicas
 int iniciar_planificador();
 int new(PCB_DataType tipo, void *data); //Esta funcion va a ser ejecutada desde la consola por el proceso de consola
 PCB *seleccionar_siguiente();
 void desalojar(PCB *pcb);
 void simular_retardo(void);
-
-//FUNCIONES: Privadas
-int comunicarse_con_memoria();
-static int iniciar_unidades_de_ejecucion();
-
 
 #endif /* PLANIFICADOR_H_ */

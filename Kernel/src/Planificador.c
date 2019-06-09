@@ -7,11 +7,14 @@
 
 #include "Planificador.h"
 
+//FUNCIONES: Privadas. No van en el header
+static int iniciar_unidades_de_ejecucion();
+
 int iniciar_planificador(){
 	if(iniciar_unidades_de_ejecucion() == EXIT_FAILURE)
 		RETURN_ERROR("Planificador.c: iniciar_planificador: no se pudieron iniciar las unidades de ejecucion");
-	if(comunicarse_con_memoria() == EXIT_FAILURE)
-		RETURN_ERROR("Planificador.c: iniciar_planificador: no se pudo establecer una conexion con la memoria principal");
+	//if(comunicarse_con_memoria() == EXIT_FAILURE)
+		//RETURN_ERROR("Planificador.c: iniciar_planificador: no se pudo establecer una conexion con la memoria principal");
 
 	colaDeReady = queue_create();
 	sem_post(&disponibilidadPlanificador); //No queremos que la consola agregue algo a la cola de news si todavia no existe la cola de news
@@ -19,7 +22,6 @@ int iniciar_planificador(){
 	sem_wait(&dormirProcesoPadre);
 	return EXIT_SUCCESS;
 }
-
 
 
 
@@ -41,23 +43,6 @@ int new(PCB_DataType tipo, void *data){
 	queue_push(colaDeReady, pcb);
 	sem_post(&scriptEnReady); //Como esta funcion va a ser llamada por la consola, el semaforo tambien tiene que ser compartido por el proceso consola
 	return EXIT_SUCCESS;
-}
-
-
-
-
-
-int comunicarse_con_memoria(){
-	for(int i=1; i<=6; ++i){
-		if((socketMemoriaPrincipal = connect_to_server(fconfig.ip_memoria, fconfig.puerto_memoria)) == EXIT_FAILURE){
-			log_error(logger_error, "Planificador.c: comunicarse_con_memoria: error al conectarse al servidor memoria... Reintentando (%d/6)", i);
-			sleep(1);
-		}else{
-			log_info(logger_visible, "Conectado a la memoria principal");
-			return EXIT_SUCCESS;
-		}
-	}
-	return EXIT_FAILURE;
 }
 
 

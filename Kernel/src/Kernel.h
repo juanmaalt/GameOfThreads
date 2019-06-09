@@ -44,9 +44,6 @@ struct Config_datos_variables{
 
 typedef struct Config_datos_variables vConfig;
 
-//GLOBALES: Socket
-int socketMemoriaPrincipal;
-
 //GLOBALES: Loggeo
 t_log* logger_visible;
 t_log* logger_invisible;
@@ -68,17 +65,6 @@ sem_t meterEnReadyDeAUno;
 
 //FUNCIONES: Publicas
 void mostrar_por_pantalla_config();
-
-//FUNCIONES: Privadas
-static int configuracion_inicial();
-static int iniciar_consola();
-static t_log* iniciar_logger(char *fileName, bool visibilidad, t_log_level level);
-static int inicializar_configs();
-static int extraer_quantum_config();
-static int extraer_refresMetadata_config();
-static int extraer_retardo_config();
-static void finalizar_todos_los_hilos();
-static void rutinas_de_finalizacion();
 
 /*Descripcion de hilos:
  * padre (proceso): inicia todas las rutinas y termina haciendose cargo de la funcion ready() en planificador.c

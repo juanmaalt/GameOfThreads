@@ -10,6 +10,17 @@
 
 #include "Kernel.h"
 
+//FUNCIONES: Privadas
+static int configuracion_inicial();
+static int iniciar_consola();
+static t_log* iniciar_logger(char *fileName, bool visibilidad, t_log_level level);
+static int inicializar_configs();
+static int extraer_quantum_config();
+static int extraer_refresMetadata_config();
+static int extraer_retardo_config();
+static void finalizar_todos_los_hilos();
+static void rutinas_de_finalizacion();
+
 int main(void) {
 	//Se hacen las configuraciones iniciales para log, config y se inician semaforos
 	if(configuracion_inicial() == EXIT_FAILURE)
@@ -48,8 +59,8 @@ static int iniciar_consola(){
 
 static int configuracion_inicial(){
 	sem_init(&disponibilidadPlanificador, 0, 0); //el ultimo valor indica el valor con el que inicia el semaforo
-	sem_init(&scriptEnReady, 0, 0);
-	sem_init(&dormirProcesoPadre, 1, 0);
+	sem_init(&scriptEnReady, 0, 0); //El primer valor (0) indica que afecta a hilos
+	sem_init(&dormirProcesoPadre, 1, 0); //El primer valor (1) indica que afecta a procesos
 	sem_init(&extraerDeReadyDeAUno, 0, 1);
 	sem_init(&meterEnReadyDeAUno, 0, 1);
 
@@ -116,7 +127,6 @@ static int inicializar_configs() {
 
 
 
-
 static int extraer_quantum_config(){
 	t_config *tmpConfigFile = config_create(STANDARD_PATH_KERNEL_CONFIG); //Muhcho overhead pero no encontre otra forma, ya que el config una vez que esta abierto, no recibe las modificaciones en tiempo real. Hay que abrirlo y cerrarlo cada vez
 	int res = config_get_int_value(tmpConfigFile, "QUANTUM");
@@ -166,7 +176,7 @@ static void finalizar_todos_los_hilos(){
 
 
 static void rutinas_de_finalizacion(){
-	printf(RED"Finalizando..."STD"\n");
+	printf(RED"Finalizando kernel..."STD"\n");
 	finalizar_todos_los_hilos();
 	fflush(stdout);
 	log_destroy(logger_visible);
