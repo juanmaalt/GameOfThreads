@@ -12,6 +12,7 @@ RM := rm -rf
 -include server/subdir.mk
 -include serializacion/subdir.mk
 -include parser/subdir.mk
+-include epoch/subdir.mk
 -include cliente/subdir.mk
 -include subdir.mk
 -include objects.mk
