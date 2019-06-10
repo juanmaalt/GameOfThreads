@@ -26,23 +26,33 @@ void *recibir_comandos(void *null){
 	            case DESCRIBE:
 	            case DROP:
 	            case JOURNAL:
-	            case ADDMEMORY:
 	            	if(new_comando(STRING_COMANDO, userImput) == EXIT_FAILURE){
 	            		log_error(logger_error, "Consola.c: recibir_comandos: el comando no pudo ingresar a new");
 	            		log_error(logger_invisible, "Consola.c: recibir_comandos: el comando no pudo ingresar a new");
 	            	}//Aca no se libera userImput, se libera en unidad_de_ejecucion.c con el nombre de pcb->data
 	            	break;
+	            case ADDMEMORY:
+	            	break;
+
 	            case RUN:
+	            	if(string_equals_ignore_case(parsed->argumentos.RUN.path, "TEST")){
+	            		funcion_loca_de_testeo_de_concurrencia();
+	            		break;
+	            	}
 	            	if(new_lql(parsed->argumentos.RUN.path) == EXIT_FAILURE){
 	            		log_error(logger_error, "Consola.c: recibir_comandos: hubo un problema en el archivo LQL");
 	            		log_error(logger_invisible, "Consola.c: recibir_comandos: hubo un problema en el archivo LQL");
 	            	}
 	            	free(userImput);
 	                break;
+
 	            case METRICS:
-	            	funcion_loca_de_testeo_de_concurrencia();
-	            	//TODO: comando metrics
+	            	if(parsed->argumentos.METRICS.stop == NULL)
+	            		ver_metricas();
+	            	else
+	            		no_ver_metricas();
 	                break;
+
 	            default:
             		log_error(logger_error, "Consola.c: recibir_comandos: no se pude interpretar el enum");
             		log_error(logger_invisible, "Consola.c: recibir_comandos: no se pude interpretar el enum");

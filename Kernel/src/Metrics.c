@@ -7,15 +7,48 @@
 
 #include "Metrics.h"
 
-void *servicio_metricas(void *null){
+//FUNCIONES: Privadas
+static void *servicio_metricas(void *null);
+static int iniciar_servicio_metricas();
+static int mostrar_metricas_por_pantalla();
+
+int ver_metricas(){
+	if(servicioEstaEncendido)
+		return mostrar_metricas_por_pantalla();
+
+	if(iniciar_servicio_metricas() == EXIT_FAILURE)
+		return EXIT_FAILURE;
+
+	return ver_metricas();
+}
+
+
+
+
+
+void no_ver_metricas(){
+	pthread_cancel(servicioMetricas);
+}
+
+
+
+
+
+static void *servicio_metricas(void *null){
 	INICIO:
-	mostrar_metricas();
-	sleep(30);
+	sleep(TIEMPO_DE_REFRESCO_DE_METRICAS);
+	mostrar_metricas_por_pantalla();
 	goto INICIO;
 	return NULL;
 }
 
-int iniciar_servicio_metricas(){
+
+
+
+
+
+
+static int iniciar_servicio_metricas(){
 	metricas.At.EventualConsistency.memoryLoad = dictionary_create();
 	metricas.At.HashStrongConsistency.memoryLoad = dictionary_create();
 	metricas.At.StrongConsistency.memoryLoad = dictionary_create();
@@ -23,18 +56,24 @@ int iniciar_servicio_metricas(){
 	if(pthread_create(&servicioMetricas, NULL, servicio_metricas, NULL))
 		RETURN_ERROR("Metricas.c: iniciar_servicio_metricas: fallo la creacion del servicio de metricas");
 
+	servicioEstaEncendido=1;
 	return EXIT_SUCCESS;
 }
 
-void mostrar_metricas(){
+
+
+
+
+static int mostrar_metricas_por_pantalla(){
 	if(metricas.At.EventualConsistency.memoryLoad == NULL || metricas.At.HashStrongConsistency.memoryLoad == NULL || metricas.At.StrongConsistency.memoryLoad == NULL){
-		log_error(logger_error, "Metrics.c: mostrar_metricas: no se pueden mostrar por que el servicio no se inicializo");
-		return;
+		RETURN_ERROR("Metrics.c: mostrar_metricas: no se pueden mostrar por que el servicio no se inicializo");
 	}
 
 	void mostrar_elemento_dictionary(char* key, void* value){
 		log_info(logger_visible, "Memoria: %s, Loads: int", key, *(int *)value);
 	}
+
+	//Logger visible
 
 	printf("\n");
 
@@ -64,4 +103,9 @@ void mostrar_metricas(){
 	dictionary_iterator(metricas.At.EventualConsistency.memoryLoad, mostrar_elemento_dictionary);
 
 	printf("\n");
+
+	//Logger invisible
+	//TODO: mostrar metricas invisibles
+
+	return EXIT_SUCCESS;
 }

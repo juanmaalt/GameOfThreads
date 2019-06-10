@@ -103,8 +103,8 @@ Comando parsear_comando(char* line){
 	}
 
 	if(string_equals_ignore_case(keyword, "METRICS")){
-		if(split[1] != NULL){
-			fprintf(stderr, RED"Error sintactico, METRICS no lleva argumentos"STD"\n");
+		if(split[1] != NULL && !string_equals_ignore_case(split[1], "STOP")){
+			fprintf(stderr, RED"Error sintactico, METRICS o METRICS STOP"STD"\n");
 			RETURN_ERROR;
 		}
 	}
@@ -152,6 +152,7 @@ Comando parsear_comando(char* line){
 		ret.argumentos.RUN.path = split[1];
 	} else if(string_equals_ignore_case(keyword, "METRICS")){
 		ret.keyword = METRICS;
+		ret.argumentos.METRICS.stop = split[1];
 	} else {
 		fprintf(stderr, RED"No se encontro el keyword <%s>"STD"\n", keyword); //Chequeo sintactico final
 		RETURN_ERROR;

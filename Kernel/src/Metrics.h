@@ -7,6 +7,7 @@
 
 #ifndef METRICS_H_
 #define METRICS_H_
+#define TIEMPO_DE_REFRESCO_DE_METRICAS 30
 
 #include "Kernel.h"
 #include <commons/collections/dictionary.h>
@@ -48,10 +49,10 @@ typedef struct valores_de_metricas Metricas;
 
 //GLOBALES: Metricas
 Metricas metricas;
+int servicioEstaEncendido;
 
 //FUNCIONES: Publicas
-int iniciar_servicio_metricas();
-void mostrar_metricas();
-void finalizar_servicio_metricas();
+int ver_metricas(); //Comienza el servicio de metricas que se loggean cada 30 segundos. Ademas se muestran cada vez que se invoca
+void no_ver_metricas();
 
 #endif /* METRICS_H_ */
