@@ -28,12 +28,14 @@ void *recibir_comandos(void *null){
 	            case JOURNAL:
 	            case ADDMEMORY:
 	            	if(new_comando(STRING_COMANDO, userImput) == EXIT_FAILURE){
-	            		printf(RED"Consola.c: recibir_comandos: el comando no pudo ingresar a new"STD"\n");
+	            		log_error(logger_error, "Consola.c: recibir_comandos: el comando no pudo ingresar a new");
+	            		log_error(logger_invisible, "Consola.c: recibir_comandos: el comando no pudo ingresar a new");
 	            	}//Aca no se libera userImput, se libera en unidad_de_ejecucion.c con el nombre de pcb->data
 	            	break;
 	            case RUN:
 	            	if(new_lql(parsed->argumentos.RUN.path) == EXIT_FAILURE){
-	            		printf(RED"Consola.c: recibir_comandos: hubo un problema en el archivo LQL"STD"\n");
+	            		log_error(logger_error, "Consola.c: recibir_comandos: hubo un problema en el archivo LQL");
+	            		log_error(logger_invisible, "Consola.c: recibir_comandos: hubo un problema en el archivo LQL");
 	            	}
 	            	free(userImput);
 	                break;
@@ -42,11 +44,13 @@ void *recibir_comandos(void *null){
 	            	//TODO: comando metrics
 	                break;
 	            default:
-	                fprintf(stderr, RED"No se pude interpretar el enum: %d"STD"\n", parsed->keyword);
+            		log_error(logger_error, "Consola.c: recibir_comandos: no se pude interpretar el enum");
+            		log_error(logger_invisible, "Consola.c: recibir_comandos: no se pude interpretar el enum");
 	        }
 	        destruir_comando(*parsed);
 	    }else{
-	        fprintf(stderr, RED"La linea no es valida"STD"\n");
+    		log_error(logger_error, "Consola.c: recibir_comandos: la linea no es valida");
+    		log_error(logger_invisible, "Consola.c: recibir_comandos: la linea no es valida");
 	    }
 	    free(parsed);
 	}
@@ -70,22 +74,24 @@ static int new_lql(char *path){
 	if(lql == NULL){
 		RETURN_ERROR("Consola.c: new_lql: el path indicado no es valido");
 	}
+
 	char buffer[MAX_BUFFER_SIZE_FOR_LQL_LINE];
 	char *line;
 	Comando comando;//Se usa para verificar que el lql contenga comandos validos
 	for(int i=1; !feof(lql) && (line = fgets(buffer, MAX_BUFFER_SIZE_FOR_LQL_LINE, lql)) != NULL; ++i){
 		comando = parsear_comando(line);
 		if(comando_validar(comando) == EXIT_FAILURE){ //TODO: posible malgasto de memoria, no perder de vista
-			printf(RED"Consola.c: new_lql: la linea %d del LQL es invalida"STD"\n", i);
 			destruir_comando(comando);
+    		log_error(logger_error, "Consola.c: new_lql: la linea %d del LQL es invalida", i);
+    		log_error(logger_invisible, "Consola.c: new_lql: la linea %d del LQL es invalida", i);
 			return EXIT_FAILURE;
 		}
 		destruir_comando(comando);
 	}
+
 	fseek(lql, 0, SEEK_SET);//Restauro el puntero del archivo al inicio
 	if(new(FILE_LQL, (void*)lql) == EXIT_FAILURE){
-		printf(RED"Consola.c: new_lql: el archivo LQL no pudo ingresar a new"STD"\n");
-		return EXIT_FAILURE;
+		RETURN_ERROR("Consola.c: new_lql: el archivo LQL no pudo ingresar a new");
 	}
 	//el archivo FILE lql se cierra en unidad_de_ejecucion.c, exec_file_lql()
 	return EXIT_SUCCESS;

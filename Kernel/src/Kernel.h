@@ -9,7 +9,14 @@
 #define KERNEL_H_
 #define STANDARD_PATH_KERNEL_CONFIG "Kernel.config"
 
-#define RETURN_ERROR(mensaje) {logger_error != NULL ? log_error(logger_error, "%s", mensaje) : printf(RED"%s"STD"\n", mensaje); return EXIT_FAILURE;}
+#define RETURN_ERROR(mensaje) {if(logger_error != NULL && logger_invisible != NULL){ \
+									log_error(logger_error, "%s", mensaje); \
+									log_error(logger_invisible, "%s", mensaje); \
+								}else{ \
+									printf(RED"%s"STD"\n", mensaje); \
+								} \
+								return EXIT_FAILURE; \
+							   }
 
 #include <stdio.h>
 #include <stdlib.h>

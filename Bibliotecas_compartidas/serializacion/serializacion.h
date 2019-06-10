@@ -66,6 +66,7 @@ typedef struct{
 	*/
 	Operacion recv_msg(int socket);
 
+	#warning "La funcion destruir_operacion() es obsoleta. Hacer free manual"
 	/**
 	* @NAME: destruir_operacion
 	* @DESC:

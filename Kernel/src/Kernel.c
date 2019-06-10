@@ -26,6 +26,7 @@ int main(void) {
 	if(configuracion_inicial() == EXIT_FAILURE)
 		RETURN_ERROR("Kernel.c: main: no se pudo generar la configuracion inicial");
 
+	log_info(logger_invisible, "=============Iniciando kernel=============");
 	mostrar_por_pantalla_config(logger_visible);
 
 	//Se inicia un proceso de consola
@@ -115,11 +116,14 @@ static int inicializar_configs() {
 	vconfig.refreshMetadata = extraer_refresMetadata_config;
 	vconfig.retardo = extraer_retardo_config;
 
-	if(fconfig.multiprocesamiento <= 0)
+	if(fconfig.multiprocesamiento <= 0){
 		log_error(logger_error, "Kernel.c: extraer_data_config: (Warning) el multiprocesamiento con valores menores o iguales a 0 genera comportamiento indefinido");
-	if(vconfig.quantum() <= 0)
+		log_error(logger_error, "Kernel.c: extraer_data_config: (Warning) el multiprocesamiento con valores menores o iguales a 0 genera comportamiento indefinido");
+	}
+	if(vconfig.quantum() <= 0){
 		log_error(logger_error, "Kernel.c: extraer_data_config: (Warning) el quantum con valores menores o iguales a 0 genera comportamiento indefinido");
-
+	log_error(logger_error, "Kernel.c: extraer_data_config: (Warning) el quantum con valores menores o iguales a 0 genera comportamiento indefinido");
+	}
 	return EXIT_SUCCESS;
 }
 
@@ -157,6 +161,13 @@ void mostrar_por_pantalla_config(){
 	log_info(logger_visible, "MULTIPROCESAMIENTO=%d", fconfig.multiprocesamiento);
 	log_info(logger_visible, "REFRESH_METADATA=%d", vconfig.refreshMetadata());
 	log_info(logger_visible, "RETARDO=%d", vconfig.retardo());
+
+	log_info(logger_invisible, "IP_MEMORIA=%s", fconfig.ip_memoria);
+	log_info(logger_invisible, "PUERTO_MEMORIA=%s", fconfig.puerto_memoria);
+	log_info(logger_invisible, "QUANTUM=%d", vconfig.quantum());
+	log_info(logger_invisible, "MULTIPROCESAMIENTO=%d", fconfig.multiprocesamiento);
+	log_info(logger_invisible, "REFRESH_METADATA=%d", vconfig.refreshMetadata());
+	log_info(logger_invisible, "RETARDO=%d", vconfig.retardo());
 }
 
 
@@ -176,7 +187,8 @@ static void finalizar_todos_los_hilos(){
 
 
 static void rutinas_de_finalizacion(){
-	printf(RED"Finalizando kernel..."STD"\n");
+	printf(GRN"Finalizando kernel..."STD"\n");
+	log_info(logger_invisible, "=============Finalizando kernel=============");
 	finalizar_todos_los_hilos();
 	fflush(stdout);
 	log_destroy(logger_visible);
