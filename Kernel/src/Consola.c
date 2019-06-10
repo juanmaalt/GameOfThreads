@@ -112,15 +112,19 @@ static int new_lql(char *path){
 
 
 void funcion_loca_de_testeo_de_concurrencia(void){
-	/*Hacer en la carpeta donde se encuentre el ejecutable 4 archivos que se llamen:
-	 * lql1.lql
-	 * lql2.lql
-	 * lql3.lql
-	 * lql4.lql
-	 * Inovcar la funcion em algun comando para probarla
-	 * */
-	new_lql("lql/lql1.lql");
-	new_lql("lql/lql2.lql");
-	new_lql("lql/lql3.lql");
-	new_lql("lql/lql4.lql");
+	DIR *dir;
+	struct dirent *ent;
+	if ((dir = opendir ("lql")) != NULL) {
+		/* print all the files and directories within directory */
+		while ((ent = readdir (dir)) != NULL) {
+		  char *archivo = string_from_format("lql/%s", ent->d_name);
+		  new_lql(archivo);
+		  free(archivo);
+		}
+	 	closedir (dir);
+	} else {
+		/* could not open directory */
+		printf(RED"No se encontro el directorio lql para los tests"STD);
+		return;
+	}
 }

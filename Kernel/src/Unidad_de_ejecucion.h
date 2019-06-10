@@ -18,7 +18,9 @@ typedef enum flag_e Flag;
 
 typedef enum{
 	DESALOJO,
-	FINALIZO
+	FINALIZO,
+	INSTRUCCION_ERROR,
+	CONTINUAR
 }ResultadoEjecucionInterno;
 
 //FUNCIONES: Publicas

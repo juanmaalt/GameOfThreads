@@ -10,7 +10,7 @@
 //FUNCIONES: Privadas. No van en el header.
 static int exec_file_lql(PCB *pcb);
 static int exec_string_comando(PCB *pcb);
-static void loggear_operacion(Operacion op);
+static int loggear_operacion(Operacion op);
 static int conectarse_con_memoria_segun_request(PCB *pcb);
 static int comunicarse_con_memoria();
 
@@ -102,7 +102,12 @@ static int exec_file_lql(PCB *pcb){
 		request.Argumentos.COMANDO.comandoParseable = line;
 		send_msg(socketTarget, request);
 		request = recv_msg(socketTarget);
-		loggear_operacion(request);
+		if(loggear_operacion(request) == INSTRUCCION_ERROR){
+			fclose(lql);
+			free(pcb);
+			close(socketTarget);
+			return FINALIZO;
+		}
 		close(socketTarget);
 	}
 	printf("\n");
@@ -118,24 +123,25 @@ static int exec_file_lql(PCB *pcb){
 
 
 
-static void loggear_operacion(Operacion op){
+static int loggear_operacion(Operacion op){
 	switch(op.TipoDeMensaje){
 	case TEXTO_PLANO:
 		log_info(logger_visible,"CPU: %d | %s", process_get_thread_id(), op.Argumentos.TEXTO_PLANO.texto);
 		log_info(logger_invisible,"CPU: %d | %s", process_get_thread_id(), op.Argumentos.TEXTO_PLANO.texto);
-		return;
+		return CONTINUAR;
 	case COMANDO:
 		log_info(logger_visible,"CPU: %d | %s", process_get_thread_id(), op.Argumentos.COMANDO.comandoParseable);
 		log_info(logger_invisible,"CPU: %d | %s", process_get_thread_id(), op.Argumentos.COMANDO.comandoParseable);
-		return;
+		return CONTINUAR;
 	case REGISTRO:
 		log_info(logger_visible,"CPU: %d | Timestamp: %llu, Key: %d, Value: %s", process_get_thread_id(), op.Argumentos.REGISTRO.timestamp, op.Argumentos.REGISTRO.key, op.Argumentos.REGISTRO.value);
 		log_info(logger_invisible,"CPU: %d | Timestamp: %llu, Key: %d, Value: %s", process_get_thread_id(), op.Argumentos.REGISTRO.timestamp, op.Argumentos.REGISTRO.key, op.Argumentos.REGISTRO.value);
-		return;
+		return CONTINUAR;
 	case ERROR:
 		log_error(logger_error,"CPU: %d | Kernel panic: %s", process_get_thread_id(), op.Argumentos.ERROR.mensajeError);
 		log_error(logger_invisible,"CPU: %d | Kernel panic: %s", process_get_thread_id(), op.Argumentos.ERROR.mensajeError);
-		return;
+		return INSTRUCCION_ERROR;
 	}
+	return INSTRUCCION_ERROR;
 }
 
