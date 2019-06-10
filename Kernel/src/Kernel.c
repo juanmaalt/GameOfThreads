@@ -64,15 +64,15 @@ static int configuracion_inicial(){
 	sem_init(&extraerDeReadyDeAUno, 0, 1);
 	sem_init(&meterEnReadyDeAUno, 0, 1);
 
-	logger_visible = iniciar_logger("KernelResumen.log", true, LOG_LEVEL_INFO);
+	logger_visible = iniciar_logger("log/KernelResumen.log", true, LOG_LEVEL_INFO);
 	if(logger_visible == NULL)
 		RETURN_ERROR("Kernel.c: configuracion_inicial: error en 'logger_visible = iniciar_logger(true);'");
 
-	logger_invisible = iniciar_logger("KernelTodo.log", false, LOG_LEVEL_INFO);
+	logger_invisible = iniciar_logger("log/KernelTodo.log", false, LOG_LEVEL_INFO);
 	if(logger_visible == NULL)
 		RETURN_ERROR("Kernel.c: configuracion_inicial: error en 'logger_invisible = iniciar_logger(false);'")
 
-	logger_error = iniciar_logger("KernelErrores.log", true, LOG_LEVEL_ERROR);
+	logger_error = iniciar_logger("log/KernelErrores.log", true, LOG_LEVEL_ERROR);
 	if(logger_visible == NULL)
 		RETURN_ERROR("Kernel.c: configuracion_inicial: error en 'logger_error = iniciar_logger(true);'");
 

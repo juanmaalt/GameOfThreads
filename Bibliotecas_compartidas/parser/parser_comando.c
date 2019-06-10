@@ -40,35 +40,35 @@ Comando parsear_comando(char* line){
 
 	if(string_equals_ignore_case(keyword, "SELECT")){
 		if(split[1] == NULL || split[2] == NULL){
-			fprintf(stderr, RED"Error sintactico, argumentos para SELECT invalidos"STD"\n");
+			fprintf(stderr, RED"Error sintactico, SELECT [NOMBRE_TABLA] [KEY]"STD"\n");
 			RETURN_ERROR;
 		}
 	}
 
 	if(string_equals_ignore_case(keyword, "INSERT")){
 		if(split[1] == NULL || split[2] == NULL || split[3] == NULL){ //El insert puede no tener timestamp, es decir, split[4]
-			fprintf(stderr, RED"Error sintactico, argumentos para INSERT invalidos"STD"\n");
+			fprintf(stderr, RED"Error sintactico, INSERT [NOMBRE_TABLA] [KEY] “[VALUE]” [TIMESTAMP(opcional)]"STD"\n");
 			RETURN_ERROR;
 		}
 	}
 
 	if(string_equals_ignore_case(keyword, "CREATE")){
 		if(split[1] == NULL || split[2] == NULL || split[3] == NULL || split[4] == NULL){
-			fprintf(stderr, RED"Error sintactico, argumentos para CREATE invalidos"STD"\n");
+			fprintf(stderr, RED"Error sintactico, CREATE [NOMBRE_TABLA] [TIPO_CONSISTENCIA] [NUMERO_PARTICIONES] [COMPACTION_TIME]"STD"\n");
 			RETURN_ERROR;
 		}
 	}
 
-	if(string_equals_ignore_case(keyword, "DESCRIBE")){
+	/*if(string_equals_ignore_case(keyword, "DESCRIBE")){
 		if(split[1] == NULL){
-			fprintf(stderr, RED"Error sintactico, argumentos para DESCRIBE invalidos"STD"\n");
+			fprintf(stderr, RED"Error sintactico, DESCRIBE [NOMBRE_TABLA(opcional)]"STD"\n");
 			RETURN_ERROR;
 		}
-	}
+	}*/
 
 	if(string_equals_ignore_case(keyword, "DROP")){
 		if(split[1] == NULL){
-			fprintf(stderr, RED"Error sintactico, argumentos para DROP invalidos"STD"\n");
+			fprintf(stderr, RED"Error sintactico, DROP [NOMBRE_TABLA]"STD"\n");
 			RETURN_ERROR;
 		}
 	}
@@ -82,22 +82,22 @@ Comando parsear_comando(char* line){
 
 	if(string_equals_ignore_case(keyword, "ADD")){
 		if(split[1] == NULL || split[2] == NULL || split[3] == NULL || split[4] == NULL){
-			fprintf(stderr, RED"Error sintactico, argumentos para ADD MEMORY invalidos"STD"\n");
+			fprintf(stderr, RED"Error sintactico, ADD MEMORY [NÚMERO] TO [CRITERIO]"STD"\n");
 			RETURN_ERROR;
 		}
 		if(!string_equals_ignore_case(split[1], "MEMORY")){
-			fprintf(stderr, RED"Error sintactico, tal vez olvido el 'MEMORY'"STD"\n");
+			fprintf(stderr, RED"Error sintactico, ADD MEMORY [NÚMERO] TO [CRITERIO]"STD"\n");
 			RETURN_ERROR;
 		}
 		if(!string_equals_ignore_case(split[3], "TO")){
-			fprintf(stderr, RED"Error sintactico, tal vez olvido el 'TO'"STD"\n");
+			fprintf(stderr, RED"Error sintactico, ADD MEMORY [NÚMERO] TO [CRITERIO]"STD"\n");
 			RETURN_ERROR;
 		}
 	}
 
 	if(string_equals_ignore_case(keyword, "RUN")){
 		if(split[1] == NULL){
-			fprintf(stderr, RED"Error sintactico, argumentos para RUN invalidos"STD"\n");
+			fprintf(stderr, RED"Error sintactico, RUN [PATH]"STD"\n");
 			RETURN_ERROR;
 		}
 	}

@@ -14,8 +14,8 @@ static int new_comando(PCB_DataType tipo, char *data);
 void *recibir_comandos(void *null){
 	pthread_detach(pthread_self());
 	sem_wait(&disponibilidadPlanificador);
-	Comando *parsed = malloc(sizeof(Comando));
 	for(;;){
+		Comando *parsed = malloc(sizeof(Comando));
 		char *userImput = readline("");
 		*parsed = parsear_comando(userImput);
 	    if(parsed->valido){
@@ -28,13 +28,14 @@ void *recibir_comandos(void *null){
 	            case JOURNAL:
 	            case ADDMEMORY:
 	            	if(new_comando(STRING_COMANDO, userImput) == EXIT_FAILURE){
-	            		printf(RED"Consola.c: recibir_comandos: el comando no puso ingresar a new"STD"\n");
-	            	}
+	            		printf(RED"Consola.c: recibir_comandos: el comando no pudo ingresar a new"STD"\n");
+	            	}//Aca no se libera userImput, se libera en unidad_de_ejecucion.c con el nombre de pcb->data
 	            	break;
 	            case RUN:
 	            	if(new_lql(parsed->argumentos.RUN.path) == EXIT_FAILURE){
 	            		printf(RED"Consola.c: recibir_comandos: hubo un problema en el archivo LQL"STD"\n");
 	            	}
+	            	free(userImput);
 	                break;
 	            case METRICS:
 	            	funcion_loca_de_testeo_de_concurrencia();
@@ -43,14 +44,12 @@ void *recibir_comandos(void *null){
 	            default:
 	                fprintf(stderr, RED"No se pude interpretar el enum: %d"STD"\n", parsed->keyword);
 	        }
-
 	        destruir_comando(*parsed);
 	    }else{
 	        fprintf(stderr, RED"La linea no es valida"STD"\n");
 	    }
-	    //free(userImput);
+	    free(parsed);
 	}
-	free(parsed);
 	return NULL;
 }
 
@@ -79,8 +78,6 @@ static int new_lql(char *path){
 		if(comando_validar(comando) == EXIT_FAILURE){ //TODO: posible malgasto de memoria, no perder de vista
 			printf(RED"Consola.c: new_lql: la linea %d del LQL es invalida"STD"\n", i);
 			destruir_comando(comando);
-			if(line != NULL)
-				free(line);
 			return EXIT_FAILURE;
 		}
 		destruir_comando(comando);
@@ -106,8 +103,8 @@ void funcion_loca_de_testeo_de_concurrencia(void){
 	 * lql4.lql
 	 * Inovcar la funcion em algun comando para probarla
 	 * */
-	new_lql("lql1.lql");
-	new_lql("lql2.lql");
-	new_lql("lql3.lql");
-	new_lql("lql4.lql");
+	new_lql("lql/lql1.lql");
+	new_lql("lql/lql2.lql");
+	new_lql("lql/lql3.lql");
+	new_lql("lql/lql4.lql");
 }
