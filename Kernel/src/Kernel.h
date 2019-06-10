@@ -33,6 +33,7 @@
 #include <sys/stat.h> //Para mkdir
 #include "Consola.h"
 #include "Planificador.h"
+#include "Metrics.h"
 
 
 //ESTRUCTURAS
@@ -63,6 +64,7 @@ vConfig vconfig; //Contiene solo los datos variables del config
 
 //GLOBALES: Hilos y semaforos
 pthread_t idConsola;
+pthread_t servicioMetricas;
 t_list *idsExecInstances; //TODO: ver como liberar esto al final del programa, poca importancia
 sem_t disponibilidadPlanificador; //Para que la consola no pueda mandarle algo al planificador si no se inicio
 sem_t scriptEnReady; //Para saber si hay algo en ready o no, y no estar preguntando permanentemente
