@@ -65,6 +65,9 @@ static int configuracion_inicial(){
 	sem_init(&extraerDeReadyDeAUno, 0, 1);
 	sem_init(&meterEnReadyDeAUno, 0, 1);
 
+	mkdir("log", 0777); //Crea la carpeta log junto al ejecutable (si ya existe no toca nada de lo que haya adentro)
+
+	remove("log/KernelResumen.log"); //Esto define que cada ejecucion, el log se renueva
 	logger_visible = iniciar_logger("log/KernelResumen.log", true, LOG_LEVEL_INFO);
 	if(logger_visible == NULL)
 		RETURN_ERROR("Kernel.c: configuracion_inicial: error en 'logger_visible = iniciar_logger(true);'");
@@ -73,6 +76,7 @@ static int configuracion_inicial(){
 	if(logger_visible == NULL)
 		RETURN_ERROR("Kernel.c: configuracion_inicial: error en 'logger_invisible = iniciar_logger(false);'")
 
+	remove("log/KernelErrores.log");
 	logger_error = iniciar_logger("log/KernelErrores.log", true, LOG_LEVEL_ERROR);
 	if(logger_visible == NULL)
 		RETURN_ERROR("Kernel.c: configuracion_inicial: error en 'logger_error = iniciar_logger(true);'");

@@ -30,6 +30,7 @@
 #include <pthread.h>
 #include <semaphore.h>
 #include <colores/colores.h>
+#include <sys/stat.h> //Para mkdir
 #include "Consola.h"
 #include "Planificador.h"
 
