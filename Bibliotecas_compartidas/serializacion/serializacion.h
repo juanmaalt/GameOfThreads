@@ -14,6 +14,7 @@
 
 #include "../epoch/epoch.h"
 #include "../parser/parser_comando.h" //Para poder enviar estructuras de tipo Comando
+#include "../consistencias/consistencias.h"
 
 
 typedef struct{
@@ -22,6 +23,8 @@ typedef struct{
 		COMANDO,
 		REGISTRO,
 		ERROR,
+		POOL_MEMORIA,
+		DESCRIBE_REQUEST
 	}TipoDeMensaje;
 	union{
 		struct{
@@ -38,6 +41,16 @@ typedef struct{
 		struct{
 			char* mensajeError;
 		}ERROR;
+		struct{
+			int fin; //Por default en 0 (falso), indica si es el fin de archivo. Poner en 1 cuando se mande la ultima request
+			int numeroMemoria;
+			char *ipypuerto;
+		}POOL_MEMORIA;
+		struct{
+			int fin; //Por default en 0 (falso), indica si es el fin de archivo. Poner en 1 cuando se mande la ultima request
+			char *nombreTabla;
+			Consistencia consistencia;
+		}DESCRIBE_REQUEST;
 	}Argumentos;
 }Operacion;
 

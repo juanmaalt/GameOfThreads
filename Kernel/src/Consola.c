@@ -6,6 +6,7 @@
  */
 
 #include "Consola.h"
+#include <parser/compresor_direccion.h>
 
 //FUNCIONES: Privadas
 static int new_lql(char* path);
@@ -21,6 +22,7 @@ void *recibir_comandos(void *null){
 	    if(parsed->valido){
 	        switch(parsed->keyword){
 	            case SELECT:
+	            	break;
 	            case INSERT:
 	            case CREATE:
 	            case DESCRIBE:

@@ -8,7 +8,7 @@
 
 #include "compresor_direccion.h"
 
-char *comprimir_direccion(char* ip, char* puerto){
+char *comprimir_direccion(const char* ip, const char* puerto){
 	return string_from_format("%s:%s", ip, puerto);
 }
 
