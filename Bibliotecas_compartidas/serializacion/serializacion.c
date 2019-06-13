@@ -10,11 +10,12 @@ int send_msg(int socket, Operacion operacion) {
 
 	case TEXTO_PLANO:
 		longCadena = strlen(operacion.Argumentos.TEXTO_PLANO.texto);
-		total = sizeof(int) + sizeof(int) + sizeof(char) * longCadena; //Enum + cantidad caracteres cadena + cadena
+		total = sizeof(int) + sizeof(int) + sizeof(char) * longCadena + sizeof(id); //Enum + cantidad caracteres cadena + cadena +  opCode
 		content = malloc(total);
 		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
 		memcpy(content+sizeof(int), &longCadena, sizeof(int));
 		memcpy(content+2*sizeof(int), operacion.Argumentos.TEXTO_PLANO.texto, sizeof(char)*longCadena);
+		memcpy(content+2*sizeof(int)+sizeof(char)*longCadena, &(operacion.opCode), sizeof(id));
 		break;
 
 	case COMANDO://Nota: no puedo hacerlo en un paso tipo funcional
@@ -26,52 +27,58 @@ int send_msg(int socket, Operacion operacion) {
 		}
 		destruir_comando(comando);
 		longCadena = strlen(operacion.Argumentos.COMANDO.comandoParseable);
-		total = sizeof(int) + sizeof(int) + sizeof(char) * longCadena;
+		total = sizeof(int) + sizeof(int) + sizeof(char) * longCadena + sizeof(id);
 		content = malloc(total);
 		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
 		memcpy(content+sizeof(int), &longCadena, sizeof(int));
 		memcpy(content+2*sizeof(int),operacion.Argumentos.COMANDO.comandoParseable, sizeof(char)*longCadena);
+		memcpy(content+2*sizeof(int)+sizeof(char)*longCadena, &(operacion.opCode), sizeof(id));
 		break;
 
 	case REGISTRO:
 		longCadena = strlen(operacion.Argumentos.REGISTRO.value);
 		size_t tamValue = sizeof(char) * longCadena;
-		total = sizeof(int) + sizeof(timestamp_t) + sizeof(uint16_t) + sizeof(int) + tamValue;
+		total = sizeof(int) + sizeof(timestamp_t) + sizeof(uint16_t) + sizeof(int) + tamValue + sizeof(id);
 		content = malloc(total);
 		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
 		memcpy(content+sizeof(int), &(operacion.Argumentos.REGISTRO.timestamp), sizeof(timestamp_t));
 		memcpy(content+sizeof(int)+sizeof(timestamp_t), &(operacion.Argumentos.REGISTRO.key), sizeof(uint16_t));
 		memcpy(content+sizeof(int)+sizeof(timestamp_t) + sizeof(uint16_t), &longCadena, sizeof(int));
 		memcpy(content+sizeof(int)+sizeof(timestamp_t) + sizeof(uint16_t) + sizeof(int), operacion.Argumentos.REGISTRO.value, tamValue);
+		memcpy(content+sizeof(int)+sizeof(timestamp_t) + sizeof(uint16_t) + sizeof(int) + tamValue, &(operacion.opCode), sizeof(id));
 		break;
 
 	case ERROR:
 		longCadena = strlen(operacion.Argumentos.ERROR.mensajeError);
-		total = sizeof(int) + sizeof(int) + sizeof(char) * longCadena;
+		total = sizeof(int) + sizeof(int) + sizeof(char) * longCadena + sizeof(id);
 		content = malloc(total);
 		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
 		memcpy(content+sizeof(int), &longCadena, sizeof(int));
 		memcpy(content+2*sizeof(int), operacion.Argumentos.ERROR.mensajeError, sizeof(char)*longCadena);
+		memcpy(content+2*sizeof(int)+sizeof(char)*longCadena, &(operacion.opCode), sizeof(id));
 		break;
+
 	case GOSSIPING_REQUEST:
 		longCadena = strlen(operacion.Argumentos.GOSSIPING_REQUEST.ipypuerto);
-		total = sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(char) * longCadena; //operacion + fin + nro memoria + long cadena + cadena
+		total = sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(char) * longCadena + sizeof(id); //operacion + fin + nro memoria + long cadena + cadena
 		content = malloc(total);
 		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int)); //operacion
 		memcpy(content+sizeof(int), &(operacion.Argumentos.GOSSIPING_REQUEST.fin), sizeof(int)); //fin
 		memcpy(content+2*sizeof(int), &(operacion.Argumentos.GOSSIPING_REQUEST.numeroMemoria), sizeof(int)); //nro memoria
 		memcpy(content+3*sizeof(int), &longCadena, sizeof(int)); //long cadena
 		memcpy(content+4*sizeof(int), operacion.Argumentos.GOSSIPING_REQUEST.ipypuerto, sizeof(char)*longCadena); //cadena
+		memcpy(content+4*sizeof(int)+sizeof(char)*longCadena, &(operacion.opCode), sizeof(id));
 		break;
 	case DESCRIBE_REQUEST:
 		longCadena = strlen(operacion.Argumentos.DESCRIBE_REQUEST.nombreTabla);
-		total = sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(char)*longCadena; //operacion + fin + consistencia + long cadena + cadena
+		total = sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(char)*longCadena + sizeof(id); //operacion + fin + consistencia + long cadena + cadena
 		content = malloc(total);
 		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int)); //operacion
 		memcpy(content+sizeof(int), &(operacion.Argumentos.DESCRIBE_REQUEST.fin), sizeof(int)); //fin
 		memcpy(content+2*sizeof(int), &(operacion.Argumentos.DESCRIBE_REQUEST.consistencia), sizeof(int)); //consistencia
 		memcpy(content+3*sizeof(int), &longCadena, sizeof(int)); //long cadena
 		memcpy(content+4*sizeof(int), operacion.Argumentos.DESCRIBE_REQUEST.nombreTabla, sizeof(char)*longCadena); //cadena
+		memcpy(content+4*sizeof(int)+sizeof(char)*longCadena, &(operacion.opCode), sizeof(id));
 		break;
 	default:
 		return EXIT_FAILURE;
@@ -140,6 +147,7 @@ Operacion recv_msg(int socket) {
 	default:
 		RECV_FAIL("Error en la recepcion del resultado. Tipo de operacion desconocido");
 	}
+	recv(socket, &(retorno.opCode), sizeof(id), 0);
 	return retorno;
 }
 

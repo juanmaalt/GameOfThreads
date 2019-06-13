@@ -22,7 +22,6 @@ void *recibir_comandos(void *null){
 	    if(parsed->valido){
 	        switch(parsed->keyword){
 	            case SELECT:
-	            	break;
 	            case INSERT:
 	            case CREATE:
 	            case DESCRIBE:

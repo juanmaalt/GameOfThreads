@@ -13,6 +13,7 @@
 #include <readline/readline.h>
 #include <dirent.h>//Para DIR
 #include "Kernel.h"
+#include <random/random_numbers.h>
 
 typedef enum PCB_DataType_e PCB_DataType;
 

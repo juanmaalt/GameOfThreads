@@ -65,6 +65,7 @@ static int comunicarse_con_memoria(char *ip, char *puerto){
 static int exec_string_comando(PCB *pcb){
 	int socketTarget = conectarse_con_memoria_segun_request(pcb);
 	Operacion request;
+	request.opCode = getNumber();
 	request.TipoDeMensaje = COMANDO;
 	request.Argumentos.COMANDO.comandoParseable = (char*)pcb->data;
 	send_msg(socketTarget, request);
@@ -98,6 +99,7 @@ static int exec_file_lql(PCB *pcb){
 			close(socketTarget);
 			return FINALIZO;
 		}
+		request.opCode = getNumber();
 		request.TipoDeMensaje = COMANDO;
 		request.Argumentos.COMANDO.comandoParseable = line;
 		send_msg(socketTarget, request);
@@ -126,21 +128,23 @@ static int exec_file_lql(PCB *pcb){
 static int loggear_operacion(Operacion op){
 	switch(op.TipoDeMensaje){
 	case TEXTO_PLANO:
-		log_info(logger_visible,"CPU: %d | %s", process_get_thread_id(), op.Argumentos.TEXTO_PLANO.texto);
-		log_info(logger_invisible,"CPU: %d | %s", process_get_thread_id(), op.Argumentos.TEXTO_PLANO.texto);
+		log_info(logger_visible,"CPU: %d | ID Operacion: %d | %s", process_get_thread_id(), op.opCode, op.Argumentos.TEXTO_PLANO.texto);
+		log_info(logger_invisible,"CPU: %d | ID Operacion: %d | %s", process_get_thread_id(), op.Argumentos.TEXTO_PLANO.texto);
 		return CONTINUAR;
 	case COMANDO:
-		log_info(logger_visible,"CPU: %d | %s", process_get_thread_id(), op.Argumentos.COMANDO.comandoParseable);
-		log_info(logger_invisible,"CPU: %d | %s", process_get_thread_id(), op.Argumentos.COMANDO.comandoParseable);
+		log_info(logger_visible,"CPU: %d | ID Operacion: %d | %s", process_get_thread_id(), op.opCode, op.Argumentos.COMANDO.comandoParseable);
+		log_info(logger_invisible,"CPU: %d | ID Operacion: %d | %s", process_get_thread_id(), op.opCode, op.Argumentos.COMANDO.comandoParseable);
 		return CONTINUAR;
 	case REGISTRO:
-		log_info(logger_visible,"CPU: %d | Timestamp: %llu, Key: %d, Value: %s", process_get_thread_id(), op.Argumentos.REGISTRO.timestamp, op.Argumentos.REGISTRO.key, op.Argumentos.REGISTRO.value);
-		log_info(logger_invisible,"CPU: %d | Timestamp: %llu, Key: %d, Value: %s", process_get_thread_id(), op.Argumentos.REGISTRO.timestamp, op.Argumentos.REGISTRO.key, op.Argumentos.REGISTRO.value);
+		log_info(logger_visible,"CPU: %d | ID Operacion: %d | Timestamp: %llu, Key: %d, Value: %s", process_get_thread_id(), op.opCode, op.Argumentos.REGISTRO.timestamp, op.Argumentos.REGISTRO.key, op.Argumentos.REGISTRO.value);
+		log_info(logger_invisible,"CPU: %d | ID Operacion: %d | Timestamp: %llu, Key: %d, Value: %s", process_get_thread_id(), op.opCode, op.Argumentos.REGISTRO.timestamp, op.Argumentos.REGISTRO.key, op.Argumentos.REGISTRO.value);
 		return CONTINUAR;
 	case ERROR:
-		log_error(logger_error,"CPU: %d | Kernel panic: %s", process_get_thread_id(), op.Argumentos.ERROR.mensajeError);
-		log_error(logger_invisible,"CPU: %d | Kernel panic: %s", process_get_thread_id(), op.Argumentos.ERROR.mensajeError);
+		log_error(logger_error,"CPU: %d | ID Operacion: %d | Kernel panic: %s", process_get_thread_id(), op.opCode, op.Argumentos.ERROR.mensajeError);
+		log_error(logger_invisible,"CPU: %d | ID Operacion: %d | Kernel panic: %s", process_get_thread_id(), op.opCode, op.Argumentos.ERROR.mensajeError);
 		return INSTRUCCION_ERROR;
+	default:
+		return 1;//TODO
 	}
 	return INSTRUCCION_ERROR;
 }

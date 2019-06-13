@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <commons/process.h>
+#include <random/random_numbers.h>
 #include "Planificador.h"
 
 typedef struct pcb_t PCB;
