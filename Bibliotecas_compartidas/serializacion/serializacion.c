@@ -17,7 +17,7 @@ int send_msg(int socket, Operacion operacion) {
 		memcpy(content+2*sizeof(int), operacion.Argumentos.TEXTO_PLANO.texto, sizeof(char)*longCadena);
 		break;
 
-	case COMANDO://Nota: no puedo hacerlo todo en un paso tipo funcional
+	case COMANDO://Nota: no puedo hacerlo en un paso tipo funcional
 		comando = parsear_comando(operacion.Argumentos.COMANDO.comandoParseable);
 		if (comando_validar(comando) == EXIT_FAILURE) {
 			printf(RED"serializacion.c: send_command: el comando no es parseable"STD"\n");
@@ -53,6 +53,26 @@ int send_msg(int socket, Operacion operacion) {
 		memcpy(content+sizeof(int), &longCadena, sizeof(int));
 		memcpy(content+2*sizeof(int), operacion.Argumentos.ERROR.mensajeError, sizeof(char)*longCadena);
 		break;
+	case GOSSIPING_REQUEST:
+		longCadena = strlen(operacion.Argumentos.GOSSIPING_REQUEST.ipypuerto);
+		total = sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(char) * longCadena; //operacion + fin + nro memoria + long cadena + cadena
+		content = malloc(total);
+		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int)); //operacion
+		memcpy(content+sizeof(int), &(operacion.Argumentos.GOSSIPING_REQUEST.fin), sizeof(int)); //fin
+		memcpy(content+2*sizeof(int), &(operacion.Argumentos.GOSSIPING_REQUEST.numeroMemoria), sizeof(int)); //nro memoria
+		memcpy(content+3*sizeof(int), &longCadena, sizeof(int)); //long cadena
+		memcpy(content+4*sizeof(int), operacion.Argumentos.GOSSIPING_REQUEST.ipypuerto, sizeof(char)*longCadena); //cadena
+		break;
+	case DESCRIBE_REQUEST:
+		longCadena = strlen(operacion.Argumentos.DESCRIBE_REQUEST.nombreTabla);
+		total = sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(char)*longCadena; //operacion + fin + consistencia + long cadena + cadena
+		content = malloc(total);
+		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int)); //operacion
+		memcpy(content+sizeof(int), &(operacion.Argumentos.DESCRIBE_REQUEST.fin), sizeof(int)); //fin
+		memcpy(content+2*sizeof(int), &(operacion.Argumentos.DESCRIBE_REQUEST.consistencia), sizeof(int)); //consistencia
+		memcpy(content+3*sizeof(int), &longCadena, sizeof(int)); //long cadena
+		memcpy(content+4*sizeof(int), operacion.Argumentos.DESCRIBE_REQUEST.nombreTabla, sizeof(char)*longCadena); //cadena
+		break;
 	default:
 		return EXIT_FAILURE;
 	}
@@ -71,13 +91,8 @@ Operacion recv_msg(int socket) {
 	Operacion retorno;
 	int longitud = 0;
 	int result = recv(socket, &(retorno.TipoDeMensaje), sizeof(int), 0);
-	if (result <= 0) {
-		retorno.Argumentos.ERROR.mensajeError = string_from_format("Error en la recepcion del resultado. Es posible que se haya perdido la conexion");
-		//retorno.Argumentos.ERROR.mensajeError = calloc(strlen("Error en la recepcion del resultado.")+1, sizeof(char));
-		//strcpy(retorno.Argumentos.ERROR.mensajeError, "Error en la recepcion del resultado.\0");
-		retorno.TipoDeMensaje = ERROR;
-		return retorno;
-	}
+	if (result <= 0)
+		RECV_FAIL("Error en la recepcion del resultado. Es posible que se haya perdido la conexion");
 
 	switch (retorno.TipoDeMensaje) {
 	case TEXTO_PLANO:
@@ -106,6 +121,24 @@ Operacion recv_msg(int socket) {
 		recv(socket, retorno.Argumentos.ERROR.mensajeError, sizeof(char) * longitud, 0);
 		retorno.Argumentos.ERROR.mensajeError[longitud]='\0';
 		break;
+	case GOSSIPING_REQUEST:
+		recv(socket, &(retorno.Argumentos.GOSSIPING_REQUEST.fin), sizeof(int), 0);
+		recv(socket, &(retorno.Argumentos.GOSSIPING_REQUEST.numeroMemoria), sizeof(int), 0);
+		recv(socket, &longitud, sizeof(int), 0);
+		retorno.Argumentos.GOSSIPING_REQUEST.ipypuerto = calloc(longitud+1, sizeof(char));
+		recv(socket, retorno.Argumentos.GOSSIPING_REQUEST.ipypuerto, sizeof(char)*longitud, 0);
+		retorno.Argumentos.GOSSIPING_REQUEST.ipypuerto[longitud] = '\0';
+		break;
+	case DESCRIBE_REQUEST:
+		recv(socket, &(retorno.Argumentos.DESCRIBE_REQUEST.fin), sizeof(int), 0);
+		recv(socket, &(retorno.Argumentos.DESCRIBE_REQUEST.consistencia), sizeof(int), 0);
+		recv(socket, &longitud, sizeof(int), 0);
+		retorno.Argumentos.DESCRIBE_REQUEST.nombreTabla = calloc(longitud+1, sizeof(char));
+		recv(socket, retorno.Argumentos.DESCRIBE_REQUEST.nombreTabla, sizeof(char)*longitud, 0);
+		retorno.Argumentos.DESCRIBE_REQUEST.nombreTabla[longitud] = '\0';
+		break;
+	default:
+		RECV_FAIL("Error en la recepcion del resultado. Tipo de operacion desconocido");
 	}
 	return retorno;
 }
@@ -128,7 +161,14 @@ void destruir_operacion(Operacion op) {
 		if (op.Argumentos.ERROR.mensajeError != NULL)
 			free(op.Argumentos.ERROR.mensajeError);
 		return;
-
+	case GOSSIPING_REQUEST:
+		if(op.Argumentos.GOSSIPING_REQUEST.ipypuerto != NULL)
+			free(op.Argumentos.GOSSIPING_REQUEST.ipypuerto);
+		return;
+	case DESCRIBE_REQUEST:
+		if(op.Argumentos.DESCRIBE_REQUEST.nombreTabla != NULL)
+			free(op.Argumentos.DESCRIBE_REQUEST.nombreTabla);
+		return;
 	}
 
 }

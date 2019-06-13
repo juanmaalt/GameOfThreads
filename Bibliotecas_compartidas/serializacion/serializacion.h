@@ -1,6 +1,9 @@
 #ifndef SERIALIZACION_SERIALIZACION_H_
 #define SERIALIZACION_SERIALIZACION_H_
-#include "../colores/colores.h"
+
+#define RECV_FAIL(msg) {retorno.Argumentos.ERROR.mensajeError = string_from_format(msg);\
+						retorno.TipoDeMensaje = ERROR;\
+						return retorno;}
 
 //INCLUDES
 #include <stdio.h> // Por dependencia de readline en algunas distros de linux
@@ -14,6 +17,7 @@
 
 #include "../epoch/epoch.h"
 #include "../parser/parser_comando.h" //Para poder enviar estructuras de tipo Comando
+#include "../colores/colores.h"
 #include "../consistencias/consistencias.h"
 
 
@@ -23,7 +27,7 @@ typedef struct{
 		COMANDO,
 		REGISTRO,
 		ERROR,
-		POOL_MEMORIA,
+		GOSSIPING_REQUEST,
 		DESCRIBE_REQUEST
 	}TipoDeMensaje;
 	union{
@@ -45,11 +49,11 @@ typedef struct{
 			int fin; //Por default en 0 (falso), indica si es el fin de archivo. Poner en 1 cuando se mande la ultima request
 			int numeroMemoria;
 			char *ipypuerto;
-		}POOL_MEMORIA;
+		}GOSSIPING_REQUEST;
 		struct{
 			int fin; //Por default en 0 (falso), indica si es el fin de archivo. Poner en 1 cuando se mande la ultima request
-			char *nombreTabla;
 			Consistencia consistencia;
+			char *nombreTabla;
 		}DESCRIBE_REQUEST;
 	}Argumentos;
 }Operacion;
