@@ -11,28 +11,29 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <libgen.h>
+
 #include <commons/string.h>
 #include <commons/config.h>
 #include <commons/log.h>
 #include <commons/string.h>
 #include <commons/collections/list.h>
 #include <commons/collections/dictionary.h>
-#include <readline/readline.h>
+
 #include <cliente/cliente.h>
 #include <parser/parser_comando.h>
 #include <server_multithread/server_multithread.h>
 #include <epoch/epoch.h>
+
+#include <readline/readline.h>
 #include <pthread.h>
 #include <semaphore.h>
-
-#include "Consola.h"
-#include "APILissandra.h"
-
 #include <dirent.h>
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include "adhoc/Consola.h"
+#include "adhoc/APILissandra.h"
 
 
 #define RED "\x1b[31m"

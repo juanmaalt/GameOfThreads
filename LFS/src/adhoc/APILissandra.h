@@ -8,7 +8,7 @@
 #ifndef APILISSANDRA_H_
 #define APILISSANDRA_H_
 
-#include "Lissandra.h"
+#include "../Lissandra.h"
 #include "Metadata.h"
 
 //GLOBALES

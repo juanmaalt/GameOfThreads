@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <readline/readline.h>
-#include "Lissandra.h"
+#include "../Lissandra.h"
 
 //FUNCIONES
 void *recibir_comandos(void *);
