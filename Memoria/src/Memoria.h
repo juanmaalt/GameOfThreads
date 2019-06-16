@@ -18,6 +18,7 @@
 #include <commons/log.h>
 #include <commons/string.h>
 #include <commons/collections/list.h>
+#include <colores/colores.h>
 #include <commons/collections/queue.h>
 #include <readline/readline.h>
 #include <cliente/cliente.h>
@@ -30,9 +31,8 @@
 
 #include "Consola.h"
 #include "APIMemoria.h"
+#include "RutinasDeLiberacion.h"
 
-#define RED "\x1b[31m"
-#define STD "\x1b[0m"
 #define ERROR_MEMORIA_FULL -1
 
 //Para evitar levantar el LFS
@@ -72,8 +72,6 @@ t_log* iniciar_logger(bool);
 int inicializar_configs();
 
 
-void liberarRecursos();
-
 void extraer_data_fija_config(void);
 void mostrar_por_pantalla_config();
 
@@ -112,10 +110,9 @@ typedef struct marco{
 //typedef void pagina_t;
 
 typedef struct registroTablaPag{
-	int numeroPagina; //coincide con el numero de marco en memoria
+	int nroPagina;
+	int nroMarco; //coincide con el numero de marco en memoria
 
-	bool flagModificado; //EN REVISION
-	int countUso;		//EN REVISION
 }registroTablaPag_t;
 
 typedef struct{
@@ -142,6 +139,8 @@ tabla_de_segmentos_t tablaSegmentos;
 
 typedef struct MCB{
 	int nroMarco;
+	bool flagModificado; //EN REVISION
+
 	//Faltan cosas
 }MCB_t;
 

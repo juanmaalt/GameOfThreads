@@ -28,10 +28,12 @@ Operacion ejecutarOperacion(char* input) {
 
 			break;
 		case CREATE:
-			return createAPI(input, *parsed);
+			retorno= createAPI(input, *parsed);
 			break;
 		case DESCRIBE:
 		case DROP:
+			retorno= dropAPI(input, *parsed);
+			break;
 		case JOURNAL:
 			printf("Entro un comando\n");
 			break;
@@ -53,8 +55,7 @@ Operacion ejecutarOperacion(char* input) {
 	}
 
 	retorno.TipoDeMensaje = ERROR;
-	retorno.Argumentos.ERROR.mensajeError=malloc(sizeof(char)* (strlen("Error en la recepcion del resultado.")+1));
-	strcpy(retorno.Argumentos.ERROR.mensajeError, "Error en la recepcion del resultado.");
+	retorno.Argumentos.ERROR.mensajeError=string_from_format("Error en la recepcion del resultado.");
 
 	free(input);
 
@@ -101,7 +102,7 @@ Operacion selectAPI(char* input, Comando comando) {
 			return resultadoSelect;
 		}
 		printf(
-				RED"APIMemoria.c: select: no encontro la key. Enviar a LFS la request"STD"\n"); //TODO: meter en log
+				YEL"APIMemoria.c: select: no encontro la key. Enviar a LFS la request"STD"\n"); //TODO: meter en log
 		/*else{
 		 //TODO: Enviar a LFS la request
 		 * send_msg
@@ -118,10 +119,7 @@ Operacion selectAPI(char* input, Comando comando) {
 	 printf(RED"APIMemoria.c: select: no encontro el path. Enviar a LFS la request"STD"\n");
 	 }*/
 
-	resultadoSelect.Argumentos.ERROR.mensajeError = malloc(sizeof(char) * (strlen("NO SE HA ENCONTRADO EL VALUE PARA DICHA KEY") + 1));
-
-	strcpy(resultadoSelect.Argumentos.ERROR.mensajeError,
-			"NO SE HA ENCONTRADO LA KEY");
+	resultadoSelect.Argumentos.ERROR.mensajeError = string_from_format("NO SE HA ENCONTRADO LA KEY");
 	return resultadoSelect;
 
 }
@@ -175,7 +173,7 @@ Operacion insertAPI(char* input, Comando comando) {
 
 			void * direccionMarco = memoriaPrincipal.memoria
 					+ memoriaPrincipal.tamanioMarco
-							* registroBuscado->numeroPagina;
+							* registroBuscado->nroMarco;
 			timestamp_t tsActualizado = getCurrentTime();
 
 			memcpy(direccionMarco, &tsActualizado, sizeof(timestamp_t));
@@ -185,11 +183,7 @@ Operacion insertAPI(char* input, Comando comando) {
 			printf("Se realizo el INSERT\n");
 
 			resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
-			resultadoInsert.Argumentos.TEXTO_PLANO.texto = malloc(
-					sizeof(char) * (strlen("INSERT REALIZADO CON EXITO") + 1));
-
-			strcpy(resultadoInsert.Argumentos.TEXTO_PLANO.texto,
-					"INSERT REALIZADO CON EXITO");
+			resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format("INSERT REALIZADO CON EXITO");
 
 			//mostrarContenidoPagina(*registroBuscado); //Para ver lo que se inserto
 
@@ -201,11 +195,7 @@ Operacion insertAPI(char* input, Comando comando) {
 					keyBuscada, segmentoSeleccionado);
 
 			resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
-			resultadoInsert.Argumentos.TEXTO_PLANO.texto = malloc(
-					sizeof(char) *(strlen("INSERT REALIZADO CON EXITO") + 1));
-
-			strcpy(resultadoInsert.Argumentos.TEXTO_PLANO.texto,
-					"INSERT REALIZADO CON EXITO");
+			resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format("INSERT REALIZADO CON EXITO");
 
 			return resultadoInsert;
 		}
@@ -233,10 +223,7 @@ Operacion insertAPI(char* input, Comando comando) {
 		list_add(tablaSegmentos.listaSegmentos, (segmento_t*) segmentoNuevo);
 
 		resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
-		resultadoInsert.Argumentos.TEXTO_PLANO.texto = malloc(sizeof(char) * (strlen("INSERT REALIZADO CON EXITO") + 1));
-
-		strcpy(resultadoInsert.Argumentos.TEXTO_PLANO.texto,
-				"INSERT REALIZADO CON EXITO");
+		resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format("INSERT REALIZADO CON EXITO");
 		return resultadoInsert;
 	}
 
@@ -248,15 +235,13 @@ int hayPaginaDisponible(void) {
 
 void insertarPaginaDeSegmento(char* value, uint16_t key, segmento_t * segmento) {
 	if (hayPaginaDisponible()) {
-		//remover_comillas(value);
 
-		crearRegistroEnTabla(segmento->tablaPaginas,
-				colocarPaginaEnMemoria(getCurrentTime(), key, value));
+		crearRegistroEnTabla(segmento->tablaPaginas,colocarPaginaEnMemoria(getCurrentTime(), key, value));
 
 		printf("Se realizo el INSERT\n");
 
 	} else {//aplicar el algoritmo de reemplazo (LRU) y en caso de que la memoria se encuentre full iniciar el proceso Journal.
-
+		printf("HACER LRU Y SINO JOURNAL\n");
 	}
 }
 
@@ -274,17 +259,96 @@ Operacion createAPI(char*input, Comando comando) {
 	Operacion resultadoCreate;
 
 	//Enviar al FS la operacion
-	//TODO: CAMBIAR MALLOC Y STRCPY POR string_from_format
+
 	resultadoCreate.TipoDeMensaje = COMANDO;
-	resultadoCreate.Argumentos.COMANDO.comandoParseable= malloc(sizeof(char) * (strlen(input) + 1));
-	strcpy(resultadoCreate.Argumentos.TEXTO_PLANO.texto,input);
+	resultadoCreate.Argumentos.COMANDO.comandoParseable= string_from_format(input);
+
+	//enviarRequestFS(input);
 
 	//Lo que recibo del FS lo retorno
 
+	//recibirRequestFS();
 
 	return resultadoCreate;
 
 }
+/*
+La operación Describe permite obtener la Metadata de una tabla en particular o de todas las tablas que el file system tenga.
+Para esto, se utiliza la siguiente nomenclatura:
+	DESCRIBE [NOMBRE_TABLA]
+
+Esta operación consulta al FileSystem por la metadata de las tablas. Sirve principalmente para poder responder las solicitudes del Kernel.
+*/
+Operacion describeAPI(){
+	//enviarRequestFS(input);
+
+	//Lo que recibo del FS lo retorno
+
+	//recibirRequestFS();
+}
+
+/*
+ * 		La operación Drop permite la eliminación de una tabla del file system. Para esto, se utiliza la siguiente nomenclatura:
+				DROP [NOMBRE_TABLA]
+
+		Esta operación incluye los siguientes pasos:
+			1. Verifica si existe un segmento de dicha tabla en la memoria principal y de haberlo libera dicho espacio.
+			2. Informa al FileSystem dicha operación para que este último realice la operación adecuada.
+ *
+ * */
+void removerSegmentoDeTabla(segmento_t* segmentoSeleccionado){
+	bool segmentoCoincidePath(void* comparado) {
+			//printf(RED"pathSegmentoBuscado: %s\npathComparado: %s"STD"\n",pathSegmentoBuscado,obtenerPath((segmento_t*)comparado));
+			if (strcmp(obtenerPath(segmentoSeleccionado), obtenerPath((segmento_t*) comparado))) {
+				return false;
+			}
+			return true;
+		}
+	list_remove_by_condition(tablaSegmentos.listaSegmentos, segmentoCoincidePath);
+
+}
+
+Operacion dropAPI(char* input, Comando comando){
+	Operacion resultadoDrop;
+	resultadoDrop.TipoDeMensaje = ERROR;
+
+	segmento_t *segmentoSeleccionado = NULL;
+
+	if (verificarExistenciaSegmento(comando.argumentos.DROP.nombreTabla, &segmentoSeleccionado)) {
+		//EXISTE EL SEGMENTO
+		//PROCEDE A LIBERAR EL ESPACIO
+
+		//   SACO EL SEGMENTO DE LA TABLA DE SEGMENTOS
+		removerSegmentoDeTabla(segmentoSeleccionado);
+
+		//1. Tomo la tabla de paginas del segmento
+		//2. Por cada registro de la tabla:
+		//	 2.1. Busco el MCB correspondiente en la tabla administrativa de marcos
+		//   y lo pusheo en la cola de marcosLibres
+
+		//	 2.2 Elimino el registro de la tabla de paginas del segmento
+		//3. Elimino la tabla de paginas
+		//4. Elimino el segmento
+		//5. Enviar request al FS
+
+		liberarSegmento(segmentoSeleccionado);
+
+		printf("Drop realizado\n");
+
+		resultadoDrop.TipoDeMensaje= TEXTO_PLANO;
+		resultadoDrop.Argumentos.TEXTO_PLANO.texto=string_from_format("Drop realizado con exito");
+	}else{
+		resultadoDrop.TipoDeMensaje = ERROR;
+		resultadoDrop.Argumentos.ERROR.mensajeError=string_from_format("La tabla buscada no existe en memoria");
+	}
+	return resultadoDrop;
+
+}
+Operacion journalAPI(){
+
+}
+
+
 bool verificarExistenciaSegmento(char* nombreTabla,
 		segmento_t ** segmentoAVerificar) {
 	char* pathSegmentoBuscado = malloc(
@@ -295,7 +359,7 @@ bool verificarExistenciaSegmento(char* nombreTabla,
 
 	//Recorro tabla de segmentos buscando pathSegmentoBuscado
 
-	bool compararConPath(void* comparado) {
+	bool segmentoCoincidePath(void* comparado) {
 		//printf(RED"pathSegmentoBuscado: %s\npathComparado: %s"STD"\n",pathSegmentoBuscado,obtenerPath((segmento_t*)comparado));
 		if (strcmp(pathSegmentoBuscado, obtenerPath((segmento_t*) comparado))) {
 			return false;
@@ -304,7 +368,7 @@ bool verificarExistenciaSegmento(char* nombreTabla,
 	}
 
 	t_list* listaConSegmentoBuscado = list_filter(tablaSegmentos.listaSegmentos,
-			compararConPath);
+			segmentoCoincidePath);
 
 	//Para ver que el path es el correcto
 
@@ -313,7 +377,7 @@ bool verificarExistenciaSegmento(char* nombreTabla,
 
 	if (list_is_empty(listaConSegmentoBuscado)) {
 		list_destroy(listaConSegmentoBuscado);
-		printf(RED"APIMemoria.c: NO SE ENCONTRO EL SEGMENTO"STD"\n");
+		printf(GRN"APIMemoria.c: NO SE ENCONTRO EL SEGMENTO"STD"\n");
 		return false;
 	}
 	//Tomo de la lista filtrada el segmento con el path coincidente
@@ -348,7 +412,7 @@ bool contieneKey(segmento_t* segmentoElegido, uint16_t keyBuscada,
 		void* direccionPagina =
 				memoriaPrincipal.memoria
 						+ memoriaPrincipal.tamanioMarco
-								* (((registroTablaPag_t*) registroAComparar)->numeroPagina);
+								* (((registroTablaPag_t*) registroAComparar)->nroMarco);
 		memcpy(keyPagina, direccionPagina + sizeof(timestamp_t),
 				sizeof(uint16_t));
 
@@ -361,8 +425,7 @@ bool contieneKey(segmento_t* segmentoElegido, uint16_t keyBuscada,
 		return false;
 	}
 
-	t_list* listaConRegistroBuscado = list_filter(regsDelSegmentoElegido,
-			compararConPagina);
+	t_list* listaConRegistroBuscado = list_filter(regsDelSegmentoElegido,compararConPagina);
 
 	if (list_is_empty(listaConRegistroBuscado)) {
 		list_destroy(listaConRegistroBuscado);
@@ -382,7 +445,7 @@ Operacion tomarContenidoPagina(registroTablaPag_t registro) {
 	Operacion resultadoRetorno;
 
 	void * direccionMarco = memoriaPrincipal.memoria
-			+ memoriaPrincipal.tamanioMarco * registro.numeroPagina;
+			+ memoriaPrincipal.tamanioMarco * registro.nroMarco;
 	/*timestamp_t timestamp;
 	 uint16_t key;
 	 */
