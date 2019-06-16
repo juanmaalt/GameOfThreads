@@ -1,3 +1,0 @@
-[ERROR] 17:16:55:638 Kernel/(8883:8883): Kernel.c: extraer_data_config: no se encontro el archivo 'Kernel.config'. Deberia estar junto al ejecutable
-[ERROR] 17:16:55:638 Kernel/(8883:8883): Kernel.c: configuracion_inicial: error en la extraccion de datos del archivo de configuracion
-[ERROR] 17:16:55:638 Kernel/(8883:8883): Kernel.c: main: no se pudo generar la configuracion inicial

@@ -10,14 +10,15 @@ int send_msg(int socket, Operacion operacion) {
 
 	case TEXTO_PLANO:
 		longCadena = strlen(operacion.Argumentos.TEXTO_PLANO.texto);
-		total = sizeof(int) + sizeof(int) + sizeof(char) * longCadena; //Enum + cantidad caracteres cadena + cadena
+		total = sizeof(int) + sizeof(int) + sizeof(char) * longCadena + sizeof(id); //Enum + cantidad caracteres cadena + cadena +  opCode
 		content = malloc(total);
 		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
 		memcpy(content+sizeof(int), &longCadena, sizeof(int));
 		memcpy(content+2*sizeof(int), operacion.Argumentos.TEXTO_PLANO.texto, sizeof(char)*longCadena);
+		memcpy(content+2*sizeof(int)+sizeof(char)*longCadena, &(operacion.opCode), sizeof(id));
 		break;
 
-	case COMANDO://Nota: no puedo hacerlo todo en un paso tipo funcional
+	case COMANDO://Nota: no puedo hacerlo en un paso tipo funcional
 		comando = parsear_comando(operacion.Argumentos.COMANDO.comandoParseable);
 		if (comando_validar(comando) == EXIT_FAILURE) {
 			printf(RED"serializacion.c: send_command: el comando no es parseable"STD"\n");
@@ -26,32 +27,58 @@ int send_msg(int socket, Operacion operacion) {
 		}
 		destruir_comando(comando);
 		longCadena = strlen(operacion.Argumentos.COMANDO.comandoParseable);
-		total = sizeof(int) + sizeof(int) + sizeof(char) * longCadena;
+		total = sizeof(int) + sizeof(int) + sizeof(char) * longCadena + sizeof(id);
 		content = malloc(total);
 		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
 		memcpy(content+sizeof(int), &longCadena, sizeof(int));
 		memcpy(content+2*sizeof(int),operacion.Argumentos.COMANDO.comandoParseable, sizeof(char)*longCadena);
+		memcpy(content+2*sizeof(int)+sizeof(char)*longCadena, &(operacion.opCode), sizeof(id));
 		break;
 
 	case REGISTRO:
 		longCadena = strlen(operacion.Argumentos.REGISTRO.value);
 		size_t tamValue = sizeof(char) * longCadena;
-		total = sizeof(int) + sizeof(timestamp_t) + sizeof(uint16_t) + sizeof(int) + tamValue;
+		total = sizeof(int) + sizeof(timestamp_t) + sizeof(uint16_t) + sizeof(int) + tamValue + sizeof(id);
 		content = malloc(total);
 		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
 		memcpy(content+sizeof(int), &(operacion.Argumentos.REGISTRO.timestamp), sizeof(timestamp_t));
 		memcpy(content+sizeof(int)+sizeof(timestamp_t), &(operacion.Argumentos.REGISTRO.key), sizeof(uint16_t));
 		memcpy(content+sizeof(int)+sizeof(timestamp_t) + sizeof(uint16_t), &longCadena, sizeof(int));
 		memcpy(content+sizeof(int)+sizeof(timestamp_t) + sizeof(uint16_t) + sizeof(int), operacion.Argumentos.REGISTRO.value, tamValue);
+		memcpy(content+sizeof(int)+sizeof(timestamp_t) + sizeof(uint16_t) + sizeof(int) + tamValue, &(operacion.opCode), sizeof(id));
 		break;
 
 	case ERROR:
 		longCadena = strlen(operacion.Argumentos.ERROR.mensajeError);
-		total = sizeof(int) + sizeof(int) + sizeof(char) * longCadena;
+		total = sizeof(int) + sizeof(int) + sizeof(char) * longCadena + sizeof(id);
 		content = malloc(total);
 		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
 		memcpy(content+sizeof(int), &longCadena, sizeof(int));
 		memcpy(content+2*sizeof(int), operacion.Argumentos.ERROR.mensajeError, sizeof(char)*longCadena);
+		memcpy(content+2*sizeof(int)+sizeof(char)*longCadena, &(operacion.opCode), sizeof(id));
+		break;
+
+	case GOSSIPING_REQUEST:
+		longCadena = strlen(operacion.Argumentos.GOSSIPING_REQUEST.ipypuerto);
+		total = sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(char) * longCadena + sizeof(id); //operacion + fin + nro memoria + long cadena + cadena
+		content = malloc(total);
+		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int)); //operacion
+		memcpy(content+sizeof(int), &(operacion.Argumentos.GOSSIPING_REQUEST.fin), sizeof(int)); //fin
+		memcpy(content+2*sizeof(int), &(operacion.Argumentos.GOSSIPING_REQUEST.numeroMemoria), sizeof(int)); //nro memoria
+		memcpy(content+3*sizeof(int), &longCadena, sizeof(int)); //long cadena
+		memcpy(content+4*sizeof(int), operacion.Argumentos.GOSSIPING_REQUEST.ipypuerto, sizeof(char)*longCadena); //cadena
+		memcpy(content+4*sizeof(int)+sizeof(char)*longCadena, &(operacion.opCode), sizeof(id));
+		break;
+	case DESCRIBE_REQUEST:
+		longCadena = strlen(operacion.Argumentos.DESCRIBE_REQUEST.nombreTabla);
+		total = sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(char)*longCadena + sizeof(id); //operacion + fin + consistencia + long cadena + cadena
+		content = malloc(total);
+		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int)); //operacion
+		memcpy(content+sizeof(int), &(operacion.Argumentos.DESCRIBE_REQUEST.fin), sizeof(int)); //fin
+		memcpy(content+2*sizeof(int), &(operacion.Argumentos.DESCRIBE_REQUEST.consistencia), sizeof(int)); //consistencia
+		memcpy(content+3*sizeof(int), &longCadena, sizeof(int)); //long cadena
+		memcpy(content+4*sizeof(int), operacion.Argumentos.DESCRIBE_REQUEST.nombreTabla, sizeof(char)*longCadena); //cadena
+		memcpy(content+4*sizeof(int)+sizeof(char)*longCadena, &(operacion.opCode), sizeof(id));
 		break;
 	default:
 		return EXIT_FAILURE;
@@ -71,13 +98,8 @@ Operacion recv_msg(int socket) {
 	Operacion retorno;
 	int longitud = 0;
 	int result = recv(socket, &(retorno.TipoDeMensaje), sizeof(int), 0);
-	if (result <= 0) {
-		retorno.Argumentos.ERROR.mensajeError = string_from_format("Error en la recepcion del resultado. Es posible que se haya perdido la conexion");
-		//retorno.Argumentos.ERROR.mensajeError = calloc(strlen("Error en la recepcion del resultado.")+1, sizeof(char));
-		//strcpy(retorno.Argumentos.ERROR.mensajeError, "Error en la recepcion del resultado.\0");
-		retorno.TipoDeMensaje = ERROR;
-		return retorno;
-	}
+	if (result <= 0)
+		RECV_FAIL("Error en la recepcion del resultado. Es posible que se haya perdido la conexion");
 
 	switch (retorno.TipoDeMensaje) {
 	case TEXTO_PLANO:
@@ -106,7 +128,26 @@ Operacion recv_msg(int socket) {
 		recv(socket, retorno.Argumentos.ERROR.mensajeError, sizeof(char) * longitud, 0);
 		retorno.Argumentos.ERROR.mensajeError[longitud]='\0';
 		break;
+	case GOSSIPING_REQUEST:
+		recv(socket, &(retorno.Argumentos.GOSSIPING_REQUEST.fin), sizeof(int), 0);
+		recv(socket, &(retorno.Argumentos.GOSSIPING_REQUEST.numeroMemoria), sizeof(int), 0);
+		recv(socket, &longitud, sizeof(int), 0);
+		retorno.Argumentos.GOSSIPING_REQUEST.ipypuerto = calloc(longitud+1, sizeof(char));
+		recv(socket, retorno.Argumentos.GOSSIPING_REQUEST.ipypuerto, sizeof(char)*longitud, 0);
+		retorno.Argumentos.GOSSIPING_REQUEST.ipypuerto[longitud] = '\0';
+		break;
+	case DESCRIBE_REQUEST:
+		recv(socket, &(retorno.Argumentos.DESCRIBE_REQUEST.fin), sizeof(int), 0);
+		recv(socket, &(retorno.Argumentos.DESCRIBE_REQUEST.consistencia), sizeof(int), 0);
+		recv(socket, &longitud, sizeof(int), 0);
+		retorno.Argumentos.DESCRIBE_REQUEST.nombreTabla = calloc(longitud+1, sizeof(char));
+		recv(socket, retorno.Argumentos.DESCRIBE_REQUEST.nombreTabla, sizeof(char)*longitud, 0);
+		retorno.Argumentos.DESCRIBE_REQUEST.nombreTabla[longitud] = '\0';
+		break;
+	default:
+		RECV_FAIL("Error en la recepcion del resultado. Tipo de operacion desconocido");
 	}
+	recv(socket, &(retorno.opCode), sizeof(id), 0);
 	return retorno;
 }
 
@@ -128,7 +169,14 @@ void destruir_operacion(Operacion op) {
 		if (op.Argumentos.ERROR.mensajeError != NULL)
 			free(op.Argumentos.ERROR.mensajeError);
 		return;
-
+	case GOSSIPING_REQUEST:
+		if(op.Argumentos.GOSSIPING_REQUEST.ipypuerto != NULL)
+			free(op.Argumentos.GOSSIPING_REQUEST.ipypuerto);
+		return;
+	case DESCRIBE_REQUEST:
+		if(op.Argumentos.DESCRIBE_REQUEST.nombreTabla != NULL)
+			free(op.Argumentos.DESCRIBE_REQUEST.nombreTabla);
+		return;
 	}
 
 }

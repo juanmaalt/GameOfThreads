@@ -33,16 +33,16 @@ int main(void) {
 	}
 	mostrar_por_pantalla_config();
 
-	 if(realizarHandshake()==EXIT_FAILURE){
+/*	 if(realizarHandshake()==EXIT_FAILURE){
 		 printf(RED"Memoria.c: main: no se pudo inicializar la memoria principal"STD"\n");
 		 return EXIT_FAILURE;
 	 }
+*/
+	tamanioValue = 4;
 
-	//tamanioValue = 4;
-/*
 	pathLFS = malloc(strlen("/puntoDeMontajeQueMeDaJuanEnElHandshake/") * sizeof(char)+ 1);
 	strcpy(pathLFS, "/puntoDeMontajeQueMeDaJuanEnElHandshake/");
-*/
+
 	// Inicializar la memoria principal
 	if (inicializar_memoriaPrincipal() == EXIT_FAILURE) {
 		log_error(logger_invisible,
@@ -78,7 +78,9 @@ int main(void) {
 		return EXIT_FAILURE;
 	}
 
-	//TODO: liberar todo
+	//TODO: hilo de JOURNAL
+
+
 	liberarRecursos();
 }
 
@@ -130,51 +132,7 @@ void *connection_handler(void *nSocket) {
 	return NULL;
 }
 
-void liberarMCBs(void* MCBAdestruir) {
-	if ((MCB_t *) MCBAdestruir != NULL)
-		free(MCBAdestruir);
-}
 
-void liberarTablaPags(void* registroAdestruir) {
-	if ((registroTablaPag_t *) registroAdestruir != NULL)
-		free(registroAdestruir);
-}
-
-void liberarSegmentos(void* segmentoAdestruir) {
-	if (((segmento_t *) segmentoAdestruir)->pathTabla != NULL)
-		free(((segmento_t *) segmentoAdestruir)->pathTabla);
-
-	list_destroy_and_destroy_elements(
-			((segmento_t *) segmentoAdestruir)->tablaPaginas->registrosPag,
-			liberarTablaPags);
-
-	if (((segmento_t *) segmentoAdestruir)->tablaPaginas != NULL)
-		free(((segmento_t *) segmentoAdestruir)->tablaPaginas);
-
-	if ((segmento_t *) segmentoAdestruir != NULL)
-		free(segmentoAdestruir);
-}
-
-void liberarRecursos(void) {
-	log_info(logger_visible,"Finalizando proceso Memoria...");
-	if (memoriaPrincipal.memoria != NULL)
-		free(memoriaPrincipal.memoria);
-	queue_clean(memoriaPrincipal.marcosLibres);
-	queue_destroy(memoriaPrincipal.marcosLibres);
-
-	list_destroy_and_destroy_elements(memoriaPrincipal.listaAdminMarcos,
-			liberarMCBs);
-
-	list_destroy_and_destroy_elements(tablaSegmentos.listaSegmentos,
-			liberarSegmentos);
-
-	if (pathLFS != NULL)
-		free(pathLFS);
-
-	config_destroy(configFile);
-	log_destroy(logger_invisible);
-	log_destroy(logger_visible);
-}
 
 int realizarHandshake(void) {
 	lfsSocket = conectarLFS();
@@ -281,14 +239,14 @@ void asignarPathASegmento(segmento_t * segmentoANombrar, char* nombreTabla) {
 	strcat(segmentoANombrar->pathTabla, nombreTabla);
 }
 
-void crearRegistroEnTabla(tabla_de_paginas_t *tablaDondeSeEncuentra,
-		int indiceMarco) {
+void crearRegistroEnTabla(tabla_de_paginas_t *tablaDondeSeEncuentra, int indiceMarco) {
 	registroTablaPag_t *registroACrear = malloc(sizeof(registroTablaPag_t));
 
-	registroACrear->numeroPagina = indiceMarco;
+	registroACrear->nroPagina=list_size(tablaDondeSeEncuentra->registrosPag)-1;
 
-	list_add(tablaDondeSeEncuentra->registrosPag,
-			(registroTablaPag_t*) registroACrear);
+	registroACrear->nroMarco = indiceMarco;
+
+	list_add(tablaDondeSeEncuentra->registrosPag,(registroTablaPag_t*) registroACrear);
 
 }
 
@@ -301,8 +259,7 @@ int colocarPaginaEnMemoria(timestamp_t timestamp, uint16_t key, char* value) { /
 	//wSEMAFORO
 	MCB_t * marcoObjetivo = (MCB_t *) queue_pop(memoriaPrincipal.marcosLibres); //No se elimina porque el MCB tambien esta en listaAdministrativaMarcos
 
-	void * direccionMarco = memoriaPrincipal.memoria
-			+ memoriaPrincipal.tamanioMarco * marcoObjetivo->nroMarco;
+	void * direccionMarco = memoriaPrincipal.memoria + memoriaPrincipal.tamanioMarco * marcoObjetivo->nroMarco;
 
 	memcpy(direccionMarco, &timestamp, sizeof(timestamp_t));
 

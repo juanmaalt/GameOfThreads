@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <commons/process.h>
+#include <random/random_numbers.h>
 #include "Planificador.h"
 
 typedef struct pcb_t PCB;
@@ -18,7 +19,9 @@ typedef enum flag_e Flag;
 
 typedef enum{
 	DESALOJO,
-	FINALIZO
+	FINALIZO,
+	INSTRUCCION_ERROR,
+	CONTINUAR
 }ResultadoEjecucionInterno;
 
 //FUNCIONES: Publicas

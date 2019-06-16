@@ -73,6 +73,7 @@
 				char* path;
 			} RUN;
 			struct {
+				char *stop;
 			} METRICS;
 		} argumentos;
 		char** _raw; //Para uso de la liberación

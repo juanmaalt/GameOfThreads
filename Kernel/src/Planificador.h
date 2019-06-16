@@ -33,7 +33,6 @@ typedef struct pcb_t{
 
 //GLOBALES
 t_queue *colaDeReady;
-int socketTarget; //Cada hilo de CPU va a tener esta variable que se rellena con el socket de la memoria con la que tiene que hablar
 
 
 //FUNCIONES: Publicas

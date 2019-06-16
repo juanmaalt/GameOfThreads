@@ -1,0 +1,16 @@
+INSERT tabla1 1 "asd"
+INSERT tabla1 2 "qwe"
+INSERT tabla1 3 "zxc"
+INSERT tabla1 4 "ert"
+INSERT tabla2 1 "asd"
+INSERT tabla2 2 "qwe"
+INSERT tabla2 3 "asd"
+INSERT tabla2 4 "qwe"
+SELECT tabla1 1
+SELECT tabla1 2
+SELECT tabla1 3
+SELECT tabla1 4
+SELECT tabla2 1
+SELECT tabla2 2
+SELECT tabla2 3
+SELECT tabla2 4

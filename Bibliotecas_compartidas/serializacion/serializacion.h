@@ -1,6 +1,10 @@
 #ifndef SERIALIZACION_SERIALIZACION_H_
 #define SERIALIZACION_SERIALIZACION_H_
-#include "../colores/colores.h"
+
+#define RECV_FAIL(msg) {retorno.Argumentos.ERROR.mensajeError = string_from_format(msg);\
+						retorno.TipoDeMensaje = ERROR;\
+						retorno.opCode = 00000000;\
+						return retorno;}
 
 //INCLUDES
 #include <stdio.h> // Por dependencia de readline en algunas distros de linux
@@ -14,6 +18,9 @@
 
 #include "../epoch/epoch.h"
 #include "../parser/parser_comando.h" //Para poder enviar estructuras de tipo Comando
+#include "../colores/colores.h"
+#include "../consistencias/consistencias.h"
+#include "../random/random_numbers.h"
 
 
 typedef struct{
@@ -22,7 +29,10 @@ typedef struct{
 		COMANDO,
 		REGISTRO,
 		ERROR,
+		GOSSIPING_REQUEST,
+		DESCRIBE_REQUEST
 	}TipoDeMensaje;
+	id opCode; //Nota: para que funcione, el envio y recepcion de mensajes tiene que reutilizar la variable Operacion, o copiar en memoria el codigo para enviarlo en la operacion resultante
 	union{
 		struct{
 			char *texto;
@@ -38,6 +48,16 @@ typedef struct{
 		struct{
 			char* mensajeError;
 		}ERROR;
+		struct{
+			int fin; //Por default en 0 (falso), indica si es el fin de archivo. Poner en 1 cuando se mande la ultima request
+			int numeroMemoria;
+			char *ipypuerto;
+		}GOSSIPING_REQUEST;
+		struct{
+			int fin; //Por default en 0 (falso), indica si es el fin de archivo. Poner en 1 cuando se mande la ultima request
+			Consistencia consistencia;
+			char *nombreTabla;
+		}DESCRIBE_REQUEST;
 	}Argumentos;
 }Operacion;
 
@@ -66,6 +86,7 @@ typedef struct{
 	*/
 	Operacion recv_msg(int socket);
 
+	#warning "La funcion destruir_operacion() es obsoleta. Hacer free manual"
 	/**
 	* @NAME: destruir_operacion
 	* @DESC:

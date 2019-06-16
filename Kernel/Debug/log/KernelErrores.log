@@ -1,0 +1,4 @@
+[ERROR] 20:58:21:504 Kernel/(6147:6148): Consola.c: new_lql: el path indicado no es valido
+[ERROR] 20:59:08:689 Kernel/(6190:6191): Consola.c: new_lql: el path indicado no es valido
+[ERROR] 21:42:16:278 Kernel/(7091:7093): CPU: 7093 | Kernel panic: Error en el tamanio del value.
+[ERROR] 22:05:17:849 Kernel/(7835:7837): CPU: 7837 | Kernel panic: Error en la recepcion del resultado. Es posible que se haya perdido la conexion

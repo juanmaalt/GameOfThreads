@@ -26,6 +26,7 @@ int main(void) {
 	if(configuracion_inicial() == EXIT_FAILURE)
 		RETURN_ERROR("Kernel.c: main: no se pudo generar la configuracion inicial");
 
+	log_info(logger_invisible, "=============Iniciando kernel=============");
 	mostrar_por_pantalla_config(logger_visible);
 
 	//Se inicia un proceso de consola
@@ -64,15 +65,19 @@ static int configuracion_inicial(){
 	sem_init(&extraerDeReadyDeAUno, 0, 1);
 	sem_init(&meterEnReadyDeAUno, 0, 1);
 
-	logger_visible = iniciar_logger("KernelResumen.log", true, LOG_LEVEL_INFO);
+	mkdir("log", 0777); //Crea la carpeta log junto al ejecutable (si ya existe no toca nada de lo que haya adentro)
+
+	remove("log/KernelResumen.log"); //Esto define que cada ejecucion, el log se renueva
+	logger_visible = iniciar_logger("log/KernelResumen.log", true, LOG_LEVEL_INFO);
 	if(logger_visible == NULL)
 		RETURN_ERROR("Kernel.c: configuracion_inicial: error en 'logger_visible = iniciar_logger(true);'");
 
-	logger_invisible = iniciar_logger("KernelTodo.log", false, LOG_LEVEL_INFO);
+	logger_invisible = iniciar_logger("log/KernelTodo.log", false, LOG_LEVEL_INFO);
 	if(logger_visible == NULL)
 		RETURN_ERROR("Kernel.c: configuracion_inicial: error en 'logger_invisible = iniciar_logger(false);'")
 
-	logger_error = iniciar_logger("KernelErrores.log", true, LOG_LEVEL_ERROR);
+	remove("log/KernelErrores.log");
+	logger_error = iniciar_logger("log/KernelErrores.log", true, LOG_LEVEL_ERROR);
 	if(logger_visible == NULL)
 		RETURN_ERROR("Kernel.c: configuracion_inicial: error en 'logger_error = iniciar_logger(true);'");
 
@@ -115,11 +120,14 @@ static int inicializar_configs() {
 	vconfig.refreshMetadata = extraer_refresMetadata_config;
 	vconfig.retardo = extraer_retardo_config;
 
-	if(fconfig.multiprocesamiento <= 0)
+	if(fconfig.multiprocesamiento <= 0){
 		log_error(logger_error, "Kernel.c: extraer_data_config: (Warning) el multiprocesamiento con valores menores o iguales a 0 genera comportamiento indefinido");
-	if(vconfig.quantum() <= 0)
+		log_error(logger_error, "Kernel.c: extraer_data_config: (Warning) el multiprocesamiento con valores menores o iguales a 0 genera comportamiento indefinido");
+	}
+	if(vconfig.quantum() <= 0){
 		log_error(logger_error, "Kernel.c: extraer_data_config: (Warning) el quantum con valores menores o iguales a 0 genera comportamiento indefinido");
-
+	log_error(logger_error, "Kernel.c: extraer_data_config: (Warning) el quantum con valores menores o iguales a 0 genera comportamiento indefinido");
+	}
 	return EXIT_SUCCESS;
 }
 
@@ -157,6 +165,13 @@ void mostrar_por_pantalla_config(){
 	log_info(logger_visible, "MULTIPROCESAMIENTO=%d", fconfig.multiprocesamiento);
 	log_info(logger_visible, "REFRESH_METADATA=%d", vconfig.refreshMetadata());
 	log_info(logger_visible, "RETARDO=%d", vconfig.retardo());
+
+	log_info(logger_invisible, "IP_MEMORIA=%s", fconfig.ip_memoria);
+	log_info(logger_invisible, "PUERTO_MEMORIA=%s", fconfig.puerto_memoria);
+	log_info(logger_invisible, "QUANTUM=%d", vconfig.quantum());
+	log_info(logger_invisible, "MULTIPROCESAMIENTO=%d", fconfig.multiprocesamiento);
+	log_info(logger_invisible, "REFRESH_METADATA=%d", vconfig.refreshMetadata());
+	log_info(logger_invisible, "RETARDO=%d", vconfig.retardo());
 }
 
 
@@ -165,6 +180,7 @@ void mostrar_por_pantalla_config(){
 
 static void finalizar_todos_los_hilos(){
 	pthread_cancel(idConsola);
+	pthread_cancel(servicioMetricas);
 	void cancelar(void *hilo){
 		pthread_cancel(*(pthread_t*)hilo);
 	}
@@ -176,7 +192,8 @@ static void finalizar_todos_los_hilos(){
 
 
 static void rutinas_de_finalizacion(){
-	printf(RED"Finalizando kernel..."STD"\n");
+	printf(GRN"Finalizando kernel..."STD"\n");
+	log_info(logger_invisible, "=============Finalizando kernel=============");
 	finalizar_todos_los_hilos();
 	fflush(stdout);
 	log_destroy(logger_visible);

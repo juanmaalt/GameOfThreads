@@ -33,7 +33,7 @@ Operacion selectAPI(char*, Comando);
 Operacion insertAPI(char*,Comando);
 Operacion createAPI(char*,Comando);
 Operacion describeAPI();
-Operacion dropAPI();
+Operacion dropAPI(char* input, Comando comando);
 Operacion journalAPI();
 
 #endif /* APIMEMORIA_H_ */

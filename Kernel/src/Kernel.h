@@ -9,7 +9,14 @@
 #define KERNEL_H_
 #define STANDARD_PATH_KERNEL_CONFIG "Kernel.config"
 
-#define RETURN_ERROR(mensaje) {logger_error != NULL ? log_error(logger_error, "%s", mensaje) : printf(RED"%s"STD"\n", mensaje); return EXIT_FAILURE;}
+#define RETURN_ERROR(mensaje) {if(logger_error != NULL && logger_invisible != NULL){ \
+									log_error(logger_error, "%s", mensaje); \
+									log_error(logger_invisible, "%s", mensaje); \
+								}else{ \
+									printf(RED"%s"STD"\n", mensaje); \
+								} \
+								return EXIT_FAILURE; \
+							   }
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,8 +30,10 @@
 #include <pthread.h>
 #include <semaphore.h>
 #include <colores/colores.h>
+#include <sys/stat.h> //Para mkdir
 #include "Consola.h"
 #include "Planificador.h"
+#include "Metrics.h"
 
 
 //ESTRUCTURAS
@@ -55,6 +64,7 @@ vConfig vconfig; //Contiene solo los datos variables del config
 
 //GLOBALES: Hilos y semaforos
 pthread_t idConsola;
+pthread_t servicioMetricas;
 t_list *idsExecInstances; //TODO: ver como liberar esto al final del programa, poca importancia
 sem_t disponibilidadPlanificador; //Para que la consola no pueda mandarle algo al planificador si no se inicio
 sem_t scriptEnReady; //Para saber si hay algo en ready o no, y no estar preguntando permanentemente
