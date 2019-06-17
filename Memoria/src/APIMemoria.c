@@ -255,7 +255,29 @@ void insertarPaginaDeSegmento(char* value, uint16_t key, segmento_t * segmento) 
    por tabla ya existente, continúa su ejecución normalmente.
  */
 
-Operacion createAPI(char*input, Comando comando) {
+
+void enviarRequestFS(char* input){
+	lfsSocket = conectarLFS(); //TODO: NO DEJARLA COMO GLOBAL
+
+	Operacion request;
+	request.TipoDeMensaje= COMANDO;
+
+	request.Argumentos.COMANDO.comandoParseable= string_from_format(input);
+
+	send_msg(lfsSocket, input);
+
+	destruir_operacion(request);
+
+}
+
+Operacion recibirRequestFS(void){
+	Operacion resultado;
+	resultado = recv_msg(lfsSocket);
+	return resultado;
+}
+
+
+Operacion createAPI(char* input, Comando comando) {
 	Operacion resultadoCreate;
 
 	//Enviar al FS la operacion
@@ -263,11 +285,11 @@ Operacion createAPI(char*input, Comando comando) {
 	resultadoCreate.TipoDeMensaje = COMANDO;
 	resultadoCreate.Argumentos.COMANDO.comandoParseable= string_from_format(input);
 
-	//enviarRequestFS(input);
+	enviarRequestFS(input);
 
 	//Lo que recibo del FS lo retorno
 
-	//recibirRequestFS();
+	resultadoCreate=recibirRequestFS();
 
 	return resultadoCreate;
 
