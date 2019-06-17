@@ -344,7 +344,7 @@ void crearArchivo(char* path, char* nombre){
 
 	FILE* file=NULL;
 	file = fopen(pathArchivo,"w");
-	//free(file);
+
 	fclose(file);
 	free(pathArchivo);
 }

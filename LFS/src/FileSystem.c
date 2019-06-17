@@ -11,7 +11,7 @@
 void checkEstructuraFS(){
 	char option;
 
-	printf(GREEN "Existe una estructura definida en el punto de montaje? (Y/N): " STD);
+	printf(GRN "Existe una estructura definida en el punto de montaje? (Y/N): " STD);
 
 	option=getchar();
 	while(option!='Y' && option!='N' && option!='y' && option!='n'){
@@ -24,13 +24,12 @@ void checkEstructuraFS(){
 		int blocks=0;
 		char* magicNumber;
 
-		printf(GREEN "Indique el tamaño de los bloques:"STD);
+		printf(GRN "Indique el tamaño de los bloques:"STD);
 		scanf("%d", &blockSize);
-		printf(GREEN "Indique la cantidad de bloques:"STD);
+		printf(GRN "Indique la cantidad de bloques:"STD);
 		scanf("%d", &blocks);
-		printf(GREEN "Indique el magic number:"STD);
+		printf(GRN "Indique el magic number:"STD);
 		scanf("%s", magicNumber);
-		printf("magicNumber: %s\n", magicNumber);
 
 		crearEstructuraFS(blockSize, blocks, magicNumber);
 	}
@@ -39,11 +38,6 @@ void checkEstructuraFS(){
 
 
 void crearEstructuraFS(int blockSize, int blocks, char* magicNumber){
-
-	printf("blockSize: %d\n",blockSize);
-	printf("blocks: %d\n",blocks);
-	printf("magicNumber: %s\n", magicNumber);
-
 	char* path = malloc(100 * sizeof(char));
 
 	/*Creo el directorio de montaje*/
@@ -74,6 +68,7 @@ void crearEstructuraFS(int blockSize, int blocks, char* magicNumber){
 	crearDirectorio(path);
 	printf("Directorio Metadata\n");
 	/*Creo el archivo Metadata del File System*/
+	crearMetadata(path, blockSize, blocks, magicNumber);
 
 	/*Creo el bitmap para controlar los Bloques*/
 
@@ -117,7 +112,25 @@ void crearBloques(char* path, int blocks){
 	}
 }
 
+void crearMetadata(char* path ,int blockSize, int blocks, char* magicNumber){
+	FILE* fsMetadata;
 
+	char* pathArchivo = malloc(110 * sizeof(char));
+
+	strcpy(pathArchivo,path);
+	strcat(pathArchivo, "/");
+	strcat(pathArchivo, "Metadata.bin");
+
+	fsMetadata = fopen(pathArchivo,"a");
+
+	fprintf (fsMetadata, "BLOCKSIZE=%d\n",blockSize);
+	fprintf (fsMetadata, "BLOCKS=%d\n",blocks);
+	fprintf (fsMetadata, "MAGIC_NUMBER=%s\n",magicNumber);
+
+	fclose(fsMetadata);
+	free(pathArchivo);
+
+}
 
 
 /*FIN FUNCIONES DIRECTORIO*/
