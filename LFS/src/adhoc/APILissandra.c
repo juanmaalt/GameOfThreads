@@ -340,7 +340,7 @@ void crearArchivo(char* path, char* nombre){
 	strcpy(pathArchivo,path);
 	strcat(pathArchivo, nombre);
 
-	printf("archivo creado en: %s\n", pathArchivo);
+	//printf("archivo creado en: %s\n", pathArchivo);
 
 	FILE* file=NULL;
 	file = fopen(pathArchivo,"w");

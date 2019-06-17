@@ -20,15 +20,15 @@ int main(void) {
 	ver_config();
 	//Meter funcion para levantar las variables de tiempo retardo y tiempo_dump
 
+
+	//podria poner un getchar y pedir que se especifique si hay un directorio de fileSystem creado o no
+	/*Inicio el File System*/
+	checkEstructuraFS();
+
 	/*Inicio la Memtable*/
 	memtable = inicializarMemtable();
 
-	/*Creo el directorio de montaje*/
-	crearDirectorioDeMontaje(config.punto_montaje);
-	/*Creo el directorio de tablas*/
-	crearDirectorio(directorioTablas());
-
-	agregarDatos(memtable);//funcion para pruebas
+	agregarDatos(memtable);//funcion para pruebas TODO:Borrar esto
 
 	/*Inicio la consola*/
 	if(iniciar_consola() == EXIT_FAILURE){
@@ -139,49 +139,9 @@ void ver_config(){
 
 /*INICIO FUNCIONES COMPLEMENTARIAS*/
 
-void crearDirectorioDeMontaje(char* puntoMontaje){
-	char *subpath, *fullpath;
-
-	fullpath = strdup(puntoMontaje);
-	subpath = dirname(fullpath);
-
-	if(strlen(subpath)>1)
-		crearDirectorioDeMontaje(subpath);
-	crearDirectorio(puntoMontaje);
-	free(fullpath);
-}
-
-char* directorioTablas(){
-	char* path = malloc(23 * sizeof(char));
-	strcpy(path,config.punto_montaje);
-	strcat(path, "Tables");
-
-	return path;
-}
-
-int crearDirectorio(char* path){
-	DIR* dir = opendir(path);
-
-	if (dir){
-		/*El directorio*/
-	    closedir(dir);
-	}
-	else if (ENOENT == errno){
-		/*El directorio no existe, lo creo*/
-		mkdir(path, 0777);
-	}
-	else{
-		/*En caso de que falle la creación del directorio*/
-		crearDirectorio(path);
-	}
-	return 0;
-}
-
-
 t_dictionary* inicializarMemtable(){
 	return dictionary_create();
 }
-/*FIN FUNCIONES COMPLEMENTARIAS*/
 
 void handshakeMemoria(int socketMemoria){
 	printf("Se conectó la Memoria\n");
@@ -212,44 +172,6 @@ void handshakeMemoria(int socketMemoria){
 		case REGISTRO:
 			break;
 	}
-
-
-}
-
-void agregarDatos(t_dictionary* memtable){
-	Registro* reg1 = malloc(sizeof(Registro));
-	Registro* reg2 = malloc(sizeof(Registro));
-	Registro* reg3 = malloc(sizeof(Registro));
-	Registro* reg4 = malloc(sizeof(Registro));
-
-	reg1->key=3;
-	reg1->timestamp=1558492233084;
-	reg1->value=string_from_format("pepe");
-
-	reg2->key=4;
-	reg2->timestamp=1558492233085;
-	reg2->value=string_from_format("carlos");
-
-	reg3->key=3;
-	reg3->timestamp=1558492233086;
-	reg3->value=string_from_format("pepe2");
-
-	reg4->key=4;
-	reg4->timestamp=1558492233087;
-	reg4->value=string_from_format("carlos2");
-
-	t_list* lista = list_create();
-	char* tabla=string_from_format("tabla");
-
-	dictionary_put(memtable, tabla, lista);//Agrego una tabla y su data;
-
-	lista = dictionary_get(memtable, tabla);//obtengo la data, en el insert debería checkear que este dato no sea null
-
-	list_add(lista,reg1);
-	list_add(lista,reg2);
-	list_add(lista,reg3);
-	list_add(lista,reg4);
-
 }
 
 int iniciar_consola(){
@@ -314,3 +236,45 @@ uint16_t obtenerKey(Registro* registro){
 timestamp_t obtenerTimestamp(Registro* registro){
 		return registro->timestamp;
 }
+
+/*FIN FUNCIONES COMPLEMENTARIAS*/
+
+
+/*INICIO FUNCIONES TEST*/
+void agregarDatos(t_dictionary* memtable){
+	Registro* reg1 = malloc(sizeof(Registro));
+	Registro* reg2 = malloc(sizeof(Registro));
+	Registro* reg3 = malloc(sizeof(Registro));
+	Registro* reg4 = malloc(sizeof(Registro));
+
+	reg1->key=3;
+	reg1->timestamp=1558492233084;
+	reg1->value=string_from_format("pepe");
+
+	reg2->key=4;
+	reg2->timestamp=1558492233085;
+	reg2->value=string_from_format("carlos");
+
+	reg3->key=3;
+	reg3->timestamp=1558492233086;
+	reg3->value=string_from_format("pepe2");
+
+	reg4->key=4;
+	reg4->timestamp=1558492233087;
+	reg4->value=string_from_format("carlos2");
+
+	t_list* lista = list_create();
+	char* tabla=string_from_format("tabla");
+
+	dictionary_put(memtable, tabla, lista);//Agrego una tabla y su data;
+
+	lista = dictionary_get(memtable, tabla);//obtengo la data, en el insert debería checkear que este dato no sea null
+
+	list_add(lista,reg1);
+	list_add(lista,reg2);
+	list_add(lista,reg3);
+	list_add(lista,reg4);
+
+}
+
+/*FIN FUNCIONES TEST*/

@@ -27,17 +27,15 @@
 #include <readline/readline.h>
 #include <pthread.h>
 #include <semaphore.h>
-#include <dirent.h>
-#include <errno.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 
 #include "adhoc/Consola.h"
 #include "adhoc/APILissandra.h"
+#include "FileSystem.h"
 
 
 #define RED "\x1b[31m"
 #define STD "\x1b[0m"
+#define GREEN "\x1b[32m"
 
 //ESTRUCTURAS
 typedef struct{
@@ -76,9 +74,6 @@ t_log* iniciar_logger(bool);
 t_config* leer_config();
 void extraer_data_config();
 void ver_config();
-void crearDirectorioDeMontaje(char* puntoMontaje);
-char* directorioTablas();
-int crearDirectorio(char* path);
 t_dictionary* inicializarMemtable();
 void handshakeMemoria(int socket);
 int threadConnection(int serverSocket, void *funcionThread);
