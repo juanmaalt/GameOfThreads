@@ -33,32 +33,16 @@ int main(void) {
 	}
 	mostrar_por_pantalla_config();
 
-<<<<<<< HEAD
-	 if(realizarHandshake()==EXIT_FAILURE){
+/*	 if(realizarHandshake()==EXIT_FAILURE){
 		 printf(RED"Memoria.c: main: no se pudo inicializar la memoria principal"STD"\n");
 		 return EXIT_FAILURE;
 	 }
-/*
+*/
 	tamanioValue = 4;
-=======
-	if (realizarHandshake() == EXIT_FAILURE) {
-		printf(
-				RED"Memoria.c: main: no se pudo inicializar la memoria principal"STD"\n");
-		return EXIT_FAILURE;
-	}
->>>>>>> branch 'master' of https://github.com/sisoputnfrba/tp-2019-1c-GameOfThreads.git
 
-<<<<<<< HEAD
 	pathLFS = malloc(strlen("/puntoDeMontajeQueMeDaJuanEnElHandshake/") * sizeof(char)+ 1);
 	strcpy(pathLFS, "/puntoDeMontajeQueMeDaJuanEnElHandshake/");
-*/
-=======
-	//tamanioValue = 4;
 
-	//pathLFS = malloc(strlen("/puntoDeMontajeQueMeDaJuanEnElHandshake/") * sizeof(char)+ 1);
-	//strcpy(pathLFS, "/puntoDeMontajeQueMeDaJuanEnElHandshake/");
-
->>>>>>> branch 'master' of https://github.com/sisoputnfrba/tp-2019-1c-GameOfThreads.git
 	// Inicializar la memoria principal
 	if (inicializar_memoriaPrincipal() == EXIT_FAILURE) {
 		log_error(logger_invisible,
@@ -69,7 +53,7 @@ int main(void) {
 	printf("Memoria Inicializada correctamente\n");
 
 	//TODO:GOSSIPING
-	iniciar_gossiping();
+	//iniciar_gossiping();
 
 	//FUNCIONES PARA TEST DE SELECT
 	memoriaConUnSegmentoYUnaPagina();
@@ -96,8 +80,8 @@ int main(void) {
 
 	//TODO: hilo de JOURNAL
 
-	liberarRecursos();
 
+	liberarRecursos();
 }
 
 int iniciar_serverMemoria(void) {
@@ -126,10 +110,8 @@ void *connection_handler(void *nSocket) {
 	switch (resultado.TipoDeMensaje) {
 	case COMANDO:
 		//TODO: logear comando recibido
-		printf("Comando recibido: %s\n",
-				resultado.Argumentos.COMANDO.comandoParseable);
-		resultado = ejecutarOperacion(
-				resultado.Argumentos.COMANDO.comandoParseable);
+		printf("Comando recibido: %s\n",resultado.Argumentos.COMANDO.comandoParseable);
+		resultado = ejecutarOperacion(resultado.Argumentos.COMANDO.comandoParseable);
 		send_msg(socket, resultado);
 		break;
 	case TEXTO_PLANO:
@@ -150,9 +132,11 @@ void *connection_handler(void *nSocket) {
 	return NULL;
 }
 
+
+
 int realizarHandshake(void) {
 	lfsSocket = conectarLFS();
-	if (handshakeLFS(lfsSocket) == EXIT_FAILURE) {
+	if(handshakeLFS(lfsSocket)==EXIT_FAILURE){
 		return EXIT_FAILURE;
 	}
 	printf("TAMAÑO_VALUE= %d\n", tamanioValue);
@@ -162,9 +146,9 @@ int realizarHandshake(void) {
 int handshakeLFS(int socketLFS) {
 	Operacion handshake;
 
-	handshake.TipoDeMensaje = TEXTO_PLANO;
+	handshake.TipoDeMensaje= TEXTO_PLANO;
 
-	handshake.Argumentos.TEXTO_PLANO.texto = string_from_format("handshake");
+	handshake.Argumentos.TEXTO_PLANO.texto= string_from_format("handshake");
 
 	send_msg(socketLFS, handshake);
 
@@ -174,12 +158,9 @@ int handshakeLFS(int socketLFS) {
 	//while((handshake = recv_msg(socketLFS)).TipoDeMensaje)
 	handshake = recv_msg(socketLFS);
 
-<<<<<<< HEAD
 	switch(handshake.TipoDeMensaje){
 		case TEXTO_PLANO:
-			printf("Tamanio recibido: %s\n",handshake.Argumentos.TEXTO_PLANO.texto);
 			tamanioValue=atoi(handshake.Argumentos.TEXTO_PLANO.texto);
-			printf("Tamanio recibido POST: %d\n",tamanioValue);
 			destruir_operacion(handshake);
 			break;
 		case ERROR:
@@ -187,24 +168,12 @@ int handshakeLFS(int socketLFS) {
 		case COMANDO:
 		default:
 			return EXIT_FAILURE;
-=======
-	switch (handshake.TipoDeMensaje) {
-	case TEXTO_PLANO:
-		tamanioValue = atoi(handshake.Argumentos.TEXTO_PLANO.texto);
-		destruir_operacion(handshake);
-		break;
-	case ERROR:
-	case REGISTRO:
-	case COMANDO:
-	default:
-		return EXIT_FAILURE;
->>>>>>> branch 'master' of https://github.com/sisoputnfrba/tp-2019-1c-GameOfThreads.git
 	}
 
+
 	//Pido el punto de montaje
-	handshake.TipoDeMensaje = TEXTO_PLANO;
-	handshake.Argumentos.TEXTO_PLANO.texto = string_from_format(
-			"handshake pathLFS");
+	handshake.TipoDeMensaje= TEXTO_PLANO;
+	handshake.Argumentos.TEXTO_PLANO.texto=string_from_format("handshake pathLFS");
 
 	send_msg(socketLFS, handshake);
 
@@ -213,31 +182,29 @@ int handshakeLFS(int socketLFS) {
 	//Recibo el punto de montaje
 	handshake = recv_msg(socketLFS);
 
-	switch (handshake.TipoDeMensaje) {
-	case TEXTO_PLANO:
-		pathLFS = string_from_format(handshake.Argumentos.TEXTO_PLANO.texto);
-		destruir_operacion(handshake);
-		break;
-	case ERROR:
-	case REGISTRO:
-	case COMANDO:
-	default:
-		return EXIT_FAILURE;
-	}
+	switch(handshake.TipoDeMensaje){
+			case TEXTO_PLANO:
+				pathLFS=string_from_format(handshake.Argumentos.TEXTO_PLANO.texto);
+				destruir_operacion(handshake);
+				break;
+			case ERROR:
+			case REGISTRO:
+			case COMANDO:
+			default:
+				return EXIT_FAILURE;
+		}
 
 	log_info(logger_visible, "El size del value es: %d", tamanioValue);
-	log_info(logger_visible, "El punto de montaje es: %s", pathLFS);
+	log_info(logger_visible, "El punto de montaje es: %s",pathLFS);
 
 	return EXIT_SUCCESS;
 }
 
 int conectarLFS() {
 	//Obtiene el socket por el cual se va a conectar al LFS como cliente / * Conectarse al proceso File System
-	int socket = connect_to_server(fconfig.ip_fileSystem,
-			fconfig.puerto_fileSystem);
+	int socket = connect_to_server(fconfig.ip_fileSystem, fconfig.puerto_fileSystem);
 	if (socket == EXIT_FAILURE) {
-		log_error(logger_visible,
-				"El LFS no está levantado. Cerrar la Memoria, levantar el LFS y volver a levantar la Memoria");
+		log_error(logger_visible,"El LFS no está levantado. Cerrar la Memoria, levantar el LFS y volver a levantar la Memoria");
 		return EXIT_FAILURE;
 	}
 	log_info(logger_visible, "Conectado al LFS. Iniciando Handshake.");
@@ -272,17 +239,14 @@ void asignarPathASegmento(segmento_t * segmentoANombrar, char* nombreTabla) {
 	strcat(segmentoANombrar->pathTabla, nombreTabla);
 }
 
-void crearRegistroEnTabla(tabla_de_paginas_t *tablaDondeSeEncuentra,
-		int indiceMarco) {
+void crearRegistroEnTabla(tabla_de_paginas_t *tablaDondeSeEncuentra, int indiceMarco) {
 	registroTablaPag_t *registroACrear = malloc(sizeof(registroTablaPag_t));
 
-	registroACrear->nroPagina = list_size(tablaDondeSeEncuentra->registrosPag)
-			- 1;
+	registroACrear->nroPagina=list_size(tablaDondeSeEncuentra->registrosPag)-1;
 
 	registroACrear->nroMarco = indiceMarco;
 
-	list_add(tablaDondeSeEncuentra->registrosPag,
-			(registroTablaPag_t*) registroACrear);
+	list_add(tablaDondeSeEncuentra->registrosPag,(registroTablaPag_t*) registroACrear);
 
 }
 
@@ -295,8 +259,7 @@ int colocarPaginaEnMemoria(timestamp_t timestamp, uint16_t key, char* value) { /
 	//wSEMAFORO
 	MCB_t * marcoObjetivo = (MCB_t *) queue_pop(memoriaPrincipal.marcosLibres); //No se elimina porque el MCB tambien esta en listaAdministrativaMarcos
 
-	void * direccionMarco = memoriaPrincipal.memoria
-			+ memoriaPrincipal.tamanioMarco * marcoObjetivo->nroMarco;
+	void * direccionMarco = memoriaPrincipal.memoria + memoriaPrincipal.tamanioMarco * marcoObjetivo->nroMarco;
 
 	memcpy(direccionMarco, &timestamp, sizeof(timestamp_t));
 
@@ -495,3 +458,105 @@ void mostrar_por_pantalla_config() {
 	log_info(logger_visible, "MEMORY_NUMBER=%s", fconfig.numero_memoria);
 }
 
+/*
+ int iniciar_gossiping() {
+
+ quitarCaracteresPpioFin(fconfig.ip_seeds);
+ IPs = string_split(fconfig.ip_seeds, ",");
+
+ quitarCaracteresPpioFin(fconfig.puerto_seeds);
+ IPsPorts = string_split(fconfig.puerto_seeds, ",");
+ for (int i = 0; IPs[i] != NULL; ++i)	//Muestro por pantalla las IP seeds
+ printf("IP %d: %s\n", i, IPs[i]);
+
+ if (pthread_create(&idGossipSend, NULL, conectar_seeds, NULL)) {
+ printf(
+ RED"Memoria.c: iniciar_gossiping: fallo la creacion hilo gossiping envios"STD"\n");
+ return EXIT_FAILURE;
+ }
+ //if(pthread_create(&idConsola, NULL, recibir_comandos, NULL)){
+ if (pthread_create(&idGossipReciv, NULL, recibir_seeds, NULL)) {
+ printf(
+ RED"Memoria.c: iniciar_gossiping: fallo la creacion hilo gossiping escucha"STD"\n");
+ return EXIT_FAILURE;
+ }
+
+ return EXIT_SUCCESS;
+ }
+ */
+/*
+ void *conectar_seeds(void *null) { // hilo envia a las seeds
+ //pthread_detach(pthread_self());
+ int puertoSocket;
+ puertoSocket = conectarConSeed(IPs, IPsPorts);
+ // puertoSocket = ConsultoPorMemoriasConocidas(puertoSocket);
+ liberarIPs(IPs);
+ liberarIPs(IPsPorts);
+ for (;;) {
+ // Envia mensaje a las seeds que conoce
+ }
+ return NULL;
+ }
+ */
+
+void *recibir_seeds(void *null) { // hilo que responde con las memorias conocidas
+	//pthread_detach(pthread_self());
+
+	for (;;) {
+		//Escucha todo el tiempo y cuando llegue mensaje devuelve las memorias que conoce y estan activas
+	}
+	return NULL;
+}
+char* quitarCaracteresPpioFin(char* cadena) {
+	char * temporal = malloc(sizeof(char) * (strlen(cadena) - 1)); //Me sobran 2 de comillas (-2) y +1 para el '\0'
+	int i;
+	for (i = 0; cadena[i + 2] != '\0'; ++i) {
+		temporal[i] = cadena[i + 1];
+	}
+	temporal[i] = '\0';
+	return temporal;
+
+}
+
+void liberarIPs(char** IPs) {
+	if (IPs != NULL) {
+		for (int i = 0; IPs[i] != NULL; ++i)
+			free(*(IPs + i));
+		free(IPs);
+	}
+}
+/*
+ int conectarConSeed(char** IPs, char ** IPsPorts) {
+ // Se conecta con la seed para hacer el gossiping
+ int conteo_seeds = 0; //Static
+ for (; IPs[conteo_seeds] != NULL;) {
+ int socket = connect_to_server(IPs[conteo_seeds],
+ IPsPorts[conteo_seeds]);
+ if (socket == EXIT_FAILURE) {
+ log_error(logger_invisible, "La memoria no esta activa");
+ conteo_seeds++;
+ return EXIT_FAILURE;
+ }
+ log_error(logger_invisible, "Memoria conocida. Envia rmensaje");
+ conteo_seeds++;
+ return ConsultoPorMemoriasConocidas(socket); //
+ }
+ }
+ */
+
+/*
+ int ConsultoPorMemoriasConocidas(int socketSEEDS) {
+ send_msg(socketSEEDS, TEXTO_PLANO, "memorias activas");
+
+ Operacion tipo;
+ char *tamanio = recv_msg(socketSEEDS, &tipo);
+
+ if (tipo.TipoDeMensaje == COMANDO)
+ printf("Consulta de memorias conocidas falló. No se recibió respuesta.\n");
+ if (tipo.TipoDeMensaje == TEXTO_PLANO)
+ printf("Consulta exitosa. Se recibieron las memorias: %d\n",
+ *tamanio);
+
+ return *tamanio;
+ }
+ */
