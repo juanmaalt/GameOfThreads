@@ -30,6 +30,7 @@
 #include <semaphore.h>
 
 #include "Consola.h"
+#include "Gossiping.h"
 #include "APIMemoria.h"
 #include "RutinasDeLiberacion.h"
 
@@ -185,33 +186,6 @@ int iniciar_serverMemoria (void);
 
 
 
-//GOSSIPING
-
-//Memorias conocidas
-typedef struct knownMemory {
-	int memory_number;
-	char *ip ;
-	char *ip_port;
-}knownMemory_t;
-
-t_list* listaMemoriasConocidas;
-
-
-pthread_t idGossipSend;
-pthread_t idGossipReciv;
-
-
-char **IPs;
-char **IPsPorts;
-
-int iniciar_gossiping();
-
-void liberarIPs(char** );
-char* quitarCaracteresPpioFin(char* );
-int conectarConSeed(char**,char**);
-void *conectar_seeds(void*);
-void *recibir_seeds(void*);
-int ConsultoPorMemoriasConocidas(int );
 
 
 
