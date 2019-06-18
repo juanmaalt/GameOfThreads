@@ -4,6 +4,7 @@
  *  Created on: 15 may. 2019
  *      Author: fdalmaup
  */
+#define JournalTestNumber 3
 
 #include "APIMemoria.h"
 
@@ -31,11 +32,12 @@ Operacion ejecutarOperacion(char* input) {
 			retorno= createAPI(input, *parsed);
 			break;
 		case DESCRIBE:
+			break;
 		case DROP:
 			retorno= dropAPI(input, *parsed);
 			break;
 		case JOURNAL:
-			printf("Entro un comando\n");
+			retorno=journalAPI();
 			break;
 		default:
 
@@ -281,10 +283,6 @@ Operacion createAPI(char* input, Comando comando) {
 	Operacion resultadoCreate;
 
 	//Enviar al FS la operacion
-
-	resultadoCreate.TipoDeMensaje = COMANDO;
-	resultadoCreate.Argumentos.COMANDO.comandoParseable= string_from_format(input);
-
 	enviarRequestFS(input);
 
 	//Lo que recibo del FS lo retorno
@@ -367,7 +365,32 @@ Operacion dropAPI(char* input, Comando comando){
 
 }
 Operacion journalAPI(){
+	Operacion resultadoJournal;
+	char * input;
+	//char*   string_from_format(const char* format, ...);
+	//1. Por cada MCB en la listaAdminMarcos ver si tiene el flag de modificado
+	//(si en vez de tener en esa lista, lo tengo en la tabla de paginas de cada segmento, ya tengo la tabla PENSAR )
+	//	1.1. Si tiene modificado, armo un insert con todos sus datos (viendo de que tabla es) y lo mando al FS
 
+	//  1.2. Si no esta modificado avanzo
+	for(int i=0; i< JournalTestNumber; i++){
+
+
+		//Enviar al FS la operacion
+
+		resultadoJournal.TipoDeMensaje = COMANDO;
+		//resultadoJournal.Argumentos.COMANDO.comandoParseable= string_from_format(input);
+		input=string_from_format("INSERT tabla%d %d \"JOHN WILLY\" %llu",i,i*100, getCurrentTime());
+
+		enviarRequestFS(input);
+
+
+
+		resultadoJournal=recibirRequestFS();
+
+
+	}
+	return resultadoJournal;
 }
 
 

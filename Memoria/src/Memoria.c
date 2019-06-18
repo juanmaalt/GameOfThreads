@@ -33,16 +33,16 @@ int main(void) {
 	}
 	mostrar_por_pantalla_config();
 
-/*	 if(realizarHandshake()==EXIT_FAILURE){
+	 if(realizarHandshake()==EXIT_FAILURE){
 		 printf(RED"Memoria.c: main: no se pudo inicializar la memoria principal"STD"\n");
 		 return EXIT_FAILURE;
 	 }
-*/
+/*
 	tamanioValue = 4;
 
 	pathLFS = malloc(strlen("/puntoDeMontajeQueMeDaJuanEnElHandshake/") * sizeof(char)+ 1);
 	strcpy(pathLFS, "/puntoDeMontajeQueMeDaJuanEnElHandshake/");
-
+*/
 	// Inicializar la memoria principal
 	if (inicializar_memoriaPrincipal() == EXIT_FAILURE) {
 		log_error(logger_invisible,
@@ -160,7 +160,9 @@ int handshakeLFS(int socketLFS) {
 
 	switch(handshake.TipoDeMensaje){
 		case TEXTO_PLANO:
+			printf("Tamanio recibido: %s\n",handshake.Argumentos.TEXTO_PLANO.texto);
 			tamanioValue=atoi(handshake.Argumentos.TEXTO_PLANO.texto);
+			printf("Tamanio recibido POST: %d\n",tamanioValue);
 			destruir_operacion(handshake);
 			break;
 		case ERROR:
