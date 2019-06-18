@@ -9,60 +9,51 @@
 
 
 void checkEstructuraFS(){
-	char option;
+	char* option;
 
-	printf(GREEN "Existe una estructura definida en el punto de montaje? (Y/N): " STD);
-
-	option=getchar();
-	while(option!='Y' && option!='N' && option!='y' && option!='n'){
-		printf(RED "Ha ingresado un caracter no esperado. Por favor indique si existe una estructura ingresando (Y/N): ");
-		option=getchar();
+	option=readline(GRN "Existe una estructura definida en el punto de montaje? (Y/N): " STD);
+	while(!(string_equals_ignore_case(option, "Y")) && !(string_equals_ignore_case(option, "N"))){
+		printf(RED "Ha ingresado un caracter no esperado '%s'. Por favor indique si existe una estructura ingresando (Y/N)" STD, option);
+		option= readline(": ");
 	}
 
-	if(option=='N' || option=='n'){
+	if(string_equals_ignore_case(option, "N")){
 		int blockSize=0;
 		int blocks=0;
 		char* magicNumber;
 
-		printf(GREEN "Indique el tamaño de los bloques:"STD);
+		printf(GRN "Indique el tamaño de los bloques:"STD);
 		scanf("%d", &blockSize);
-		printf(GREEN "Indique la cantidad de bloques:"STD);
+		printf(GRN "Indique la cantidad de bloques:"STD);
 		scanf("%d", &blocks);
-		printf(GREEN "Indique el magic number:"STD);
+		printf(GRN "Indique el magic number:"STD);
 		scanf("%s", magicNumber);
-		printf("magicNumber: %s\n", magicNumber);
 
 		crearEstructuraFS(blockSize, blocks, magicNumber);
+	}else{
+		checkDirectorios();
 	}
+
 }
 
 
 
 void crearEstructuraFS(int blockSize, int blocks, char* magicNumber){
-
-	printf("blockSize: %d\n",blockSize);
-	printf("blocks: %d\n",blocks);
-	printf("magicNumber: %s\n", magicNumber);
-
 	char* path = malloc(100 * sizeof(char));
 
 	/*Creo el directorio de montaje*/
 	crearDirectorioDeMontaje(config.punto_montaje);
-	printf("Directorio Montaje\n");
 
 	/*Creo el directorio de tablas*/
 	strcpy(path,config.punto_montaje);
 	strcat(path, "Tables");
-
 	crearDirectorio(path);
-	printf("Directorio Tables\n");
 
 	/*Creo el directorio de Bloques*/
 	strcpy(path,config.punto_montaje);
 	strcat(path, "Bloques");
-
 	crearDirectorio(path);
-	printf("Directorio Bloques\n");
+
 	/*Creo los Bloques*/
 	strcat(path, "/");
 	crearBloques(path, blocks);
@@ -70,10 +61,10 @@ void crearEstructuraFS(int blockSize, int blocks, char* magicNumber){
 	/*Creo el directorio de Metadata*/
 	strcpy(path,config.punto_montaje);
 	strcat(path, "Metadata");
-
 	crearDirectorio(path);
-	printf("Directorio Metadata\n");
+
 	/*Creo el archivo Metadata del File System*/
+	crearMetadata(path, blockSize, blocks, magicNumber);
 
 	/*Creo el bitmap para controlar los Bloques*/
 
@@ -117,7 +108,62 @@ void crearBloques(char* path, int blocks){
 	}
 }
 
+void crearMetadata(char* path ,int blockSize, int blocks, char* magicNumber){
+	FILE* fsMetadata;
 
+	char* pathArchivo = malloc(110 * sizeof(char));
+
+	strcpy(pathArchivo,path);
+	strcat(pathArchivo, "/");
+	strcat(pathArchivo, "Metadata.bin");
+
+	fsMetadata = fopen(pathArchivo,"a");
+
+	fprintf (fsMetadata, "BLOCKSIZE=%d\n",blockSize);
+	fprintf (fsMetadata, "BLOCKS=%d\n",blocks);
+	fprintf (fsMetadata, "MAGIC_NUMBER=%s\n",magicNumber);
+
+	fclose(fsMetadata);
+	free(pathArchivo);
+
+}
+
+void checkExistenciaDirectorio(char* path, char* carpeta){
+	DIR* dir = opendir(path);
+
+	if (dir) {
+	    closedir(dir);
+	} else if (ENOENT == errno) {
+		printf(RED "El directorio %s no existe. Por favor, revise el config, aseguresé de crear las carpetas necesarias y confirme nuevamente.\n" STD, carpeta);
+		checkEstructuraFS();
+	} else {
+		checkExistenciaDirectorio(path, carpeta);
+	}
+}
+
+void checkDirectorios(){
+	char* path = malloc(100 * sizeof(char));
+
+	/*Checkeo la existencia del directorio de montaje*/
+	checkExistenciaDirectorio(config.punto_montaje, "de montaje");
+
+	/*Checkeo la existencia del directorio de Tables*/
+	strcpy(path,config.punto_montaje);
+	strcat(path, "Tables");
+	checkExistenciaDirectorio(path, "Tables");
+
+	/*Checkeo la existencia del directorio de Bloques*/
+	strcpy(path,config.punto_montaje);
+	strcat(path, "Bloques");
+	checkExistenciaDirectorio(path, "Bloques");
+
+	/*Checkeo la existencia del directorio de Bloques*/
+	strcpy(path,config.punto_montaje);
+	strcat(path, "Metadata");
+	checkExistenciaDirectorio(path, "Metadata");
+
+	free(path);
+}
 
 
 /*FIN FUNCIONES DIRECTORIO*/

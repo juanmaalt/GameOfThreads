@@ -128,11 +128,11 @@ void extraer_data_config() {
 
 
 void ver_config(){
-	log_info(logger_visible, "IP=%s", config.ip);
-	log_info(logger_visible, "PUERTO_ESCUCHA=%s", config.puerto_escucha);
-	log_info(logger_visible, "PUNTO_MONTAJE=%s", config.punto_montaje);
-	log_info(logger_visible, "RETARDO=%s", config.retardo);
-	log_info(logger_visible, "TAMANIO_VALUE=%s", config.tamanio_value);
+	log_info(logger_visible, BLU "IP=%s" STD, config.ip);
+	log_info(logger_visible, BLU "PUERTO_ESCUCHA=%s" STD, config.puerto_escucha);
+	log_info(logger_visible, BLU "PUNTO_MONTAJE=%s" STD, config.punto_montaje);
+	log_info(logger_visible, BLU "RETARDO=%s" STD, config.retardo);
+	log_info(logger_visible, BLU "TAMANIO_VALUE=%s" STD, config.tamanio_value);
 	//log_info(logger_visible, "TIEMPO_DUMP=%s", config.tiempo_dump);
 }
 /*FIN FUNCIONES CONFIG*/
@@ -165,7 +165,7 @@ void handshakeMemoria(int socketMemoria){
 				handshake.Argumentos.TEXTO_PLANO.texto=string_from_format(config.punto_montaje);
 				send_msg(socketMemoria, handshake);
 			}
-			else{printf("No se pudo conectar la Memoria\n");}
+			else{printf(RED"No se pudo conectar la Memoria\n"STD);}
 			break;
 		case ERROR:
 		case COMANDO:
@@ -180,9 +180,6 @@ int iniciar_consola(){
 		return EXIT_FAILURE;
 	}
 
-	printf("en iniciar consola\n");
-
-	//No hay pthread_join. Alternativamente hay pthread_detach en la funcion recibir_comando. Hacen casi lo mismo
 	return EXIT_SUCCESS;
 }
 

@@ -19,5 +19,8 @@ void crearEstructuraFS(int blockSize, int blocks, char* magicNumber);
 int crearDirectorio(char* path);
 void crearDirectorioDeMontaje(char* puntoMontaje);
 void crearBloques(char* path, int blocks);
+void crearMetadata(char* path ,int blockSize, int blocks, char* magicNumber);
+void checkExistenciaDirectorio(char* path, char* carpeta);
+void checkDirectorios();
 
 #endif /* FILESYSTEM_H_ */

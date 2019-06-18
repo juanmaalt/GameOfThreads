@@ -23,6 +23,7 @@
 #include <parser/parser_comando.h>
 #include <server_multithread/server_multithread.h>
 #include <epoch/epoch.h>
+#include <colores/colores.h>
 
 #include <readline/readline.h>
 #include <pthread.h>
@@ -32,10 +33,6 @@
 #include "adhoc/APILissandra.h"
 #include "FileSystem.h"
 
-
-#define RED "\x1b[31m"
-#define STD "\x1b[0m"
-#define GREEN "\x1b[32m"
 
 //ESTRUCTURAS
 typedef struct{
