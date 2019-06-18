@@ -30,6 +30,7 @@ typedef struct{
 		REGISTRO,
 		ERROR,
 		GOSSIPING_REQUEST,
+		GOSSIPING_REQUEST_KERNEL,
 		DESCRIBE_REQUEST
 	}TipoDeMensaje;
 	id opCode; //Nota: para que funcione, el envio y recepcion de mensajes tiene que reutilizar la variable Operacion, o copiar en memoria el codigo para enviarlo en la operacion resultante
@@ -53,6 +54,8 @@ typedef struct{
 			int numeroMemoria;
 			char *ipypuerto;
 		}GOSSIPING_REQUEST;
+		struct{
+		}GOSSIPING_REQUEST_KERNEL;
 		struct{
 			int fin; //Por default en 0 (falso), indica si es el fin de archivo. Poner en 1 cuando se mande la ultima request
 			Consistencia consistencia;

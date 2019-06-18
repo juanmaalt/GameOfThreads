@@ -266,6 +266,8 @@ void enviarRequestFS(char* input){
 
 	request.Argumentos.COMANDO.comandoParseable= string_from_format(input);
 
+
+
 	send_msg(lfsSocket, request);
 
 	destruir_operacion(request);

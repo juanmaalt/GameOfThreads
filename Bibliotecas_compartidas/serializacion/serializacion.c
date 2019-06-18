@@ -69,6 +69,11 @@ int send_msg(int socket, Operacion operacion) {
 		memcpy(content+4*sizeof(int), operacion.Argumentos.GOSSIPING_REQUEST.ipypuerto, sizeof(char)*longCadena); //cadena
 		memcpy(content+4*sizeof(int)+sizeof(char)*longCadena, &(operacion.opCode), sizeof(id));
 		break;
+	case GOSSIPING_REQUEST_KERNEL:
+		total = sizeof(int);
+		content=malloc(total);
+		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
+		break;
 	case DESCRIBE_REQUEST:
 		longCadena = strlen(operacion.Argumentos.DESCRIBE_REQUEST.nombreTabla);
 		total = sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(char)*longCadena + sizeof(id); //operacion + fin + consistencia + long cadena + cadena
@@ -135,6 +140,8 @@ Operacion recv_msg(int socket) {
 		retorno.Argumentos.GOSSIPING_REQUEST.ipypuerto = calloc(longitud+1, sizeof(char));
 		recv(socket, retorno.Argumentos.GOSSIPING_REQUEST.ipypuerto, sizeof(char)*longitud, 0);
 		retorno.Argumentos.GOSSIPING_REQUEST.ipypuerto[longitud] = '\0';
+		break;
+	case GOSSIPING_REQUEST_KERNEL:
 		break;
 	case DESCRIBE_REQUEST:
 		recv(socket, &(retorno.Argumentos.DESCRIBE_REQUEST.fin), sizeof(int), 0);
