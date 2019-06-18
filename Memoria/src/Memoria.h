@@ -32,6 +32,8 @@
 #include "Consola.h"
 #include "APIMemoria.h"
 #include "RutinasDeLiberacion.h"
+#include "Gossiping.h"
+
 
 #define ERROR_MEMORIA_FULL -1
 
@@ -182,37 +184,6 @@ void memoriaConUnSegmentoYUnaPagina(void);
 
 int iniciar_consola();
 int iniciar_serverMemoria (void);
-
-
-
-//GOSSIPING
-
-//Memorias conocidas
-typedef struct knownMemory {
-	int memory_number;
-	char *ip ;
-	char *ip_port;
-}knownMemory_t;
-
-t_list* listaMemoriasConocidas;
-
-
-pthread_t idGossipSend;
-pthread_t idGossipReciv;
-
-
-char **IPs;
-char **IPsPorts;
-
-int iniciar_gossiping();
-
-void liberarIPs(char** );
-char* quitarCaracteresPpioFin(char* );
-int conectarConSeed(char**,char**);
-void *conectar_seeds(void*);
-void *recibir_seeds(void*);
-int ConsultoPorMemoriasConocidas(int );
-
 
 
 #endif /* MEMORIA_H_ */
