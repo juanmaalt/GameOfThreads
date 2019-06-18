@@ -18,16 +18,9 @@ void checkEstructuraFS(){
 	}
 
 	if(string_equals_ignore_case(option, "N")){
-		int blockSize=0;
-		int blocks=0;
-		char* magicNumber;
-
-		printf(GRN "Indique el tamaño de los bloques:"STD);
-		scanf("%d", &blockSize);
-		printf(GRN "Indique la cantidad de bloques:"STD);
-		scanf("%d", &blocks);
-		printf(GRN "Indique el magic number:"STD);
-		scanf("%s", magicNumber);
+		int blockSize=atoi(readline(GRN "Indique el tamaño de los bloques: "STD));
+		int blocks=atoi(readline(GRN "Indique la cantidad de bloques: "STD));
+		char* magicNumber=readline(GRN "Indique el magic number: "STD);
 
 		crearEstructuraFS(blockSize, blocks, magicNumber);
 	}else{
@@ -40,6 +33,8 @@ void checkEstructuraFS(){
 
 void crearEstructuraFS(int blockSize, int blocks, char* magicNumber){
 	char* path = malloc(100 * sizeof(char));
+
+
 
 	/*Creo el directorio de montaje*/
 	crearDirectorioDeMontaje(config.punto_montaje);

@@ -173,6 +173,28 @@ Operacion createAPI(Comando comando){
 
 
 void describeAPI(Comando comando){
+	/*
+	 * Operacion op;
+	 * char* nombreCarpeta;
+	 * int consistencia;
+	 *
+	while(hayaCarpetas){
+		connectToServer();
+		nombreCarpeta=leerCarpeta
+		leerMetadata
+		consistencia=extraerConsistencia; //transformar según enum
+
+		op.fin=0;
+		op.nombreTabla=nombreCarpeta;
+		op.consistencia=consistencia;
+
+		send(Memoria, op);
+	}
+
+		op.fin=1;
+		op.nombreTabla="DESCRIBE: Te las recibiste todas chinwenwencha";
+		op.consistencia=0; //enum de null
+	*/
 }
 
 
