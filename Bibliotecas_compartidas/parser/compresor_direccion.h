@@ -19,7 +19,7 @@
 	* @PARAMS:
 	* 		ip - puerto
 	*/
-	char *comprimir_direcion(const char* ip, const char* puerto);
+	char *comprimir_direccion(const char* ip, const char* puerto);
 
 
 	/**
