@@ -109,9 +109,8 @@ void *connection_handler(void *nSocket) {
 
 	switch (resultado.TipoDeMensaje) {
 	case COMANDO:
-		//TODO: logear comando recibido
-		printf("Comando recibido: %s\n",resultado.Argumentos.COMANDO.comandoParseable);
-		resultado = ejecutarOperacion(resultado.Argumentos.COMANDO.comandoParseable);
+		log_info(logger_visible,"Comando recibido: %s\n",resultado.Argumentos.COMANDO.comandoParseable);
+		resultado = ejecutarOperacion(resultado.Argumentos.COMANDO.comandoParseable,false);
 		send_msg(socket, resultado);
 		break;
 	case TEXTO_PLANO:
