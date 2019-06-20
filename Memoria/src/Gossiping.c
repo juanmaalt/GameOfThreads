@@ -9,23 +9,34 @@
 #include "Gossiping.h"
 
 int iniciar_gossiping() {
-
+	char * ip_port_compresed = comprimir_direccion(fconfig.ip , fconfig.puerto);
+	//char * ip_port_compresed = string_from_format("%s:%s", fconfig.ip, fconfig.puerto);
+	printf("IP propia : %s\n", ip_port_compresed);
 	quitarCaracteresPpioFin(fconfig.ip_seeds);
 	IPs = string_split(fconfig.ip_seeds, ",");
 
 	quitarCaracteresPpioFin(fconfig.puerto_seeds);
 	IPsPorts = string_split(fconfig.puerto_seeds, ",");
+	listaMemoriasConocidas = list_create();
+
+	//Reservo espacio para un MCB
+	knownMemory_t * mem = malloc(sizeof(int)+ sizeof(ip_port_compresed)+1 ) ;
+			//Asigno a sus atributos los valores correspondientes
+			mem->memory_number = fconfig.numero_memoria;
+			mem->ipandport = ip_port_compresed;
+
+			list_add(listaMemoriasConocidas, (knownMemory_t *) mem);
 	for (int i = 0; IPs[i] != NULL; ++i)	//Muestro por pantalla las IP seeds
 		printf("IP %d: %s:%s:\n", i, IPs[i], IPsPorts[i]);
 
 	if (pthread_create(&idGossipSend, NULL, conectar_seeds, NULL)) {
 		printf(
 				RED"Memoria.c: iniciar_gossiping: fallo la creacion hilo gossiping envios"STD"\n");
-		printf("Error hilo");
+		printf("Error hilo\n");
 		return EXIT_FAILURE;
 	}
 
-	printf("TERMINO");
+	printf("TERMINO\n");
 
 	//if(pthread_create(&idConsola, NULL, recibir_comandos, NULL)){
 	/*if (pthread_create(&idGossipReciv, NULL, recibir_seeds, NULL)) {
@@ -91,7 +102,7 @@ void conectarConSeed() {
 			// return EXIT_FAILURE;
 			// Debo quitar del diccionario esta memoria ya que no esta
 		} else {
-		 printf ("memoria activa");
+		 printf ("memoria activa\n");
 		 log_error(logger_invisible, "Memoria conocida. Envia rmensaje");
 
 		 ConsultoPorMemoriasConocidas(socket); //
