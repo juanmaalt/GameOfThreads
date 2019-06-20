@@ -85,7 +85,7 @@ Operacion insertAPI(Comando comando){
 	/*Reservo espacio y aloco los datos a insertar*/
 	Registro* reg = malloc(sizeof(Registro));
 	reg->key = atoi(comando.argumentos.INSERT.key);
-	reg->value = comando.argumentos.INSERT.value;
+	reg->value = string_from_format(comando.argumentos.INSERT.value);
 	reg->timestamp=checkTimestamp(comando.argumentos.INSERT.timestamp);
 
 	/*Obtengo la lista de registros a partir de la tabla solicitada*/
@@ -343,7 +343,7 @@ Operacion getValueMasReciente(t_list* lista){
 	op.TipoDeMensaje = REGISTRO;
 	op.Argumentos.REGISTRO.timestamp=reg->timestamp;
 	op.Argumentos.REGISTRO.key=reg->key;
-	op.Argumentos.REGISTRO.value=reg->value;
+	op.Argumentos.REGISTRO.value=string_from_format(reg->value);
 
 	//printf("\nEl registro más reciente es:\n");
 	//printf("Registro->Timestamp= %llu\n",op.Argumentos.REGISTRO.timestamp);
