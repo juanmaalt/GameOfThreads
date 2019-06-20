@@ -173,11 +173,41 @@ Operacion createAPI(Comando comando){
 
 
 void describeAPI(Comando comando){
-	/*
-	 * Operacion op;
-	 * char* nombreCarpeta;
-	 * int consistencia;
-	 *
+	char* path = malloc(100 * sizeof(char));
+	DIR *dir;
+	struct dirent *entry;
+	//Operacion op;
+	char* nombreCarpeta;
+	//int consistencia;
+
+	strcpy(path,config.punto_montaje);
+	strcat(path, "Tables/");
+
+	if(comando.argumentos.DESCRIBE.nombreTabla==NULL){
+		if((dir = opendir (path)) != NULL){
+			while((entry = readdir (dir)) != NULL){
+				nombreCarpeta = string_from_format(entry->d_name);
+				if(!strcmp(nombreCarpeta, ".") || !strcmp(nombreCarpeta, "..")){
+				}else{
+					printf (BLU"%s\n"STD, nombreCarpeta);
+				}
+		  }
+			closedir (dir);
+		}else{
+			return perror (RED"No existe la carpeta solicitada"STD);
+		}
+	}else{
+		strcat(path, comando.argumentos.DESCRIBE.nombreTabla);
+		if((dir = opendir (path)) != NULL){
+			printf(BLU"Existe la carpeta de la Tabla\n"STD);
+		}
+		else{
+			return perror (RED"No existe la carpeta solicitada"STD);
+		}
+	}
+
+	free(path);
+/*
 	while(hayaCarpetas){
 		connectToServer();
 		nombreCarpeta=leerCarpeta
