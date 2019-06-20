@@ -8,7 +8,7 @@
 
 #include "APIMemoria.h"
 
-Operacion ejecutarOperacion(char* input) {
+Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 	Comando *parsed = malloc(sizeof(Comando));
 	Operacion retorno;
 	*parsed = parsear_comando(input);
@@ -97,32 +97,38 @@ Operacion selectAPI(char* input, Comando comando) {
 
 	registroTablaPag_t *registroBuscado = NULL;
 
-	if (verificarExistenciaSegmento(comando.argumentos.SELECT.nombreTabla,
-			&segmentoSeleccionado)) {
+	if (verificarExistenciaSegmento(comando.argumentos.SELECT.nombreTabla,&segmentoSeleccionado)) {
 		if (contieneKey(segmentoSeleccionado, keyBuscada, &registroBuscado)) {
 
 			resultadoSelect = tomarContenidoPagina(*registroBuscado);
 
 			resultadoSelect.TipoDeMensaje = REGISTRO;
+			return resultadoSelect;
+		}else{
+			printf(YEL"APIMemoria.c: select: no encontro la key. Enviar a LFS la request"STD"\n"); //TODO: meter en log
+			//TODO: Enviar a LFS la request
+			enviarRequestFS(input);
+
+			resultadoSelect.TipoDeMensaje = REGISTRO;
+			resultadoSelect=recibirRequestFS();
+			//INSERTAR VALOR EN BLOQUE DE MEMORIA Y METER CREAR REGISTRO EN TABLA DE PAGINAS DEL SEGMENTO
+			//Recibo el valor (el marcoRecibido/registro entero ya parseado al ser recibido como un char*)
+			//
+			//solicitarPagina(segmentoSeleccionado,marcoRecibido);
 
 			return resultadoSelect;
+
 		}
-		printf(
-				YEL"APIMemoria.c: select: no encontro la key. Enviar a LFS la request"STD"\n"); //TODO: meter en log
-		/*else{
-		 //TODO: Enviar a LFS la request
-		 * send_msg
-		 * recv
-		 *
-		 //Recibo el valor (el marcoRecibido/registro entero ya parseado al ser recibido como un char*)
-		 //
-		 solicitarPagina(segmentoSeleccionado,marcoRecibido);
-		 }*/
 
-	}/*else{
-	 //TODO: Enviar a LFS la request
+	}/*else{ //NO EXISTE EL SEGMENTO
+		printf(YEL"APIMemoria.c: select: no se encontro el path. Enviar a LFS la request"STD"\n");
+		enviarRequestFS(input);
 
-	 printf(RED"APIMemoria.c: select: no encontro el path. Enviar a LFS la request"STD"\n");
+		resultadoSelect.TipoDeMensaje = REGISTRO;
+		resultadoSelect=recibirRequestFS();
+
+
+
 	 }*/
 
 	resultadoSelect.Argumentos.ERROR.mensajeError = string_from_format(
@@ -265,25 +271,6 @@ void insertarPaginaDeSegmento(char* value, uint16_t key, segmento_t * segmento) 
  por tabla ya existente, continúa su ejecución normalmente.
  */
 
-void enviarRequestFS(char* input) {
-	lfsSocket = conectarLFS(); //TODO: NO DEJARLA COMO GLOBAL
-
-	Operacion request;
-	request.TipoDeMensaje = COMANDO;
-
-	request.Argumentos.COMANDO.comandoParseable = string_from_format(input);
-
-	send_msg(lfsSocket, request);
-
-	destruir_operacion(request);
-
-}
-
-Operacion recibirRequestFS(void) {
-	Operacion resultado;
-	resultado = recv_msg(lfsSocket);
-	return resultado;
-}
 
 Operacion createAPI(char* input, Comando comando) {
 	Operacion resultadoCreate;
@@ -521,4 +508,24 @@ Operacion tomarContenidoPagina(registroTablaPag_t registro) {
 
 	return resultadoRetorno;
 
+}
+
+
+void enviarRequestFS(char* input) {
+	lfsSocket = conectarLFS(); //TODO: NO DEJARLA COMO GLOBAL
+
+	Operacion request;
+	request.TipoDeMensaje = COMANDO;
+
+	request.Argumentos.COMANDO.comandoParseable = string_from_format(input);
+
+	send_msg(lfsSocket, request);
+
+	destruir_operacion(request);
+}
+
+Operacion recibirRequestFS(void) {
+	Operacion resultado;
+	resultado = recv_msg(lfsSocket);
+	return resultado;
 }
