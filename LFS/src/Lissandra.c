@@ -203,6 +203,8 @@ Operacion ejecutarOperacion(char* input){ //TODO: TIPO de retorno Resultado
 			retorno = createAPI(*parsed);
 			break;
 		case DESCRIBE:
+			describeAPI(*parsed);
+			break;
 		case DROP:
 			break;
 		default:
