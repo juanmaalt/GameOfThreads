@@ -26,6 +26,7 @@ int hayPaginaDisponible(void);
 
 void insertarPaginaDeSegmento(char* , uint16_t , segmento_t * );
 
+void actualizarValueDeKey(char *, registroTablaPag_t *);
 //Comunicacion con FS
 Operacion recibirRequestFS(void);
 void enviarRequestFS(char* );

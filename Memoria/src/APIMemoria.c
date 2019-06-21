@@ -104,6 +104,7 @@ Operacion selectAPI(char* input, Comando comando) {
 
 			resultadoSelect.TipoDeMensaje = REGISTRO;
 			return resultadoSelect;
+
 		}else{
 			printf(YEL"APIMemoria.c: select: no encontro la key. Enviar a LFS la request"STD"\n"); //TODO: meter en log
 			//TODO: Enviar a LFS la request
@@ -111,6 +112,7 @@ Operacion selectAPI(char* input, Comando comando) {
 
 			resultadoSelect.TipoDeMensaje = REGISTRO;
 			resultadoSelect=recibirRequestFS();
+
 			//INSERTAR VALOR EN BLOQUE DE MEMORIA Y METER CREAR REGISTRO EN TABLA DE PAGINAS DEL SEGMENTO
 			//Recibo el valor (el marcoRecibido/registro entero ya parseado al ser recibido como un char*)
 			//
@@ -159,6 +161,9 @@ Operacion selectAPI(char* input, Comando comando) {
 // INSERT [NOMBRE_TABLA] [KEY] “[VALUE]”
 //Ej:
 //INSERT TABLA1 3 “Mi nombre es Lissandra”
+
+
+
 Operacion insertAPI(char* input, Comando comando) {
 
 	Operacion resultadoInsert;
@@ -184,13 +189,7 @@ Operacion insertAPI(char* input, Comando comando) {
 
 			//remover_comillas(comando.argumentos.INSERT.value);
 
-			void * direccionMarco = memoriaPrincipal.memoria
-					+ memoriaPrincipal.tamanioMarco * registroBuscado->nroMarco;
-			timestamp_t tsActualizado = getCurrentTime();
-
-			memcpy(direccionMarco, &tsActualizado, sizeof(timestamp_t));
-			strcpy(direccionMarco + sizeof(timestamp_t) + sizeof(uint16_t),
-					comando.argumentos.INSERT.value);
+			actualizarValueDeKey(comando.argumentos.INSERT.value, registroBuscado);
 
 			printf("Se realizo el INSERT\n");
 
@@ -204,8 +203,7 @@ Operacion insertAPI(char* input, Comando comando) {
 
 		} else {//No contiene la KEY, se solicita una nueva página para almacenar la misma.
 
-			insertarPaginaDeSegmento(comando.argumentos.INSERT.value,
-					keyBuscada, segmentoSeleccionado);
+			insertarPaginaDeSegmento(comando.argumentos.INSERT.value, keyBuscada, segmentoSeleccionado);
 
 			resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
 			resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format(
@@ -510,6 +508,15 @@ Operacion tomarContenidoPagina(registroTablaPag_t registro) {
 
 }
 
+void actualizarValueDeKey(char *value, registroTablaPag_t *registro){
+	void * direccionMarco = memoriaPrincipal.memoria + memoriaPrincipal.tamanioMarco * registro->nroMarco;
+
+	timestamp_t tsActualizado = getCurrentTime();
+
+	memcpy(direccionMarco, &tsActualizado, sizeof(timestamp_t));
+	strcpy(direccionMarco + sizeof(timestamp_t) + sizeof(uint16_t),value);
+
+}
 
 void enviarRequestFS(char* input) {
 	lfsSocket = conectarLFS(); //TODO: NO DEJARLA COMO GLOBAL
