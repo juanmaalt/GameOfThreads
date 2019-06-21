@@ -13,9 +13,10 @@
 #include <commons/process.h>
 #include <random/random_numbers.h>
 #include "Planificador.h"
+#include "Sistema_de_criterios.h"
 
 typedef struct pcb_t PCB;
-typedef enum flag_e Flag;
+typedef int socket_t;
 
 typedef enum{
 	DESALOJO,

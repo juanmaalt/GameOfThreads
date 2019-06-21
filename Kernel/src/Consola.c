@@ -33,6 +33,10 @@ void *recibir_comandos(void *null){
 	            	}//Aca no se libera userImput, se libera en unidad_de_ejecucion.c con el nombre de pcb->data
 	            	break;
 	            case ADDMEMORY:
+	            	if(add_memory(parsed->argumentos.ADDMEMORY.numero, parsed->argumentos.ADDMEMORY.criterio) == EXIT_FAILURE){
+	            		log_error(logger_error, "Consola.c: add_memory: fallo la asociacion de la memoria al criterio");
+	            		log_error(logger_invisible, "Consola.c: add_memory: fallo la asociacion de la memoria al criterio");
+	            	}
 	            	break;
 
 	            case RUN:

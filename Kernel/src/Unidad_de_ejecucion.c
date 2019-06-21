@@ -11,8 +11,9 @@
 static int exec_file_lql(PCB *pcb);
 static int exec_string_comando(PCB *pcb);
 static int loggear_operacion(Operacion op);
-static int conectarse_con_memoria_segun_request(PCB *pcb);
-static int comunicarse_con_memoria();
+static socket_t direccionar_request(char *request);
+static socket_t comunicarse_con_memoria();
+static socket_t comunicarse_con_memoria_principal();
 
 void *exec(void *null){
 	pthread_detach(pthread_self());
@@ -38,23 +39,60 @@ void *exec(void *null){
 
 
 
-static int conectarse_con_memoria_segun_request(PCB *pcb){
-	//hacer algo loco de para elegir segun criterio. Le paso la pcb por que tiene la request
-	return comunicarse_con_memoria(fconfig.ip_memoria, fconfig.puerto_memoria);
+static socket_t direccionar_request(char *request){
+	Comando comando = parsear_comando(request);
+	Memoria *memoria;
+	switch(comando.keyword){//A esta altura ya nos aseguramos de que el comando habia sido valido
+	case SELECT:
+		memoria = determinar_memoria_para_tabla(comando.argumentos.SELECT.nombreTabla);
+		break;
+	case INSERT:
+		memoria = determinar_memoria_para_tabla(comando.argumentos.INSERT.nombreTabla);
+		break;
+	case CREATE:
+		memoria = determinar_memoria_para_tabla(comando.argumentos.CREATE.nombreTabla);
+		break;
+	case DESCRIBE:
+		memoria = determinar_memoria_para_tabla(comando.argumentos.DESCRIBE.nombreTabla);
+		break;
+	case DROP:
+		memoria = determinar_memoria_para_tabla(comando.argumentos.DROP.nombreTabla);
+		break;
+	default:
+		return EXIT_FAILURE;
+	}
+	destruir_comando(comando);
+
+	if(memoria == NULL){
+		printf(YEL"Warning: se esta trabajando sin seleccion de criterios. La request es atendida por la memoria principal\n"STD);
+		log_info(logger_invisible, "Warning: se esta trabajando sin seleccion de criterios. La request es atendida por la memoria principal");
+		return comunicarse_con_memoria_principal();
+	}else{
+		return comunicarse_con_memoria(memoria);
+	}
 }
 
 
-
-
-
-static int comunicarse_con_memoria(char *ip, char *puerto){
+static socket_t comunicarse_con_memoria(Memoria *memoria){
 	int socketServer;
-	if((socketServer = connect_to_server(ip, puerto)) == EXIT_FAILURE){
-		log_error(logger_error, "Planificador.c: comunicarse_con_memoria: error al conectarse al servidor memoria %s:%s", ip, puerto);
-		log_error(logger_invisible, "Planificador.c: comunicarse_con_memoria: error al conectarse al servidor memoria %s:%s", ip, puerto);
+	if((socketServer = connect_to_server(memoria->ip, memoria->puerto)) == EXIT_FAILURE){
+		log_error(logger_error, "Planificador.c: comunicarse_con_memoria: error al conectarse al servidor memoria %s:%s", memoria->ip, memoria->puerto);
+		log_error(logger_invisible, "Planificador.c: comunicarse_con_memoria: error al conectarse al servidor memoria %s:%s", memoria->ip, memoria->puerto);
 		return EXIT_FAILURE;
 	}
-	log_info(logger_invisible, "Conectado a la memoria %s:%s", ip, puerto);
+	log_info(logger_invisible, "Conectado a la memoria %s:%s", memoria->ip, memoria->puerto);
+	return socketServer;
+}
+
+
+static socket_t comunicarse_con_memoria_principal(){
+	int socketServer;
+	if((socketServer = connect_to_server(fconfig.ip_memoria_principal, fconfig.puerto_memoria_principal)) == EXIT_FAILURE){
+		log_error(logger_error, "Planificador.c: comunicarse_con_memoria: error al conectarse al servidor memoria %s:%s", fconfig.ip_memoria_principal, fconfig.puerto_memoria_principal);
+		log_error(logger_invisible, "Planificador.c: comunicarse_con_memoria: error al conectarse al servidor memoria %s:%s", fconfig.ip_memoria_principal, fconfig.puerto_memoria_principal);
+		return EXIT_FAILURE;
+	}
+	log_info(logger_invisible, "Conectado a la memoria %s:%s", fconfig.ip_memoria_principal, fconfig.puerto_memoria_principal);
 	return socketServer;
 }
 
@@ -63,7 +101,7 @@ static int comunicarse_con_memoria(char *ip, char *puerto){
 
 
 static int exec_string_comando(PCB *pcb){
-	int socketTarget = conectarse_con_memoria_segun_request(pcb);
+	int socketTarget = direccionar_request((char *)pcb->data);
 	Operacion request;
 
 	request.opCode = getNumber();
@@ -93,15 +131,14 @@ static int exec_file_lql(PCB *pcb){
 	int quantumBuffer = vconfig.quantum(); //Para hacer la llamada una sola vez por cada exec. No se actualiza el quantum en tiempo real, pero se actualiza cuando entra un nuevo script por que ya tiene el valor actualizado
 
 	for(int i=1; i<=quantumBuffer; ++i){
-		int socketTarget = conectarse_con_memoria_segun_request(pcb);
 		line = fgets(buffer, MAX_BUFFER_SIZE_FOR_LQL_LINE, lql);
 		if(line == NULL || feof(lql)){
 			printf("\n");
 			fclose(lql);
 			free(pcb);
-			close(socketTarget);
 			return FINALIZO;
 		}
+		int socketTarget = direccionar_request(line);
 		request.opCode = getNumber();
 		request.TipoDeMensaje = COMANDO;
 		request.Argumentos.COMANDO.comandoParseable = line;

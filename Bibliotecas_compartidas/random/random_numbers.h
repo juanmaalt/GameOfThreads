@@ -21,4 +21,10 @@
 	*/
 	id getNumber();
 
+	/**
+	* @NAME: getNumberUntil
+	* @DESC: devuelve un numero entero positivo random de 0 hasta un rango maximo pasado por parametro
+	*/
+	id getNumberUntil(int maximo);
+
 #endif /* RANDOM_RANDOM_NUMBERS_H_ */

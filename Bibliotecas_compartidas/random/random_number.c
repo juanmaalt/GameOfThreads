@@ -10,3 +10,10 @@
 id getNumber(){
 	return rand() % (RANGO_MAX - RANGO_MIN +1) + RANGO_MIN;
 }
+
+id getNumberUntil(int maximo){
+	if(maximo > 1)
+		return rand() % (maximo - 1);
+	else
+		return 0;
+}
