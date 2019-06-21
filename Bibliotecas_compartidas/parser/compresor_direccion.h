@@ -14,31 +14,23 @@
 	#include <string.h>
 
 	/**
-	* @NAME: comprimir_direcion
-	* @DESC: comprime una direccion ip y un puerto al formato ip:puerto
-	* @PARAMS:
-	* 		ip - puerto
+	* @NAME: concatenar_tabla
+	* @DESC: concatena a la cadena source la secuencia nro;ip;puerto. Una cadena procesada varias veces quedaria
+	* 		 como nro1;ip1;puerto1;nro2;ip2;puerto2 etc
 	*/
-	char *comprimir_direcion(const char* ip, const char* puerto);
+	void concatenar_tabla(char **source, int numeroMemoria, char *ip, char *puerto);
+
+	/**
+	* @NAME: descomprimir_memoria
+	* @DESC: descomprime una cadena comprimida en cada partes separada por el ;
+	*/
+	char **descomprimir_memoria(char *compresion);
 
 
 	/**
-	* @NAME: descomprimir_direccion
-	* @DESC: devuelve un array de strings para acceder individualmente a la ip y puerto.
-	* 		 por ejemplo char** direcc = descomprimir_direccion("127.0.0.0:8080"); va a ser accesible
-	* 		 como direcc[0] y direcc[1]
-	* @PARAMS:
-	* 		ip - puerto
+	* @NAME: destruir_split_memorias
+	* @DESC: destruye cualquier operacion generada por los descompresores
 	*/
-	char **descomprimir_direccion(char*direccion);
-
-
-	/**
-	* @NAME: descomprimir_direccion
-	* @DESC: libera el arrays de strings generado por descomprimir direccion
-	* @PARAMS:
-	* 		split - operacion generada por descomprimir_direccion
-	*/
-	void destruir_direcciones(char **split);
+	void destruir_split_memorias(char **split);
 
 #endif /* PARSER_COMPRESOR_DIRECCION_H_ */

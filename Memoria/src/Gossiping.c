@@ -107,7 +107,7 @@ void conectarConSeed() {
 	 Operacion request;
 
 	 request.TipoDeMensaje = GOSSIPING_REQUEST;
-	 request.Argumentos.GOSSIPING_REQUEST.ipypuerto = list_get (listaMemoriasConocidas,0 );
+	 //request.Argumentos.GOSSIPING_REQUEST.ipypuerto = list_get (listaMemoriasConocidas,0 );
 	 send_msg(socketSEEDS,request);
 
 

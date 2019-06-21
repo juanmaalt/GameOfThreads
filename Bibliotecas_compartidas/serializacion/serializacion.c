@@ -59,15 +59,13 @@ int send_msg(int socket, Operacion operacion) {
 		break;
 
 	case GOSSIPING_REQUEST:
-		longCadena = strlen(operacion.Argumentos.GOSSIPING_REQUEST.ipypuerto);
-		total = sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(char) * longCadena + sizeof(id); //operacion + fin + nro memoria + long cadena + cadena
+		longCadena = strlen(operacion.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
+		total = sizeof(int) + sizeof(int) +sizeof(char) * longCadena + sizeof(id);
 		content = malloc(total);
-		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int)); //operacion
-		memcpy(content+sizeof(int), &(operacion.Argumentos.GOSSIPING_REQUEST.fin), sizeof(int)); //fin
-		memcpy(content+2*sizeof(int), &(operacion.Argumentos.GOSSIPING_REQUEST.numeroMemoria), sizeof(int)); //nro memoria
-		memcpy(content+3*sizeof(int), &longCadena, sizeof(int)); //long cadena
-		memcpy(content+4*sizeof(int), operacion.Argumentos.GOSSIPING_REQUEST.ipypuerto, sizeof(char)*longCadena); //cadena
-		memcpy(content+4*sizeof(int)+sizeof(char)*longCadena, &(operacion.opCode), sizeof(id));
+		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
+		memcpy(content+sizeof(int), &longCadena, sizeof(int));
+		memcpy(content+2*sizeof(int), operacion.Argumentos.GOSSIPING_REQUEST.resultado_comprimido, sizeof(char)*longCadena);
+		memcpy(content+2*sizeof(int)+sizeof(char)*longCadena, &(operacion.opCode), sizeof(id));
 		break;
 	case GOSSIPING_REQUEST_KERNEL:
 		total = sizeof(int);
@@ -75,15 +73,13 @@ int send_msg(int socket, Operacion operacion) {
 		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
 		break;
 	case DESCRIBE_REQUEST:
-		longCadena = strlen(operacion.Argumentos.DESCRIBE_REQUEST.nombreTabla);
-		total = sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(char)*longCadena + sizeof(id); //operacion + fin + consistencia + long cadena + cadena
+		longCadena = strlen(operacion.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
+		total = sizeof(int) + sizeof(int) + sizeof(char) * longCadena + sizeof(id);
 		content = malloc(total);
-		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int)); //operacion
-		memcpy(content+sizeof(int), &(operacion.Argumentos.DESCRIBE_REQUEST.fin), sizeof(int)); //fin
-		memcpy(content+2*sizeof(int), &(operacion.Argumentos.DESCRIBE_REQUEST.consistencia), sizeof(int)); //consistencia
-		memcpy(content+3*sizeof(int), &longCadena, sizeof(int)); //long cadena
-		memcpy(content+4*sizeof(int), operacion.Argumentos.DESCRIBE_REQUEST.nombreTabla, sizeof(char)*longCadena); //cadena
-		memcpy(content+4*sizeof(int)+sizeof(char)*longCadena, &(operacion.opCode), sizeof(id));
+		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
+		memcpy(content, &longCadena, sizeof(int));
+		memcpy(content+2*sizeof(int), operacion.Argumentos.DESCRIBE_REQUEST.resultado_comprimido, sizeof(char)*longCadena);
+		memcpy(content+2*sizeof(int)+sizeof(char)*longCadena, &(operacion.opCode), sizeof(id));
 		break;
 	default:
 		return EXIT_FAILURE;
@@ -134,22 +130,18 @@ Operacion recv_msg(int socket) {
 		retorno.Argumentos.ERROR.mensajeError[longitud]='\0';
 		break;
 	case GOSSIPING_REQUEST:
-		recv(socket, &(retorno.Argumentos.GOSSIPING_REQUEST.fin), sizeof(int), 0);
-		recv(socket, &(retorno.Argumentos.GOSSIPING_REQUEST.numeroMemoria), sizeof(int), 0);
 		recv(socket, &longitud, sizeof(int), 0);
-		retorno.Argumentos.GOSSIPING_REQUEST.ipypuerto = calloc(longitud+1, sizeof(char));
-		recv(socket, retorno.Argumentos.GOSSIPING_REQUEST.ipypuerto, sizeof(char)*longitud, 0);
-		retorno.Argumentos.GOSSIPING_REQUEST.ipypuerto[longitud] = '\0';
+		retorno.Argumentos.GOSSIPING_REQUEST.resultado_comprimido = calloc(longitud+1, sizeof(char));
+		recv(socket, retorno.Argumentos.GOSSIPING_REQUEST.resultado_comprimido, sizeof(char)*longitud, 0);
+		retorno.Argumentos.GOSSIPING_REQUEST.resultado_comprimido[longitud] = '\0';
 		break;
 	case GOSSIPING_REQUEST_KERNEL:
 		break;
 	case DESCRIBE_REQUEST:
-		recv(socket, &(retorno.Argumentos.DESCRIBE_REQUEST.fin), sizeof(int), 0);
-		recv(socket, &(retorno.Argumentos.DESCRIBE_REQUEST.consistencia), sizeof(int), 0);
 		recv(socket, &longitud, sizeof(int), 0);
-		retorno.Argumentos.DESCRIBE_REQUEST.nombreTabla = calloc(longitud+1, sizeof(char));
-		recv(socket, retorno.Argumentos.DESCRIBE_REQUEST.nombreTabla, sizeof(char)*longitud, 0);
-		retorno.Argumentos.DESCRIBE_REQUEST.nombreTabla[longitud] = '\0';
+		retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido = calloc(longitud+1, sizeof(char));
+		recv(socket, retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido, sizeof(char)*longitud, 0);
+		retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido[longitud] = '\0';
 		break;
 	default:
 		RECV_FAIL("Error en la recepcion del resultado. Tipo de operacion desconocido");
@@ -177,12 +169,12 @@ void destruir_operacion(Operacion op) {
 			free(op.Argumentos.ERROR.mensajeError);
 		return;
 	case GOSSIPING_REQUEST:
-		if(op.Argumentos.GOSSIPING_REQUEST.ipypuerto != NULL)
-			free(op.Argumentos.GOSSIPING_REQUEST.ipypuerto);
+		if(op.Argumentos.GOSSIPING_REQUEST.resultado_comprimido != NULL)
+			free(op.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 		return;
 	case DESCRIBE_REQUEST:
-		if(op.Argumentos.DESCRIBE_REQUEST.nombreTabla != NULL)
-			free(op.Argumentos.DESCRIBE_REQUEST.nombreTabla);
+		if(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido != NULL)
+			free(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
 		return;
 	}
 
