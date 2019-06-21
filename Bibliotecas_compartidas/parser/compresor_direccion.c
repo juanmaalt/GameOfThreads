@@ -8,15 +8,20 @@
 
 #include "compresor_direccion.h"
 
-char *comprimir_direccion(const char* ip, const char* puerto){
-	return string_from_format("%s:%s", ip, puerto);
+void concatenar_memoria(char **source, int numeroMemoria, char *ip, char *puerto){
+	string_append(source, string_from_format("%d", numeroMemoria));
+	string_append(source, ";");
+	string_append(source, ip);
+	string_append(source, ";");
+	string_append(source, puerto);
+	string_append(source, ";");
 }
 
-char **descomprimir_direccion(char *direccion){
-	return string_split(direccion, ":");
+char **descomprimir_memoria(char *compresion){
+	return string_split(compresion, ";");
 }
 
-void destruir_direcciones(char **split){
+void destruir_split_memorias(char **split){
 	if(split){
 		string_iterate_lines(split, (void *)free);
 		free(split);

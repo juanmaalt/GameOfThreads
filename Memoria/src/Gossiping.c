@@ -120,6 +120,7 @@ void conectarConSeed() {
 	 request.TipoDeMensaje = GOSSIPING_REQUEST;
 	 for(int i = 0; list_size (listaMemoriasConocidas) >= 1; i++){
 	 request.Argumentos.GOSSIPING_REQUEST.ipypuerto = list_get (listaMemoriasConocidas,0 );
+
 	 send_msg(socketSEEDS,request);
 	 }
 

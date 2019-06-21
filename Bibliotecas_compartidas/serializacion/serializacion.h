@@ -50,16 +50,12 @@ typedef struct{
 			char* mensajeError;
 		}ERROR;
 		struct{
-			int fin; //Por default en 0 (falso), indica si es el fin de archivo. Poner en 1 cuando se mande la ultima request
-			int numeroMemoria;
-			char *ipypuerto;
+			char *resultado_comprimido;
 		}GOSSIPING_REQUEST;
 		struct{
 		}GOSSIPING_REQUEST_KERNEL;
 		struct{
-			int fin; //Por default en 0 (falso), indica si es el fin de archivo. Poner en 1 cuando se mande la ultima request
-			Consistencia consistencia;
-			char *nombreTabla;
+			char *resultado_comprimido;
 		}DESCRIBE_REQUEST;
 	}Argumentos;
 }Operacion;
