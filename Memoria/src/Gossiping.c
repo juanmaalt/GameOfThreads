@@ -9,8 +9,11 @@
 #include "Gossiping.h"
 
 int iniciar_gossiping() {
-	char * envio = "";
-	char * ip_port_compresed = concatenar_memoria(envio,fconfig.numero_memoria,fconfig.ip , fconfig.puerto);
+
+
+	char * ip_port_compresed = string_from_format("%s:%s", fconfig.ip, fconfig.puerto);
+//	char * ip_port_compresed =
+
 	//char * ip_port_compresed = string_from_format("%s:%s", fconfig.ip, fconfig.puerto);
 	printf("IP propia : %s\n", ip_port_compresed);
 	quitarCaracteresPpioFin(fconfig.ip_seeds);
@@ -20,7 +23,7 @@ int iniciar_gossiping() {
 	IPsPorts = string_split(fconfig.puerto_seeds, ",");
 	listaMemoriasConocidas = list_create();
 
-	//Reservo espacio para un MCB
+	//Reservo espacio para un knownMemory_t
 	knownMemory_t * mem = malloc(sizeof(int)+ sizeof(ip_port_compresed)+1 ) ;
 			//Asigno a sus atributos los valores correspondientes
 			mem->memory_number = fconfig.numero_memoria;
@@ -117,9 +120,10 @@ void conectarConSeed() {
 
  void ConsultoPorMemoriasConocidas(int socketSEEDS) {
 	 Operacion request;
+	 //char ** envio = "";
 
 	 request.TipoDeMensaje = GOSSIPING_REQUEST;
-
+		concatenar_memoria(/*envio*/IPs,/*fconfig.numero_memoria*/2,fconfig.ip , fconfig.puerto);
 	 request.Argumentos.GOSSIPING_REQUEST.resultado_comprimido = list_get (listaMemoriasConocidas,0 );
 
 	 send_msg(socketSEEDS,request);
