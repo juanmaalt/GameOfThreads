@@ -15,6 +15,10 @@ static socket_t direccionar_request(char *request);
 static socket_t comunicarse_con_memoria();
 static socket_t comunicarse_con_memoria_principal();
 
+
+
+
+
 void *exec(void *null){
 	pthread_detach(pthread_self());
 	for(;;){
@@ -40,6 +44,9 @@ void *exec(void *null){
 
 
 static socket_t direccionar_request(char *request){
+	if(USAR_SOLO_MEMORIA_PRINCIPAL){
+		return comunicarse_con_memoria_principal();
+	}
 	Comando comando = parsear_comando(request);
 	Memoria *memoria;
 	switch(comando.keyword){//A esta altura ya nos aseguramos de que el comando habia sido valido
@@ -64,13 +71,18 @@ static socket_t direccionar_request(char *request){
 	destruir_comando(comando);
 
 	if(memoria == NULL){
-		printf(YEL"Warning: se esta trabajando sin seleccion de criterios. La request es atendida por la memoria principal\n"STD);
-		log_info(logger_invisible, "Warning: se esta trabajando sin seleccion de criterios. La request es atendida por la memoria principal");
-		return comunicarse_con_memoria_principal();
-	}else{
-		return comunicarse_con_memoria(memoria);
+		if(DELEGAR_A_MEMORIA_PRINCIPAL){
+			printf(YEL"Warning: la request %s se delego a la memoria principal\n"STD, request);
+			log_info(logger_invisible, "Warning: la request %s se delego a la memoria principal", request);
+			return comunicarse_con_memoria_principal();
+		}
+		return EXIT_FAILURE;
 	}
+	return comunicarse_con_memoria(memoria);
 }
+
+
+
 
 
 static socket_t comunicarse_con_memoria(Memoria *memoria){
@@ -85,11 +97,14 @@ static socket_t comunicarse_con_memoria(Memoria *memoria){
 }
 
 
+
+
+
 static socket_t comunicarse_con_memoria_principal(){
 	int socketServer;
 	if((socketServer = connect_to_server(fconfig.ip_memoria_principal, fconfig.puerto_memoria_principal)) == EXIT_FAILURE){
-		log_error(logger_error, "Planificador.c: comunicarse_con_memoria: error al conectarse al servidor memoria %s:%s", fconfig.ip_memoria_principal, fconfig.puerto_memoria_principal);
-		log_error(logger_invisible, "Planificador.c: comunicarse_con_memoria: error al conectarse al servidor memoria %s:%s", fconfig.ip_memoria_principal, fconfig.puerto_memoria_principal);
+		log_error(logger_error, "Unidad_de_ejecucion.c: comunicarse_con_memoria_principal: error al conectarse al servidor memoria %s:%s", fconfig.ip_memoria_principal, fconfig.puerto_memoria_principal);
+		log_error(logger_invisible, "Unidad_de_ejecucion.c: comunicarse_con_memoria_principal: error al conectarse al servidor memoria %s:%s", fconfig.ip_memoria_principal, fconfig.puerto_memoria_principal);
 		return EXIT_FAILURE;
 	}
 	log_info(logger_invisible, "Conectado a la memoria %s:%s", fconfig.ip_memoria_principal, fconfig.puerto_memoria_principal);
@@ -102,6 +117,13 @@ static socket_t comunicarse_con_memoria_principal(){
 
 static int exec_string_comando(PCB *pcb){
 	int socketTarget = direccionar_request((char *)pcb->data);
+	if(socketTarget == EXIT_FAILURE){
+		free(pcb->data);
+		free(pcb);
+		log_error(logger_error, "Unidad_de_ejecucion.c: exec_string_comando: no se pudo direccionar la request");
+		log_error(logger_invisible, "Unidad_de_ejecucion.c: exec_string_comando: no se pudo direccionar la request");
+		return INSTRUCCION_ERROR;
+	}
 	Operacion request;
 
 	request.opCode = getNumber();
@@ -139,6 +161,14 @@ static int exec_file_lql(PCB *pcb){
 			return FINALIZO;
 		}
 		int socketTarget = direccionar_request(line);
+		if(socketTarget == EXIT_FAILURE){
+			printf("\n");
+			fclose(lql);
+			free(pcb);
+			log_error(logger_error, "Unidad_de_ejecucion.c: exec_file_lql: no se pudo direccionar la request");
+			log_error(logger_invisible, "Unidad_de_ejecucion.c: exec_file_lql: no se pudo direccionar la request");
+			return INSTRUCCION_ERROR;
+		}
 		request.opCode = getNumber();
 		request.TipoDeMensaje = COMANDO;
 		request.Argumentos.COMANDO.comandoParseable = line;
@@ -148,7 +178,7 @@ static int exec_file_lql(PCB *pcb){
 			fclose(lql);
 			free(pcb);
 			close(socketTarget);
-			return FINALIZO;
+			return INSTRUCCION_ERROR;
 		}
 		close(socketTarget);
 	}

@@ -13,6 +13,7 @@
 #include <consistencias/consistencias.h>
 #include <commons/collections/list.h>
 #include <random/random_numbers.h>
+#include <hash/hash_sc.h>
 #include <stdbool.h>
 #include "Unidad_de_ejecucion.h"
 
@@ -33,10 +34,8 @@ typedef struct {
 			Memoria *memoriaAsignada;
 		}SC;
 		struct{
-
 		}SHC;
 		struct{
-
 		}EC;
 	}Consistencia;
 }MetadataTabla;
@@ -45,7 +44,7 @@ typedef struct {
 
 //VARIABLES: Globales
 t_list *memoriasSC;
-t_list *memoriasSHC;
+t_list *memoriasHSC;
 t_list *memoriasEC;
 t_list *memoriasExistentes; //Union de los 3 conjuntos de arriba
 t_list *tablasExistentes;
