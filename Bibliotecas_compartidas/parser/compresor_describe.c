@@ -10,7 +10,7 @@
 void concatenar_tabla(char **source, char *tabla, Consistencia consistencia){
 	string_append(source, tabla);
 	string_append(source, ";");
-	string_append(source, itoa(consistencia));
+	string_append(source, string_from_format("%d", consistencia));
 	string_append(source, ";");
 }
 

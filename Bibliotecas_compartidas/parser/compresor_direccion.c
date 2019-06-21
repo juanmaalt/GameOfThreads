@@ -9,7 +9,7 @@
 #include "compresor_direccion.h"
 
 void concatenar_memoria(char **source, int numeroMemoria, char *ip, char *puerto){
-	string_append(source, itoa(numeroMemoria));
+	string_append(source, string_from_format("%d", numeroMemoria));
 	string_append(source, ";");
 	string_append(source, ip);
 	string_append(source, ";");
