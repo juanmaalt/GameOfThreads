@@ -9,7 +9,8 @@
 #include "Gossiping.h"
 
 int iniciar_gossiping() {
-	char * ip_port_compresed = comprimir_direccion(fconfig.ip , fconfig.puerto);
+	char * envio = "";
+	char * ip_port_compresed = concatenar_memoria(envio,fconfig.numero_memoria,fconfig.ip , fconfig.puerto);
 	//char * ip_port_compresed = string_from_format("%s:%s", fconfig.ip, fconfig.puerto);
 	printf("IP propia : %s\n", ip_port_compresed);
 	quitarCaracteresPpioFin(fconfig.ip_seeds);
@@ -118,12 +119,12 @@ void conectarConSeed() {
 	 Operacion request;
 
 	 request.TipoDeMensaje = GOSSIPING_REQUEST;
-	 for(int i = 0; list_size (listaMemoriasConocidas) >= 1; i++){
-	 request.Argumentos.GOSSIPING_REQUEST.ipypuerto = list_get (listaMemoriasConocidas,0 );
+
+	 request.Argumentos.GOSSIPING_REQUEST.resultado_comprimido = list_get (listaMemoriasConocidas,0 );
 
 	 send_msg(socketSEEDS,request);
-	 }
 
+	 //request = recv_msg(socketSEEDS);
 
  //char *tamanio = recv_msg(socketSEEDS, &tipo);
 /*
