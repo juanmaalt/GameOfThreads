@@ -18,7 +18,7 @@ Metadata_tabla metadata;
 Operacion selectAPI(Comando comando);
 Operacion insertAPI(Comando comando);
 Operacion createAPI(Comando);
-void describeAPI(Comando);
+Operacion describeAPI(Comando);
 void dropAPI(Comando);
 
 //COMPLEMENTARIAS

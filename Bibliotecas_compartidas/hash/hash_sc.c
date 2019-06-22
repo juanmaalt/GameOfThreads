@@ -7,12 +7,12 @@
 
 #include "hash_sc.h"
 
-hash getHash(char *imput, unsigned int limite){
+hash getHash(char *input, unsigned int limite){
 	if(limite < 1)
 		return 0;
 	int acumulador = 1;
-	for(int i=0; i<strlen(imput); ++i){
-		acumulador += imput[i];
+	for(int i=0; i<strlen(input); ++i){
+		acumulador += input[i];
 	}
 	return (acumulador % (limite - 1))-1;
 }

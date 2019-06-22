@@ -43,10 +43,14 @@ Operacion selectAPI(Comando comando){
 
 	/*Calculo el nro de partición en la que se encuentra la key*/
 	int particionNbr = calcularParticionNbr(comando.argumentos.SELECT.key, metadata.partitions);
+	printf("Partición Nro: %d", particionNbr);
 
 	/*Creo la lista de valores que condicen con dicha key*/
 	t_list* listaDeValues = list_create();
-	buscarValue(data, listaDeValues, comando.argumentos.SELECT.key, particionNbr);
+
+	//buscarValue(data, listaDeValues, comando.argumentos.SELECT.key, particionNbr);
+
+	listaDeValues=buscarValueEnLista(data, comando.argumentos.SELECT.key);
 
 	/*Recorro la tabla y obtengo el valor más reciente*/
 	//recorrerTabla(listaDeValues);//Función ad-hoc para testing
@@ -172,13 +176,18 @@ Operacion createAPI(Comando comando){
 }
 
 
-void describeAPI(Comando comando){
+Operacion describeAPI(Comando comando){
+	/*Creo variable resultado del tipo Operacion para devolver el mensaje*/
+	Operacion resultadoDescribe;
+	resultadoDescribe.TipoDeMensaje = ERROR;
+
 	char* path = malloc(100 * sizeof(char));
 	DIR *dir;
 	struct dirent *entry;
 	//Operacion op;
 	char* nombreCarpeta;
 	//int consistencia;
+	//char* string=NULL;
 
 	strcpy(path,config.punto_montaje);
 	strcat(path, "Tables/");
@@ -194,7 +203,8 @@ void describeAPI(Comando comando){
 		  }
 			closedir (dir);
 		}else{
-			return perror (RED"No existe la carpeta solicitada"STD);
+			strcpy(resultadoDescribe.Argumentos.ERROR.mensajeError,"No existe la carpeta solicitada");
+			return resultadoDescribe;
 		}
 	}else{
 		strcat(path, comando.argumentos.DESCRIBE.nombreTabla);
@@ -202,7 +212,8 @@ void describeAPI(Comando comando){
 			printf(BLU"Existe la carpeta de la Tabla\n"STD);
 		}
 		else{
-			return perror (RED"No existe la carpeta solicitada"STD);
+			strcpy(resultadoDescribe.Argumentos.ERROR.mensajeError,"No existe la carpeta solicitada");
+			return resultadoDescribe;
 		}
 	}
 
@@ -225,6 +236,8 @@ void describeAPI(Comando comando){
 		op.nombreTabla="DESCRIBE: Te las recibiste todas chinwenwencha";
 		op.consistencia=0; //enum de null
 	*/
+
+	return resultadoDescribe;
 }
 
 
