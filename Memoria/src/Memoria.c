@@ -53,7 +53,7 @@ int main(void) {
 	printf("Memoria Inicializada correctamente\n");
 
 	//TODO:GOSSIPING
-	iniciar_gossiping();
+	//iniciar_gossiping();
 
 	//FUNCIONES PARA TEST DE SELECT
 	memoriaConUnSegmentoYUnaPagina();
@@ -139,6 +139,7 @@ void *connection_handler(void *nSocket) {
 
 int realizarHandshake(void) {
 	lfsSocket = conectarLFS();
+	log_info(logger_visible, "Conectado al LFS. Iniciando Handshake.");
 	if(handshakeLFS(lfsSocket)==EXIT_FAILURE){
 		return EXIT_FAILURE;
 	}
@@ -210,8 +211,6 @@ int conectarLFS() {
 		log_error(logger_visible,"El LFS no está levantado. Cerrar la Memoria, levantar el LFS y volver a levantar la Memoria");
 		return EXIT_FAILURE;
 	}
-	log_info(logger_visible, "Conectado al LFS. Iniciando Handshake.");
-
 	return socket;
 }
 
