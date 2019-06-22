@@ -21,10 +21,10 @@
 	void concatenar_tabla(char **source, char *tabla, Consistencia consistencia);
 
 	/**
-	* @NAME: descomprimir_tablas
+	* @NAME: descomprimir_describe
 	* @DESC: descomprime una cadena en cad aparte separada por el ;
 	*/
-	char **descomprimir_tablas(char *compresion);
+	char **descomprimir_describe(char *compresion);
 
 
 	/**
