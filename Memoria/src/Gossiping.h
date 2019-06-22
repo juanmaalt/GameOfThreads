@@ -18,8 +18,8 @@
 //Memorias conocidas
 typedef struct knownMemory {
 	int memory_number;
-	char *ipandport ;
-	//char *ip_port;
+	char *ip ;
+	char *ip_port;
 }knownMemory_t;
 
 t_list* listaMemoriasConocidas;
@@ -41,4 +41,5 @@ void *conectar_seeds(void*);
 void *recibir_seeds(void*);
 void ConsultoPorMemoriasConocidas(int );
 Operacion recibir_gossiping (Operacion);
+static knownMemory_t *machearMemoria(int );
 #endif /* GOSSIPING_H_ */

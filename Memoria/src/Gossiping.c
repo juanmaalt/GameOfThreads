@@ -24,10 +24,11 @@ int iniciar_gossiping() {
 	listaMemoriasConocidas = list_create();
 
 	//Reservo espacio para un knownMemory_t
-	knownMemory_t * mem = malloc(sizeof(int)+ sizeof(ip_port_compresed)+1 ) ;
+	knownMemory_t * mem = malloc(sizeof(knownMemory_t)/*sizeof(int)+ sizeof(ip_port_compresed)+1*/ ) ;
 			//Asigno a sus atributos los valores correspondientes
-			mem->memory_number = fconfig.numero_memoria;
-			mem->ipandport = ip_port_compresed;
+			mem->memory_number = atoi(fconfig.numero_memoria);
+			mem->ip = fconfig.ip;
+			mem->ip_port = fconfig.puerto;
 
 			list_add(listaMemoriasConocidas, (knownMemory_t *) mem);
 	for (int i = 0; IPs[i] != NULL; ++i)	//Muestro por pantalla las IP seeds
@@ -121,11 +122,16 @@ void conectarConSeed() {
  void ConsultoPorMemoriasConocidas(int socketSEEDS) {
 	 Operacion request;
 	 char * envio = NULL;
-
+	 knownMemory_t * recupero;
 	 printf("Armo paquete\n");
+	 for(int i = 0; list_size(listaMemoriasConocidas ) > i ; i++) {
+		 printf("Entro en lista\n");
+		 recupero  = (knownMemory_t *)list_get(listaMemoriasConocidas , i);
 
-		concatenar_memoria(&envio,/*fconfig.numero_memoria*/2  ,fconfig.ip , fconfig.puerto);
-		//for (int i=0 ; envio[i] == NULL;i++ )
+		 concatenar_memoria(&envio, string_from_format("%d", recupero->memory_number) ,recupero->ip , recupero->ip_port);
+	 }
+		//concatenar_memoria(&envio,fconfig.numero_memoria  ,fconfig.ip , fconfig.puerto);
+
 			printf("Mensaje corrido: %s \n",envio);
 		request.TipoDeMensaje = GOSSIPING_REQUEST;
 		printf("Paquete armado\n");
@@ -135,6 +141,26 @@ void conectarConSeed() {
 	 printf("Envio\n");
 	 request = recv_msg(socketSEEDS);
 	 printf("Respuesta\n");
+
+
+
+	 char **descompresion = descomprimir_memoria(request.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
+		printf("Mensaje corrido recibido: %s \n",request.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
+	 	for(int i=0; descompresion[i]!=NULL; i+=3){
+	 		knownMemory_t *memoria;
+	 		if((memoria = machearMemoria(atoi(descompresion[i]))) == NULL){
+	 			knownMemory_t *memoria = malloc(sizeof(knownMemory_t));
+	 			memoria->memory_number = atoi(descompresion[i]);
+	 			memoria->ip = descompresion[i+1];
+		 		memoria->ip_port = descompresion[i+2];
+	 			list_add(listaMemoriasConocidas, memoria);
+	 		}
+
+
+	 	}
+	 	destruir_split_memorias(descompresion);
+
+	 	printf("Fin GOSSIP\n");
 
  //char *tamanio = recv_msg(socketSEEDS, &tipo);
 /*
@@ -149,6 +175,66 @@ void conectarConSeed() {
 
 
 Operacion recibir_gossiping (Operacion resultado){
+	knownMemory_t * recupero;
+	char * envio = NULL;
+	printf("ENTRO FUNCION RECIBIR GOSSIPING\n");
+	/*char **descompresion = descomprimir_memoria(resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
+		for(int i=0; descompresion[0]!=NULL; i+=3){
+			if(memoria_esta_en_la_lista(atoi(descompresion[i])));
+				continue;
+				knownMemory_t *memoria = malloc(sizeof(knownMemory_t));
+			memoria->memory_number = atoi(descompresion[i]);
+			memoria->ip = descompresion[i+1];
+			memoria->ip_port = descompresion[i+2];
+
+			int tamaño = list_size(list_filter (listaMemoriasConocidas,comparoMemorias) );
+			list_add(listaMemoriasConocidas, (knownMemory_t *) memoria);
+		}*/
+
+
+	char **descompresion = descomprimir_memoria(resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
+	for(int i=0; descompresion[i]!=NULL; i+=3){
+		knownMemory_t *memoria;
+		if((memoria = machearMemoria(atoi(descompresion[i]))) == NULL){
+			printf("NO MACHEA\n");
+			knownMemory_t *memoria = malloc(sizeof(knownMemory_t));
+			memoria->memory_number = atoi(descompresion[i]);
+			memoria->ip = descompresion[i+1];
+			memoria->ip_port = descompresion[i+2];
+			list_add(listaMemoriasConocidas, memoria);
+		}
+		printf("AGREGO EN LISTA\n %s\n%s\n%s\n",descompresion[i],descompresion[i+1],descompresion[i+2]);
+		//memoria->memory_number = atoi(descompresion[i]);
+		printf("MODIFIQUE NUMERO\n");
+		//memoria->ip = descompresion[i+1];
+		//memoria->ip_port = descompresion[i+2];
+		printf("YA MODIFICO VALORES LISTA\n");
+	}
+	destruir_split_memorias(descompresion);
+	// Ya agregue las memorias que me llegaron
+	// Logica para enviar mi lista
+	printf("Lista actualizada\n");
+
+	for(int i = 0; list_size(listaMemoriasConocidas ) > i ; i++) {
+			 printf("Entro en lista\n");
+			 recupero  = (knownMemory_t *)list_get(listaMemoriasConocidas , i);
+
+			 concatenar_memoria(&envio, string_from_format("%d", recupero->memory_number) ,recupero->ip , recupero->ip_port);
+		 }
+	resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido = envio;
+
+
+
+
+
+
 	return resultado;
 }
 
+
+static knownMemory_t *machearMemoria(int numeroMemoria){
+	bool buscar(void *elemento){
+		return numeroMemoria == ((knownMemory_t*)elemento)->memory_number;
+	}
+	return (knownMemory_t*)list_find(listaMemoriasConocidas, buscar);
+}

@@ -120,7 +120,7 @@ void *connection_handler(void *nSocket) {
 	case ERROR:
 		break;
 	case GOSSIPING_REQUEST:
-		recibir_gossiping(resultado);
+		resultado = recibir_gossiping(resultado);
 		send_msg(socket, resultado);
 		break;
 	default:
