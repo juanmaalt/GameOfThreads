@@ -224,21 +224,6 @@ Operacion insertAPI(char* input, Comando comando) {
 
 }
 
-int hayPaginaDisponible(void) {
-	return queue_is_empty(memoriaPrincipal.marcosLibres) != true;
-}
-
-void insertarPaginaDeSegmento(char* value, uint16_t key, timestamp_t ts, segmento_t * segmento) {
-	if (hayPaginaDisponible()) {
-		crearRegistroEnTabla(segmento->tablaPaginas,colocarPaginaEnMemoria(ts, key, value));
-//TODO: no olvidar
-		printf("Se ingreso el registro\n");
-
-	} else {//aplicar el algoritmo de reemplazo (LRU) y en caso de que la memoria se encuentre full iniciar el proceso Journal.
-		printf("HACER LRU Y SINO JOURNAL\n");
-	}
-}
-
 /*
  CREATE [TABLA] [TIPO_CONSISTENCIA] [NUMERO_PARTICIONES] [COMPACTION_TIME]
  Ej:
@@ -293,19 +278,6 @@ Operacion describeAPI(char* input, Comando comando) {
  2. Informa al FileSystem dicha operación para que este último realice la operación adecuada.
  *
  * */
-void removerSegmentoDeTabla(segmento_t* segmentoSeleccionado) {
-	bool segmentoCoincidePath(void* comparado) {
-		//printf(RED"pathSegmentoBuscado: %s\npathComparado: %s"STD"\n",pathSegmentoBuscado,obtenerPath((segmento_t*)comparado));
-		if (strcmp(obtenerPath(segmentoSeleccionado),
-				obtenerPath((segmento_t*) comparado))) {
-			return false;
-		}
-		return true;
-	}
-	list_remove_by_condition(tablaSegmentos.listaSegmentos,
-			segmentoCoincidePath);
-
-}
 
 Operacion dropAPI(char* input, Comando comando) {
 	Operacion resultadoDrop;
@@ -352,6 +324,7 @@ Operacion dropAPI(char* input, Comando comando) {
 Operacion journalAPI(){
 	Operacion resultadoJournal;
 	char * input;
+	usleep(vconfig.retardoJOURNAL() * 1000);
 	//char*   string_from_format(const char* format, ...);
 	//1. Por cada MCB en la listaAdminMarcos ver si tiene el flag de modificado
 	//(si en vez de tener en esa lista, lo tengo en la tabla de paginas de cada segmento, ya tengo la tabla PENSAR )
@@ -376,6 +349,21 @@ Operacion journalAPI(){
 
 	}
 	return resultadoJournal;
+}
+
+int hayPaginaDisponible(void) {
+	return queue_is_empty(memoriaPrincipal.marcosLibres) != true;
+}
+
+void insertarPaginaDeSegmento(char* value, uint16_t key, timestamp_t ts, segmento_t * segmento) {
+	if (hayPaginaDisponible()) {
+		crearRegistroEnTabla(segmento->tablaPaginas,colocarPaginaEnMemoria(ts, key, value));
+//TODO: no olvidar
+		printf("Se ingreso el registro\n");
+
+	} else {//aplicar el algoritmo de reemplazo (LRU) y en caso de que la memoria se encuentre full iniciar el proceso Journal.
+		printf("HACER LRU Y SINO JOURNAL\n");
+	}
 }
 
 bool verificarExistenciaSegmento(char* nombreTabla,

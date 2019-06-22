@@ -76,3 +76,17 @@ void liberarRecursos(void) {
 	log_destroy(logger_invisible);
 	log_destroy(logger_visible);
 }
+
+void removerSegmentoDeTabla(segmento_t* segmentoSeleccionado) {
+	bool segmentoCoincidePath(void* comparado) {
+		//printf(RED"pathSegmentoBuscado: %s\npathComparado: %s"STD"\n",pathSegmentoBuscado,obtenerPath((segmento_t*)comparado));
+		if (strcmp(obtenerPath(segmentoSeleccionado),
+				obtenerPath((segmento_t*) comparado))) {
+			return false;
+		}
+		return true;
+	}
+	list_remove_by_condition(tablaSegmentos.listaSegmentos,
+			segmentoCoincidePath);
+
+}

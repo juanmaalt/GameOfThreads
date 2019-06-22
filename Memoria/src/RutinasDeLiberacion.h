@@ -10,9 +10,13 @@
 
 #include "Memoria.h"
 
+typedef struct segmento segmento_t;
+
 void liberarRecursos();
 void liberarMCBs(void* MCBAdestruir);
 void liberarRegistroTablaPags(void* registroAdestruir);
 void liberarSegmento(void* segmentoAdestruir);
+
+void removerSegmentoDeTabla(segmento_t* );
 
 #endif /* RUTINASDELIBERACION_H_ */
