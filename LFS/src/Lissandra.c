@@ -20,8 +20,6 @@ int main(void) {
 	ver_config();
 	//Meter funcion para levantar las variables de tiempo retardo y tiempo_dump
 
-
-	//podria poner un getchar y pedir que se especifique si hay un directorio de fileSystem creado o no
 	/*Inicio el File System*/
 	checkEstructuraFS();
 
@@ -206,7 +204,7 @@ Operacion ejecutarOperacion(char* input){ //TODO: TIPO de retorno Resultado
 			retorno = createAPI(*parsed);
 			break;
 		case DESCRIBE:
-			describeAPI(*parsed);
+			retorno = describeAPI(*parsed);
 			break;
 		case DROP:
 			break;

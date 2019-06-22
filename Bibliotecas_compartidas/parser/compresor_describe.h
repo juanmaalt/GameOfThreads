@@ -18,7 +18,7 @@
 	* @DESC: concatena a la cadena source la secuencia tabla;consistencia. Una cadena procesada varias veces quedaria
 	* 		 como tabla1;cons1;tabla2;cons2;tabla3;cons3 etc
 	*/
-	void concatenar_tabla(char **source, char *tabla, Consistencia consistencia, int numeroParticiones, int tiempoEntreCompactacion);
+	void concatenar_tabla(char **source, char *tabla, char* consistencia, int numeroParticiones, int tiempoEntreCompactacion);
 
 	/**
 	* @NAME: descomprimir_describe

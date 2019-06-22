@@ -10,6 +10,7 @@
 
 #include "../Lissandra.h"
 #include "Metadata.h"
+#include <parser/compresor_describe.h>
 
 //GLOBALES
 Metadata_tabla metadata;
@@ -38,7 +39,7 @@ void crearDirectorioTabla(char* nombreTabla);
 void crearArchivo(char* path, char* nombre);
 void escribirArchivoMetadata(char* path, Comando comando);
 void crearArchivosBinarios(char* path, int particiones);
-
+void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombreTabla, Operacion resultadoDescribe);
 
 //AD-HOC
 void mostrarMetadata();

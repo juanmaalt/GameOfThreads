@@ -181,61 +181,26 @@ Operacion describeAPI(Comando comando){
 	Operacion resultadoDescribe;
 	resultadoDescribe.TipoDeMensaje = ERROR;
 
-	char* path = malloc(100 * sizeof(char));
-	DIR *dir;
-	struct dirent *entry;
-	//Operacion op;
-	char* nombreCarpeta;
-	//int consistencia;
-	//char* string=NULL;
+	/*Reservo espacio para los paths*/
+	char* path = malloc(1000 * sizeof(char));
+	char* pathMetadata = malloc(1000 * sizeof(char));
 
 	strcpy(path,config.punto_montaje);
 	strcat(path, "Tables/");
+	strcpy(pathMetadata,path);
 
-	if(comando.argumentos.DESCRIBE.nombreTabla==NULL){
-		if((dir = opendir (path)) != NULL){
-			while((entry = readdir (dir)) != NULL){
-				nombreCarpeta = string_from_format(entry->d_name);
-				if(!strcmp(nombreCarpeta, ".") || !strcmp(nombreCarpeta, "..")){
-				}else{
-					printf (BLU"%s\n"STD, nombreCarpeta);
-				}
-		  }
-			closedir (dir);
-		}else{
-			strcpy(resultadoDescribe.Argumentos.ERROR.mensajeError,"No existe la carpeta solicitada");
-			return resultadoDescribe;
-		}
-	}else{
-		strcat(path, comando.argumentos.DESCRIBE.nombreTabla);
-		if((dir = opendir (path)) != NULL){
-			printf(BLU"Existe la carpeta de la Tabla\n"STD);
-		}
-		else{
-			strcpy(resultadoDescribe.Argumentos.ERROR.mensajeError,"No existe la carpeta solicitada");
-			return resultadoDescribe;
-		}
-	}
+	char* string=NULL;
+
+	printf("antes de obtener el string\n");
+	getStringDescribe(path, pathMetadata, string, comando.argumentos.DESCRIBE.nombreTabla, resultadoDescribe);
+	printf("string: %s\n", string);
+	printf("Describe_string: %s\n", resultadoDescribe.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
+
+	/*Loggeo el CREATE exitoso y le aviso a la Memoria*/
+	log_info(logger_visible, "DESCRIBE exitoso.");
 
 	free(path);
-/*
-	while(hayaCarpetas){
-		connectToServer();
-		nombreCarpeta=leerCarpeta
-		leerMetadata
-		consistencia=extraerConsistencia; //transformar según enum
-
-		op.fin=0;
-		op.nombreTabla=nombreCarpeta;
-		op.consistencia=consistencia;
-
-		send(Memoria, op);
-	}
-
-		op.fin=1;
-		op.nombreTabla="DESCRIBE: Te las recibiste todas chinwenwencha";
-		op.consistencia=0; //enum de null
-	*/
+	free(pathMetadata);
 
 	return resultadoDescribe;
 }
@@ -473,6 +438,67 @@ void insertInFile(char* path, int particionNbr, char* key, char* value){
 	fclose(fParticion);
 	free(pathArchivo);
 
+}
+
+void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombreTabla, Operacion resultadoDescribe){
+	DIR *dir;
+	struct dirent *entry;
+	char* nombreCarpeta;
+	t_config* metadata;
+
+	if(nombreTabla==NULL){
+		if((dir = opendir(path)) != NULL){
+			while((entry = readdir (dir)) != NULL){
+				nombreCarpeta = string_from_format(entry->d_name);
+				if(!strcmp(nombreCarpeta, ".") || !strcmp(nombreCarpeta, "..")){
+				}else{
+					strcat(pathMetadata, nombreCarpeta);
+					strcat(pathMetadata, "/Metadata");
+					printf("path: %s\n", pathMetadata);
+					printf("nombreTabla: %s\n", nombreCarpeta);
+
+					metadata = config_create(pathMetadata);
+					char* consistencia = config_get_string_value(metadata, "CONSISTENCY");
+					int compactionTime=config_get_int_value(metadata, "COMPACTION_TIME");
+					int particiones =config_get_int_value(metadata, "PARTITIONS");
+
+					concatenar_tabla(&string, nombreCarpeta, consistencia, particiones, compactionTime);
+					printf("string: %s\n", string);
+
+					strcpy(pathMetadata,path);
+				}
+		  }
+			closedir (dir);
+			resultadoDescribe.TipoDeMensaje= DESCRIBE_REQUEST;
+			resultadoDescribe.Argumentos.DESCRIBE_REQUEST.resultado_comprimido = string_from_format(string);
+		}else{
+			resultadoDescribe.Argumentos.ERROR.mensajeError = string_from_format("No existe la carpeta solicitada");
+		}
+	}else{
+		strcat(pathMetadata, nombreTabla);
+		if((dir = opendir (path)) != NULL){
+			strcat(pathMetadata, "/Metadata");
+			printf("path: %s\n", pathMetadata);
+			printf("nombreTabla: %s\n", nombreTabla);
+
+			metadata = config_create(pathMetadata);
+			char* consistencia = config_get_string_value(metadata, "CONSISTENCY");
+			int compactionTime=config_get_int_value(metadata, "COMPACTION_TIME");
+			int particiones =config_get_int_value(metadata, "PARTITIONS");
+
+			concatenar_tabla(&string, nombreTabla, consistencia, particiones, compactionTime);
+			printf("string: %s\n", string);
+			resultadoDescribe.TipoDeMensaje= DESCRIBE_REQUEST;
+			resultadoDescribe.Argumentos.DESCRIBE_REQUEST.resultado_comprimido = string_from_format(string);
+		}
+		else{
+			resultadoDescribe.Argumentos.ERROR.mensajeError = string_from_format("No existe la carpeta solicitada");
+		}
+	}
+
+	//config_destroy(metadata);
+
+	printf("string final: %s\n", string);
 }
 
 /*FIN FUNCIONES COMPLEMENTARIAS*/

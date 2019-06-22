@@ -7,20 +7,19 @@
 
 #include "compresor_describe.h"
 
-void concatenar_tabla(char **source, char *tabla, Consistencia consistencia, int numeroParticiones, int tiempoEntreCompactacion){
-		return;
-	if(consistencia != SC || consistencia != HSC || consistencia != EC)
+void concatenar_tabla(char **source, char *tabla, char* consistencia, int numeroParticiones, int tiempoEntreCompactacion){
+	if(!(string_equals_ignore_case(consistencia, "SC")) && !(string_equals_ignore_case(consistencia, "HSC")) && !(string_equals_ignore_case(consistencia, "EC")))
 		return;
 	if(*source == NULL)
 			 *source = string_from_format("%s", tabla);
 		else
 			string_append(source, tabla);
 	string_append(source, ";");
-	string_append(source, string_from_format("%d", consistencia));
+	string_append(source, consistencia);
 	string_append(source, ";");
 	string_append(source, string_from_format("%d", numeroParticiones));
 	string_append(source, ";");
-	string_append(source, string_from_format("d", tiempoEntreCompactacion));
+	string_append(source, string_from_format("%d", tiempoEntreCompactacion));
 	string_append(source, ";");
 }
 
