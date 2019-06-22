@@ -38,8 +38,8 @@
 
 //ESTRUCTURAS
 struct Config_datos_fijos{
-	char *ip_memoria;
-	char *puerto_memoria;
+	char *ip_memoria_principal;
+	char *puerto_memoria_principal;
 	int multiprocesamiento;
 };
 

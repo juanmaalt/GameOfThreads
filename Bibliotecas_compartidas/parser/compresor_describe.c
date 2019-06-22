@@ -8,6 +8,9 @@
 #include "compresor_describe.h"
 
 void concatenar_tabla(char **source, char *tabla, Consistencia consistencia){
+		return;
+	if(consistencia != SC || consistencia != HSC || consistencia != EC)
+		return;
 	string_append(source, tabla);
 	string_append(source, ";");
 	string_append(source, string_from_format("%d", consistencia));
@@ -22,7 +25,7 @@ char **descomprimir_describe(char *compresion){
 
 
 
-void destruir_split(char **split){
+void destruir_split_tablas(char **split){
 	if(split){
 		string_iterate_lines(split, (void *)free);
 		free(split);

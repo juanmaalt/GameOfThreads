@@ -105,11 +105,11 @@ static int inicializar_configs() {
 		RETURN_ERROR("Kernel.c: extraer_data_config: no se encontro el archivo 'Kernel.config'. Deberia estar junto al ejecutable");
 
 	//Config_datos_fijos
-	fconfig.ip_memoria = malloc(sizeof(char) * strlen(config_get_string_value(configFile, "IP_MEMORIA"))+1);
-	strcpy(fconfig.ip_memoria, config_get_string_value(configFile, "IP_MEMORIA"));
+	fconfig.ip_memoria_principal = malloc(sizeof(char) * strlen(config_get_string_value(configFile, "IP_MEMORIA"))+1);
+	strcpy(fconfig.ip_memoria_principal, config_get_string_value(configFile, "IP_MEMORIA"));
 
-	fconfig.puerto_memoria = malloc(sizeof(char) * strlen(config_get_string_value(configFile, "PUERTO_MEMORIA"))+1);
-	strcpy(fconfig.puerto_memoria, config_get_string_value(configFile, "PUERTO_MEMORIA"));
+	fconfig.puerto_memoria_principal = malloc(sizeof(char) * strlen(config_get_string_value(configFile, "PUERTO_MEMORIA"))+1);
+	strcpy(fconfig.puerto_memoria_principal, config_get_string_value(configFile, "PUERTO_MEMORIA"));
 
 	fconfig.multiprocesamiento = config_get_int_value(configFile, "MULTIPROCESAMIENTO");
 
@@ -159,15 +159,15 @@ static int extraer_retardo_config(){
 
 
 void mostrar_por_pantalla_config(){
-	log_info(logger_visible, "IP_MEMORIA=%s", fconfig.ip_memoria);
-	log_info(logger_visible, "PUERTO_MEMORIA=%s", fconfig.puerto_memoria);
+	log_info(logger_visible, "IP_MEMORIA=%s", fconfig.ip_memoria_principal);
+	log_info(logger_visible, "PUERTO_MEMORIA=%s", fconfig.puerto_memoria_principal);
 	log_info(logger_visible, "QUANTUM=%d", vconfig.quantum());
 	log_info(logger_visible, "MULTIPROCESAMIENTO=%d", fconfig.multiprocesamiento);
 	log_info(logger_visible, "REFRESH_METADATA=%d", vconfig.refreshMetadata());
 	log_info(logger_visible, "RETARDO=%d", vconfig.retardo());
 
-	log_info(logger_invisible, "IP_MEMORIA=%s", fconfig.ip_memoria);
-	log_info(logger_invisible, "PUERTO_MEMORIA=%s", fconfig.puerto_memoria);
+	log_info(logger_invisible, "IP_MEMORIA=%s", fconfig.ip_memoria_principal);
+	log_info(logger_invisible, "PUERTO_MEMORIA=%s", fconfig.puerto_memoria_principal);
 	log_info(logger_invisible, "QUANTUM=%d", vconfig.quantum());
 	log_info(logger_invisible, "MULTIPROCESAMIENTO=%d", fconfig.multiprocesamiento);
 	log_info(logger_invisible, "REFRESH_METADATA=%d", vconfig.refreshMetadata());

@@ -9,6 +9,8 @@
 #include "compresor_direccion.h"
 
 void concatenar_memoria(char **source, int numeroMemoria, char *ip, char *puerto){
+	if(ip == NULL || puerto == NULL)
+		return;
 	string_append(source, string_from_format("%d", numeroMemoria));
 	string_append(source, ";");
 	string_append(source, ip);
