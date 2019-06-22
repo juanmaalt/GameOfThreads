@@ -107,32 +107,34 @@ Operacion selectAPI(char* input, Comando comando) {
 
 		}else{
 			printf(YEL"APIMemoria.c: select: no encontro la key. Enviar a LFS la request"STD"\n"); //TODO: meter en log
-			//TODO: Enviar a LFS la request
+
 			enviarRequestFS(input);
 
-			resultadoSelect.TipoDeMensaje = REGISTRO;
 			resultadoSelect=recibirRequestFS();
+			if(resultadoSelect.TipoDeMensaje==REGISTRO){
+				//INSERTAR VALOR EN BLOQUE DE MEMORIA Y METER CREAR REGISTRO EN TABLA DE PAGINAS DEL SEGMENTO
+				insertarPaginaDeSegmento(resultadoSelect.Argumentos.REGISTRO.value, keyBuscada, resultadoSelect.Argumentos.REGISTRO.timestamp, segmentoSeleccionado);
+				return resultadoSelect;
+			}else {
+				return resultadoSelect;
+			}
 
-			//INSERTAR VALOR EN BLOQUE DE MEMORIA Y METER CREAR REGISTRO EN TABLA DE PAGINAS DEL SEGMENTO
-			insertarPaginaDeSegmento(resultadoSelect.Argumentos.REGISTRO.value, keyBuscada, resultadoSelect.Argumentos.REGISTRO.timestamp, segmentoSeleccionado);
-			//Recibo el valor (el marcoRecibido/registro entero ya parseado al ser recibido como un char*)
-			//
-			//solicitarPagina(segmentoSeleccionado,marcoRecibido);
-
-			return resultadoSelect;
 
 		}
 
-	}/*else{ //NO EXISTE EL SEGMENTO
-		printf(YEL"APIMemoria.c: select: no se encontro el path. Enviar a LFS la request"STD"\n");
+	}else{ //NO EXISTE EL SEGMENTO
+		printf(YEL"APIMemoria.c: select: no se encontro el path. Enviando a LFS la request"STD"\n");
+
 		enviarRequestFS(input);
 
-		resultadoSelect.TipoDeMensaje = REGISTRO;
 		resultadoSelect=recibirRequestFS();
-
-
-
-	 }*/
+		if(resultadoSelect.TipoDeMensaje==REGISTRO){
+			crearSegmentoInsertandoRegistro(comando.argumentos.SELECT.nombreTabla, resultadoSelect.Argumentos.REGISTRO.value, resultadoSelect.Argumentos.REGISTRO.timestamp, keyBuscada);
+			return resultadoSelect;
+		}else {
+			return resultadoSelect;
+		}
+	 }
 
 	resultadoSelect.Argumentos.ERROR.mensajeError = string_from_format(
 			"NO SE HA ENCONTRADO LA KEY");
@@ -163,8 +165,6 @@ Operacion selectAPI(char* input, Comando comando) {
 //Ej:
 //INSERT TABLA1 3 “Mi nombre es Lissandra”
 
-
-
 Operacion insertAPI(char* input, Comando comando) {
 
 	Operacion resultadoInsert;
@@ -185,10 +185,6 @@ Operacion insertAPI(char* input, Comando comando) {
 
 			//En los request solo se utilizarán las comillas (“”)
 			//para enmascarar el Value que se envíe. No se proveerán request con comillas en otros puntos.
-
-			//TODO: Funcion para actualizar key
-
-			//remover_comillas(comando.argumentos.INSERT.value);
 
 			actualizarValueDeKey(comando.argumentos.INSERT.value, registroBuscado);
 
@@ -218,21 +214,7 @@ Operacion insertAPI(char* input, Comando comando) {
 		 junto con el nombre de la tabla en el segmento. Para esto se debe generar el nuevo segmento y solicitar una nueva página
 		 */
 
-		//Crear un segmento
-		segmento_t* segmentoNuevo = malloc(sizeof(segmento_t));
-
-		//Asignar path determinado
-		asignarPathASegmento(segmentoNuevo,
-				comando.argumentos.INSERT.nombreTabla);
-
-		//Crear su tabla de paginas
-		segmentoNuevo->tablaPaginas = malloc(sizeof(tabla_de_paginas_t));
-		segmentoNuevo->tablaPaginas->registrosPag = list_create();
-
-		insertarPaginaDeSegmento(comando.argumentos.INSERT.value, keyBuscada,getCurrentTime(),segmentoNuevo);
-
-		//Agregar segmento Nuevo a tabla de segmentos
-		list_add(tablaSegmentos.listaSegmentos, (segmento_t*) segmentoNuevo);
+		crearSegmentoInsertandoRegistro(comando.argumentos.INSERT.nombreTabla, comando.argumentos.INSERT.value, getCurrentTime(), keyBuscada);
 
 		resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
 		resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format(
@@ -248,10 +230,9 @@ int hayPaginaDisponible(void) {
 
 void insertarPaginaDeSegmento(char* value, uint16_t key, timestamp_t ts, segmento_t * segmento) {
 	if (hayPaginaDisponible()) {
-
 		crearRegistroEnTabla(segmento->tablaPaginas,colocarPaginaEnMemoria(ts, key, value));
 //TODO: no olvidar
-		printf("Se realizo el INSERT\n");
+		printf("Se ingreso el registro\n");
 
 	} else {//aplicar el algoritmo de reemplazo (LRU) y en caso de que la memoria se encuentre full iniciar el proceso Journal.
 		printf("HACER LRU Y SINO JOURNAL\n");
@@ -290,12 +271,17 @@ Operacion createAPI(char* input, Comando comando) {
 
  Esta operación consulta al FileSystem por la metadata de las tablas. Sirve principalmente para poder responder las solicitudes del Kernel.
  */
-Operacion describeAPI() {
-	//enviarRequestFS(input);
+Operacion describeAPI(char* input, Comando comando) {
+	Operacion resultadoDescribe;
+
+	//Enviar al FS la operacion
+	enviarRequestFS(input);
 
 	//Lo que recibo del FS lo retorno
 
-	//recibirRequestFS();
+	resultadoDescribe=recibirRequestFS();
+
+	return resultadoDescribe;
 }
 
 /*
@@ -360,6 +346,9 @@ Operacion dropAPI(char* input, Comando comando) {
 	return resultadoDrop;
 
 }
+
+//Una vez efectuados estos envíos se procederá a eliminar los segmentos actuales.
+
 Operacion journalAPI(){
 	Operacion resultadoJournal;
 	char * input;
@@ -417,7 +406,7 @@ bool verificarExistenciaSegmento(char* nombreTabla,
 
 	if (list_is_empty(listaConSegmentoBuscado)) {
 		list_destroy(listaConSegmentoBuscado);
-		printf(GRN"APIMemoria.c: NO SE ENCONTRO EL SEGMENTO"STD"\n");
+		printf(YEL"APIMemoria.c: NO SE ENCONTRO EL SEGMENTO"STD"\n");
 		return false;
 	}
 	//Tomo de la lista filtrada el segmento con el path coincidente
@@ -515,6 +504,23 @@ void actualizarValueDeKey(char *value, registroTablaPag_t *registro){
 	memcpy(direccionMarco, &tsActualizado, sizeof(timestamp_t));
 	strcpy(direccionMarco + sizeof(timestamp_t) + sizeof(uint16_t),value);
 
+}
+
+void crearSegmentoInsertandoRegistro(char * nombreTabla, char* value, timestamp_t ts, uint16_t key){
+	//Crear un segmento
+	segmento_t* segmentoNuevo = malloc(sizeof(segmento_t));
+
+	//Asignar path determinado
+	asignarPathASegmento(segmentoNuevo, nombreTabla);
+
+	//Crear su tabla de paginas
+	segmentoNuevo->tablaPaginas = malloc(sizeof(tabla_de_paginas_t));
+	segmentoNuevo->tablaPaginas->registrosPag = list_create();
+
+	insertarPaginaDeSegmento(value, key, ts, segmentoNuevo);
+
+	//Agregar segmento Nuevo a tabla de segmentos
+	list_add(tablaSegmentos.listaSegmentos, (segmento_t*) segmentoNuevo);
 }
 
 void enviarRequestFS(char* input) {

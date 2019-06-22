@@ -27,6 +27,8 @@ int hayPaginaDisponible(void);
 void insertarPaginaDeSegmento(char* , uint16_t , timestamp_t, segmento_t * );
 
 void actualizarValueDeKey(char *, registroTablaPag_t *);
+
+void crearSegmentoInsertandoRegistro(char * , char*, timestamp_t , uint16_t);
 //Comunicacion con FS
 Operacion recibirRequestFS(void);
 void enviarRequestFS(char* );
@@ -36,7 +38,7 @@ Operacion ejecutarOperacion(char*, bool);
 Operacion selectAPI(char*, Comando);
 Operacion insertAPI(char*,Comando);
 Operacion createAPI(char*,Comando);
-Operacion describeAPI();
+Operacion describeAPI(char* input, Comando comando);
 Operacion dropAPI(char* input, Comando comando);
 Operacion journalAPI();
 
