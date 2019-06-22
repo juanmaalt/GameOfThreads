@@ -40,5 +40,5 @@ void conectarConSeed();
 void *conectar_seeds(void*);
 void *recibir_seeds(void*);
 void ConsultoPorMemoriasConocidas(int );
-
+Operacion recibir_gossiping (Operacion);
 #endif /* GOSSIPING_H_ */

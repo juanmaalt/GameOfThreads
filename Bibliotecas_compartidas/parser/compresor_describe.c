@@ -11,7 +11,10 @@ void concatenar_tabla(char **source, char *tabla, Consistencia consistencia){
 		return;
 	if(consistencia != SC || consistencia != HSC || consistencia != EC)
 		return;
-	string_append(source, tabla);
+	if(*source == NULL)
+			 *source = string_from_format("%s", tabla);
+		else
+			string_append(source, tabla);
 	string_append(source, ";");
 	string_append(source, string_from_format("%d", consistencia));
 	string_append(source, ";");

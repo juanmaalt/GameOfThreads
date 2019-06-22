@@ -120,15 +120,21 @@ void conectarConSeed() {
 
  void ConsultoPorMemoriasConocidas(int socketSEEDS) {
 	 Operacion request;
-	 //char ** envio = "";
+	 char * envio = NULL;
 
-	 request.TipoDeMensaje = GOSSIPING_REQUEST;
-		concatenar_memoria(/*envio*/IPs,/*fconfig.numero_memoria*/2,fconfig.ip , fconfig.puerto);
-	 request.Argumentos.GOSSIPING_REQUEST.resultado_comprimido = list_get (listaMemoriasConocidas,0 );
+	 printf("Armo paquete\n");
+
+		concatenar_memoria(&envio,/*fconfig.numero_memoria*/2  ,fconfig.ip , fconfig.puerto);
+		//for (int i=0 ; envio[i] == NULL;i++ )
+			printf("Mensaje corrido: %s \n",envio);
+		request.TipoDeMensaje = GOSSIPING_REQUEST;
+		printf("Paquete armado\n");
+	 request.Argumentos.GOSSIPING_REQUEST.resultado_comprimido = envio;
 
 	 send_msg(socketSEEDS,request);
-
-	 //request = recv_msg(socketSEEDS);
+	 printf("Envio\n");
+	 request = recv_msg(socketSEEDS);
+	 printf("Respuesta\n");
 
  //char *tamanio = recv_msg(socketSEEDS, &tipo);
 /*
@@ -140,4 +146,9 @@ void conectarConSeed() {
 */
  //return *tamanio;
  }
+
+
+Operacion recibir_gossiping (Operacion resultado){
+	return resultado;
+}
 

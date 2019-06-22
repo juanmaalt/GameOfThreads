@@ -53,7 +53,7 @@ int main(void) {
 	printf("Memoria Inicializada correctamente\n");
 
 	//TODO:GOSSIPING
-	//iniciar_gossiping();
+	iniciar_gossiping();
 
 	//FUNCIONES PARA TEST DE SELECT
 	memoriaConUnSegmentoYUnaPagina();
@@ -118,6 +118,10 @@ void *connection_handler(void *nSocket) {
 	case REGISTRO:
 		break;
 	case ERROR:
+		break;
+	case GOSSIPING_REQUEST:
+		recibir_gossiping(resultado);
+		send_msg(socket, resultado);
 		break;
 	default:
 		fprintf(stderr, RED"No se pude interpretar el enum %d"STD"\n",
