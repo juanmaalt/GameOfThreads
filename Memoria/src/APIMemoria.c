@@ -114,6 +114,7 @@ Operacion selectAPI(char* input, Comando comando) {
 			resultadoSelect=recibirRequestFS();
 
 			//INSERTAR VALOR EN BLOQUE DE MEMORIA Y METER CREAR REGISTRO EN TABLA DE PAGINAS DEL SEGMENTO
+			insertarPaginaDeSegmento(resultadoSelect.Argumentos.REGISTRO.value, keyBuscada, resultadoSelect.Argumentos.REGISTRO.timestamp, segmentoSeleccionado);
 			//Recibo el valor (el marcoRecibido/registro entero ya parseado al ser recibido como un char*)
 			//
 			//solicitarPagina(segmentoSeleccionado,marcoRecibido);
@@ -203,7 +204,7 @@ Operacion insertAPI(char* input, Comando comando) {
 
 		} else {//No contiene la KEY, se solicita una nueva página para almacenar la misma.
 
-			insertarPaginaDeSegmento(comando.argumentos.INSERT.value, keyBuscada, segmentoSeleccionado);
+			insertarPaginaDeSegmento(comando.argumentos.INSERT.value, keyBuscada,getCurrentTime(), segmentoSeleccionado);
 
 			resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
 			resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format(
@@ -228,8 +229,7 @@ Operacion insertAPI(char* input, Comando comando) {
 		segmentoNuevo->tablaPaginas = malloc(sizeof(tabla_de_paginas_t));
 		segmentoNuevo->tablaPaginas->registrosPag = list_create();
 
-		insertarPaginaDeSegmento(comando.argumentos.INSERT.value, keyBuscada,
-				segmentoNuevo);
+		insertarPaginaDeSegmento(comando.argumentos.INSERT.value, keyBuscada,getCurrentTime(),segmentoNuevo);
 
 		//Agregar segmento Nuevo a tabla de segmentos
 		list_add(tablaSegmentos.listaSegmentos, (segmento_t*) segmentoNuevo);
@@ -246,12 +246,11 @@ int hayPaginaDisponible(void) {
 	return queue_is_empty(memoriaPrincipal.marcosLibres) != true;
 }
 
-void insertarPaginaDeSegmento(char* value, uint16_t key, segmento_t * segmento) {
+void insertarPaginaDeSegmento(char* value, uint16_t key, timestamp_t ts, segmento_t * segmento) {
 	if (hayPaginaDisponible()) {
 
-		crearRegistroEnTabla(segmento->tablaPaginas,
-				colocarPaginaEnMemoria(getCurrentTime(), key, value));
-
+		crearRegistroEnTabla(segmento->tablaPaginas,colocarPaginaEnMemoria(ts, key, value));
+//TODO: no olvidar
 		printf("Se realizo el INSERT\n");
 
 	} else {//aplicar el algoritmo de reemplazo (LRU) y en caso de que la memoria se encuentre full iniciar el proceso Journal.
