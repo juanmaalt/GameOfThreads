@@ -9,8 +9,7 @@
 
 //FUNCIONES: Privadas
 static bool tabla_esta_en_la_lista(char *tabla);
-static bool memoria_esta_en_la_lista(int numero);
-static void agregar_memoria_a_lista_criterios(Memoria *memoria, Consistencia consistencia);
+static bool memoria_esta_en_la_lista(t_list *lista, int numeroMemoria);
 static MetadataTabla *machearTabla(char *tabla);//Dado el nombre de una tabla devuelve la estructura que la representa. Si no existe devuelve null
 static Memoria *machearMemoria(int numeroMemoria);
 static Memoria *sc_determinar_memoria(MetadataTabla *tabla); //Dada una tabla con SC, determina que memoria la deberia atender
@@ -51,13 +50,33 @@ int add_memory(char *numeroMemoria, char *consistencia){
 	if((memoria = machearMemoria(atoi(numeroMemoria))) == NULL)
 		RETURN_ERROR("Sistema_de_criterios.c: add_memory: el numero de memoria es invalido o aun no se conoce");
 
-	if(string_equals_ignore_case(consistencia, "SC"))
-		agregar_memoria_a_lista_criterios(memoria, SC);
-	else if(string_equals_ignore_case(consistencia, "HSC"))
-		agregar_memoria_a_lista_criterios(memoria, HSC);
-		else if(string_equals_ignore_case(consistencia, "EC"))
-			agregar_memoria_a_lista_criterios(memoria, EC);
-		else RETURN_ERROR("Sistema_de_criterios.c: add_memory: el tipo de consistencia es invalido. Solo se admite SC, HSC o EC");
+	if(string_equals_ignore_case(consistencia, "SC")){
+		if(!memoria_esta_en_la_lista(memoriasSC, memoria->numero)){
+			list_add(memoriasSC, memoria);
+		}else{
+			log_info(logger_visible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");
+			log_info(logger_visible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");
+			return EXIT_SUCCESS;
+		}
+	}
+	if(string_equals_ignore_case(consistencia, "HSC")){
+		if(!memoria_esta_en_la_lista(memoriasHSC, memoria->numero)){
+			list_add(memoriasHSC, memoria);
+		}else{
+			log_info(logger_visible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");
+			log_info(logger_visible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");
+			return EXIT_SUCCESS;
+		}
+	}
+	if(string_equals_ignore_case(consistencia, "EC")){
+		if(!memoria_esta_en_la_lista(memoriasEC, memoria->numero)){
+			list_add(memoriasEC, memoria);
+		}else{
+			log_info(logger_visible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");
+			log_info(logger_visible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");
+			return EXIT_SUCCESS;
+		}
+	}else RETURN_ERROR("Sistema_de_criterios.c: add_memory: el tipo de consistencia es invalido. Solo se admite SC, HSC o EC");
 	return EXIT_SUCCESS;
 }
 
@@ -134,37 +153,18 @@ static bool tabla_esta_en_la_lista(char *tabla){
 
 
 
-static bool memoria_esta_en_la_lista(int numero){
-	if(tablasExistentes == NULL){
+static bool memoria_esta_en_la_lista(t_list *lista, int numeroMemoria){
+	if(lista == NULL){
 		log_error(logger_error, "Sistema_de_criterios.c: memoria_esta_en_la_lista: aun no existen memoria conocidas en el sistema");
 		log_info(logger_invisible, "Sistema_de_criterios.c: memoria_esta_en_la_lista: aun no existen memoria conocidas en el sistema");
 		return NULL;
 	}
 	bool buscar(void *elemento){
-		return ((Memoria*)elemento)->numero == numero;
+		return ((Memoria*)elemento)->numero == numeroMemoria;
 	}
-	return list_any_satisfy(memoriasExistentes, buscar);
+	return list_any_satisfy(lista, buscar);
 }
 
-
-
-
-
-static void agregar_memoria_a_lista_criterios(Memoria *memoria, Consistencia consistencia){
-	switch(consistencia){
-	case SC:
-		list_add(memoriasSC, memoria);
-		break;
-	case HSC:
-		list_add(memoriasHSC, memoria);
-		break;
-	case EC:
-		list_add(memoriasEC, memoria);
-		break;
-	default:
-		return;
-	}
-}
 
 
 
