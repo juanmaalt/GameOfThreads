@@ -14,8 +14,8 @@ static int loggear_operacion(Operacion op);
 static socket_t direccionar_request(char *request);
 static socket_t comunicarse_con_memoria();
 static socket_t comunicarse_con_memoria_principal();
-
-
+static void catch_describe(char *cadenaResultadoDescribe);//Se encarga de actualizar las estructuras de metadata de tablas cuando se hace un describe
+static int seSolicitoDescribe; //variable pedorra que indica si la operacion fue describe
 
 
 
@@ -60,6 +60,7 @@ static socket_t direccionar_request(char *request){
 		memoria = determinar_memoria_para_tabla(comando.argumentos.CREATE.nombreTabla);
 		break;
 	case DESCRIBE:
+		seSolicitoDescribe=TRUE;
 		memoria = determinar_memoria_para_tabla(comando.argumentos.DESCRIBE.nombreTabla);
 		break;
 	case DROP:
@@ -92,7 +93,8 @@ static socket_t comunicarse_con_memoria(Memoria *memoria){
 		log_error(logger_invisible, "Planificador.c: comunicarse_con_memoria: error al conectarse al servidor memoria %s:%s", memoria->ip, memoria->puerto);
 		return EXIT_FAILURE;
 	}
-	log_info(logger_invisible, "Conectado a la memoria %s:%s", memoria->ip, memoria->puerto);
+	log_info(logger_invisible, "Conectado a la memoria numero: %d, %s:%s", memoria->numero, memoria->ip, memoria->puerto);
+	log_info(logger_visible, "Conectado a la memoria numero: %d, %s:%s", memoria->numero, memoria->ip, memoria->puerto);
 	return socketServer;
 }
 
@@ -107,7 +109,7 @@ static socket_t comunicarse_con_memoria_principal(){
 		log_error(logger_invisible, "Unidad_de_ejecucion.c: comunicarse_con_memoria_principal: error al conectarse al servidor memoria %s:%s", fconfig.ip_memoria_principal, fconfig.puerto_memoria_principal);
 		return EXIT_FAILURE;
 	}
-	log_info(logger_invisible, "Conectado a la memoria %s:%s", fconfig.ip_memoria_principal, fconfig.puerto_memoria_principal);
+	log_info(logger_invisible, "Conectado a la memoria principal %s:%s", fconfig.ip_memoria_principal, fconfig.puerto_memoria_principal);
 	return socketServer;
 }
 
@@ -132,6 +134,10 @@ static int exec_string_comando(PCB *pcb){
 	send_msg(socketTarget, request);
 
 	request = recv_msg(socketTarget);
+	if(seSolicitoDescribe){
+		catch_describe(request.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
+		seSolicitoDescribe = FALSE;
+	}
 	loggear_operacion(request);
 
 	destruir_operacion(request);
@@ -173,7 +179,12 @@ static int exec_file_lql(PCB *pcb){
 		request.TipoDeMensaje = COMANDO;
 		request.Argumentos.COMANDO.comandoParseable = line;
 		send_msg(socketTarget, request);
+
 		request = recv_msg(socketTarget);
+		if(seSolicitoDescribe){
+			catch_describe(request.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
+			seSolicitoDescribe = FALSE;
+		}
 		if(loggear_operacion(request) == INSTRUCCION_ERROR){
 			fclose(lql);
 			free(pcb);
@@ -219,3 +230,10 @@ static int loggear_operacion(Operacion op){
 	return INSTRUCCION_ERROR;
 }
 
+
+
+
+
+static void catch_describe(char *cadenaResultadoDescribe){
+	procesar_describe(cadenaResultadoDescribe);
+}

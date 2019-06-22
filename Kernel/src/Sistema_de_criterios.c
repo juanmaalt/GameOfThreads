@@ -8,6 +8,8 @@
 #include "Sistema_de_criterios.h"
 
 //FUNCIONES: Privadas
+static bool tabla_esta_en_la_lista(char *tabla);
+static bool memoria_esta_en_la_lista(int numero);
 static void agregar_memoria_a_lista_criterios(Memoria *memoria, Consistencia consistencia);
 static MetadataTabla *machearTabla(char *tabla);//Dado el nombre de una tabla devuelve la estructura que la representa. Si no existe devuelve null
 static Memoria *machearMemoria(int numeroMemoria);
@@ -57,6 +59,87 @@ int add_memory(char *numeroMemoria, char *consistencia){
 			agregar_memoria_a_lista_criterios(memoria, EC);
 		else RETURN_ERROR("Sistema_de_criterios.c: add_memory: el tipo de consistencia es invalido. Solo se admite SC, HSC o EC");
 	return EXIT_SUCCESS;
+}
+
+
+
+
+
+int procesar_describe(char *cadenaResultadoDescribe){
+	if(tablasExistentes == NULL)
+		return EXIT_FAILURE;
+
+	char **descompresion = descomprimir_describe(cadenaResultadoDescribe);
+	for(int i=0; descompresion[i]!= NULL; i+=2){
+		if(tabla_esta_en_la_lista(descompresion[i]))
+			continue;//Saltea una iteracion del for;
+		MetadataTabla *tabla = malloc(sizeof(MetadataTabla));
+		tabla->nombre = string_from_format(descompresion[i]);
+		if(string_equals_ignore_case(descompresion[i+1], "SC"))
+			tabla->consistencia = SC;
+		if(string_equals_ignore_case(descompresion[i+1], "HSC"))
+			tabla->consistencia = HSC;
+		if(string_equals_ignore_case(descompresion[i+1], "EC"))
+			tabla->consistencia = EC;
+		else return EXIT_FAILURE;
+		list_add(tablasExistentes, tabla);
+	}
+	destruir_split_tablas(descompresion);
+	return EXIT_SUCCESS;
+}
+
+
+
+
+
+int procesar_gossiping(char *cadenaResultadoGossiping){
+	if(memoriasExistentes == NULL)
+		return EXIT_FAILURE;
+
+	char **descompresion = descomprimir_memoria(cadenaResultadoGossiping);
+	for(int i=0; descompresion[0]!=NULL; i+=3){
+		if(memoria_esta_en_la_lista(atoi(descompresion[i])));
+			continue;
+		Memoria *memoria = malloc(sizeof(Memoria));
+		memoria->numero = atoi(descompresion[i]);
+		memoria->ip = descompresion[i+1];
+		memoria->puerto = descompresion[i+2];
+		list_add(memoriasExistentes, memoria);
+	}
+	destruir_split_memorias(descompresion);
+	return EXIT_SUCCESS;
+}
+
+
+
+
+
+static bool tabla_esta_en_la_lista(char *tabla){
+	if(tablasExistentes == NULL){
+		log_error(logger_error, "Sistema_de_criterios.c: tabla_esta_en_la_lista: aun no existen tablas conocidas en el sistema");
+		log_info(logger_invisible, "Sistema_de_criterios.c: tabla_esta_en_la_lista: aun no existen tablas conocidas en el sistema");
+		return NULL;
+	}
+	bool buscar(void *elemento){
+		return !strcmp(tabla, ((MetadataTabla*)elemento)->nombre); //Devuelve 0 (falso) si son iguales
+	}
+	return list_any_satisfy(tablasExistentes, buscar);
+}
+
+
+
+
+
+static bool memoria_esta_en_la_lista(int numero){
+	if(tablasExistentes == NULL){
+		log_error(logger_error, "Sistema_de_criterios.c: memoria_esta_en_la_lista: aun no existen memoria conocidas en el sistema");
+		log_info(logger_invisible, "Sistema_de_criterios.c: memoria_esta_en_la_lista: aun no existen memoria conocidas en el sistema");
+		return NULL;
+	}
+	bool buscar(void *elemento){
+		return ((Memoria*)elemento)->numero == numero;
+	}
+	return list_any_satisfy(memoriasExistentes, buscar);
 }
 
 

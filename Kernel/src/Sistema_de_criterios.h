@@ -14,6 +14,8 @@
 #include <commons/collections/list.h>
 #include <random/random_numbers.h>
 #include <hash/hash_sc.h>
+#include <parser/compresor_describe.h>
+#include <parser/compresor_direccion.h>
 #include <stdbool.h>
 #include "Unidad_de_ejecucion.h"
 
@@ -54,6 +56,7 @@ t_list *tablasExistentes;
 //FUNCIONES: Publicas
 Memoria *determinar_memoria_para_tabla(char *tabla);
 int add_memory(char *numeroMemoria, char *consistencia); //Asocia una memoria a una consistencia para poder usarla. Internamente chequea los valores de consistencia y numero para que no se le puedan enviar cosas chanchas
-
+int procesar_describe(char *cadenaResultadoDescribe);
+int procesar_gossiping(char *cadenaResultadoGossiping);
 
 #endif /* SISTEMA_DE_CRITERIOS_H_ */
