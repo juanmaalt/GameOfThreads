@@ -11,12 +11,16 @@
 void concatenar_memoria(char **source, int numeroMemoria, char *ip, char *puerto){
 	if(ip == NULL || puerto == NULL)
 		return;
-	string_append(source, string_from_format("%d", numeroMemoria));
+	if(*source == NULL)
+		 *source = string_from_format("%d", numeroMemoria);
+	else
+		string_append(source, string_from_format("%d", numeroMemoria));
 	string_append(source, ";");
 	string_append(source, ip);
 	string_append(source, ";");
 	string_append(source, puerto);
 	string_append(source, ";");
+
 }
 
 char **descomprimir_memoria(char *compresion){

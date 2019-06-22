@@ -18,7 +18,7 @@
 	* @DESC: concatena a la cadena source la secuencia nro;ip;puerto. Una cadena procesada varias veces quedaria
 	* 		 como nro1;ip1;puerto1;nro2;ip2;puerto2 etc
 	*/
-	void concatenar_memoria(char **source, int numeroMemoria, char *ip, char *puerto);
+	void concatenar_memoria(char **source, int  numeroMemoria, char *ip, char *puerto);
 
 	/**
 	* @NAME: descomprimir_memoria
