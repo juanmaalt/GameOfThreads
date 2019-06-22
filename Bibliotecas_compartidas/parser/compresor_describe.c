@@ -7,7 +7,7 @@
 
 #include "compresor_describe.h"
 
-void concatenar_tabla(char **source, char *tabla, Consistencia consistencia){
+void concatenar_tabla(char **source, char *tabla, Consistencia consistencia, int numeroParticiones, int tiempoEntreCompactacion){
 		return;
 	if(consistencia != SC || consistencia != HSC || consistencia != EC)
 		return;
@@ -17,6 +17,10 @@ void concatenar_tabla(char **source, char *tabla, Consistencia consistencia){
 			string_append(source, tabla);
 	string_append(source, ";");
 	string_append(source, string_from_format("%d", consistencia));
+	string_append(source, ";");
+	string_append(source, string_from_format("%d", numeroParticiones));
+	string_append(source, ";");
+	string_append(source, string_from_format("d", tiempoEntreCompactacion));
 	string_append(source, ";");
 }
 

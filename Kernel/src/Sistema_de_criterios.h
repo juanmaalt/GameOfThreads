@@ -31,6 +31,8 @@ typedef struct {
 typedef struct {
 	char *nombre;
 	Consistencia consistencia;
+	int particiones;
+	int tiempoEntreCompactaciones;
 	union{
 		struct{
 			Memoria *memoriaAsignada;
@@ -39,7 +41,7 @@ typedef struct {
 		}SHC;
 		struct{
 		}EC;
-	}Consistencia;
+	}Atributos;
 }MetadataTabla;
 
 

@@ -9,8 +9,7 @@
 
 //FUNCIONES: Privadas
 static bool tabla_esta_en_la_lista(char *tabla);
-static bool memoria_esta_en_la_lista(int numero);
-static void agregar_memoria_a_lista_criterios(Memoria *memoria, Consistencia consistencia);
+static bool memoria_esta_en_la_lista(t_list *lista, int numeroMemoria);
 static MetadataTabla *machearTabla(char *tabla);//Dado el nombre de una tabla devuelve la estructura que la representa. Si no existe devuelve null
 static Memoria *machearMemoria(int numeroMemoria);
 static Memoria *sc_determinar_memoria(MetadataTabla *tabla); //Dada una tabla con SC, determina que memoria la deberia atender
@@ -51,13 +50,33 @@ int add_memory(char *numeroMemoria, char *consistencia){
 	if((memoria = machearMemoria(atoi(numeroMemoria))) == NULL)
 		RETURN_ERROR("Sistema_de_criterios.c: add_memory: el numero de memoria es invalido o aun no se conoce");
 
-	if(string_equals_ignore_case(consistencia, "SC"))
-		agregar_memoria_a_lista_criterios(memoria, SC);
-	else if(string_equals_ignore_case(consistencia, "HSC"))
-		agregar_memoria_a_lista_criterios(memoria, HSC);
-		else if(string_equals_ignore_case(consistencia, "EC"))
-			agregar_memoria_a_lista_criterios(memoria, EC);
-		else RETURN_ERROR("Sistema_de_criterios.c: add_memory: el tipo de consistencia es invalido. Solo se admite SC, HSC o EC");
+	if(string_equals_ignore_case(consistencia, "SC")){
+		if(!memoria_esta_en_la_lista(memoriasSC, memoria->numero)){
+			list_add(memoriasSC, memoria);
+		}else{
+			log_info(logger_visible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");
+			log_info(logger_visible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");
+			return EXIT_SUCCESS;
+		}
+	}
+	if(string_equals_ignore_case(consistencia, "HSC")){
+		if(!memoria_esta_en_la_lista(memoriasHSC, memoria->numero)){
+			list_add(memoriasHSC, memoria);
+		}else{
+			log_info(logger_visible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");
+			log_info(logger_visible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");
+			return EXIT_SUCCESS;
+		}
+	}
+	if(string_equals_ignore_case(consistencia, "EC")){
+		if(!memoria_esta_en_la_lista(memoriasEC, memoria->numero)){
+			list_add(memoriasEC, memoria);
+		}else{
+			log_info(logger_visible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");
+			log_info(logger_visible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");
+			return EXIT_SUCCESS;
+		}
+	}else RETURN_ERROR("Sistema_de_criterios.c: add_memory: el tipo de consistencia es invalido. Solo se admite SC, HSC o EC");
 	return EXIT_SUCCESS;
 }
 
@@ -70,10 +89,12 @@ int procesar_describe(char *cadenaResultadoDescribe){
 		return EXIT_FAILURE;
 
 	char **descompresion = descomprimir_describe(cadenaResultadoDescribe);
-	for(int i=0; descompresion[i]!= NULL; i+=2){
-		if(tabla_esta_en_la_lista(descompresion[i]))
-			continue;//Saltea una iteracion del for;
-		MetadataTabla *tabla = malloc(sizeof(MetadataTabla));
+	for(int i=0; descompresion[i]!= NULL; i+=4){
+		MetadataTabla *tabla;
+		if((tabla = machearTabla(descompresion[i])) == NULL){//Si ya existe, la trae de la lista y se pisan los valores con el objetivo de actualizarlos, pero mantener aquellos valores que no cambiaron. Por ejemplo, el caso de una tabla SC, su memoria asignada no cambia
+			tabla = malloc(sizeof(MetadataTabla));//Si no existe, se crea una nueva
+			list_add(tablasExistentes, tabla);
+		}
 		tabla->nombre = string_from_format(descompresion[i]);
 		if(string_equals_ignore_case(descompresion[i+1], "SC"))
 			tabla->consistencia = SC;
@@ -82,7 +103,8 @@ int procesar_describe(char *cadenaResultadoDescribe){
 		if(string_equals_ignore_case(descompresion[i+1], "EC"))
 			tabla->consistencia = EC;
 		else return EXIT_FAILURE;
-		list_add(tablasExistentes, tabla);
+		tabla->particiones = atoi(descompresion[i+2]);
+		tabla->tiempoEntreCompactaciones = atoi(descompresion[i+3]);
 	}
 	destruir_split_tablas(descompresion);
 	return EXIT_SUCCESS;
@@ -98,13 +120,14 @@ int procesar_gossiping(char *cadenaResultadoGossiping){
 
 	char **descompresion = descomprimir_memoria(cadenaResultadoGossiping);
 	for(int i=0; descompresion[0]!=NULL; i+=3){
-		if(memoria_esta_en_la_lista(atoi(descompresion[i])));
-			continue;
-		Memoria *memoria = malloc(sizeof(Memoria));
+		Memoria *memoria;
+		if((memoria = machearMemoria(atoi(descompresion[i]))) == NULL);{
+			Memoria *memoria = malloc(sizeof(Memoria));
+			list_add(memoriasExistentes, memoria);
+		}
 		memoria->numero = atoi(descompresion[i]);
 		memoria->ip = descompresion[i+1];
 		memoria->puerto = descompresion[i+2];
-		list_add(memoriasExistentes, memoria);
 	}
 	destruir_split_memorias(descompresion);
 	return EXIT_SUCCESS;
@@ -130,37 +153,18 @@ static bool tabla_esta_en_la_lista(char *tabla){
 
 
 
-static bool memoria_esta_en_la_lista(int numero){
-	if(tablasExistentes == NULL){
+static bool memoria_esta_en_la_lista(t_list *lista, int numeroMemoria){
+	if(lista == NULL){
 		log_error(logger_error, "Sistema_de_criterios.c: memoria_esta_en_la_lista: aun no existen memoria conocidas en el sistema");
 		log_info(logger_invisible, "Sistema_de_criterios.c: memoria_esta_en_la_lista: aun no existen memoria conocidas en el sistema");
 		return NULL;
 	}
 	bool buscar(void *elemento){
-		return ((Memoria*)elemento)->numero == numero;
+		return ((Memoria*)elemento)->numero == numeroMemoria;
 	}
-	return list_any_satisfy(memoriasExistentes, buscar);
+	return list_any_satisfy(lista, buscar);
 }
 
-
-
-
-
-static void agregar_memoria_a_lista_criterios(Memoria *memoria, Consistencia consistencia){
-	switch(consistencia){
-	case SC:
-		list_add(memoriasSC, memoria);
-		break;
-	case HSC:
-		list_add(memoriasHSC, memoria);
-		break;
-	case EC:
-		list_add(memoriasEC, memoria);
-		break;
-	default:
-		return;
-	}
-}
 
 
 
@@ -201,16 +205,16 @@ static Memoria *sc_determinar_memoria(MetadataTabla *tabla){
 	if(memoriasSC == NULL) //Si la lista es NULL significa que nunca se creo, por lo tanto asumo que trabajamos solo com memoria principal. Si la lista es vacia ese es otro tema
 		return NULL;
 
-	if(tabla->Consistencia.SC.memoriaAsignada == NULL){
+	if(tabla->Atributos.SC.memoriaAsignada == NULL){
 		if(!list_is_empty(memoriasSC)){
-			tabla->Consistencia.SC.memoriaAsignada = list_get(memoriasSC, getNumberUntil(list_size(memoriasSC))); //Si no tiene memoria asignada se le asigna una random que va a ser permanente
+			tabla->Atributos.SC.memoriaAsignada = list_get(memoriasSC, getNumberUntil(list_size(memoriasSC))); //Si no tiene memoria asignada se le asigna una random que va a ser permanente
 		}else{
 			log_error(logger_error, "Sistema_de_criterios.c: sc_determinar_memoria: No se puede responder la request por que no hay memorias Strong Consistency disponibles");
 			log_info(logger_invisible, "Sistema_de_criterios.c: sc_determinar_memoria: No se puede responder la request por que no hay memorias Strong Consistency disponibles");
 			return NULL;
 		}
 	}
-	return tabla->Consistencia.SC.memoriaAsignada;
+	return tabla->Atributos.SC.memoriaAsignada;
 }
 
 
@@ -225,7 +229,7 @@ static Memoria *hsc_determinar_memoria(MetadataTabla *tabla){
 		log_info(logger_invisible, "Sistema_de_criterios.c: hsc_determinar_memoria: No se puede responder la request por que no hay memorias Hash Strong Consistency disponibles");
 		return NULL;
 	}
-	return (Memoria*)list_get(memoriasHSC, getHash(tabla->nombre, list_size(memoriasSC)));
+	return (Memoria*)list_get(memoriasHSC, getHash(tabla->nombre, list_size(memoriasHSC)));
 }
 
 
@@ -240,6 +244,6 @@ static Memoria *ec_determinar_memoria(MetadataTabla *tabla){
 		log_info(logger_invisible, "Sistema_de_criterios.c: ec_determinar_memoria: No se puede responder la request por que no hay memorias Eventual Consistency disponibles");
 		return NULL;
 	}
-	return (Memoria*)list_get(memoriasEC, getNumberUntil(list_size(memoriasSC)));
+	return (Memoria*)list_get(memoriasEC, getNumberUntil(list_size(memoriasEC)));
 }
 
