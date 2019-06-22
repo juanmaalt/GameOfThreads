@@ -191,10 +191,9 @@ Operacion describeAPI(Comando comando){
 
 	char* string=NULL;
 
-	printf("antes de obtener el string\n");
-	getStringDescribe(path, pathMetadata, string, comando.argumentos.DESCRIBE.nombreTabla, resultadoDescribe);
-	printf("string: %s\n", string);
-	printf("Describe_string: %s\n", resultadoDescribe.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
+	getStringDescribe(path, pathMetadata, string, comando.argumentos.DESCRIBE.nombreTabla, &resultadoDescribe);
+	//printf("string: %s\n", string);
+	//printf("Describe_string: %s\n", resultadoDescribe.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
 
 	/*Loggeo el CREATE exitoso y le aviso a la Memoria*/
 	log_info(logger_visible, "DESCRIBE exitoso.");
@@ -440,7 +439,7 @@ void insertInFile(char* path, int particionNbr, char* key, char* value){
 
 }
 
-void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombreTabla, Operacion resultadoDescribe){
+void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombreTabla, Operacion *resultadoDescribe){
 	DIR *dir;
 	struct dirent *entry;
 	char* nombreCarpeta;
@@ -454,8 +453,8 @@ void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombr
 				}else{
 					strcat(pathMetadata, nombreCarpeta);
 					strcat(pathMetadata, "/Metadata");
-					printf("path: %s\n", pathMetadata);
-					printf("nombreTabla: %s\n", nombreCarpeta);
+					//printf("path: %s\n", pathMetadata);
+					//printf("nombreTabla: %s\n", nombreCarpeta);
 
 					metadata = config_create(pathMetadata);
 					char* consistencia = config_get_string_value(metadata, "CONSISTENCY");
@@ -463,23 +462,23 @@ void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombr
 					int particiones =config_get_int_value(metadata, "PARTITIONS");
 
 					concatenar_tabla(&string, nombreCarpeta, consistencia, particiones, compactionTime);
-					printf("string: %s\n", string);
+					//printf("string: %s\n", string);
 
 					strcpy(pathMetadata,path);
 				}
 		  }
 			closedir (dir);
-			resultadoDescribe.TipoDeMensaje= DESCRIBE_REQUEST;
-			resultadoDescribe.Argumentos.DESCRIBE_REQUEST.resultado_comprimido = string_from_format(string);
+			resultadoDescribe->TipoDeMensaje= DESCRIBE_REQUEST;
+			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = string_from_format(string);
 		}else{
-			resultadoDescribe.Argumentos.ERROR.mensajeError = string_from_format("No existe la carpeta solicitada");
+			resultadoDescribe->Argumentos.ERROR.mensajeError = string_from_format("No existe la carpeta solicitada");
 		}
 	}else{
 		strcat(pathMetadata, nombreTabla);
 		if((dir = opendir (path)) != NULL){
 			strcat(pathMetadata, "/Metadata");
-			printf("path: %s\n", pathMetadata);
-			printf("nombreTabla: %s\n", nombreTabla);
+			//printf("path: %s\n", pathMetadata);
+			//printf("nombreTabla: %s\n", nombreTabla);
 
 			metadata = config_create(pathMetadata);
 			char* consistencia = config_get_string_value(metadata, "CONSISTENCY");
@@ -487,18 +486,18 @@ void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombr
 			int particiones =config_get_int_value(metadata, "PARTITIONS");
 
 			concatenar_tabla(&string, nombreTabla, consistencia, particiones, compactionTime);
-			printf("string: %s\n", string);
-			resultadoDescribe.TipoDeMensaje= DESCRIBE_REQUEST;
-			resultadoDescribe.Argumentos.DESCRIBE_REQUEST.resultado_comprimido = string_from_format(string);
+			//printf("string: %s\n", string);
+			resultadoDescribe->TipoDeMensaje= DESCRIBE_REQUEST;
+			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = string_from_format(string);
 		}
 		else{
-			resultadoDescribe.Argumentos.ERROR.mensajeError = string_from_format("No existe la carpeta solicitada");
+			resultadoDescribe->Argumentos.ERROR.mensajeError = string_from_format("No existe la carpeta solicitada");
 		}
 	}
 
-	//config_destroy(metadata);
+	config_destroy(metadata);
 
-	printf("string final: %s\n", string);
+	//printf("string final: %s\n", string);
 }
 
 /*FIN FUNCIONES COMPLEMENTARIAS*/
