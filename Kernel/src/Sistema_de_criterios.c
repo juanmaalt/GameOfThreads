@@ -119,9 +119,9 @@ int procesar_gossiping(char *cadenaResultadoGossiping){
 		return EXIT_FAILURE;
 
 	char **descompresion = descomprimir_memoria(cadenaResultadoGossiping);
-	for(int i=0; descompresion[0]!=NULL; i+=3){
+	for(int i=0; descompresion[i]!=NULL; i+=3){
 		Memoria *memoria;
-		if((memoria = machearMemoria(atoi(descompresion[i]))) == NULL);{
+		if((memoria = machearMemoria(atoi(descompresion[i]))) == NULL){
 			Memoria *memoria = malloc(sizeof(Memoria));
 			list_add(memoriasExistentes, memoria);
 		}
