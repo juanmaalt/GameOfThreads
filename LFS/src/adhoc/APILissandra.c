@@ -46,7 +46,7 @@ Operacion selectAPI(Comando comando){
 
 	/*Creo la lista de valores que condicen con dicha key*/
 	t_list* listaDeValues = list_create();
-	listaDeValues = buscarValue(data, comando.argumentos.SELECT.key, particionNbr);
+	buscarValue(data, listaDeValues, comando.argumentos.SELECT.key, particionNbr);
 
 	/*Recorro la tabla y obtengo el valor más reciente*/
 	//recorrerTabla(listaDeValues);//Función ad-hoc para testing
@@ -236,6 +236,8 @@ void dropAPI(Comando comando){
 /*INICIO FUNCIONES COMPLEMENTARIAS*/
 bool existeTabla(char* nombreTabla){
 	return dictionary_has_key(memtable, nombreTabla);
+
+	//TODO:Checkear en disco, no en la memtable
 }
 
 
@@ -247,7 +249,7 @@ int getMetadata(char* nombreTabla, t_config* metadataFile){
 
 	extraerMetadata(metadataFile);
 
-	mostrarMetadata();//funcion adhoc para testing
+	//mostrarMetadata();//funcion adhoc para testing
 
 	return EXIT_SUCCESS;
 }
@@ -290,8 +292,8 @@ int calcularParticionNbr(char* key, int particiones){
 }
 
 
-t_list* buscarValue(t_list* data, char* key, int particionNbr){
-	printf("Numero de partición: %d\n\n", particionNbr);
+t_list* buscarValueEnLista(t_list* data, char* key){
+	//printf("Numero de partición: %d\n\n", particionNbr);
 
 	bool compararConItem(void* item){
 		if (atoi(key) != obtenerKey((Registro*) item)) {
@@ -303,6 +305,11 @@ t_list* buscarValue(t_list* data, char* key, int particionNbr){
 	return list_filter(data, compararConItem);
 }
 
+void buscarValue(t_list* data, t_list* listaDeValues, char* key, int particionNbr){
+	listaDeValues=buscarValueEnLista(data, key);
+
+
+}
 
 void recorrerTabla(t_list* lista){
 	Registro* reg= NULL;

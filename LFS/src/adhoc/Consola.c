@@ -23,6 +23,12 @@ void mostrarRetorno(Operacion retorno) {
 		return;
 	case COMANDO:
 		return;
+	case DESCRIBE_REQUEST:
+		return;
+	case GOSSIPING_REQUEST:
+		return;
+	case GOSSIPING_REQUEST_KERNEL:
+		return;
 	}
 }
 

@@ -170,6 +170,9 @@ void handshakeMemoria(int socketMemoria){
 		case ERROR:
 		case COMANDO:
 		case REGISTRO:
+		case DESCRIBE_REQUEST:
+		case GOSSIPING_REQUEST:
+		case GOSSIPING_REQUEST_KERNEL:
 			break;
 	}
 }
