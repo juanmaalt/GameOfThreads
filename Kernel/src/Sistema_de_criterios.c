@@ -114,6 +114,22 @@ int procesar_describe(char *cadenaResultadoDescribe){
 
 
 
+void mostrar_describe(char *cadenaResultadoDescribe){
+	char **descompresion = descomprimir_describe(cadenaResultadoDescribe);
+	for(int i=0; descompresion[i]!= NULL; i+=4){
+		printf(GRN"Tabla: %s"STD, descompresion[i]);
+		printf("Consistencia: %s", descompresion[i+1]);
+		printf("Numero de particiones: %s", descompresion[i+2]);
+		printf("Tiempo entre compactacion: %s", descompresion[i+3]);
+		printf("\n");
+	}
+	destruir_split_tablas(descompresion);
+}
+
+
+
+
+
 int procesar_gossiping(char *cadenaResultadoGossiping){
 	if(memoriasExistentes == NULL)
 		return EXIT_FAILURE;
