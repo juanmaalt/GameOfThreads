@@ -79,25 +79,25 @@ void *connection_handler(void *nSocket){
 	return NULL;
 }
 /*FIN FUNCION PARA MANEJO DE HILOS*/
-
+/*
 void setPathTabla(char* path, char* nombreTabla){
 	strcpy(path,config.punto_montaje);
 	strcat(path, "Tables/");
 	strcat(path, nombreTabla);
 }
-
+*///TODO:Ya existe -.-
 void dump(t_dictionary* memtable) {
 	//TODO: wait semaforo
 	numeroDump++;
-	dictionary_iterator(memtable, (void*) dumpTable);
+	//dictionary_iterator(memtable, (void*) dumpTabla);//TODO:Arreglar
 	dictionary_clean(memtable);
 }
 
 void dumpTabla(char* nombreTable, void* value) {
 	char* path = malloc(100 * sizeof(char));
-	setPathTabla(path, nombreTabla);
+	setPathTabla(path, nombreTable);
 
-	char* pathArchivo = pathArchivo(path);
+	char* pathArchivo;// = pathArchivo(path); //TODO:Arreglar
 
 	FILE* file = fopen(pathArchivo,"w");
 	t_list* list = (t_list*) value;
@@ -111,7 +111,7 @@ void dumpTabla(char* nombreTable, void* value) {
 		i++;
 		reg = list_get(list, i);
 	}
-	list_clean(list)
+	list_clean(list);
 	fclose(file);
 	free(pathArchivo);
 }

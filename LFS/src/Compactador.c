@@ -1,4 +1,4 @@
-
+/*
 void compactarTabla(char* nombreTabla) {
 	char* path = malloc(100 * sizeof(char));
 	setPathTabla(path, nombreTabla);
@@ -52,6 +52,7 @@ void compactarRegistro(Registro* registro) {
 	//TODO: meter registro en el bin correspondiente
 }
 
-void deleteFile(char* fileName) {
+void deleteFile(char* fileName){
 	//TODO: delete file
 }
+*/
