@@ -207,6 +207,7 @@ Operacion ejecutarOperacion(char* input){ //TODO: TIPO de retorno Resultado
 			retorno = describeAPI(*parsed);
 			break;
 		case DROP:
+			retorno = dropAPI(*parsed);
 			break;
 		default:
 			fprintf(stderr, RED"No se pude interpretar el enum: %d"STD"\n",parsed->keyword);

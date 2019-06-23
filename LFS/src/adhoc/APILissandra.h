@@ -20,7 +20,7 @@ Operacion selectAPI(Comando comando);
 Operacion insertAPI(Comando comando);
 Operacion createAPI(Comando);
 Operacion describeAPI(Comando);
-void dropAPI(Comando);
+Operacion dropAPI(Comando);
 
 //COMPLEMENTARIAS
 bool existeTabla(char* key);
