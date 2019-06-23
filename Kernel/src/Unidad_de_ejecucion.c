@@ -224,8 +224,8 @@ static int procesar_retorno_operacion(Operacion op){
 		mostrar_describe(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
 		return CONTINUAR;
 	default:
-		log_info(logger_visible,"CPU: %d | ID Operacion: %d | Instruccion invalida o fuera de contexto", process_get_thread_id(), op.opCode);
-		log_info(logger_invisible,"CPU: %d | ID Operacion: %d | Instruccion invalida o fuera de contexto", process_get_thread_id(), op.opCode);
+		log_error(logger_visible,"CPU: %d | ID Operacion: %d | Instruccion invalida o fuera de contexto", process_get_thread_id(), op.opCode);
+		log_error(logger_invisible,"CPU: %d | ID Operacion: %d | Instruccion invalida o fuera de contexto", process_get_thread_id(), op.opCode);
 		return INSTRUCCION_ERROR;
 	}
 	return INSTRUCCION_ERROR;

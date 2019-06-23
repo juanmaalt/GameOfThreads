@@ -10,6 +10,7 @@
 
 //FUNCIONES: Privadas
 static int new_lql(char* path);
+static int run_all_lql(char *dirPath);
 static int new_comando(PCB_DataType tipo, char *data);
 
 void *recibir_comandos(void *null){
@@ -37,13 +38,10 @@ void *recibir_comandos(void *null){
 	            		log_error(logger_error, "Consola.c: add_memory: fallo la asociacion de la memoria al criterio");
 	            		log_error(logger_invisible, "Consola.c: add_memory: fallo la asociacion de la memoria al criterio");
 	            	}
+	            	free(userImput);
 	            	break;
 
 	            case RUN:
-	            	if(string_equals_ignore_case(parsed->argumentos.RUN.path, "TEST")){
-	            		funcion_loca_de_testeo_de_concurrencia();
-	            		break;
-	            	}
 	            	if(new_lql(parsed->argumentos.RUN.path) == EXIT_FAILURE){
 	            		log_error(logger_error, "Consola.c: recibir_comandos: hubo un problema en el archivo LQL");
 	            		log_error(logger_invisible, "Consola.c: recibir_comandos: hubo un problema en el archivo LQL");
@@ -51,16 +49,28 @@ void *recibir_comandos(void *null){
 	            	free(userImput);
 	                break;
 
+	            case RUN_ALL:
+	            	if(run_all_lql(parsed->argumentos.RUN_ALL.dirPath) == EXIT_FAILURE){
+	            		log_error(logger_error, "Consola.c: recibir_comandos: hubo un problema en el directorio que contiene los archivos LQL");
+	            		log_error(logger_invisible, "Consola.c: recibir_comandos: hubo un problema en el directorio que contiene los archivos LQL");
+	            	}
+	            	free(userImput);
+	            	break;
+
 	            case METRICS:
-	            	if(parsed->argumentos.METRICS.stop == NULL)
-	            		ver_metricas();
-	            	else
-	            		no_ver_metricas();
+	            	ver_metricas();
+	            	free(userImput);
 	                break;
+
+	            case METRICS_STOP:
+	            	no_ver_metricas();
+	            	free(userImput);
+	            	break;
 
 	            default:
             		log_error(logger_error, "Consola.c: recibir_comandos: no se pude interpretar el enum");
             		log_error(logger_invisible, "Consola.c: recibir_comandos: no se pude interpretar el enum");
+            		free(userImput);
 	        }
 	        destruir_comando(*parsed);
 	    }else{
@@ -116,20 +126,21 @@ static int new_lql(char *path){
 
 
 
-void funcion_loca_de_testeo_de_concurrencia(void){
+static int run_all_lql(char *dirPath){
 	DIR *dir;
 	struct dirent *ent;
-	if ((dir = opendir ("lql")) != NULL) {
+	if ((dir = opendir (dirPath)) != NULL) {
 		/* print all the files and directories within directory */
 		while ((ent = readdir (dir)) != NULL) {
-		  char *archivo = string_from_format("lql/%s", ent->d_name);
+		  char *archivo = string_from_format("%s/%s", dirPath, ent->d_name);
 		  new_lql(archivo);
 		  free(archivo);
 		}
 	 	closedir (dir);
 	} else {
 		/* could not open directory */
-		printf(RED"No se encontro el directorio lql para los tests"STD);
-		return;
+		printf(RED"No se encontro el directorio"STD"\n");
+		return EXIT_FAILURE;
 	}
+	return EXIT_SUCCESS;
 }
