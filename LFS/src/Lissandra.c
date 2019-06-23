@@ -193,7 +193,7 @@ Operacion ejecutarOperacion(char* input){ //TODO: TIPO de retorno Resultado
 	usleep(atoi(config.retardo)*1000);
 
 	if (parsed->valido) {
-		switch (parsed->keyword) {
+		switch (parsed->keyword){
 		case SELECT:
 			retorno = selectAPI(*parsed);
 			break;
@@ -264,7 +264,7 @@ void agregarDatos(t_dictionary* memtable){
 	reg4->value=string_from_format("carlos2");
 
 	t_list* lista = list_create();
-	char* tabla=string_from_format("tabla");
+	char* tabla=string_from_format("test");
 
 	dictionary_put(memtable, tabla, lista);//Agrego una tabla y su data;
 

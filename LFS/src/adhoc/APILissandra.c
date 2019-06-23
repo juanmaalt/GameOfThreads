@@ -43,7 +43,7 @@ Operacion selectAPI(Comando comando){
 
 	/*Calculo el nro de partición en la que se encuentra la key*/
 	int particionNbr = calcularParticionNbr(comando.argumentos.SELECT.key, metadata.partitions);
-	printf("Partición Nro: %d", particionNbr);
+	printf("Partición Nro: %d\n", particionNbr);
 
 	/*Creo la lista de valores que condicen con dicha key*/
 	t_list* listaDeValues = list_create();
@@ -305,36 +305,30 @@ void recorrerTabla(t_list* lista){
 
 
 Operacion getValueMasReciente(t_list* lista){
+	Operacion op;
 
-	bool compararFechas(void* item1, void* item2){
-		if (obtenerTimestamp((Registro*) item1) < obtenerTimestamp((Registro*) item2)) {
-			return false;
+	if(list_size(lista)>0){
+			bool compararFechas(void* item1, void* item2){
+			if (obtenerTimestamp((Registro*) item1) < obtenerTimestamp((Registro*) item2)) {
+				return false;
+			}
+			return true;
 		}
-		return true;
+
+		list_sort(lista, compararFechas);
+
+		Registro* reg = list_get(lista, 0);
+
+		op.TipoDeMensaje = REGISTRO;
+		op.Argumentos.REGISTRO.timestamp=reg->timestamp;
+		op.Argumentos.REGISTRO.key=reg->key;
+		op.Argumentos.REGISTRO.value=string_from_format(reg->value);
+
+	}else{
+		op.TipoDeMensaje = ERROR;
+		op.Argumentos.ERROR.mensajeError = string_from_format("No existen registros relacionados con la key solicitada");
 	}
 
-	list_sort(lista, compararFechas);
-
-	//Registro* reg = malloc(sizeof(Registro));
-	Registro* reg = list_get(lista, 0);
-
-	//printf("\nEl registro más reciente es:\n");
-	//printf("Registro->Timestamp= %llu\n",reg->timestamp);
-	//printf("Registro->Key= %d\n", reg->key);
-	//printf("Registro->Value= %s\n", reg->value);
-
-	Operacion op;
-	op.TipoDeMensaje = REGISTRO;
-	op.Argumentos.REGISTRO.timestamp=reg->timestamp;
-	op.Argumentos.REGISTRO.key=reg->key;
-	op.Argumentos.REGISTRO.value=string_from_format(reg->value);
-
-	//printf("\nEl registro más reciente es:\n");
-	//printf("Registro->Timestamp= %llu\n",op.Argumentos.REGISTRO.timestamp);
-	//printf("Registro->Key= %d\n", op.Argumentos.REGISTRO.key);
-	//printf("Registro->Value= %s\n", op.Argumentos.REGISTRO.value);
-
-	//free(reg);
 
 	return op;
 }
