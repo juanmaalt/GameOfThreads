@@ -79,6 +79,11 @@ void *connection_handler(void *nSocket){
 }
 /*FIN FUNCION PARA MANEJO DE HILOS*/
 
+void dump(t_dictionary* memtable) {
+	//TODO: wait semaforo
+	dictionary_iterator(memtable, (void*) dumpTable);
+	dictionary_clean(memtable);
+}
 
 /*INICIO FUNCIONES CONFIG*/
 int configuracion_inicial(){
