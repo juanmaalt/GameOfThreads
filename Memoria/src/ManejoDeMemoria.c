@@ -88,8 +88,11 @@ void insertarPaginaDeSegmento(char* value, uint16_t key, timestamp_t ts, segment
 }
 
 Operacion tomarContenidoPagina(registroTablaPag_t registro) {
+	//Paso copia del registro ya que solo me interesa el nroMarco, no modifico nada en el registro
 
 	Operacion resultadoRetorno;
+
+	resultadoRetorno.TipoDeMensaje=REGISTRO;
 
 	void * direccionMarco = memoriaPrincipal.memoria
 			+ memoriaPrincipal.tamanioMarco * registro.nroMarco;

@@ -102,7 +102,6 @@ Operacion selectAPI(char* input, Comando comando) {
 
 			resultadoSelect = tomarContenidoPagina(*registroBuscado);
 
-			resultadoSelect.TipoDeMensaje = REGISTRO;
 			return resultadoSelect;
 
 		}else{
@@ -326,21 +325,52 @@ Operacion dropAPI(char* input, Comando comando) {
 	return resultadoDrop;
 
 }
+
+//TODO: BORRAR Y DEJAR JOURNAL BIEN
+
+void mostrarRegistrosConFlagDeModificado(void){
+	void mostrarRegistros(void * segmento){
+
+		void muestroRegistro(void* registro){
+
+			void mostrarRetorno(Operacion retorno) {
+							printf("REGISTRO\n");
+							printf("Timestamp: %llu\nKey:%d\nValue: %s\n",
+									retorno.Argumentos.REGISTRO.timestamp,
+									retorno.Argumentos.REGISTRO.key,
+									retorno.Argumentos.REGISTRO.value);
+							return;
+
+			}
+
+			if(((registroTablaPag_t *) registro)->flagModificado){
+				mostrarRetorno(tomarContenidoPagina(*((registroTablaPag_t *) registro)));
+			}
+		}
+
+
+		list_iterate(((segmento_t *) segmento)->tablaPaginas->registrosPag, muestroRegistro);
+
+	}
+	list_iterate(tablaSegmentos.listaSegmentos, mostrarRegistros);
+
+}
+
 //COSAS A TENER EN CUENTA
 //Una vez efectuados estos envíos se procederá a eliminar los segmentos actuales.
-
 
 Operacion journalAPI(){
 	Operacion resultadoJournal;
 	char * input;
-	usleep(vconfig.retardoJOURNAL() * 1000);
+	//usleep(vconfig.retardoJOURNAL() * 1000);
+
 	//char*   string_from_format(const char* format, ...);
 	//1. Por cada MCB en la listaAdminMarcos ver si tiene el flag de modificado
 	//(si en vez de tener en esa lista, lo tengo en la tabla de paginas de cada segmento, ya tengo la tabla PENSAR )
 	//	1.1. Si tiene modificado, armo un insert con todos sus datos (viendo de que tabla es) y lo mando al FS
 
 	//  1.2. Si no esta modificado avanzo
-	for(int i=0; i< JournalTestNumber; i++){
+	/*for(int i=0; i< JournalTestNumber; i++){
 
 
 		//Enviar al FS la operacion
@@ -358,4 +388,8 @@ Operacion journalAPI(){
 
 	}
 	return resultadoJournal;
+	*/
+	mostrarRegistrosConFlagDeModificado();
 }
+
+
