@@ -10,7 +10,7 @@
 //FUNCIONES: Privadas. No van en el header.
 static int exec_file_lql(PCB *pcb);
 static int exec_string_comando(PCB *pcb);
-static int procesar_retorno_operacion(Operacion op);
+static int procesar_retorno_operacion(Operacion op, PCB *pcb, char *instruccionActual);//Recibe el retorno de operacion (lo mas importante). El pcb es para mostrar datos extras como el nombre del archivo que fallo, al igual que la instruccion actual
 static socket_t direccionar_request(char *request);
 static socket_t comunicarse_con_memoria();
 static socket_t comunicarse_con_memoria_principal();
@@ -70,8 +70,8 @@ static socket_t direccionar_request(char *request){
 
 	if(memoria == NULL){
 		if(DELEGAR_A_MEMORIA_PRINCIPAL){
-			printf(YEL"Warning: la request %s se delego a la memoria principal\n"STD, request);
-			log_info(logger_invisible, "Warning: la request %s se delego a la memoria principal", request);
+			printf(YEL"Warning: la request '%s' se delego a la memoria principal\n"STD, request);
+			log_info(logger_invisible, "Warning: la request '%s' se delego a la memoria principal", request);
 			return comunicarse_con_memoria_principal();
 		}
 		return EXIT_FAILURE;
@@ -131,10 +131,11 @@ static int exec_string_comando(PCB *pcb){
 	send_msg(socketTarget, request);
 
 	request = recv_msg(socketTarget);
-	procesar_retorno_operacion(request);
+	procesar_retorno_operacion(request, pcb, (char*)pcb->data);
 
 	destruir_operacion(request);
 	free(pcb->data);
+	free(pcb->nombreArchivoLQL);
 	free(pcb);
 	close(socketTarget);
 	return FINALIZO;
@@ -156,6 +157,7 @@ static int exec_file_lql(PCB *pcb){
 		if(line == NULL || feof(lql)){
 			printf("\n");
 			fclose(lql);
+			free(pcb->nombreArchivoLQL);
 			free(pcb);
 			return FINALIZO;
 		}
@@ -163,6 +165,7 @@ static int exec_file_lql(PCB *pcb){
 		if(socketTarget == EXIT_FAILURE){
 			printf("\n");
 			fclose(lql);
+			free(pcb->nombreArchivoLQL);
 			free(pcb);
 			log_error(logger_error, "Unidad_de_ejecucion.c: exec_file_lql: no se pudo direccionar la request");
 			log_error(logger_invisible, "Unidad_de_ejecucion.c: exec_file_lql: no se pudo direccionar la request");
@@ -176,8 +179,9 @@ static int exec_file_lql(PCB *pcb){
 
 		request = recv_msg(socketTarget);
 		request.opCode = TEMPORTAL_OPCODE;
-		if(procesar_retorno_operacion(request) == INSTRUCCION_ERROR){
+		if(procesar_retorno_operacion(request, pcb, line) == INSTRUCCION_ERROR){
 			fclose(lql);
+			free(pcb->nombreArchivoLQL);
 			free(pcb);
 			close(socketTarget);
 			return INSTRUCCION_ERROR;
@@ -197,7 +201,8 @@ static int exec_file_lql(PCB *pcb){
 
 
 
-static int procesar_retorno_operacion(Operacion op){
+static int procesar_retorno_operacion(Operacion op, PCB* pcb, char* instruccionActual){
+	char *instruccionActualTemp = NULL;
 	switch(op.TipoDeMensaje){
 	case TEXTO_PLANO:
 		log_info(logger_visible,"CPU: %d | ID Operacion: %d | %s", process_get_thread_id(), op.opCode, op.Argumentos.TEXTO_PLANO.texto);
@@ -212,8 +217,10 @@ static int procesar_retorno_operacion(Operacion op){
 		log_info(logger_invisible,"CPU: %d | ID Operacion: %d | Timestamp: %llu, Key: %d, Value: %s", process_get_thread_id(), op.opCode, op.Argumentos.REGISTRO.timestamp, op.Argumentos.REGISTRO.key, op.Argumentos.REGISTRO.value);
 		return CONTINUAR;
 	case ERROR:
-		log_error(logger_error,"CPU: %d | ID Operacion: %d | Abortando: %s", process_get_thread_id(), op.opCode, op.Argumentos.ERROR.mensajeError);
-		log_error(logger_invisible,"CPU: %d | ID Operacion: %d | Abortando: %s", process_get_thread_id(), op.opCode, op.Argumentos.ERROR.mensajeError);
+		instruccionActualTemp = remover_new_line(instruccionActual);
+		log_error(logger_error,"CPU: %d | ID Operacion: %d | Fallo en la instruccion '%s', Path: '%s'. Abortando: %s", process_get_thread_id(), op.opCode, instruccionActualTemp, pcb->nombreArchivoLQL, op.Argumentos.ERROR.mensajeError);
+		log_error(logger_invisible,"CPU: %d | ID Operacion: %d | Fallo en la instruccion '%s', Path: '%s'. Abortando: %s", process_get_thread_id(), op.opCode, instruccionActualTemp, pcb->nombreArchivoLQL, op.Argumentos.ERROR.mensajeError);
+		free(instruccionActualTemp);
 		return INSTRUCCION_ERROR;
 	case DESCRIBE_REQUEST:
 		if(procesar_describe(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido) == EXIT_FAILURE){

@@ -261,3 +261,15 @@ void remover_comillas(char** cadena){
 		*cadena = temp;
 	}
 }
+
+char *remover_new_line(char* cadena){
+	char *retorno = string_from_format("%c", *cadena);
+	for(int i=1; i<strlen(cadena); ++i){
+		if(cadena[i]=='\n')
+			continue;
+		string_append(&retorno, string_from_format("%c", cadena[i]));
+	}
+	retorno = realloc(retorno, sizeof(char)*(strlen(retorno)+1));
+	retorno[strlen(retorno)]='\0';
+	return retorno;
+}

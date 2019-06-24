@@ -135,6 +135,12 @@
 	*/
 	void remover_comillas(char** cadena);
 
+	/**
+	* @NAME: remover_new_line
+	* @DESC: devuelve una nueva cadena pero sin ningun \n
+	*/
+	char *remover_new_line(char* cadena);
+
 
 
 

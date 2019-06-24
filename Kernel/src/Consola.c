@@ -87,7 +87,7 @@ void *recibir_comandos(void *null){
 
 
 static int new_comando(PCB_DataType tipo, char* data){
-	return new(tipo, (void*)data);
+	return new(tipo, (void*)data, "Request unitaria");
 }
 
 
@@ -107,15 +107,17 @@ static int new_lql(char *path){
 		comando = parsear_comando(line);
 		if(comando_validar(comando) == EXIT_FAILURE){ //TODO: posible malgasto de memoria, no perder de vista
 			destruir_comando(comando);
-    		log_error(logger_error, "Consola.c: new_lql: la linea %d del LQL es invalida", i);
-    		log_error(logger_invisible, "Consola.c: new_lql: la linea %d del LQL es invalida", i);
+			char *temp = remover_new_line(line);
+    		log_error(logger_error, "Consola.c: new_lql: la linea %d: '%s' del LQL '%s' es invalida", i, temp, path);
+    		log_error(logger_invisible, "Consola.c: new_lql: la linea %d: '%s' del LQL '%s; es invalida", i, temp, path);
+    		free(temp);
 			return EXIT_FAILURE;
 		}
 		destruir_comando(comando);
 	}
 
 	fseek(lql, 0, SEEK_SET);//Restauro el puntero del archivo al inicio
-	if(new(FILE_LQL, (void*)lql) == EXIT_FAILURE){
+	if(new(FILE_LQL, (void*)lql, path) == EXIT_FAILURE){
 		RETURN_ERROR("Consola.c: new_lql: el archivo LQL no pudo ingresar a new");
 	}
 	//el archivo FILE lql se cierra en unidad_de_ejecucion.c, exec_file_lql()

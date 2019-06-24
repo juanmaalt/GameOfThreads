@@ -27,15 +27,17 @@ int iniciar_planificador(){
 
 
 
-int new(PCB_DataType tipo, void *data){
+int new(PCB_DataType tipo, void *data, char *nombreArchivoLQL){
 	PCB *pcb = malloc(sizeof(PCB));
 	pcb->data = data; //pcb->data almacena la direccion data
 	switch(tipo){
 	case STRING_COMANDO:
 		pcb->tipo = STRING_COMANDO;
+		pcb->nombreArchivoLQL = string_from_format(nombreArchivoLQL);
 		break;
 	case FILE_LQL:
 		pcb->tipo = FILE_LQL;
+		pcb->nombreArchivoLQL = string_from_format(nombreArchivoLQL);
 		break;
 	default:
 		RETURN_ERROR("Planificador.c: new: no se reconoce el tipo de dato a ejecutar");

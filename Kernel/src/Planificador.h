@@ -25,6 +25,7 @@ typedef enum PCB_DataType_e{
 
 
 typedef struct pcb_t{
+	char *nombreArchivoLQL;
 	void *data;
 	PCB_DataType tipo;
 }PCB;
@@ -37,7 +38,7 @@ t_queue *colaDeReady;
 
 //FUNCIONES: Publicas
 int iniciar_planificador();
-int new(PCB_DataType tipo, void *data); //Esta funcion va a ser ejecutada desde la consola por el proceso de consola
+int new(PCB_DataType tipo, void *data, char *nombreArchivoLQL); //Esta funcion va a ser ejecutada desde la consola por el proceso de consola
 PCB *seleccionar_siguiente();
 void desalojar(PCB *pcb);
 void simular_retardo(void);
