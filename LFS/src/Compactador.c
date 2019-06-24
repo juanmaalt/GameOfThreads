@@ -1,9 +1,54 @@
 /*
+ * Compactador.c
  *
+ *  Created on: 24 jun. 2019
+ *      Author: juanmaalt
+ */
 
-void compactar(char* path){
-	wait(semaforoLista);
+#include "Compactador.h"
 
+void compactar(char* nombreTabla){
+	char* pathTabla = malloc(1000 * sizeof(char));
+	DIR *dir;
+	struct dirent *entry;
+	char* nombreArchivo;
+
+	strcpy(pathTabla,config.punto_montaje);
+	strcat(pathTabla, "Tables");
+	strcat(pathTabla, "/");
+	strcat(pathTabla, nombreTabla);
+
+	if((dir = opendir(pathTabla)) != NULL){
+		/*Cambio el nombre de los archivos temporales de .tmp a .tmpc*/
+		cambiarNombreFilesTemp(pathTabla);
+		/*Agrego la tabla en el diccionario de compactación, para bloquear el acceso de las funciones que lleguen*/
+		agregarTablaEnDiccCompactacion(nombreTabla);
+
+		/*Compacto los archivos .tmpc hasta que no haya más*/
+		while((entry = readdir (dir)) != NULL){
+			nombreArchivo = string_from_format(entry->d_name);
+			if(!string_equals_ignore_case(nombreArchivo, ".") || !string_equals_ignore_case(nombreArchivo, "..")){
+			}else if(string_contains(nombreArchivo, ".tmpc")){
+				/*
+				FILE* temp;
+
+				temp = abrirArchivoTemp();
+
+				while(leer(temp)!=EOF){
+					leerLinea();
+					calcularParticion();
+					agregarBloqueEnParticion();
+					escribirLineaEnBloque(); //Ver el primer bloque disponible, ver cuanto lenght queda, escribir hasta donde se pueda y lo que sigue en otro bloque
+				}*/
+
+			}
+			else{
+				printf("No hay archivos temporales para compactar\n");
+			}
+		}
+
+
+	/*
 	while(hayaFileTemps){
 		FILE* temp;
 
@@ -11,70 +56,18 @@ void compactar(char* path){
 
 		while(leer(temp)!=EOF){
 			leerLinea();
+			calcularParticion();
+			agregarBloqueEnParticion();
 			escribirLineaEnBloque(); //Ver el primer bloque disponible, ver cuanto lenght queda, escribir hasta donde se pueda y lo que sigue en otro bloque
-			actualizarParticion();
 		}
 	}
-	signal(semaforoLista);
-}
 
-
-
-
-void compactarTabla(char* nombreTabla) {
-	char* path = malloc(100 * sizeof(char));
-	setPathTabla(path, nombreTabla);
-	DIR* dir = openddir(path);
-	struct dirent *de;
-
-	while ((de = readdir(dir)) != NULL) {
-		if (isTmp(de->d_name)) {
-			FILE* file = fopen(de->d_name);
-			compactarArchivo(file)
-			fclose(file);
-			deleteFile(de->d_name);
-		}
-	}
-}
-
-int isTmp(char* name) {
-	return strcmp(extension(name), "tmp") == 0;
-}
-
-char* extension(char *filename) {
-	char* dot = strrchr(filename, '.');
-	if (!dot || dot == filename) {
-		return "";
-	}
-	return dot + 1;
-}
-
-void compactarArchivo(FILE* file) {
-	char* line = NULL;
-	size_t len = 0;
-	while (getline(&line, &len, stream) != -1) {
-		Registro* registro = registro(line, len);
-		compactarRegistro(registro);
-		free(registro);
-	}
-}
-
-Registro* registro(char* line, size_t len) {
-	Registro* registro = malloc(sizeof(Registro));
-	line = strtok(line, ",");
-	registro->timestamp = atoi(line);
-	line = strtok(line, ",");
-	registro->key = atoi(line);
-	line = strtok(line, ",");
-	strcpy(registro->value, line);
-	return registro;
-}
-
-void compactarRegistro(Registro* registro) {
-	//TODO: meter registro en el bin correspondiente
-}
-
-void deleteFile(char* fileName){
-	//TODO: delete file
-}
+	procesarPeticionesPendientes(diccCompactacion, nombreTabla); //Busca en el diccionario por el hash nombreTabla hace un pop de cada peticion y la manda a ejecutarOperacion
 */
+		sacarTablaDeDiccCompactacion(nombreTabla);
+		closedir (dir);
+	}
+	free(pathTabla);
+
+
+}
