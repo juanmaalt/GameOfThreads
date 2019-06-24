@@ -47,3 +47,11 @@ Registro* registro(char* line, size_t len) {
 	strcpy(registro->value, line);
 	return registro;
 }
+
+void compactarRegistro(Registro* registro) {
+	//TODO: meter registro en el bin correspondiente
+}
+
+void deleteFile(char* fileName) {
+	//TODO: delete file
+}
