@@ -29,20 +29,23 @@ void compactar(char* nombreTabla){
 		/*Compacto los archivos .tmpc hasta que no haya más*/
 		while((entry = readdir (dir)) != NULL){
 			nombreArchivo = string_from_format(entry->d_name);
-			if(!string_equals_ignore_case(nombreArchivo, ".") || !string_equals_ignore_case(nombreArchivo, "..")){
-			}else if(string_contains(nombreArchivo, ".tmpc")){
-				/*
-				FILE* temp;
+			if(string_contains(nombreArchivo, ".tmpc")){
+				char* pathFile = malloc(1000 * sizeof(char));
 
-				temp = abrirArchivoTemp();
+				strcpy(pathFile, pathTabla);
+				strcat(pathFile, "/");
+				strcat(pathFile, "nombreArchivo");
 
+				//FILE* temp= fopen(pathFile, "r");
+
+/*
 				while(leer(temp)!=EOF){
-					leerLinea();
-					calcularParticion();
-					agregarBloqueEnParticion();
-					escribirLineaEnBloque(); //Ver el primer bloque disponible, ver cuanto lenght queda, escribir hasta donde se pueda y lo que sigue en otro bloque
-				}*/
-
+					//leerLinea();
+					//calcularParticion();
+					//agregarBloqueEnParticion();
+					//escribirLineaEnBloque(); //Ver el primer bloque disponible, ver cuanto lenght queda, escribir hasta donde se pueda y lo que sigue en otro bloque
+				}
+*/
 			}
 			else{
 				printf("No hay archivos temporales para compactar\n");
@@ -70,6 +73,4 @@ void compactar(char* nombreTabla){
 		closedir (dir);
 	}
 	free(pathTabla);
-
-
 }
