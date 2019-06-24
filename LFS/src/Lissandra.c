@@ -119,6 +119,10 @@ char* pathArchivo(char* path) {
 	return pathArchivo;
 }
 
+void dumpRegistro(FILE* file, Registro* registro) {
+	fprintf(file, "%llu,%d,%s", registro->timestamp, registro->key, registro->value);
+}
+
 /*INICIO FUNCIONES CONFIG*/
 int configuracion_inicial(){
 	logger_visible = iniciar_logger(true);
