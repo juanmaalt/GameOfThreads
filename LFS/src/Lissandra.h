@@ -65,6 +65,8 @@ pthread_t idConsola;
 
 t_dictionary* memtable;
 
+int numeroDump;
+
 //FUNCIONES
 int configuracion_inicial();
 t_log* iniciar_logger(bool);
