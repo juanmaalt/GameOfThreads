@@ -362,7 +362,7 @@ void mostrarRegistrosConFlagDeModificado(void){
 Operacion journalAPI(){
 	Operacion resultadoJournal;
 	char * input;
-	//usleep(vconfig.retardoJOURNAL() * 1000);
+	usleep(vconfig.retardoJOURNAL() * 1000);
 
 	//char*   string_from_format(const char* format, ...);
 	//1. Por cada MCB en la listaAdminMarcos ver si tiene el flag de modificado
@@ -370,7 +370,7 @@ Operacion journalAPI(){
 	//	1.1. Si tiene modificado, armo un insert con todos sus datos (viendo de que tabla es) y lo mando al FS
 
 	//  1.2. Si no esta modificado avanzo
-	/*for(int i=0; i< JournalTestNumber; i++){
+	for(int i=0; i< JournalTestNumber; i++){
 
 
 		//Enviar al FS la operacion
@@ -388,8 +388,8 @@ Operacion journalAPI(){
 
 	}
 	return resultadoJournal;
-	*/
-	mostrarRegistrosConFlagDeModificado();
+
+	//mostrarRegistrosConFlagDeModificado();
 }
 
 
