@@ -34,6 +34,9 @@ int main(void) {
 
 	agregarDatos(memtable);//funcion para pruebas TODO:Borrar esto
 
+	/*Levantar Tablas*/
+	levantarTablasEnMemtable();
+
 	/*Inicio la consola*/
 	if(iniciar_consola() == EXIT_FAILURE){
 		log_error(logger_invisible,	"Lissandra.c: main: no se pudo levantar la consola");
@@ -132,7 +135,7 @@ void ver_config(){
 	log_info(logger_visible, BLU "PUNTO_MONTAJE=%s" STD, config.punto_montaje);
 	log_info(logger_visible, BLU "RETARDO=%s" STD, config.retardo);
 	log_info(logger_visible, BLU "TAMANIO_VALUE=%s" STD, config.tamanio_value);
-	log_info(logger_visible, "TIEMPO_DUMP=%s", config.tiempo_dump);
+	log_info(logger_visible, BLU "TIEMPO_DUMP=%s" STD, config.tiempo_dump);
 }
 /*FIN FUNCIONES CONFIG*/
 

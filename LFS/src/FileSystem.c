@@ -200,4 +200,28 @@ void checkDirectorios(){
 
 	free(path);
 }
+
+void levantarTablasEnMemtable(){
+	char* path = malloc(1000 * sizeof(char));
+	DIR *dir;
+	struct dirent *entry;
+	char* nombreCarpeta;
+
+	strcpy(path,config.punto_montaje);
+	strcat(path, "Tables");
+
+	if((dir = opendir(path)) != NULL){
+		while((entry = readdir (dir)) != NULL){
+			nombreCarpeta = string_from_format(entry->d_name);
+			if(!strcmp(nombreCarpeta, ".") || !strcmp(nombreCarpeta, "..")){
+			}else{
+				crearTablaEnMemtable(nombreCarpeta);
+				printf("Tabla levantada: %s\n", nombreCarpeta);
+			}
+		}
+		closedir (dir);
+	}
+	free(path);
+}
+
 /*FIN FUNCIONES DIRECTORIO*/
