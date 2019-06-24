@@ -29,13 +29,16 @@ int main(void) {
 	numeroDump = 0;
 
 	/*Inicio la Memtable*/
-	memtable = inicializarMemtable();
+	memtable = inicializarDiccionario();
 	bitmap = inicializarBitmap(metadataFS.blocks, metadataFS.blockSize);
 
 	agregarDatos(memtable);//funcion para pruebas TODO:Borrar esto
 
 	/*Levantar Tablas*/
 	levantarTablasEnMemtable();
+
+	/*Creo el diccionario para las tablas en compactación*/
+	diccCompactacion = inicializarDiccionario();
 
 	/*Inicio la consola*/
 	if(iniciar_consola() == EXIT_FAILURE){
@@ -141,7 +144,7 @@ void ver_config(){
 
 /*INICIO FUNCIONES COMPLEMENTARIAS*/
 
-t_dictionary* inicializarMemtable() {
+t_dictionary* inicializarDiccionario() {
 	return dictionary_create();
 }
 
@@ -211,6 +214,9 @@ Operacion ejecutarOperacion(char* input) { //TODO: TIPO de retorno Resultado
 			break;
 		case DROP:
 			retorno = dropAPI(*parsed);
+			break;
+		case RUN:
+			compactar(parsed->argumentos.RUN.path);
 			break;
 		default:
 			fprintf(stderr, RED"No se pude interpretar el enum: %d"STD"\n",parsed->keyword);

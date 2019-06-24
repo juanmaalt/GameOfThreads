@@ -34,6 +34,7 @@
 #include "adhoc/Consola.h"
 #include "adhoc/APILissandra.h"
 #include "FileSystem.h"
+#include "Compactador.h"
 
 
 /*ESTRUCTURAS*/
@@ -67,6 +68,7 @@ int socketMemoria;
 pthread_t idConsola;
 
 t_dictionary* memtable;
+t_dictionary* diccCompactacion;
 t_bitarray* bitmap;
 
 int numeroDump;
@@ -79,7 +81,7 @@ t_log* iniciar_logger(bool);
 t_config* leer_config();
 void extraer_data_config();
 void ver_config();
-t_dictionary* inicializarMemtable();
+t_dictionary* inicializarDiccionario();
 void handshakeMemoria(int socket);
 int threadConnection(int serverSocket, void *funcionThread);
 int iniciar_consola();
