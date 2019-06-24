@@ -85,6 +85,30 @@ void dump(t_dictionary* memtable) {
 	dictionary_clean(memtable);
 }
 
+void dumpTabla(char* nombreTable, void* value) {
+	char* path = malloc(100 * sizeof(char));
+	setPathTabla(path, nombreTabla);
+
+	char* pathArchivo = pathArchivo(path);
+
+	FILE* file = fopen(pathArchivo,"w");
+	t_list* list = (t_list*) value;
+
+	Registro* reg = list_get(list, 0);
+
+	int i = 0;
+	int size = list_size(list);
+	while (i < size) {
+		dumpRegistro(file, reg);
+		i++;
+		reg = list_get(list, i);
+	}
+	list_clean(list)
+	fclose(file);
+	free(pathArchivo);
+}
+
+
 /*INICIO FUNCIONES CONFIG*/
 int configuracion_inicial(){
 	logger_visible = iniciar_logger(true);
