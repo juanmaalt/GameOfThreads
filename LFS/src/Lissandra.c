@@ -108,6 +108,16 @@ void dumpTabla(char* nombreTable, void* value) {
 	free(pathArchivo);
 }
 
+char* pathArchivo(char* path) {
+	char* pathArchivo = malloc(110 * sizeof(char));
+	strcpy(pathArchivo,path);
+	strcat(pathArchivo, "dunp_");
+	char str[12];
+	sprintf(str, "%d", numeroDump);
+	strcat(pathArchivo, str);
+	strcat(pathArchivo, ".tmp");
+	return pathArchivo;
+}
 
 /*INICIO FUNCIONES CONFIG*/
 int configuracion_inicial(){
