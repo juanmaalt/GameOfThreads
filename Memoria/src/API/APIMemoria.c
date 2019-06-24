@@ -35,6 +35,7 @@ Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 			retorno = createAPI(input, *parsed);
 			break;
 		case DESCRIBE:
+			retorno = describeAPI(input, *parsed);
 			break;
 		case DROP:
 			retorno = dropAPI(input, *parsed);
