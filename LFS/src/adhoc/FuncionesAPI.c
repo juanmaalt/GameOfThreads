@@ -195,11 +195,20 @@ void escribirArchivoMetadata(char* path, Comando comando){
 }
 
 void crearArchivosBinarios(char* path, int particiones){
+	char* pathArchivo = malloc(2000 * sizeof(char));
 	char filename[8];
+	FILE* particion;
+
 	for(int i=0;i<particiones;i++){
 		sprintf(filename, "%d.bin", i);
 		crearArchivo(path, filename);
+		strcpy(pathArchivo, path);
+		strcat(pathArchivo, filename);
+
+		particion = txt_open_for_append(pathArchivo);
+		txt_write_in_file(particion, string_from_format("SIZE=0\nBLOCKS=[]\n"));
 	}
+	free(pathArchivo);
 }
 
 void insertInFile(char* path, int particionNbr, char* key, char* value){

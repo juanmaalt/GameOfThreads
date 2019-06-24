@@ -19,6 +19,7 @@
 #include <commons/collections/list.h>
 #include <commons/collections/dictionary.h>
 #include <commons/bitarray.h>
+#include <commons/txt.h>
 
 #include <cliente/cliente.h>
 #include <parser/parser_comando.h>
