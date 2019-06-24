@@ -20,7 +20,7 @@ Operacion selectAPI(Comando comando);
 Operacion insertAPI(Comando comando);
 Operacion createAPI(Comando);
 Operacion describeAPI(Comando);
-void dropAPI(Comando);
+Operacion dropAPI(Comando);
 
 //COMPLEMENTARIAS
 bool existeTabla(char* key);
@@ -34,7 +34,6 @@ t_list* buscarValueEnLista(t_list* data, char* key);
 Operacion getValueMasReciente(t_list* lista);
 timestamp_t checkTimestamp(char* timestamp);
 void crearTablaEnMemtable(char* nombreTabla);
-void setPathTabla(char* path, char* nombreTabla);
 void crearDirectorioTabla(char* nombreTabla);
 void crearArchivo(char* path, char* nombre);
 void escribirArchivoMetadata(char* path, Comando comando);

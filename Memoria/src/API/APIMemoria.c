@@ -24,7 +24,7 @@ Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 						tamanioValue,
 						(strlen(parsed->argumentos.INSERT.value) + 1));
 				retorno.Argumentos.ERROR.mensajeError = string_from_format(
-						"Error en el tamanio del value.");
+						"Error en el tamanio del value. Segmentation Fault");
 				retorno.TipoDeMensaje = ERROR;
 			} else {
 				retorno = insertAPI(input, *parsed);
@@ -102,7 +102,6 @@ Operacion selectAPI(char* input, Comando comando) {
 
 			resultadoSelect = tomarContenidoPagina(*registroBuscado);
 
-			resultadoSelect.TipoDeMensaje = REGISTRO;
 			return resultadoSelect;
 
 		}else{
@@ -113,9 +112,12 @@ Operacion selectAPI(char* input, Comando comando) {
 			resultadoSelect=recibirRequestFS();
 			if(resultadoSelect.TipoDeMensaje==REGISTRO){
 				//INSERTAR VALOR EN BLOQUE DE MEMORIA Y METER CREAR REGISTRO EN TABLA DE PAGINAS DEL SEGMENTO
-				insertarPaginaDeSegmento(resultadoSelect.Argumentos.REGISTRO.value, keyBuscada, resultadoSelect.Argumentos.REGISTRO.timestamp, segmentoSeleccionado);
+
+				insertarPaginaDeSegmento(resultadoSelect.Argumentos.REGISTRO.value, keyBuscada, resultadoSelect.Argumentos.REGISTRO.timestamp, segmentoSeleccionado, false);
+
+				//TODO: PUEDE DEVOLVER FULL OJOOOOOO, en este caso el resultado de select es ERROR con mensaje MEMORIA FULL
 				return resultadoSelect;
-			}else {
+			}else { //SE DEVUELVE EL ERROR QUE DA EL LFS
 				return resultadoSelect;
 			}
 
@@ -129,7 +131,7 @@ Operacion selectAPI(char* input, Comando comando) {
 
 		resultadoSelect=recibirRequestFS();
 		if(resultadoSelect.TipoDeMensaje==REGISTRO){
-			crearSegmentoInsertandoRegistro(comando.argumentos.SELECT.nombreTabla, resultadoSelect.Argumentos.REGISTRO.value, resultadoSelect.Argumentos.REGISTRO.timestamp, keyBuscada);
+			crearSegmentoInsertandoRegistro(comando.argumentos.SELECT.nombreTabla, resultadoSelect.Argumentos.REGISTRO.value, resultadoSelect.Argumentos.REGISTRO.timestamp, keyBuscada, false);
 			return resultadoSelect;
 		}else {
 			return resultadoSelect;
@@ -200,7 +202,9 @@ Operacion insertAPI(char* input, Comando comando) {
 
 		} else {//No contiene la KEY, se solicita una nueva página para almacenar la misma.
 
-			insertarPaginaDeSegmento(comando.argumentos.INSERT.value, keyBuscada,getCurrentTime(), segmentoSeleccionado);
+			insertarPaginaDeSegmento(comando.argumentos.INSERT.value, keyBuscada,getCurrentTime(), segmentoSeleccionado, true);
+
+			//TODO: PUEDE DEVOLVER FULL OJOOOOOO, en este caso el resultado de INSERT es ERROR con mensaje MEMORIA FULL
 
 			resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
 			resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format(
@@ -214,11 +218,14 @@ Operacion insertAPI(char* input, Comando comando) {
 		 junto con el nombre de la tabla en el segmento. Para esto se debe generar el nuevo segmento y solicitar una nueva página
 		 */
 
-		crearSegmentoInsertandoRegistro(comando.argumentos.INSERT.nombreTabla, comando.argumentos.INSERT.value, getCurrentTime(), keyBuscada);
+		crearSegmentoInsertandoRegistro(comando.argumentos.INSERT.nombreTabla, comando.argumentos.INSERT.value, getCurrentTime(), keyBuscada, true);
+
+		//TODO: PUEDE DEVOLVER FULL OJOOOOOO, en este caso el resultado de INSERT es ERROR con mensaje MEMORIA FULL
 
 		resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
 		resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format(
 				"INSERT REALIZADO CON EXITO");
+
 		return resultadoInsert;
 	}
 
@@ -319,12 +326,44 @@ Operacion dropAPI(char* input, Comando comando) {
 
 }
 
+//TODO: BORRAR Y DEJAR JOURNAL BIEN
+
+void mostrarRegistrosConFlagDeModificado(void){
+	void mostrarRegistros(void * segmento){
+
+		void muestroRegistro(void* registro){
+
+			void mostrarRetorno(Operacion retorno) {
+							printf("REGISTRO\n");
+							printf("Timestamp: %llu\nKey:%d\nValue: %s\n",
+									retorno.Argumentos.REGISTRO.timestamp,
+									retorno.Argumentos.REGISTRO.key,
+									retorno.Argumentos.REGISTRO.value);
+							return;
+
+			}
+
+			if(((registroTablaPag_t *) registro)->flagModificado){
+				mostrarRetorno(tomarContenidoPagina(*((registroTablaPag_t *) registro)));
+			}
+		}
+
+
+		list_iterate(((segmento_t *) segmento)->tablaPaginas->registrosPag, muestroRegistro);
+
+	}
+	list_iterate(tablaSegmentos.listaSegmentos, mostrarRegistros);
+
+}
+
+//COSAS A TENER EN CUENTA
 //Una vez efectuados estos envíos se procederá a eliminar los segmentos actuales.
 
 Operacion journalAPI(){
 	Operacion resultadoJournal;
 	char * input;
 	usleep(vconfig.retardoJOURNAL() * 1000);
+
 	//char*   string_from_format(const char* format, ...);
 	//1. Por cada MCB en la listaAdminMarcos ver si tiene el flag de modificado
 	//(si en vez de tener en esa lista, lo tengo en la tabla de paginas de cada segmento, ya tengo la tabla PENSAR )
@@ -349,183 +388,8 @@ Operacion journalAPI(){
 
 	}
 	return resultadoJournal;
+
+	//mostrarRegistrosConFlagDeModificado();
 }
 
-int hayPaginaDisponible(void) {
-	return queue_is_empty(memoriaPrincipal.marcosLibres) != true;
-}
 
-void insertarPaginaDeSegmento(char* value, uint16_t key, timestamp_t ts, segmento_t * segmento) {
-	if (hayPaginaDisponible()) {
-		crearRegistroEnTabla(segmento->tablaPaginas,colocarPaginaEnMemoria(ts, key, value));
-//TODO: no olvidar
-		printf("Se ingreso el registro\n");
-
-	} else {//aplicar el algoritmo de reemplazo (LRU) y en caso de que la memoria se encuentre full iniciar el proceso Journal.
-		printf("HACER LRU Y SINO JOURNAL\n");
-	}
-}
-
-bool verificarExistenciaSegmento(char* nombreTabla,
-		segmento_t ** segmentoAVerificar) {
-	char* pathSegmentoBuscado = malloc(
-			sizeof(char) * (strlen(nombreTabla) + strlen(pathLFS)) + 1);
-
-	strcpy(pathSegmentoBuscado, pathLFS);
-	strcat(pathSegmentoBuscado, nombreTabla);
-
-	//Recorro tabla de segmentos buscando pathSegmentoBuscado
-
-	bool segmentoCoincidePath(void* comparado) {
-		//printf(RED"pathSegmentoBuscado: %s\npathComparado: %s"STD"\n",pathSegmentoBuscado,obtenerPath((segmento_t*)comparado));
-		if (strcmp(pathSegmentoBuscado, obtenerPath((segmento_t*) comparado))) {
-			return false;
-		}
-		return true;
-	}
-
-	t_list* listaConSegmentoBuscado = list_filter(tablaSegmentos.listaSegmentos,
-			segmentoCoincidePath);
-
-	//Para ver que el path es el correcto
-
-	//printf("El path del segmento buscado es: %s\n", pathSegmentoBuscado);
-	free(pathSegmentoBuscado);
-
-	if (list_is_empty(listaConSegmentoBuscado)) {
-		list_destroy(listaConSegmentoBuscado);
-		printf(YEL"APIMemoria.c: NO SE ENCONTRO EL SEGMENTO"STD"\n");
-		return false;
-	}
-	//Tomo de la lista filtrada el segmento con el path coincidente
-
-	*segmentoAVerificar = (segmento_t*) list_get(listaConSegmentoBuscado, 0);
-
-	//Elimino la lista filtrada
-	list_destroy(listaConSegmentoBuscado);
-
-	return true;
-}
-
-//Busca en cada registro de la tabla de paginas el indice de marco y me fijo si coincide la key
-
-//En vez de pasarle value le paso la operación que quiero hacer con value (modificarlo con insert o tomarlo con select)
-
-bool contieneKey(segmento_t* segmentoElegido, uint16_t keyBuscada,
-		registroTablaPag_t ** registroResultado) {
-	//1. Tomo la tabla de paginas del segmento
-
-	t_list * regsDelSegmentoElegido =
-			segmentoElegido->tablaPaginas->registrosPag;
-
-	//2. Por cada registro de la tabla, me meto en la memoria y tomo la key
-	//3. En cada marco me fijo si la key que tiene == keyBuscada
-	//3.1 En caso de que la key sea la keyBuscada tomo el valor del value, y countUso++
-	//3.2 Si la key NO es la buscada sigo con el siguiente marco
-
-	bool compararConPagina(void* registroAComparar) {
-		uint16_t *keyPagina = malloc(sizeof(uint16_t));
-
-		void* direccionPagina = memoriaPrincipal.memoria
-				+ memoriaPrincipal.tamanioMarco
-						* (((registroTablaPag_t*) registroAComparar)->nroMarco);
-		memcpy(keyPagina, direccionPagina + sizeof(timestamp_t),
-				sizeof(uint16_t));
-
-		if (*keyPagina == keyBuscada) {
-			//Aumento el uso de la pagina
-			free(keyPagina);
-			return true;
-		}
-		free(keyPagina);
-		return false;
-	}
-
-	t_list* listaConRegistroBuscado = list_filter(regsDelSegmentoElegido,
-			compararConPagina);
-
-	if (list_is_empty(listaConRegistroBuscado)) {
-		list_destroy(listaConRegistroBuscado);
-		return false;
-	}
-
-	*registroResultado = (registroTablaPag_t*) list_remove(
-			listaConRegistroBuscado, 0);
-	list_destroy(listaConRegistroBuscado);
-
-	return true;
-
-}
-
-Operacion tomarContenidoPagina(registroTablaPag_t registro) {
-
-	Operacion resultadoRetorno;
-
-	void * direccionMarco = memoriaPrincipal.memoria
-			+ memoriaPrincipal.tamanioMarco * registro.nroMarco;
-	/*timestamp_t timestamp;
-	 uint16_t key;
-	 */
-	resultadoRetorno.Argumentos.REGISTRO.value = malloc(
-			sizeof(char) * tamanioValue);
-
-	memcpy(&resultadoRetorno.Argumentos.REGISTRO.timestamp, direccionMarco,
-			sizeof(timestamp_t));
-
-	memcpy(&resultadoRetorno.Argumentos.REGISTRO.key,
-			direccionMarco + sizeof(timestamp_t), sizeof(uint16_t));
-
-	strcpy(resultadoRetorno.Argumentos.REGISTRO.value,
-			direccionMarco + sizeof(timestamp_t) + sizeof(uint16_t));
-
-	//printf("Timestamp: %llu\nKey:%d\nValue: %s\n",timestamp,key,value);
-
-	return resultadoRetorno;
-
-}
-
-void actualizarValueDeKey(char *value, registroTablaPag_t *registro){
-	void * direccionMarco = memoriaPrincipal.memoria + memoriaPrincipal.tamanioMarco * registro->nroMarco;
-
-	timestamp_t tsActualizado = getCurrentTime();
-
-	memcpy(direccionMarco, &tsActualizado, sizeof(timestamp_t));
-	strcpy(direccionMarco + sizeof(timestamp_t) + sizeof(uint16_t),value);
-
-}
-
-void crearSegmentoInsertandoRegistro(char * nombreTabla, char* value, timestamp_t ts, uint16_t key){
-	//Crear un segmento
-	segmento_t* segmentoNuevo = malloc(sizeof(segmento_t));
-
-	//Asignar path determinado
-	asignarPathASegmento(segmentoNuevo, nombreTabla);
-
-	//Crear su tabla de paginas
-	segmentoNuevo->tablaPaginas = malloc(sizeof(tabla_de_paginas_t));
-	segmentoNuevo->tablaPaginas->registrosPag = list_create();
-
-	insertarPaginaDeSegmento(value, key, ts, segmentoNuevo);
-
-	//Agregar segmento Nuevo a tabla de segmentos
-	list_add(tablaSegmentos.listaSegmentos, (segmento_t*) segmentoNuevo);
-}
-
-void enviarRequestFS(char* input) {
-	lfsSocket = conectarLFS(); //TODO: NO DEJARLA COMO GLOBAL
-
-	Operacion request;
-	request.TipoDeMensaje = COMANDO;
-
-	request.Argumentos.COMANDO.comandoParseable = string_from_format(input);
-
-	send_msg(lfsSocket, request);
-
-	destruir_operacion(request);
-}
-
-Operacion recibirRequestFS(void) {
-	Operacion resultado;
-	resultado = recv_msg(lfsSocket);
-	return resultado;
-}

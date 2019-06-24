@@ -32,17 +32,17 @@ int main(void) {
 		return EXIT_FAILURE;
 	}
 	mostrar_por_pantalla_config();
-
+/*
 	 if(realizarHandshake()==EXIT_FAILURE){
 		 printf(RED"Memoria.c: main: no se pudo inicializar la memoria principal"STD"\n");
 		 return EXIT_FAILURE;
 	 }
-/*
+*/
 	tamanioValue = 4;
 
 	pathLFS = malloc(strlen("/puntoDeMontajeQueMeDaJuanEnElHandshake/") * sizeof(char)+ 1);
 	strcpy(pathLFS, "/puntoDeMontajeQueMeDaJuanEnElHandshake/");
-*/
+
 	// Inicializar la memoria principal
 	if (inicializar_memoriaPrincipal() == EXIT_FAILURE) {
 		log_error(logger_invisible,
@@ -147,133 +147,10 @@ int realizarHandshake(void) {
 	return EXIT_SUCCESS;
 }
 
-int handshakeLFS(int socketLFS) {
-	Operacion handshake;
 
-	handshake.TipoDeMensaje= TEXTO_PLANO;
+//TODO: FUNCION A ELIMINAR >>> USADA PARA TEST
 
-	handshake.Argumentos.TEXTO_PLANO.texto= string_from_format("handshake");
-
-	send_msg(socketLFS, handshake);
-
-	destruir_operacion(handshake);
-
-	//Recibo el tamanio
-	//while((handshake = recv_msg(socketLFS)).TipoDeMensaje)
-	handshake = recv_msg(socketLFS);
-
-	switch(handshake.TipoDeMensaje){
-		case TEXTO_PLANO:
-			tamanioValue=atoi(handshake.Argumentos.TEXTO_PLANO.texto);
-			destruir_operacion(handshake);
-			break;
-		case ERROR:
-		case REGISTRO:
-		case COMANDO:
-		default:
-			return EXIT_FAILURE;
-	}
-
-
-	//Pido el punto de montaje
-	handshake.TipoDeMensaje= TEXTO_PLANO;
-	handshake.Argumentos.TEXTO_PLANO.texto=string_from_format("handshake pathLFS");
-
-	send_msg(socketLFS, handshake);
-
-	destruir_operacion(handshake);
-
-	//Recibo el punto de montaje
-	handshake = recv_msg(socketLFS);
-
-	switch(handshake.TipoDeMensaje){
-			case TEXTO_PLANO:
-				pathLFS=string_from_format(handshake.Argumentos.TEXTO_PLANO.texto);
-				destruir_operacion(handshake);
-				break;
-			case ERROR:
-			case REGISTRO:
-			case COMANDO:
-			default:
-				return EXIT_FAILURE;
-		}
-
-	log_info(logger_visible, "El size del value es: %d", tamanioValue);
-	log_info(logger_visible, "El punto de montaje es: %s",pathLFS);
-
-	return EXIT_SUCCESS;
-}
-
-int conectarLFS() {
-	//Obtiene el socket por el cual se va a conectar al LFS como cliente / * Conectarse al proceso File System
-	int socket = connect_to_server(fconfig.ip_fileSystem, fconfig.puerto_fileSystem);
-	if (socket == EXIT_FAILURE) {
-		log_error(logger_visible,"El LFS no está levantado. Cerrar la Memoria, levantar el LFS y volver a levantar la Memoria");
-		return EXIT_FAILURE;
-	}
-	return socket;
-}
-
-char* obtenerPath(segmento_t* segmento) {
-	return segmento->pathTabla;
-}
-
-void mostrarContenidoMemoria() {
-	timestamp_t timestamp;
-	uint16_t key;
-	char* value = malloc(sizeof(char) * tamanioValue);
-	memcpy(&timestamp, memoriaPrincipal.memoria, sizeof(timestamp_t));
-	memcpy(&key, memoriaPrincipal.memoria + sizeof(timestamp_t),
-			sizeof(uint16_t));
-	strcpy(value,
-			memoriaPrincipal.memoria + sizeof(timestamp_t) + sizeof(uint16_t));
-
-	printf("Timestamp: %llu\nKey:%d\nValue: %s\n", timestamp, key, value);
-
-	free(value);
-
-}
-
-void asignarPathASegmento(segmento_t * segmentoANombrar, char* nombreTabla) {
-	segmentoANombrar->pathTabla = malloc(
-			sizeof(char) * (strlen(pathLFS) + strlen(nombreTabla)) + 1);
-	strcpy(segmentoANombrar->pathTabla, pathLFS);
-	strcat(segmentoANombrar->pathTabla, nombreTabla);
-}
-
-void crearRegistroEnTabla(tabla_de_paginas_t *tablaDondeSeEncuentra, int indiceMarco) {
-	registroTablaPag_t *registroACrear = malloc(sizeof(registroTablaPag_t));
-
-	registroACrear->nroPagina=list_size(tablaDondeSeEncuentra->registrosPag)-1;
-
-	registroACrear->nroMarco = indiceMarco;
-
-	list_add(tablaDondeSeEncuentra->registrosPag,(registroTablaPag_t*) registroACrear);
-
-}
-
-//Retorna el numero de marco donde se encuentra la pagina
-
-int colocarPaginaEnMemoria(timestamp_t timestamp, uint16_t key, char* value) { //DEBE DEVOLVER ERROR_MEMORIA_FULL si la cola esta vacia
-	if (queue_is_empty(memoriaPrincipal.marcosLibres)) {
-		return ERROR_MEMORIA_FULL;
-	}
-	//wSEMAFORO
-	MCB_t * marcoObjetivo = (MCB_t *) queue_pop(memoriaPrincipal.marcosLibres); //No se elimina porque el MCB tambien esta en listaAdministrativaMarcos
-
-	void * direccionMarco = memoriaPrincipal.memoria + memoriaPrincipal.tamanioMarco * marcoObjetivo->nroMarco;
-
-	memcpy(direccionMarco, &timestamp, sizeof(timestamp_t));
-
-	memcpy(direccionMarco + sizeof(timestamp_t), &key, sizeof(uint16_t));
-
-	memcpy(direccionMarco + sizeof(timestamp_t) + sizeof(uint16_t), value,
-			(sizeof(char) * tamanioValue));
-	//sSEMAFORO
-	return marcoObjetivo->nroMarco;
-}
-
-void memoriaConUnSegmentoYUnaPagina(void) {
+void memoriaConUnSegmentoYUnaPagina(void) { //TODO: se podrian usar las de manejo de memoria...
 
 	//Crear un segmento
 	segmento_t* segmentoEjemplo = malloc(sizeof(segmento_t));
@@ -290,7 +167,7 @@ void memoriaConUnSegmentoYUnaPagina(void) {
 
 	//Crear registro de pagina en la tabla
 
-	crearRegistroEnTabla(segmentoEjemplo->tablaPaginas, indiceMarcoEjemplo);
+	crearRegistroEnTabla(segmentoEjemplo->tablaPaginas, indiceMarcoEjemplo, false);
 
 	//Agregar segmento Ejemplo a tabla de segmentos
 	list_add(tablaSegmentos.listaSegmentos, (segmento_t*) segmentoEjemplo);
