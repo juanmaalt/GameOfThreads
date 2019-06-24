@@ -120,7 +120,7 @@ char* pathArchivo(char* path) {
 }
 
 void dumpRegistro(FILE* file, Registro* registro) {
-	fprintf(file, "%llu,%d,%s", registro->timestamp, registro->key, registro->value);
+	fprintf(file, "%llu,%d,%s\n", registro->timestamp, registro->key, registro->value);
 }
 
 /*INICIO FUNCIONES CONFIG*/
