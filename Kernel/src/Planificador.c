@@ -16,6 +16,9 @@ int iniciar_planificador(){
 	//if(comunicarse_con_memoria() == EXIT_FAILURE)
 		//RETURN_ERROR("Planificador.c: iniciar_planificador: no se pudo establecer una conexion con la memoria principal");
 
+	if(iniciar_sistema_de_criterios() == EXIT_FAILURE)
+		RETURN_ERROR("Planificador.c: iniciar_planificador: no se pudo iniciar el sistema de criterios");
+
 	colaDeReady = queue_create();
 	sem_post(&disponibilidadPlanificador); //No queremos que la consola agregue algo a la cola de news si todavia no existe la cola de news
 

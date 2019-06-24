@@ -11,6 +11,8 @@
 static void *servicio_metricas(void *null);
 static int iniciar_servicio_metricas();
 static int mostrar_metricas_por_pantalla();
+static void refrescar_valores(); //Como los valores que se deben mostrar son cada 30 segundos, entonces cada 30 segundos tengo que reestablecer todos los valores
+static int servicioEstaEncendido;
 
 int ver_metricas(){
 	if(servicioEstaEncendido)
@@ -27,6 +29,7 @@ int ver_metricas(){
 
 
 void no_ver_metricas(){
+	servicioEstaEncendido = 0;
 	pthread_cancel(servicioMetricas);
 }
 
@@ -36,6 +39,7 @@ void no_ver_metricas(){
 
 static void *servicio_metricas(void *null){
 	INICIO:
+	//refrescar_valores(); TODO: descomentar para la entrega final
 	sleep(TIEMPO_DE_REFRESCO_DE_METRICAS);
 	mostrar_metricas_por_pantalla();
 	goto INICIO;
@@ -49,9 +53,8 @@ static void *servicio_metricas(void *null){
 
 
 static int iniciar_servicio_metricas(){
-	metricas.At.EventualConsistency.memoryLoad = dictionary_create();
-	metricas.At.HashStrongConsistency.memoryLoad = dictionary_create();
-	metricas.At.StrongConsistency.memoryLoad = dictionary_create();
+	if(memoriasExistentes == NULL)
+		RETURN_ERROR("Metrics.c: iniciar_servicio_metricas: deberia esperar a que se inicien las estructuras de las memorias");
 
 	if(pthread_create(&servicioMetricas, NULL, servicio_metricas, NULL))
 		RETURN_ERROR("Metricas.c: iniciar_servicio_metricas: fallo la creacion del servicio de metricas");
@@ -65,12 +68,8 @@ static int iniciar_servicio_metricas(){
 
 
 static int mostrar_metricas_por_pantalla(){
-	if(metricas.At.EventualConsistency.memoryLoad == NULL || metricas.At.HashStrongConsistency.memoryLoad == NULL || metricas.At.StrongConsistency.memoryLoad == NULL){
-		RETURN_ERROR("Metrics.c: mostrar_metricas: no se pueden mostrar por que el servicio no se inicializo");
-	}
-
-	void mostrar_elemento_dictionary(char* key, void* value){
-		log_info(logger_visible, "Memoria: %s, Loads: int", key, *(int *)value);
+	if(memoriasExistentes == NULL){
+		RETURN_ERROR("Metrics.c: mostrar_metricas: deberia esperar a que se inicien las estructuras de las memorias");
 	}
 
 	//Logger visible
@@ -82,7 +81,6 @@ static int mostrar_metricas_por_pantalla(){
 	log_info(logger_visible, "Write latency: %llu", metricas.At.StrongConsistency.writeLatency);
 	log_info(logger_visible, "Reads: %d", metricas.At.StrongConsistency.reads);
 	log_info(logger_visible, "Writes: %d", metricas.At.StrongConsistency.writes);
-	dictionary_iterator(metricas.At.StrongConsistency.memoryLoad, mostrar_elemento_dictionary);
 
 	printf("\n");
 
@@ -91,7 +89,6 @@ static int mostrar_metricas_por_pantalla(){
 	log_info(logger_visible, "Write latency: %llu", metricas.At.HashStrongConsistency.writeLatency);
 	log_info(logger_visible, "Reads: %d", metricas.At.HashStrongConsistency.reads);
 	log_info(logger_visible, "Writes: %d", metricas.At.HashStrongConsistency.writes);
-	dictionary_iterator(metricas.At.HashStrongConsistency.memoryLoad, mostrar_elemento_dictionary);\
 
 	printf("\n");
 
@@ -100,7 +97,6 @@ static int mostrar_metricas_por_pantalla(){
 	log_info(logger_visible, "Write latency: %llu", metricas.At.EventualConsistency.writeLatency);
 	log_info(logger_visible, "Reads: %d", metricas.At.EventualConsistency.reads);
 	log_info(logger_visible, "Writes: %d", metricas.At.EventualConsistency.writes);
-	dictionary_iterator(metricas.At.EventualConsistency.memoryLoad, mostrar_elemento_dictionary);
 
 	printf("\n");
 
@@ -108,4 +104,41 @@ static int mostrar_metricas_por_pantalla(){
 	//TODO: mostrar metricas invisibles
 
 	return EXIT_SUCCESS;
+}
+
+
+
+
+
+static void refrescar_valores(){
+	void refrescar_memoria(void *memoria){
+		((Memoria*)memoria)->Metrics.EC.cantidadInsert = 0;
+		((Memoria*)memoria)->Metrics.EC.cantidadSelect = 0;
+		((Memoria*)memoria)->Metrics.SC.cantidadInsert = 0;
+		((Memoria*)memoria)->Metrics.SC.cantidadSelect = 0;
+		((Memoria*)memoria)->Metrics.HSC.cantidadInsert = 0;
+		((Memoria*)memoria)->Metrics.HSC.cantidadSelect = 0;
+	}
+	list_iterate(memoriasExistentes, refrescar_memoria);
+
+	metricas.At.EventualConsistency.readLatency = 0;
+	metricas.At.EventualConsistency.acumuladorTiemposRead = 0;
+	metricas.At.EventualConsistency.acumuladorTiemposWrite = 0;
+	metricas.At.EventualConsistency.reads = 0;
+	metricas.At.EventualConsistency.writeLatency = 0;
+	metricas.At.EventualConsistency.writes = 0;
+
+	metricas.At.HashStrongConsistency.readLatency = 0;
+	metricas.At.HashStrongConsistency.acumuladorTiemposRead = 0;
+	metricas.At.HashStrongConsistency.acumuladorTiemposWrite = 0;
+	metricas.At.HashStrongConsistency.reads = 0;
+	metricas.At.HashStrongConsistency.writeLatency = 0;
+	metricas.At.HashStrongConsistency.writes = 0;
+
+	metricas.At.StrongConsistency.readLatency = 0;
+	metricas.At.StrongConsistency.acumuladorTiemposRead = 0;
+	metricas.At.StrongConsistency.acumuladorTiemposWrite = 0;
+	metricas.At.StrongConsistency.reads = 0;
+	metricas.At.StrongConsistency.writeLatency = 0;
+	metricas.At.StrongConsistency.writes = 0;
 }
