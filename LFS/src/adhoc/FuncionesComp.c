@@ -14,12 +14,12 @@ void cambiarNombreFilesTemp(char* pathTabla){
 	struct dirent *entry;
 	char* nombreArchivo;
 
+
+
 	if((dir = opendir(pathTabla)) != NULL){
 		while((entry = readdir (dir)) != NULL){
 			nombreArchivo = string_from_format(entry->d_name);
-			if(!string_equals_ignore_case(nombreArchivo, ".") || !string_equals_ignore_case(nombreArchivo, "..")){
-			}else if(string_contains(nombreArchivo, ".tmp")){
-				printf("cambiarNombreFilesTemp - pre:%s\n", nombreArchivo);
+			if(string_contains(nombreArchivo, ".tmp")){
 				strcpy(pathFileViejo, pathTabla);
 				strcat(pathFileViejo, "/");
 				strcat(pathFileViejo, nombreArchivo);
@@ -27,11 +27,6 @@ void cambiarNombreFilesTemp(char* pathTabla){
 				strcat(pathFileNuevo, "c");
 
 				rename(pathFileViejo, pathFileNuevo);
-
-				printf("cambiarNombreFilesTemp - post:%s\n", pathFileNuevo);
-			}
-			else{
-				printf("cambiarNombreFilesTemp: No hay archivos temporales para compactar\n");
 			}
 		}
 		closedir (dir);

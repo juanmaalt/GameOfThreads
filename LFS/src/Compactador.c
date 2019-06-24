@@ -18,6 +18,8 @@ void compactar(char* nombreTabla){
 	strcat(pathTabla, "/");
 	strcat(pathTabla, nombreTabla);
 
+	printf("path: %s\n", pathTabla);
+
 	if((dir = opendir(pathTabla)) != NULL){
 		/*Cambio el nombre de los archivos temporales de .tmp a .tmpc*/
 		cambiarNombreFilesTemp(pathTabla);
