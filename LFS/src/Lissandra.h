@@ -18,6 +18,7 @@
 #include <commons/string.h>
 #include <commons/collections/list.h>
 #include <commons/collections/dictionary.h>
+#include <commons/bitarray.h>
 
 #include <cliente/cliente.h>
 #include <parser/parser_comando.h>
@@ -43,7 +44,7 @@ typedef struct{
 	char *punto_montaje;
 	char *retardo; //Esta config la tengo que dejar como variable.
 	char *tamanio_value;
-	//char *tiempo_dump; //Esta config la dejamos como variable.
+	char *tiempo_dump; //Esta config la dejamos como variable.
 }Config_final_data;
 
 typedef unsigned long long timestamp_t;
@@ -65,6 +66,7 @@ int socketMemoria;
 pthread_t idConsola;
 
 t_dictionary* memtable;
+t_bitarray* bitmap;
 
 int numeroDump;
 
@@ -90,7 +92,6 @@ timestamp_t obtenerTimestamp(Registro* registro);
 
 /*FUNCIONES DUMP*/
 void setPathTabla(char* path, char* nombreTabla);
-
 void dump(t_dictionary* memtable);
 void dumpRegistro(FILE* file, Registro* registro);
 

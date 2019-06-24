@@ -22,10 +22,15 @@ int main(void) {
 	/*Inicio el File System*/
 	checkEstructuraFS();
 
+	/*Levanto la Metadata del File System*/
+	levantarMetadata();
+
+	/*Dump*/
 	numeroDump = 0;
 
 	/*Inicio la Memtable*/
 	memtable = inicializarMemtable();
+	bitmap = inicializarBitmap(metadataFS.blocks, metadataFS.blockSize);
 
 	agregarDatos(memtable);//funcion para pruebas TODO:Borrar esto
 
@@ -118,7 +123,7 @@ void extraer_data_config() {
 	config.punto_montaje = config_get_string_value(configFile, "PUNTO_MONTAJE");
 	config.retardo = config_get_string_value(configFile, "RETARDO");
 	config.tamanio_value = config_get_string_value(configFile, "TAMANIO_VALUE");
-	//config.tiempo_dump = config_get_string_value(configFile, "TIEMPO_DUMP");
+	config.tiempo_dump = config_get_string_value(configFile, "TIEMPO_DUMP");
 }
 
 void ver_config(){
@@ -127,7 +132,7 @@ void ver_config(){
 	log_info(logger_visible, BLU "PUNTO_MONTAJE=%s" STD, config.punto_montaje);
 	log_info(logger_visible, BLU "RETARDO=%s" STD, config.retardo);
 	log_info(logger_visible, BLU "TAMANIO_VALUE=%s" STD, config.tamanio_value);
-	//log_info(logger_visible, "TIEMPO_DUMP=%s", config.tiempo_dump);
+	log_info(logger_visible, "TIEMPO_DUMP=%s", config.tiempo_dump);
 }
 /*FIN FUNCIONES CONFIG*/
 

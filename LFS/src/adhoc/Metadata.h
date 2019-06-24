@@ -7,10 +7,4 @@ typedef struct {
 	int compaction_time;
 }Metadata_tabla;
 
-typedef struct {
-	int blockSize;
-	int blocks;
-	char* magicNumber;
-}Metadata_FS;
-
 #endif // METADATA_H

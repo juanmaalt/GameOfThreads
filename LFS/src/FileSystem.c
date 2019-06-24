@@ -34,8 +34,6 @@ void checkEstructuraFS(){
 void crearEstructuraFS(int blockSize, int blocks, char* magicNumber){
 	char* path = malloc(100 * sizeof(char));
 
-
-
 	/*Creo el directorio de montaje*/
 	crearDirectorioDeMontaje(config.punto_montaje);
 
@@ -66,6 +64,49 @@ void crearEstructuraFS(int blockSize, int blocks, char* magicNumber){
 	free(path);
 }
 
+/*INICIO FUNCIONES*/
+int levantarMetadata(){
+
+	metadata_FS=leer_MetadataFS();
+	if(metadata_FS == NULL){
+		printf(RED"FileSystem.c: levantarMetadata: error en el archivo 'Metadata.bin'"STD"\n");
+		return EXIT_FAILURE;
+	}
+	extraer_MetadataFS();
+
+	return EXIT_SUCCESS;
+}
+
+t_config* leer_MetadataFS(){
+	char* pathMetadata;
+
+	char* path = malloc(1000 * sizeof(char));
+	strcpy(path,config.punto_montaje);
+	strcat(path, "Metadata/");
+	strcat(path, "Metadata.bin");
+
+	pathMetadata = string_from_format(path);
+
+	free(path);
+
+	//printf("pathMetadata= %s\n",pathMetadata);
+
+	return config_create(pathMetadata);
+}
+
+void extraer_MetadataFS(){
+	metadataFS.blockSize = config_get_int_value(metadata_FS, "BLOCKSIZE");
+	metadataFS.blocks = config_get_int_value(metadata_FS, "BLOCKS");
+}
+
+t_bitarray*	inicializarBitmap(int blocks, int blockSize){
+	int size = blocks*blockSize;
+	char* bits= malloc(size*sizeof(char));
+
+	//TODO:Arreglar Bitarray
+	return bitarray_create_with_mode(bits, size, MSB_FIRST);
+}
+/*FIN FUNCIONES*/
 
 /*INICIO FUNCIONES DIRECTORIO*/
 int crearDirectorio(char* path){

@@ -15,10 +15,15 @@
 #include "Lissandra.h"
 
 /*ESTRUCTURAS*/
-typedef struct{
-	char *blocks;
-	char *blockSize;
-}MetadataFS;
+typedef struct {
+	int blockSize;
+	int blocks;
+	char* magicNumber;
+}Metadata_FS;
+
+/*GLOBALES*/
+Metadata_FS metadataFS;
+t_config* metadata_FS;
 
 /*FUNCIONES*/
 void checkEstructuraFS();
@@ -29,5 +34,11 @@ void crearBloques(char* path, int blocks);
 void crearMetadata(char* path ,int blockSize, int blocks, char* magicNumber);
 void checkExistenciaDirectorio(char* path, char* carpeta);
 void checkDirectorios();
+
+
+int levantarMetadata();
+t_config* leer_MetadataFS();
+void extraer_MetadataFS();
+t_bitarray*	inicializarBitmap(int blocks, int blockSize);
 
 #endif /* FILESYSTEM_H_ */
