@@ -1,4 +1,10 @@
 /*
+ *
+
+
+
+
+
 void compactarTabla(char* nombreTabla) {
 	char* path = malloc(100 * sizeof(char));
 	setPathTabla(path, nombreTabla);
