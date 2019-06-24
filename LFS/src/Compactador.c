@@ -36,3 +36,14 @@ void compactarArchivo(FILE* file) {
 		free(registro);
 	}
 }
+
+Registro* registro(char* line, size_t len) {
+	Registro* registro = malloc(sizeof(Registro));
+	line = strtok(line, ",");
+	registro->timestamp = atoi(line);
+	line = strtok(line, ",");
+	registro->key = atoi(line);
+	line = strtok(line, ",");
+	strcpy(registro->value, line);
+	return registro;
+}
