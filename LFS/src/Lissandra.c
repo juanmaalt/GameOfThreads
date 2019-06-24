@@ -80,6 +80,12 @@ void *connection_handler(void *nSocket){
 }
 /*FIN FUNCION PARA MANEJO DE HILOS*/
 
+void setPathTabla(char* path, char* nombreTabla){
+	strcpy(path,config.punto_montaje);
+	strcat(path, "Tables/");
+	strcat(path, nombreTabla);
+}
+
 void dump(t_dictionary* memtable) {
 	//TODO: wait semaforo
 	numeroDump++;

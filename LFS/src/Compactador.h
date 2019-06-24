@@ -8,6 +8,6 @@
 #ifndef COMPACTADOR_H_
 #define COMPACTADOR_H_
 
-
+void compactarTabla(char* nombreTabla)
 
 #endif /* COMPACTADOR_H_ */

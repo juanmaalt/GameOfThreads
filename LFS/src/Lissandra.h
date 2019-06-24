@@ -86,6 +86,8 @@ void agregarDatos(t_dictionary* memtable);
 uint16_t obtenerKey(Registro* registro);
 timestamp_t obtenerTimestamp(Registro* registro);
 
+void setPathTabla(char* path, char* nombreTabla);
+
 void dump(t_dictionary* memtable);
 
 #endif /* LISSANDRA_H_ */
