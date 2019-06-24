@@ -204,7 +204,7 @@ Operacion dropAPI(Comando comando){
 	if(existeTabla(comando.argumentos.DROP.nombreTabla)){
 		/*Borro la entrada de la memtable*/
 		dictionary_remove(memtable, comando.argumentos.DROP.nombreTabla);
-
+	}
 		//TODO: borrar en bloques
 
 		/*Reservo espacio para los paths*/
@@ -214,19 +214,19 @@ Operacion dropAPI(Comando comando){
 		strcat(pathFolder, "Tables/");
 		strcat(pathFolder, comando.argumentos.DROP.nombreTabla);
 
-		rmdir(pathFolder);
+		int removido=removerDirectorio(pathFolder);
+		printf("resultadoDrop= %d\n", removido);
+
 		free(pathFolder);
 
 		resultadoDrop.TipoDeMensaje = TEXTO_PLANO;
 		resultadoDrop.Argumentos.TEXTO_PLANO.texto = string_from_format("DROP realizado con exito.");
 
-	}else{
-		resultadoDrop.Argumentos.ERROR.mensajeError = string_from_format("No existe la tabla que intenta Dropear");
-
+	if(removido!=0){
+		resultadoDrop.Argumentos.ERROR.mensajeError = string_from_format("No existe la tabla que intenta Borrar");
 	}
 
 	return resultadoDrop;
-
 }
 /*FIN FUNCIONES API*/
 

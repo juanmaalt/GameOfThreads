@@ -13,8 +13,8 @@
 //API
 Operacion selectAPI(Comando comando);
 Operacion insertAPI(Comando comando);
-Operacion createAPI(Comando);
-Operacion describeAPI(Comando);
-Operacion dropAPI(Comando);
+Operacion createAPI(Comando comando);
+Operacion describeAPI(Comando comando);
+Operacion dropAPI(Comando comando);
 
 #endif /* APILISSANDRA_H_ */
