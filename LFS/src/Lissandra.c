@@ -10,7 +10,6 @@
 
 #include "Lissandra.h"
 
-
 int main(void) {
 	/*Configuración inicial para log y config*/
 	if(configuracion_inicial() == EXIT_FAILURE){
@@ -22,6 +21,8 @@ int main(void) {
 
 	/*Inicio el File System*/
 	checkEstructuraFS();
+
+	numeroDump = 0;
 
 	/*Inicio la Memtable*/
 	memtable = inicializarMemtable();
@@ -81,6 +82,7 @@ void *connection_handler(void *nSocket){
 
 void dump(t_dictionary* memtable) {
 	//TODO: wait semaforo
+	numeroDump++;
 	dictionary_iterator(memtable, (void*) dumpTable);
 	dictionary_clean(memtable);
 }
@@ -147,16 +149,13 @@ int configuracion_inicial(){
 	return EXIT_SUCCESS;
 }
 
-
 t_log* iniciar_logger(bool visible) {
 	return log_create("LFS.log", "LFS", visible, LOG_LEVEL_INFO);
 }
 
-
-t_config* leer_config(){
+t_config* leer_config() {
 	return config_create("LFS.config");
 }
-
 
 void extraer_data_config() {
 	config.ip = config_get_string_value(configFile, "IP");
@@ -166,7 +165,6 @@ void extraer_data_config() {
 	config.tamanio_value = config_get_string_value(configFile, "TAMANIO_VALUE");
 	//config.tiempo_dump = config_get_string_value(configFile, "TIEMPO_DUMP");
 }
-
 
 void ver_config(){
 	log_info(logger_visible, BLU "IP=%s" STD, config.ip);
@@ -180,29 +178,29 @@ void ver_config(){
 
 /*INICIO FUNCIONES COMPLEMENTARIAS*/
 
-t_dictionary* inicializarMemtable(){
+t_dictionary* inicializarMemtable() {
 	return dictionary_create();
 }
 
-void handshakeMemoria(int socketMemoria){
-	printf("Se conectó la Memoria\n");
+void handshakeMemoria(int socketMemoria) {
+	printf("Se conecta la Memoria\n");
 
 	Operacion handshake;
 	handshake.TipoDeMensaje=TEXTO_PLANO;
 	handshake.Argumentos.TEXTO_PLANO.texto=string_from_format(config.tamanio_value);
 
-	/*Mando el tamaño del value*/
+	/*Mando el tamanio del value*/
 	send_msg(socketMemoria, handshake);
 
 	/*Recibo un nuevo mensaje de la memoria*/
 	destruir_operacion(handshake);
 	handshake = recv_msg(socketMemoria);
 
-	switch(handshake.TipoDeMensaje){
+	switch (handshake.TipoDeMensaje) {
 		case TEXTO_PLANO:
-			if(strcmp(handshake.Argumentos.TEXTO_PLANO.texto, "handshake pathLFS")==0){
+			if (strcmp(handshake.Argumentos.TEXTO_PLANO.texto, "handshake pathLFS") == 0) {
 				destruir_operacion(handshake);
-				handshake.TipoDeMensaje=TEXTO_PLANO;
+				handshake.TipoDeMensaje = TEXTO_PLANO;
 				handshake.Argumentos.TEXTO_PLANO.texto=string_from_format(config.punto_montaje);
 				send_msg(socketMemoria, handshake);
 			}
@@ -227,8 +225,7 @@ int iniciar_consola(){
 	return EXIT_SUCCESS;
 }
 
-
-Operacion ejecutarOperacion(char* input){ //TODO: TIPO de retorno Resultado
+Operacion ejecutarOperacion(char* input) { //TODO: TIPO de retorno Resultado
 	Comando *parsed = malloc(sizeof(Comando));
 	Operacion retorno;
 	*parsed = parsear_comando(input);
@@ -273,46 +270,45 @@ Operacion ejecutarOperacion(char* input){ //TODO: TIPO de retorno Resultado
 	return retorno;
 }
 
-uint16_t obtenerKey(Registro* registro){
+uint16_t obtenerKey(Registro* registro) {
 		return registro->key;
 }
 
-timestamp_t obtenerTimestamp(Registro* registro){
+timestamp_t obtenerTimestamp(Registro* registro) {
 		return registro->timestamp;
 }
 
 /*FIN FUNCIONES COMPLEMENTARIAS*/
 
-
 /*INICIO FUNCIONES TEST*/
-void agregarDatos(t_dictionary* memtable){
+void agregarDatos(t_dictionary* memtable) {
 	Registro* reg1 = malloc(sizeof(Registro));
 	Registro* reg2 = malloc(sizeof(Registro));
 	Registro* reg3 = malloc(sizeof(Registro));
 	Registro* reg4 = malloc(sizeof(Registro));
 
-	reg1->key=3;
-	reg1->timestamp=1558492233084;
-	reg1->value=string_from_format("pepe");
+	reg1->key = 3;
+	reg1->timestamp = 1558492233084;
+	reg1->value = string_from_format("pepe");
 
-	reg2->key=4;
-	reg2->timestamp=1558492233085;
-	reg2->value=string_from_format("carlos");
+	reg2->key = 4;
+	reg2->timestamp = 1558492233085;
+	reg2->value = string_from_format("carlos");
 
-	reg3->key=3;
-	reg3->timestamp=1558492233086;
-	reg3->value=string_from_format("pepe2");
+	reg3->key = 3;
+	reg3->timestamp = 1558492233086;
+	reg3->value = string_from_format("pepe2");
 
-	reg4->key=4;
-	reg4->timestamp=1558492233087;
-	reg4->value=string_from_format("carlos2");
+	reg4->key = 4;
+	reg4->timestamp = 1558492233087;
+	reg4->value = string_from_format("carlos2");
 
 	t_list* lista = list_create();
-	char* tabla=string_from_format("test");
+	char* tabla = string_from_format("test");
 
 	dictionary_put(memtable, tabla, lista);//Agrego una tabla y su data;
 
-	lista = dictionary_get(memtable, tabla);//obtengo la data, en el insert debería checkear que este dato no sea null
+	lista = dictionary_get(memtable, tabla);//obtengo la data, en el insert debera checkear que este dato no sea null
 
 	list_add(lista,reg1);
 	list_add(lista,reg2);
