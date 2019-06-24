@@ -34,7 +34,7 @@
 #include "FileSystem.h"
 
 
-//ESTRUCTURAS
+/*ESTRUCTURAS*/
 typedef struct{
 	char *ip;
 	char *puerto_escucha;
@@ -47,13 +47,15 @@ typedef struct{
 }Config_final_data;
 
 typedef unsigned long long timestamp_t;
+
 typedef struct{
 	timestamp_t timestamp;
 	uint16_t key;
 	char* value;
 }Registro;
 
-//GLOBALES
+
+/*GLOBALES*/
 t_log* logger_visible;
 t_log* logger_invisible;
 t_config* configFile;
@@ -62,12 +64,13 @@ int socketMemoria;
 
 pthread_t idConsola;
 
-
 t_dictionary* memtable;
 
 int numeroDump;
 
-//FUNCIONES
+/*FUNCIONES*/
+void *connection_handler(void *nSocket);
+
 int configuracion_inicial();
 t_log* iniciar_logger(bool);
 t_config* leer_config();
@@ -79,17 +82,18 @@ int threadConnection(int serverSocket, void *funcionThread);
 int iniciar_consola();
 Operacion ejecutarOperacion(char*);
 
-void *connection_handler(void *nSocket);
-
 void agregarDatos(t_dictionary* memtable);
 
 uint16_t obtenerKey(Registro* registro);
 timestamp_t obtenerTimestamp(Registro* registro);
 
+
+/*FUNCIONES DUMP*/
 void setPathTabla(char* path, char* nombreTabla);
 
 void dump(t_dictionary* memtable);
 void dumpRegistro(FILE* file, Registro* registro);
+
 
 #endif /* LISSANDRA_H_ */
 

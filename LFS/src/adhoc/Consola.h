@@ -13,7 +13,7 @@
 #include <readline/readline.h>
 #include "../Lissandra.h"
 
-//FUNCIONES
+/*FUNCIONES*/
 void *recibir_comandos(void *);
 
 

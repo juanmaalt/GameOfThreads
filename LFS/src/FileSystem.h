@@ -14,6 +14,13 @@
 
 #include "Lissandra.h"
 
+/*ESTRUCTURAS*/
+typedef struct{
+	char *blocks;
+	char *blockSize;
+}MetadataFS;
+
+/*FUNCIONES*/
 void checkEstructuraFS();
 void crearEstructuraFS(int blockSize, int blocks, char* magicNumber);
 int crearDirectorio(char* path);

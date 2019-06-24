@@ -10,7 +10,7 @@
 
 #include "FuncionesAPI.h"
 
-//API
+/*FUNCIONES API*/
 Operacion selectAPI(Comando comando);
 Operacion insertAPI(Comando comando);
 Operacion createAPI(Comando comando);

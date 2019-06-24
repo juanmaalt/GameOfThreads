@@ -208,7 +208,7 @@ Operacion dropAPI(Comando comando){
 		//TODO: borrar en bloques
 
 		/*Reservo espacio para los paths*/
-		char* pathFolder = malloc(1000 * sizeof(char));
+		char* pathFolder = malloc(10000 * sizeof(char));
 
 		strcpy(pathFolder,config.punto_montaje);
 		strcat(pathFolder, "Tables/");

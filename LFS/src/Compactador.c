@@ -1,6 +1,22 @@
 /*
  *
 
+void compactar(char* path){
+	wait(semaforoLista);
+
+	while(hayaFileTemps){
+		FILE* temp;
+
+		temp = abrirArchivoTemp();
+
+		while(leer(temp)!=EOF){
+			leerLinea();
+			escribirLineaEnBloque(); //Ver el primer bloque disponible, ver cuanto lenght queda, escribir hasta donde se pueda y lo que sigue en otro bloque
+			actualizarParticion();
+		}
+	}
+	signal(semaforoLista);
+}
 
 
 

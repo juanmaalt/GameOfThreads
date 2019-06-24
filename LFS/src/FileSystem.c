@@ -159,6 +159,4 @@ void checkDirectorios(){
 
 	free(path);
 }
-
-
 /*FIN FUNCIONES DIRECTORIO*/
