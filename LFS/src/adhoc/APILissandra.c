@@ -19,22 +19,19 @@ Operacion selectAPI(Comando comando){
 	/*Checkea existencia de la Memtable*/
 	if (!memtable) {
 		log_error(logger_invisible, "No existe una memtable creada, no se puede realizar la operación.");
-		resultadoSelect.Argumentos.ERROR.mensajeError = malloc(sizeof(char) * (strlen("No existe una memtable creada, no se puede realizar la operación.") + 1));
-		strcpy(resultadoSelect.Argumentos.ERROR.mensajeError,"No existe una memtable creada, no se puede realizar la operación.");
+		resultadoSelect.Argumentos.ERROR.mensajeError = string_from_format("No existe una memtable creada, no se puede realizar la operación.");
 		return resultadoSelect;
 	}
 	/*Checkea existencia de la tabla solicitada*/
 	if(!(existeTabla(comando.argumentos.SELECT.nombreTabla))){
 		log_error(logger_invisible, "No existe una tabla asociada a la key solicitada.");
-		resultadoSelect.Argumentos.ERROR.mensajeError = malloc(sizeof(char) * (strlen("No existe una tabla asociada a la key solicitada.") + 1));
-		strcpy(resultadoSelect.Argumentos.ERROR.mensajeError,"No existe una tabla asociada a la key solicitada.");
+		resultadoSelect.Argumentos.ERROR.mensajeError = string_from_format("No existe una tabla asociada a la key solicitada.");
 		return resultadoSelect;
 	}
 	/*Levanta la metadata de la tabla*/
 	t_config* metadataFile = leerMetadata(comando.argumentos.SELECT.nombreTabla);
 	if(getMetadata(comando.argumentos.SELECT.nombreTabla, metadataFile)==EXIT_FAILURE){
-		resultadoSelect.Argumentos.ERROR.mensajeError = malloc(sizeof(char) * (strlen("No existe el archivo Metadata de la tabla solicitada.") + 1));
-		strcpy(resultadoSelect.Argumentos.ERROR.mensajeError,"No existe el archivo Metadata de la tabla solicitada.");
+		resultadoSelect.Argumentos.ERROR.mensajeError = string_from_format("No existe el archivo Metadata de la tabla solicitada.");
 		return resultadoSelect;
 	}
 
@@ -43,7 +40,7 @@ Operacion selectAPI(Comando comando){
 
 	/*Calculo el nro de partición en la que se encuentra la key*/
 	int particionNbr = calcularParticionNbr(comando.argumentos.SELECT.key, metadata.partitions);
-	printf("Partición Nro: %d", particionNbr);
+	printf("Partición Nro: %d\n", particionNbr);
 
 	/*Creo la lista de valores que condicen con dicha key*/
 	t_list* listaDeValues = list_create();
@@ -72,15 +69,13 @@ Operacion insertAPI(Comando comando){
 	/*Checkea existencia de la Memtable*/
 	if (!memtable) {
 		log_error(logger_invisible, "No existe una memtable creada, no se puede realizar la operación.");
-		resultadoInsert.Argumentos.ERROR.mensajeError = malloc(sizeof(char) * (strlen("No existe una memtable creada, no se puede realizar la operación.") + 1));
-		strcpy(resultadoInsert.Argumentos.ERROR.mensajeError,"No existe una memtable creada, no se puede realizar la operación.");
+		resultadoInsert.Argumentos.ERROR.mensajeError = string_from_format("No existe una memtable creada, no se puede realizar la operación.");
 		return resultadoInsert;
 	}
 	/*Checkea existencia de la tabla solicitada*/
 	if(!(existeTabla(comando.argumentos.INSERT.nombreTabla))){
 		log_error(logger_invisible, "No existe una tabla asociada a la key solicitada.");
-		resultadoInsert.Argumentos.ERROR.mensajeError = malloc(sizeof(char) * (strlen("No existe la tabla solicitada.") + 1));
-		strcpy(resultadoInsert.Argumentos.ERROR.mensajeError,"No existe la tabla solicitada.");
+		resultadoInsert.Argumentos.ERROR.mensajeError = string_from_format("No existe la tabla solicitada.");
 		return resultadoInsert;
 	}
 
@@ -102,8 +97,7 @@ Operacion insertAPI(Comando comando){
 	/*Levanta la metadata de la tabla*/
 	t_config* metadataFile = leerMetadata(comando.argumentos.INSERT.nombreTabla);
 	if(getMetadata(comando.argumentos.SELECT.nombreTabla, metadataFile)==EXIT_FAILURE){
-		resultadoInsert.Argumentos.ERROR.mensajeError = malloc(sizeof(char) * (strlen("No existe el archivo Metadata de la tabla solicitada.") + 1));
-		strcpy(resultadoInsert.Argumentos.ERROR.mensajeError,"No existe el archivo Metadata de la tabla solicitada.");
+		resultadoInsert.Argumentos.ERROR.mensajeError = string_from_format("No existe el archivo Metadata de la tabla solicitada.");
 		return resultadoInsert;
 	}
 	int particionNbr = calcularParticionNbr(comando.argumentos.INSERT.key, metadata.partitions);
@@ -122,10 +116,9 @@ Operacion insertAPI(Comando comando){
 	//printf("Registro->Value= %s\n", reg->value);
 
 	/*Loggeo el INSERT exitoso y le aviso a la Memoria*/
-	log_info(logger_invisible, "INSERT exitoso.");
+	log_info(logger_invisible, "INSERT realizado con éxito.");
 	resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
-	resultadoInsert.Argumentos.TEXTO_PLANO.texto  = malloc(sizeof(char) * (strlen("INSERT exitoso.") + 1));
-	strcpy(resultadoInsert.Argumentos.TEXTO_PLANO.texto,"INSERT exitoso.");
+	resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format("INSERT realizado con éxito.");
 
 	return resultadoInsert;
 }
@@ -139,8 +132,7 @@ Operacion createAPI(Comando comando){
 	/*Checkeo la existencia de la tabla. De existir la misma loggeo un error*/
 	if(existeTabla(comando.argumentos.CREATE.nombreTabla)){
 		log_error(logger_invisible, "La tabla solicitada ya existe en el sistema.");
-		resultadoCreate.Argumentos.ERROR.mensajeError = malloc(sizeof(char) * (strlen("La tabla solicitada ya existe en el sistema.") + 1));
-		strcpy(resultadoCreate.Argumentos.ERROR.mensajeError,"La tabla solicitada ya existe en el sistema.");
+		resultadoCreate.Argumentos.ERROR.mensajeError = string_from_format("La tabla solicitada ya existe en el sistema.");
 		return resultadoCreate;
 	}
 
@@ -167,10 +159,9 @@ Operacion createAPI(Comando comando){
 	free(path);
 
 	/*Loggeo el CREATE exitoso y le aviso a la Memoria*/
-	log_info(logger_invisible, "CREATE exitoso.");
+	log_info(logger_invisible, "CREATE realizado con éxito.");
 	resultadoCreate.TipoDeMensaje = TEXTO_PLANO;
-	resultadoCreate.Argumentos.TEXTO_PLANO.texto  = malloc(sizeof(char) * (strlen("CREATE exitoso.") + 1));
-	strcpy(resultadoCreate.Argumentos.TEXTO_PLANO.texto,"CREATE exitoso.");
+	resultadoCreate.Argumentos.TEXTO_PLANO.texto = string_from_format("CREATE realizado con éxito.");
 
 	return resultadoCreate;
 }
@@ -181,67 +172,61 @@ Operacion describeAPI(Comando comando){
 	Operacion resultadoDescribe;
 	resultadoDescribe.TipoDeMensaje = ERROR;
 
-	char* path = malloc(100 * sizeof(char));
-	DIR *dir;
-	struct dirent *entry;
-	//Operacion op;
-	char* nombreCarpeta;
-	//int consistencia;
-	//char* string=NULL;
+	/*Reservo espacio para los paths*/
+	char* path = malloc(1000 * sizeof(char));
+	char* pathMetadata = malloc(1000 * sizeof(char));
 
 	strcpy(path,config.punto_montaje);
 	strcat(path, "Tables/");
+	strcpy(pathMetadata,path);
 
-	if(comando.argumentos.DESCRIBE.nombreTabla==NULL){
-		if((dir = opendir (path)) != NULL){
-			while((entry = readdir (dir)) != NULL){
-				nombreCarpeta = string_from_format(entry->d_name);
-				if(!strcmp(nombreCarpeta, ".") || !strcmp(nombreCarpeta, "..")){
-				}else{
-					printf (BLU"%s\n"STD, nombreCarpeta);
-				}
-		  }
-			closedir (dir);
-		}else{
-			strcpy(resultadoDescribe.Argumentos.ERROR.mensajeError,"No existe la carpeta solicitada");
-			return resultadoDescribe;
-		}
-	}else{
-		strcat(path, comando.argumentos.DESCRIBE.nombreTabla);
-		if((dir = opendir (path)) != NULL){
-			printf(BLU"Existe la carpeta de la Tabla\n"STD);
-		}
-		else{
-			strcpy(resultadoDescribe.Argumentos.ERROR.mensajeError,"No existe la carpeta solicitada");
-			return resultadoDescribe;
-		}
-	}
+	char* string=NULL;
+
+	getStringDescribe(path, pathMetadata, string, comando.argumentos.DESCRIBE.nombreTabla, &resultadoDescribe);
+	//printf("Describe_string: %s\n", resultadoDescribe.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
+
+	/*Loggeo el CREATE exitoso y le aviso a la Memoria*/
+	log_info(logger_invisible, "DESCRIBE realizado con éxito.");
+	log_info(logger_invisible, "DESCRIBE: %s", resultadoDescribe.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
 
 	free(path);
-/*
-	while(hayaCarpetas){
-		connectToServer();
-		nombreCarpeta=leerCarpeta
-		leerMetadata
-		consistencia=extraerConsistencia; //transformar según enum
-
-		op.fin=0;
-		op.nombreTabla=nombreCarpeta;
-		op.consistencia=consistencia;
-
-		send(Memoria, op);
-	}
-
-		op.fin=1;
-		op.nombreTabla="DESCRIBE: Te las recibiste todas chinwenwencha";
-		op.consistencia=0; //enum de null
-	*/
+	free(pathMetadata);
 
 	return resultadoDescribe;
 }
 
 
-void dropAPI(Comando comando){
+Operacion dropAPI(Comando comando){
+	/*Creo variable resultado del tipo Operacion para devolver el mensaje*/
+	Operacion resultadoDrop;
+	resultadoDrop.TipoDeMensaje = ERROR;
+
+	if(existeTabla(comando.argumentos.CREATE.nombreTabla)){
+		/*Borro la entrada de la memtable*/
+		dictionary_remove(memtable, comando.argumentos.DROP.nombreTabla);
+
+		//TODO: borrar en bloques
+
+		/*Reservo espacio para los paths*/
+		char* pathFolder = malloc(1000 * sizeof(char));
+
+		strcpy(pathFolder,config.punto_montaje);
+		strcat(pathFolder, "Tables/");
+		strcat(pathFolder, comando.argumentos.DROP.nombreTabla);
+
+		rmdir(pathFolder);
+		free(pathFolder);
+
+		resultadoDrop.TipoDeMensaje = TEXTO_PLANO;
+		resultadoDrop.Argumentos.TEXTO_PLANO.texto = string_from_format("DROP realizado con exito.");
+
+	}else{
+		resultadoDrop.Argumentos.ERROR.mensajeError = string_from_format("No existe la tabla que intenta Dropear");
+
+	}
+
+	return resultadoDrop;
+
 }
 /*FIN FUNCIONES API*/
 
@@ -250,7 +235,7 @@ void dropAPI(Comando comando){
 bool existeTabla(char* nombreTabla){
 	return dictionary_has_key(memtable, nombreTabla);
 
-	//TODO:Checkear en disco, no en la memtable
+	//TODO:Checkear en disco, no en la memtable?
 }
 
 
@@ -341,36 +326,30 @@ void recorrerTabla(t_list* lista){
 
 
 Operacion getValueMasReciente(t_list* lista){
+	Operacion op;
 
-	bool compararFechas(void* item1, void* item2){
-		if (obtenerTimestamp((Registro*) item1) < obtenerTimestamp((Registro*) item2)) {
-			return false;
+	if(list_size(lista)>0){
+			bool compararFechas(void* item1, void* item2){
+			if (obtenerTimestamp((Registro*) item1) < obtenerTimestamp((Registro*) item2)) {
+				return false;
+			}
+			return true;
 		}
-		return true;
+
+		list_sort(lista, compararFechas);
+
+		Registro* reg = list_get(lista, 0);
+
+		op.TipoDeMensaje = REGISTRO;
+		op.Argumentos.REGISTRO.timestamp=reg->timestamp;
+		op.Argumentos.REGISTRO.key=reg->key;
+		op.Argumentos.REGISTRO.value=string_from_format(reg->value);
+
+	}else{
+		op.TipoDeMensaje = ERROR;
+		op.Argumentos.ERROR.mensajeError = string_from_format("No existen registros relacionados con la key solicitada");
 	}
 
-	list_sort(lista, compararFechas);
-
-	//Registro* reg = malloc(sizeof(Registro));
-	Registro* reg = list_get(lista, 0);
-
-	//printf("\nEl registro más reciente es:\n");
-	//printf("Registro->Timestamp= %llu\n",reg->timestamp);
-	//printf("Registro->Key= %d\n", reg->key);
-	//printf("Registro->Value= %s\n", reg->value);
-
-	Operacion op;
-	op.TipoDeMensaje = REGISTRO;
-	op.Argumentos.REGISTRO.timestamp=reg->timestamp;
-	op.Argumentos.REGISTRO.key=reg->key;
-	op.Argumentos.REGISTRO.value=string_from_format(reg->value);
-
-	//printf("\nEl registro más reciente es:\n");
-	//printf("Registro->Timestamp= %llu\n",op.Argumentos.REGISTRO.timestamp);
-	//printf("Registro->Key= %d\n", op.Argumentos.REGISTRO.key);
-	//printf("Registro->Value= %s\n", op.Argumentos.REGISTRO.value);
-
-	//free(reg);
 
 	return op;
 }
@@ -473,6 +452,67 @@ void insertInFile(char* path, int particionNbr, char* key, char* value){
 	fclose(fParticion);
 	free(pathArchivo);
 
+}
+
+void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombreTabla, Operacion *resultadoDescribe){
+	DIR *dir;
+	struct dirent *entry;
+	char* nombreCarpeta;
+	t_config* metadata;
+
+	if(nombreTabla==NULL){
+		if((dir = opendir(path)) != NULL){
+			while((entry = readdir (dir)) != NULL){
+				nombreCarpeta = string_from_format(entry->d_name);
+				if(!strcmp(nombreCarpeta, ".") || !strcmp(nombreCarpeta, "..")){
+				}else{
+					strcat(pathMetadata, nombreCarpeta);
+					strcat(pathMetadata, "/Metadata");
+					//printf("path: %s\n", pathMetadata);
+					//printf("nombreTabla: %s\n", nombreCarpeta);
+
+					metadata = config_create(pathMetadata);
+					char* consistencia = config_get_string_value(metadata, "CONSISTENCY");
+					int compactionTime=config_get_int_value(metadata, "COMPACTION_TIME");
+					int particiones =config_get_int_value(metadata, "PARTITIONS");
+
+					concatenar_tabla(&string, nombreCarpeta, consistencia, particiones, compactionTime);
+					//printf("string: %s\n", string);
+
+					strcpy(pathMetadata,path);
+				}
+		  }
+			closedir (dir);
+			resultadoDescribe->TipoDeMensaje= DESCRIBE_REQUEST;
+			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = string_from_format(string);
+		}else{
+			resultadoDescribe->Argumentos.ERROR.mensajeError = string_from_format("No hay carpetas creadas en el sistema");
+		}
+	}else{
+		strcat(pathMetadata, nombreTabla);
+		if((dir = opendir (path)) != NULL){
+			strcat(pathMetadata, "/Metadata");
+			//printf("path: %s\n", pathMetadata);
+			//printf("nombreTabla: %s\n", nombreTabla);
+
+			metadata = config_create(pathMetadata);
+			char* consistencia = config_get_string_value(metadata, "CONSISTENCY");
+			int compactionTime=config_get_int_value(metadata, "COMPACTION_TIME");
+			int particiones =config_get_int_value(metadata, "PARTITIONS");
+
+			concatenar_tabla(&string, nombreTabla, consistencia, particiones, compactionTime);
+			//printf("string: %s\n", string);
+			resultadoDescribe->TipoDeMensaje= DESCRIBE_REQUEST;
+			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = string_from_format(string);
+		}
+		else{
+			resultadoDescribe->Argumentos.ERROR.mensajeError = string_from_format("No existe la carpeta solicitada");
+		}
+	}
+
+	config_destroy(metadata);
+
+	//printf("string final: %s\n", string);
 }
 
 /*FIN FUNCIONES COMPLEMENTARIAS*/

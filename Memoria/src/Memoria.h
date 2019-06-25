@@ -30,17 +30,14 @@
 #include <semaphore.h>
 
 #include "Consola.h"
-#include "APIMemoria.h"
+#include "API/APIMemoria.h"
 #include "RutinasDeLiberacion.h"
 #include "Gossiping.h"
+#include "ManejoDeMemoria.h"
+#include "ComunicacionFS.h"
 
 
-#define ERROR_MEMORIA_FULL -1
-
-//Para evitar levantar el LFS
-int	tamanioValue;
-char *pathLFS;
-
+#define ERROR_MEMORIA_FULL -1 //TODO: PUEDE DESAPARECER o dejar como salvaguarda
 
 //ESTRUCTURAS
 struct Config_datos_fijos{
@@ -112,12 +109,13 @@ typedef struct marco{
 //typedef void pagina_t;
 
 typedef struct registroTablaPag{
+	bool flagModificado;
 	int nroPagina;
 	int nroMarco; //coincide con el numero de marco en memoria
 
 }registroTablaPag_t;
 
-typedef struct{
+typedef struct tabla_de_paginas{
 	t_list* registrosPag;
 }tabla_de_paginas_t;
 
@@ -126,7 +124,6 @@ typedef struct segmento{
 	tabla_de_paginas_t* tablaPaginas;
 }segmento_t;
 
-char* obtenerPath(segmento_t* segmento);
 
 typedef struct{
 	t_list* listaSegmentos;
@@ -135,13 +132,10 @@ typedef struct{
 //GLOBALES
 tabla_de_segmentos_t tablaSegmentos;
 
-
-
 //MarcoCtrlBlock
 
 typedef struct MCB{
 	int nroMarco;
-	bool flagModificado; //EN REVISION
 
 	//Faltan cosas
 }MCB_t;
@@ -156,26 +150,18 @@ typedef struct{
 	t_list* listaAdminMarcos;
 }memoria_principal;
 
-//Funciones Memoria
-
-//marco_t * agregarMarcoAMemoria(marco_t *);
-void mostrarContenidoMemoria(void);
-
-void asignarPathASegmento(segmento_t * , char* );
-int colocarPaginaEnMemoria(timestamp_t , uint16_t , char* );
-void crearRegistroEnTabla(tabla_de_paginas_t *, int );
-
 //GLOBALES
 memoria_principal memoriaPrincipal;
 
 pthread_t idConsola;
 
-//socket de FILE SYSTEM
+//TODO: HILO DE GOSSIPING?
+
+//socket de FILE SYSTEM TODO: A ELIMINAR
 int lfsSocket;
 
 //FUNCIONES
-int conectarLFS();
-int handshakeLFS(int socketLFS);
+
 int threadConnection(int serverSocket, void *funcionThread);
 
 int inicializar_memoriaPrincipal();

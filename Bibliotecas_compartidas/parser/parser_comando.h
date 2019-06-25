@@ -39,7 +39,9 @@
 			JOURNAL,
 			ADDMEMORY,
 			RUN,
-			METRICS
+			RUN_ALL,
+			METRICS,
+			METRICS_STOP
 		} keyword;
 		union {
 			struct {
@@ -73,9 +75,13 @@
 			struct {
 				char* path;
 			} RUN;
+			struct{
+				char* dirPath;
+			}RUN_ALL;
 			struct {
-				char *stop;
 			} METRICS;
+			struct{
+			}METRICS_STOP;
 		} argumentos;
 		char** _raw; //Para uso de la liberación
 	} __attribute__((packed)) Comando;
@@ -128,6 +134,12 @@
 	* 		comando - Una comando cualquiera
 	*/
 	void remover_comillas(char** cadena);
+
+	/**
+	* @NAME: remover_new_line
+	* @DESC: devuelve una nueva cadena pero sin ningun \n
+	*/
+	char *remover_new_line(char* cadena);
 
 
 

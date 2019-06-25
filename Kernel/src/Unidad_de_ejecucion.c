@@ -10,12 +10,10 @@
 //FUNCIONES: Privadas. No van en el header.
 static int exec_file_lql(PCB *pcb);
 static int exec_string_comando(PCB *pcb);
-static int loggear_operacion(Operacion op);
+static int procesar_retorno_operacion(Operacion op, PCB *pcb, char *instruccionActual);//Recibe el retorno de operacion (lo mas importante). El pcb es para mostrar datos extras como el nombre del archivo que fallo, al igual que la instruccion actual
 static socket_t direccionar_request(char *request);
 static socket_t comunicarse_con_memoria();
 static socket_t comunicarse_con_memoria_principal();
-static void catch_describe(char *cadenaResultadoDescribe);//Se encarga de actualizar las estructuras de metadata de tablas cuando se hace un describe
-static int seSolicitoDescribe; //variable pedorra que indica si la operacion fue describe
 
 
 
@@ -60,7 +58,6 @@ static socket_t direccionar_request(char *request){
 		memoria = determinar_memoria_para_tabla(comando.argumentos.CREATE.nombreTabla);
 		break;
 	case DESCRIBE:
-		seSolicitoDescribe=TRUE;
 		memoria = determinar_memoria_para_tabla(comando.argumentos.DESCRIBE.nombreTabla);
 		break;
 	case DROP:
@@ -73,8 +70,8 @@ static socket_t direccionar_request(char *request){
 
 	if(memoria == NULL){
 		if(DELEGAR_A_MEMORIA_PRINCIPAL){
-			printf(YEL"Warning: la request %s se delego a la memoria principal\n"STD, request);
-			log_info(logger_invisible, "Warning: la request %s se delego a la memoria principal", request);
+			printf(YEL"Warning: la request '%s' se delego a la memoria principal\n"STD, request);
+			log_info(logger_invisible, "Warning: la request '%s' se delego a la memoria principal", request);
 			return comunicarse_con_memoria_principal();
 		}
 		return EXIT_FAILURE;
@@ -134,14 +131,11 @@ static int exec_string_comando(PCB *pcb){
 	send_msg(socketTarget, request);
 
 	request = recv_msg(socketTarget);
-	if(seSolicitoDescribe){
-		catch_describe(request.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
-		seSolicitoDescribe = FALSE;
-	}
-	loggear_operacion(request);
+	procesar_retorno_operacion(request, pcb, (char*)pcb->data);
 
 	destruir_operacion(request);
 	free(pcb->data);
+	free(pcb->nombreArchivoLQL);
 	free(pcb);
 	close(socketTarget);
 	return FINALIZO;
@@ -163,6 +157,7 @@ static int exec_file_lql(PCB *pcb){
 		if(line == NULL || feof(lql)){
 			printf("\n");
 			fclose(lql);
+			free(pcb->nombreArchivoLQL);
 			free(pcb);
 			return FINALIZO;
 		}
@@ -170,23 +165,23 @@ static int exec_file_lql(PCB *pcb){
 		if(socketTarget == EXIT_FAILURE){
 			printf("\n");
 			fclose(lql);
+			free(pcb->nombreArchivoLQL);
 			free(pcb);
 			log_error(logger_error, "Unidad_de_ejecucion.c: exec_file_lql: no se pudo direccionar la request");
 			log_error(logger_invisible, "Unidad_de_ejecucion.c: exec_file_lql: no se pudo direccionar la request");
 			return INSTRUCCION_ERROR;
 		}
-		request.opCode = getNumber();
+		id TEMPORTAL_OPCODE = getNumber(); //TODO: Fix para que se vea el opcode, sacar cuando el resto del sistema sea compatible con esto
+		request.opCode = TEMPORTAL_OPCODE;
 		request.TipoDeMensaje = COMANDO;
 		request.Argumentos.COMANDO.comandoParseable = line;
 		send_msg(socketTarget, request);
 
 		request = recv_msg(socketTarget);
-		if(seSolicitoDescribe){
-			catch_describe(request.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
-			seSolicitoDescribe = FALSE;
-		}
-		if(loggear_operacion(request) == INSTRUCCION_ERROR){
+		request.opCode = TEMPORTAL_OPCODE;
+		if(procesar_retorno_operacion(request, pcb, line) == INSTRUCCION_ERROR){
 			fclose(lql);
+			free(pcb->nombreArchivoLQL);
 			free(pcb);
 			close(socketTarget);
 			return INSTRUCCION_ERROR;
@@ -206,7 +201,8 @@ static int exec_file_lql(PCB *pcb){
 
 
 
-static int loggear_operacion(Operacion op){
+static int procesar_retorno_operacion(Operacion op, PCB* pcb, char* instruccionActual){
+	char *instruccionActualTemp = NULL;
 	switch(op.TipoDeMensaje){
 	case TEXTO_PLANO:
 		log_info(logger_visible,"CPU: %d | ID Operacion: %d | %s", process_get_thread_id(), op.opCode, op.Argumentos.TEXTO_PLANO.texto);
@@ -221,19 +217,23 @@ static int loggear_operacion(Operacion op){
 		log_info(logger_invisible,"CPU: %d | ID Operacion: %d | Timestamp: %llu, Key: %d, Value: %s", process_get_thread_id(), op.opCode, op.Argumentos.REGISTRO.timestamp, op.Argumentos.REGISTRO.key, op.Argumentos.REGISTRO.value);
 		return CONTINUAR;
 	case ERROR:
-		log_error(logger_error,"CPU: %d | ID Operacion: %d | Abortando: %s", process_get_thread_id(), op.opCode, op.Argumentos.ERROR.mensajeError);
-		log_error(logger_invisible,"CPU: %d | ID Operacion: %d | Abortando: %s", process_get_thread_id(), op.opCode, op.Argumentos.ERROR.mensajeError);
+		instruccionActualTemp = remover_new_line(instruccionActual);
+		log_error(logger_error,"CPU: %d | ID Operacion: %d | Fallo en la instruccion '%s', Path: '%s'. Abortando: %s", process_get_thread_id(), op.opCode, instruccionActualTemp, pcb->nombreArchivoLQL, op.Argumentos.ERROR.mensajeError);
+		log_error(logger_invisible,"CPU: %d | ID Operacion: %d | Fallo en la instruccion '%s', Path: '%s'. Abortando: %s", process_get_thread_id(), op.opCode, instruccionActualTemp, pcb->nombreArchivoLQL, op.Argumentos.ERROR.mensajeError);
+		free(instruccionActualTemp);
 		return INSTRUCCION_ERROR;
+	case DESCRIBE_REQUEST:
+		if(procesar_describe(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido) == EXIT_FAILURE){
+			log_error(logger_error,"CPU: %d | ID Operacion: %d | Abortando: fallo Describe", process_get_thread_id(), op.opCode);
+			log_error(logger_invisible,"CPU: %d | ID Operacion: %d | Abortando: fallo Describe", process_get_thread_id(), op.opCode);
+			return INSTRUCCION_ERROR;
+		}
+		mostrar_describe(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
+		return CONTINUAR;
 	default:
-		return 1;//TODO
+		log_error(logger_visible,"CPU: %d | ID Operacion: %d | Instruccion invalida o fuera de contexto", process_get_thread_id(), op.opCode);
+		log_error(logger_invisible,"CPU: %d | ID Operacion: %d | Instruccion invalida o fuera de contexto", process_get_thread_id(), op.opCode);
+		return INSTRUCCION_ERROR;
 	}
 	return INSTRUCCION_ERROR;
-}
-
-
-
-
-
-static void catch_describe(char *cadenaResultadoDescribe){
-	procesar_describe(cadenaResultadoDescribe);
 }

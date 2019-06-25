@@ -24,6 +24,7 @@ void mostrarRetorno(Operacion retorno) {
 	case COMANDO:
 		return;
 	case DESCRIBE_REQUEST:
+		printf("DESCRIBE: %s\n",retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
 		return;
 	case GOSSIPING_REQUEST:
 		return;

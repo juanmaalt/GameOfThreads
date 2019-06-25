@@ -65,6 +65,8 @@ pthread_t idConsola;
 
 t_dictionary* memtable;
 
+int numeroDump;
+
 //FUNCIONES
 int configuracion_inicial();
 t_log* iniciar_logger(bool);
@@ -83,6 +85,11 @@ void agregarDatos(t_dictionary* memtable);
 
 uint16_t obtenerKey(Registro* registro);
 timestamp_t obtenerTimestamp(Registro* registro);
+
+void setPathTabla(char* path, char* nombreTabla);
+
+void dump(t_dictionary* memtable);
+void dumpRegistro(FILE* file, Registro* registro);
 
 #endif /* LISSANDRA_H_ */
 

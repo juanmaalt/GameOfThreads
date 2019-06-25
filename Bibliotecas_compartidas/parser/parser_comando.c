@@ -99,12 +99,17 @@ Comando parsear_comando(char* line){
 		if(split[1] == NULL){
 			fprintf(stderr, RED"Error sintactico, RUN [PATH]"STD"\n");
 			RETURN_ERROR;
+		}else if(string_equals_ignore_case(split[1], "ALL")){
+			if(split[2] == NULL){
+				fprintf(stderr, RED"Error sintactico, RUN ALL [PATH]"STD"\n");
+				RETURN_ERROR;
+			}
 		}
 	}
 
 	if(string_equals_ignore_case(keyword, "METRICS")){
 		if(split[1] != NULL && !string_equals_ignore_case(split[1], "STOP")){
-			fprintf(stderr, RED"Error sintactico, METRICS o METRICS STOP"STD"\n");
+			fprintf(stderr, RED"Error sintactico, quizas quiso decir METRICS o METRICS STOP"STD"\n");
 			RETURN_ERROR;
 		}
 	}
@@ -148,11 +153,19 @@ Comando parsear_comando(char* line){
 		ret.argumentos.ADDMEMORY.numero = split[2];
 		ret.argumentos.ADDMEMORY.criterio = split[4];
 	} else if(string_equals_ignore_case(keyword, "RUN")){
-		ret.keyword = RUN;
-		ret.argumentos.RUN.path = split[1];
+		if(string_equals_ignore_case(split[1], "ALL")){
+			ret.keyword = RUN_ALL;
+			ret.argumentos.RUN_ALL.dirPath = split[2];
+		}else{
+			ret.keyword = RUN;
+			ret.argumentos.RUN.path = split[1];
+		}
 	} else if(string_equals_ignore_case(keyword, "METRICS")){
-		ret.keyword = METRICS;
-		ret.argumentos.METRICS.stop = split[1];
+		if(split[1] == NULL){
+			ret.keyword = METRICS;
+		}else if(string_equals_ignore_case(split[1], "STOP")){
+			ret.keyword = METRICS_STOP;
+		}
 	} else {
 		fprintf(stderr, RED"No se encontro el keyword <%s>"STD"\n", keyword); //Chequeo sintactico final
 		RETURN_ERROR;
@@ -247,4 +260,16 @@ void remover_comillas(char** cadena){
 		free(*cadena);
 		*cadena = temp;
 	}
+}
+
+char *remover_new_line(char* cadena){
+	char *retorno = string_from_format("%c", *cadena);
+	for(int i=1; i<strlen(cadena); ++i){
+		if(cadena[i]=='\n')
+			continue;
+		string_append(&retorno, string_from_format("%c", cadena[i]));
+	}
+	retorno = realloc(retorno, sizeof(char)*(strlen(retorno)+1));
+	retorno[strlen(retorno)]='\0';
+	return retorno;
 }

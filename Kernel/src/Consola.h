@@ -20,7 +20,5 @@ typedef enum PCB_DataType_e PCB_DataType;
 //FUNCIONES: Globales
 void *recibir_comandos(void *);
 
-//FUNCIONES: Testeo
-void funcion_loca_de_testeo_de_concurrencia(void);
 
 #endif /* CONSOLA_H_ */
