@@ -142,7 +142,7 @@ static int exec_string_comando(PCB *pcb){
 	send_msg(target.socket, request);
 
 	request = recv_msg(target.socket);
-	if(procesar_retorno_operacion(request, pcb, (char*)pcb->data) != EXIT_FAILURE){
+	if(procesar_retorno_operacion(request, pcb, (char*)pcb->data) != INSTRUCCION_ERROR){
 		target.operacionExitosa = true;
 		target.finOperacion = getCurrentTime();
 		generar_estadisticas(&target);

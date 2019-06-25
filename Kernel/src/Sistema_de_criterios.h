@@ -32,7 +32,7 @@ typedef struct memoria{
 		struct{
 			int cantidadInsert;
 			int cantidadSelect;
-		}SHC;
+		}HSC;
 		struct{
 			int cantidadInsert;
 			int cantidadSelect;
@@ -52,7 +52,7 @@ typedef struct {
 			Memoria *memoriaAsignada;
 		}SC;
 		struct{
-		}SHC;
+		}HSC;
 		struct{
 		}EC;
 	}Atributos;

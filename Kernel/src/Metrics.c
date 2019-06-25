@@ -111,18 +111,33 @@ static int mostrar_metricas_por_pantalla(){
 
 
 static void refrescar_valores(){
-	//TODO: refrescar valores de las memorias y otras cosas mas q se agregaron
+	void refrescar_memoria(void *memoria){
+		((Memoria*)memoria)->Metrics.EC.cantidadInsert = 0;
+		((Memoria*)memoria)->Metrics.EC.cantidadSelect = 0;
+		((Memoria*)memoria)->Metrics.SC.cantidadInsert = 0;
+		((Memoria*)memoria)->Metrics.SC.cantidadSelect = 0;
+		((Memoria*)memoria)->Metrics.HSC.cantidadInsert = 0;
+		((Memoria*)memoria)->Metrics.HSC.cantidadSelect = 0;
+	}
+	list_iterate(memoriasExistentes, refrescar_memoria);
+
 	metricas.At.EventualConsistency.readLatency = 0;
+	metricas.At.EventualConsistency.acumuladorTiemposRead = 0;
+	metricas.At.EventualConsistency.acumuladorTiemposWrite = 0;
 	metricas.At.EventualConsistency.reads = 0;
 	metricas.At.EventualConsistency.writeLatency = 0;
 	metricas.At.EventualConsistency.writes = 0;
 
 	metricas.At.HashStrongConsistency.readLatency = 0;
+	metricas.At.HashStrongConsistency.acumuladorTiemposRead = 0;
+	metricas.At.HashStrongConsistency.acumuladorTiemposWrite = 0;
 	metricas.At.HashStrongConsistency.reads = 0;
 	metricas.At.HashStrongConsistency.writeLatency = 0;
 	metricas.At.HashStrongConsistency.writes = 0;
 
 	metricas.At.StrongConsistency.readLatency = 0;
+	metricas.At.StrongConsistency.acumuladorTiemposRead = 0;
+	metricas.At.StrongConsistency.acumuladorTiemposWrite = 0;
 	metricas.At.StrongConsistency.reads = 0;
 	metricas.At.StrongConsistency.writeLatency = 0;
 	metricas.At.StrongConsistency.writes = 0;
