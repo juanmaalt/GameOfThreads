@@ -11,10 +11,10 @@
 static int exec_file_lql(PCB *pcb);
 static int exec_string_comando(PCB *pcb);
 static int procesar_retorno_operacion(Operacion op, PCB *pcb, char *instruccionActual);//Recibe el retorno de operacion (lo mas importante). El pcb es para mostrar datos extras como el nombre del archivo que fallo, al igual que la instruccion actual
-static socket_t direccionar_request(char *request);
+static DynamicAddressingRequest direccionar_request(char *request);
 static socket_t comunicarse_con_memoria();
 static socket_t comunicarse_con_memoria_principal();
-
+static void generar_estadisticas(DynamicAddressingRequest *link);
 
 
 void *exec(void *null){
@@ -41,18 +41,24 @@ void *exec(void *null){
 
 
 
-static socket_t direccionar_request(char *request){
+static DynamicAddressingRequest direccionar_request(char *request){
+	DynamicAddressingRequest retorno;
 	if(USAR_SOLO_MEMORIA_PRINCIPAL){
-		return comunicarse_con_memoria_principal();
+		retorno.socket = comunicarse_con_memoria_principal();
+		return retorno;
 	}
 	Comando comando = parsear_comando(request);
 	Memoria *memoria;
 	switch(comando.keyword){//A esta altura ya nos aseguramos de que el comando habia sido valido
 	case SELECT:
 		memoria = determinar_memoria_para_tabla(comando.argumentos.SELECT.nombreTabla);
+		retorno.criterioQueSeUso = consistencia_de_tabla(comando.argumentos.SELECT.nombreTabla);
+		retorno.tipoOperacion = SELECT;
 		break;
 	case INSERT:
 		memoria = determinar_memoria_para_tabla(comando.argumentos.INSERT.nombreTabla);
+		retorno.criterioQueSeUso = consistencia_de_tabla(comando.argumentos.INSERT.nombreTabla);
+		retorno.tipoOperacion = INSERT;
 		break;
 	case CREATE:
 		memoria = determinar_memoria_para_tabla(comando.argumentos.CREATE.nombreTabla);
@@ -64,7 +70,8 @@ static socket_t direccionar_request(char *request){
 		memoria = determinar_memoria_para_tabla(comando.argumentos.DROP.nombreTabla);
 		break;
 	default:
-		return EXIT_FAILURE;
+		retorno.socket = EXIT_FAILURE;
+		return retorno;
 	}
 	destruir_comando(comando);
 
@@ -72,11 +79,15 @@ static socket_t direccionar_request(char *request){
 		if(DELEGAR_A_MEMORIA_PRINCIPAL){
 			printf(YEL"Warning: la request '%s' se delego a la memoria principal\n"STD, request);
 			log_info(logger_invisible, "Warning: la request '%s' se delego a la memoria principal", request);
-			return comunicarse_con_memoria_principal();
+			retorno.socket = comunicarse_con_memoria_principal();
+			return retorno;
 		}
-		return EXIT_FAILURE;
+		retorno.socket = EXIT_FAILURE;
+		return retorno;
 	}
-	return comunicarse_con_memoria(memoria);
+	retorno.socket = comunicarse_con_memoria(memoria);
+	retorno.memoria = memoria;
+	return retorno;
 }
 
 
@@ -115,29 +126,33 @@ static socket_t comunicarse_con_memoria_principal(){
 
 
 static int exec_string_comando(PCB *pcb){
-	int socketTarget = direccionar_request((char *)pcb->data);
-	if(socketTarget == EXIT_FAILURE){
+	DynamicAddressingRequest target = direccionar_request((char *)pcb->data);
+	if(target.socket == EXIT_FAILURE){
 		free(pcb->data);
 		free(pcb);
 		log_error(logger_error, "Unidad_de_ejecucion.c: exec_string_comando: no se pudo direccionar la request");
 		log_error(logger_invisible, "Unidad_de_ejecucion.c: exec_string_comando: no se pudo direccionar la request");
 		return INSTRUCCION_ERROR;
 	}
+	target.inicioOperacion = getCurrentTime();
 	Operacion request;
-
 	request.opCode = getNumber();
 	request.TipoDeMensaje = COMANDO;
 	request.Argumentos.COMANDO.comandoParseable = (char*)pcb->data;
-	send_msg(socketTarget, request);
+	send_msg(target.socket, request);
 
-	request = recv_msg(socketTarget);
-	procesar_retorno_operacion(request, pcb, (char*)pcb->data);
+	request = recv_msg(target.socket);
+	if(procesar_retorno_operacion(request, pcb, (char*)pcb->data) != EXIT_FAILURE){
+		target.operacionExitosa = true;
+		target.finOperacion = getCurrentTime();
+		generar_estadisticas(&target);
+	}
 
 	destruir_operacion(request);
 	free(pcb->data);
 	free(pcb->nombreArchivoLQL);
 	free(pcb);
-	close(socketTarget);
+	close(target.socket);
 	return FINALIZO;
 }
 
@@ -161,8 +176,8 @@ static int exec_file_lql(PCB *pcb){
 			free(pcb);
 			return FINALIZO;
 		}
-		int socketTarget = direccionar_request(line);
-		if(socketTarget == EXIT_FAILURE){
+		DynamicAddressingRequest target = direccionar_request(line);
+		if(target.socket == EXIT_FAILURE){
 			printf("\n");
 			fclose(lql);
 			free(pcb->nombreArchivoLQL);
@@ -171,22 +186,26 @@ static int exec_file_lql(PCB *pcb){
 			log_error(logger_invisible, "Unidad_de_ejecucion.c: exec_file_lql: no se pudo direccionar la request");
 			return INSTRUCCION_ERROR;
 		}
+		target.inicioOperacion = getCurrentTime();
 		id TEMPORTAL_OPCODE = getNumber(); //TODO: Fix para que se vea el opcode, sacar cuando el resto del sistema sea compatible con esto
 		request.opCode = TEMPORTAL_OPCODE;
 		request.TipoDeMensaje = COMANDO;
 		request.Argumentos.COMANDO.comandoParseable = line;
-		send_msg(socketTarget, request);
+		send_msg(target.socket, request);
 
-		request = recv_msg(socketTarget);
+		request = recv_msg(target.socket);
 		request.opCode = TEMPORTAL_OPCODE;
 		if(procesar_retorno_operacion(request, pcb, line) == INSTRUCCION_ERROR){
 			fclose(lql);
 			free(pcb->nombreArchivoLQL);
 			free(pcb);
-			close(socketTarget);
+			close(target.socket);
 			return INSTRUCCION_ERROR;
 		}
-		close(socketTarget);
+		target.operacionExitosa = true;
+		target.finOperacion = getCurrentTime();
+		generar_estadisticas(&target);
+		close(target.socket);
 	}
 	printf("\n");
 	sem_wait(&meterEnReadyDeAUno);
@@ -208,10 +227,6 @@ static int procesar_retorno_operacion(Operacion op, PCB* pcb, char* instruccionA
 		log_info(logger_visible,"CPU: %d | ID Operacion: %d | %s", process_get_thread_id(), op.opCode, op.Argumentos.TEXTO_PLANO.texto);
 		log_info(logger_invisible,"CPU: %d | ID Operacion: %d | %s", process_get_thread_id(), op.opCode, op.Argumentos.TEXTO_PLANO.texto);
 		return CONTINUAR;
-	case COMANDO:
-		log_info(logger_visible,"CPU: %d | ID Operacion: %d | %s", process_get_thread_id(), op.opCode, op.Argumentos.COMANDO.comandoParseable);
-		log_info(logger_invisible,"CPU: %d | ID Operacion: %d | %s", process_get_thread_id(), op.opCode, op.Argumentos.COMANDO.comandoParseable);
-		return CONTINUAR;
 	case REGISTRO:
 		log_info(logger_visible,"CPU: %d | ID Operacion: %d | Timestamp: %llu, Key: %d, Value: %s", process_get_thread_id(), op.opCode, op.Argumentos.REGISTRO.timestamp, op.Argumentos.REGISTRO.key, op.Argumentos.REGISTRO.value);
 		log_info(logger_invisible,"CPU: %d | ID Operacion: %d | Timestamp: %llu, Key: %d, Value: %s", process_get_thread_id(), op.opCode, op.Argumentos.REGISTRO.timestamp, op.Argumentos.REGISTRO.key, op.Argumentos.REGISTRO.value);
@@ -224,16 +239,75 @@ static int procesar_retorno_operacion(Operacion op, PCB* pcb, char* instruccionA
 		return INSTRUCCION_ERROR;
 	case DESCRIBE_REQUEST:
 		if(procesar_describe(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido) == EXIT_FAILURE){
-			log_error(logger_error,"CPU: %d | ID Operacion: %d | Abortando: fallo Describe", process_get_thread_id(), op.opCode);
-			log_error(logger_invisible,"CPU: %d | ID Operacion: %d | Abortando: fallo Describe", process_get_thread_id(), op.opCode);
+			log_error(logger_error,"CPU: %d | ID Operacion: %d | Abortando: Fallo Describe", process_get_thread_id(), op.opCode);
+			log_error(logger_invisible,"CPU: %d | ID Operacion: %d | Abortando: Fallo Describe", process_get_thread_id(), op.opCode);
 			return INSTRUCCION_ERROR;
 		}
 		mostrar_describe(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
 		return CONTINUAR;
 	default:
-		log_error(logger_visible,"CPU: %d | ID Operacion: %d | Instruccion invalida o fuera de contexto", process_get_thread_id(), op.opCode);
-		log_error(logger_invisible,"CPU: %d | ID Operacion: %d | Instruccion invalida o fuera de contexto", process_get_thread_id(), op.opCode);
+		instruccionActualTemp = remover_new_line(instruccionActual);
+		log_error(logger_visible,"CPU: %d | ID Operacion: %d | Instruccion '%s' invalida o fuera de contexto", process_get_thread_id(), op.opCode, instruccionActualTemp);
+		log_error(logger_invisible,"CPU: %d | ID Operacion: %d | Instruccion '%s' invalida o fuera de contexto", process_get_thread_id(), op.opCode, instruccionActualTemp);
+		free(instruccionActualTemp);
 		return INSTRUCCION_ERROR;
 	}
 	return INSTRUCCION_ERROR;
+}
+
+
+
+
+
+static void generar_estadisticas(DynamicAddressingRequest *link){
+	if(USAR_SOLO_MEMORIA_PRINCIPAL)
+		return;
+	if(!link->operacionExitosa)
+		return;
+	switch(link->criterioQueSeUso){
+	case SC:
+		if(link->tipoOperacion == SELECT){
+			++metricas.At.StrongConsistency.reads;
+			metricas.At.StrongConsistency.acumuladorTiemposRead += link->finOperacion - link->inicioOperacion;
+			metricas.At.StrongConsistency.readLatency = metricas.At.StrongConsistency.acumuladorTiemposRead / metricas.At.StrongConsistency.reads;
+			return;
+		}
+		if(link->tipoOperacion == INSERT){
+			++metricas.At.StrongConsistency.writes;
+			metricas.At.StrongConsistency.acumuladorTiemposWrite += link->finOperacion - link->inicioOperacion;
+			metricas.At.StrongConsistency.writeLatency = metricas.At.StrongConsistency.acumuladorTiemposWrite / metricas.At.StrongConsistency.writes;
+			return;
+		}
+		break;
+	case HSC:
+		if(link->tipoOperacion == SELECT){
+			++metricas.At.HashStrongConsistency.reads;
+			metricas.At.HashStrongConsistency.acumuladorTiemposRead += link->finOperacion - link->inicioOperacion;
+			metricas.At.HashStrongConsistency.readLatency = metricas.At.HashStrongConsistency.acumuladorTiemposRead / metricas.At.HashStrongConsistency.reads;
+			return;
+		}
+		if(link->tipoOperacion == INSERT){
+			++metricas.At.HashStrongConsistency.writes;
+			metricas.At.HashStrongConsistency.acumuladorTiemposWrite += link->finOperacion - link->inicioOperacion;
+			metricas.At.HashStrongConsistency.writeLatency = metricas.At.HashStrongConsistency.acumuladorTiemposWrite / metricas.At.HashStrongConsistency.writes;
+			return;
+		}
+		break;
+	case EC:
+		if(link->tipoOperacion == SELECT){
+			++metricas.At.EventualConsistency.reads;
+			metricas.At.EventualConsistency.acumuladorTiemposRead += link->finOperacion - link->inicioOperacion;
+			metricas.At.EventualConsistency.readLatency = metricas.At.EventualConsistency.acumuladorTiemposRead / metricas.At.EventualConsistency.reads;
+			return;
+		}
+		if(link->tipoOperacion == INSERT){
+			++metricas.At.EventualConsistency.writes;
+			metricas.At.EventualConsistency.acumuladorTiemposWrite += link->finOperacion - link->inicioOperacion;
+			metricas.At.EventualConsistency.writeLatency = metricas.At.EventualConsistency.acumuladorTiemposWrite / metricas.At.EventualConsistency.writes;
+			return;
+		}
+		break;
+	default:
+		return;
+	}
 }

@@ -190,6 +190,18 @@ int procesar_gossiping(char *cadenaResultadoGossiping){
 
 
 
+Consistencia consistencia_de_tabla(char *nombreTabla){
+	MetadataTabla *tabla = machearTabla(nombreTabla);
+	if(tabla == NULL)
+		return -1;
+	else
+		return tabla->consistencia;
+}
+
+
+
+
+
 static bool tabla_esta_en_la_lista(char *tabla){
 	if(tablasExistentes == NULL){
 		log_error(logger_error, "Sistema_de_criterios.c: tabla_esta_en_la_lista: aun no existen tablas conocidas en el sistema");
@@ -217,8 +229,6 @@ static bool memoria_esta_en_la_lista(t_list *lista, int numeroMemoria){
 	}
 	return list_any_satisfy(lista, buscar);
 }
-
-
 
 
 

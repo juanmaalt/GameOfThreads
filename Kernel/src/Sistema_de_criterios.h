@@ -20,10 +20,24 @@
 #include "Unidad_de_ejecucion.h"
 
 //ESTRUCTURAS
-typedef struct {
+typedef struct memoria{
 	int numero;
 	char *ip;
 	char *puerto;
+	struct{
+		struct{
+			int cantidadInsert;
+			int cantidadSelect;
+		}SC;
+		struct{
+			int cantidadInsert;
+			int cantidadSelect;
+		}SHC;
+		struct{
+			int cantidadInsert;
+			int cantidadSelect;
+		}EC;
+	}Metrics;
 }Memoria; //Toda memoria conocida va a tener asignada alguna categoria lo cual significa que va a estar dentro de su respectiva lista. La memoria principal no es la excepcion. Aunque a esa la puedo conocer por config, no se le puede asignar ninguna request
 
 
@@ -105,5 +119,11 @@ t_list *tablasExistentes;
 	* 		 Se puede usar para debugear
 	*/
 	void mostrar_describe(char *cadenaResultadoDescribe);
+
+	/**
+	* @NAME: consistencia_de_tabla
+	* @DESC: devuelve el enum de la consistencia de una tabla, -1 si no encontro nada
+	*/
+	Consistencia consistencia_de_tabla(char *nombreTabla);
 
 #endif /* SISTEMA_DE_CRITERIOS_H_ */

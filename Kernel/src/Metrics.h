@@ -20,27 +20,30 @@ struct valores_de_metricas{
 		HashStrongConsistency,
 		EventualConsistency,
 	}Criterio;
-	union{
+	struct{
 		struct{
 			timeEpoch readLatency;
 			timeEpoch writeLatency;
+			timeEpoch acumuladorTiemposRead; //Para el promedio, si no no tengo forma de saber el readLatency o el otro
+			timeEpoch acumuladorTiemposWrite;
 			int reads;
 			int writes;
-			t_dictionary *memoryLoad; //Lista de pares ordenados [memoria; cantidad insert+cantidad select]
 		}StrongConsistency;
 		struct{
 			timeEpoch readLatency;
 			timeEpoch writeLatency;
+			timeEpoch acumuladorTiemposRead;
+			timeEpoch acumuladorTiemposWrite;
 			int reads;
 			int writes;
-			t_dictionary *memoryLoad;
 		}HashStrongConsistency;
 		struct{
 			timeEpoch readLatency;
 			timeEpoch writeLatency;
+			timeEpoch acumuladorTiemposRead;
+			timeEpoch acumuladorTiemposWrite;
 			int reads;
 			int writes;
-			t_dictionary *memoryLoad;
 		}EventualConsistency;
 	}At;
 };
@@ -49,7 +52,6 @@ typedef struct valores_de_metricas Metricas;
 
 //GLOBALES: Metricas
 Metricas metricas;
-int servicioEstaEncendido;
 
 //FUNCIONES: Publicas
 int ver_metricas(); //Comienza el servicio de metricas que se loggean cada 30 segundos. Ademas se muestran cada vez que se invoca
