@@ -61,3 +61,1517 @@
 [INFO] 20:33:14:515 Memoria/(5152:5152): El size del value es: 4
 [INFO] 20:33:14:515 Memoria/(5152:5152): El punto de montaje es: mnt/FileSystem/
 [INFO] 20:33:14:517 Memoria/(5152:5152): Servidor encendido, esperando conexiones
+[INFO] 14:53:21:499 Memoria/(5143:5143): IP=127.0.0.1
+[INFO] 14:53:21:500 Memoria/(5143:5143): PUERTO=8007
+[INFO] 14:53:21:500 Memoria/(5143:5143): IP_FS=127.0.0.1
+[INFO] 14:53:21:500 Memoria/(5143:5143): PUERTO_FS=8006
+[INFO] 14:53:21:501 Memoria/(5143:5143): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 14:53:21:501 Memoria/(5143:5143): PUERTO_SEEDS=[8000,8001]
+[INFO] 14:53:21:501 Memoria/(5143:5143): RETARDO_MEM=600
+[INFO] 14:53:21:501 Memoria/(5143:5143): RETARDO_FS=600
+[INFO] 14:53:21:501 Memoria/(5143:5143): TAM_MEM=2048
+[INFO] 14:53:21:502 Memoria/(5143:5143): RETARDO_JOURNAL=60000
+[INFO] 14:53:21:503 Memoria/(5143:5143): RETARDO_GOSSIPING=30000
+[INFO] 14:53:21:503 Memoria/(5143:5143): MEMORY_NUMBER=1
+[ERROR] 14:53:21:504 Memoria/(5143:5143): El LFS no está levantado. Cerrar la Memoria, levantar el LFS y volver a levantar la Memoria
+[INFO] 14:53:29:717 Memoria/(5146:5146): IP=127.0.0.1
+[INFO] 14:53:29:722 Memoria/(5146:5146): PUERTO=8007
+[INFO] 14:53:29:722 Memoria/(5146:5146): IP_FS=127.0.0.1
+[INFO] 14:53:29:723 Memoria/(5146:5146): PUERTO_FS=8006
+[INFO] 14:53:29:723 Memoria/(5146:5146): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 14:53:29:723 Memoria/(5146:5146): PUERTO_SEEDS=[8000,8001]
+[INFO] 14:53:29:723 Memoria/(5146:5146): RETARDO_MEM=600
+[INFO] 14:53:29:723 Memoria/(5146:5146): RETARDO_FS=600
+[INFO] 14:53:29:724 Memoria/(5146:5146): TAM_MEM=2048
+[INFO] 14:53:29:724 Memoria/(5146:5146): RETARDO_JOURNAL=60000
+[INFO] 14:53:29:724 Memoria/(5146:5146): RETARDO_GOSSIPING=30000
+[INFO] 14:53:29:724 Memoria/(5146:5146): MEMORY_NUMBER=1
+[ERROR] 14:53:29:725 Memoria/(5146:5146): El LFS no está levantado. Cerrar la Memoria, levantar el LFS y volver a levantar la Memoria
+[INFO] 14:54:05:188 Memoria/(5163:5163): IP=127.0.0.1
+[INFO] 14:54:05:189 Memoria/(5163:5163): PUERTO=8007
+[INFO] 14:54:05:189 Memoria/(5163:5163): IP_FS=127.0.0.1
+[INFO] 14:54:05:189 Memoria/(5163:5163): PUERTO_FS=8006
+[INFO] 14:54:05:189 Memoria/(5163:5163): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 14:54:05:189 Memoria/(5163:5163): PUERTO_SEEDS=[8000,8001]
+[INFO] 14:54:05:189 Memoria/(5163:5163): RETARDO_MEM=600
+[INFO] 14:54:05:189 Memoria/(5163:5163): RETARDO_FS=600
+[INFO] 14:54:05:189 Memoria/(5163:5163): TAM_MEM=2048
+[INFO] 14:54:05:190 Memoria/(5163:5163): RETARDO_JOURNAL=60000
+[INFO] 14:54:05:190 Memoria/(5163:5163): RETARDO_GOSSIPING=30000
+[INFO] 14:54:05:190 Memoria/(5163:5163): MEMORY_NUMBER=1
+[INFO] 14:54:05:190 Memoria/(5163:5163): Conectado al LFS. Iniciando Handshake.
+[INFO] 14:54:05:196 Memoria/(5163:5163): El size del value es: 4
+[INFO] 14:54:05:196 Memoria/(5163:5163): El punto de montaje es: mnt/FileSystem/
+[INFO] 14:54:05:196 Memoria/(5163:5163): Servidor encendido, esperando conexiones
+[ERROR] 14:54:05:198 Memoria/(5163:5167): La memoria no esta activa
+[ERROR] 14:54:05:199 Memoria/(5163:5167): La memoria no esta activa
+[INFO] 14:54:12:225 Memoria/(5170:5170): IP=127.0.0.1
+[INFO] 14:54:12:238 Memoria/(5170:5170): PUERTO=8007
+[INFO] 14:54:12:238 Memoria/(5170:5170): IP_FS=127.0.0.1
+[INFO] 14:54:12:239 Memoria/(5170:5170): PUERTO_FS=8006
+[INFO] 14:54:12:239 Memoria/(5170:5170): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 14:54:12:241 Memoria/(5170:5170): PUERTO_SEEDS=[8000,8001]
+[INFO] 14:54:12:242 Memoria/(5170:5170): RETARDO_MEM=600
+[INFO] 14:54:12:242 Memoria/(5170:5170): RETARDO_FS=600
+[INFO] 14:54:12:242 Memoria/(5170:5170): TAM_MEM=2048
+[INFO] 14:54:12:242 Memoria/(5170:5170): RETARDO_JOURNAL=60000
+[INFO] 14:54:12:243 Memoria/(5170:5170): RETARDO_GOSSIPING=30000
+[INFO] 14:54:12:243 Memoria/(5170:5170): MEMORY_NUMBER=1
+[INFO] 14:54:12:243 Memoria/(5170:5170): Conectado al LFS. Iniciando Handshake.
+[INFO] 14:54:12:244 Memoria/(5170:5170): El size del value es: 4
+[INFO] 14:54:12:244 Memoria/(5170:5170): El punto de montaje es: mnt/FileSystem/
+[ERROR] 14:54:12:246 Memoria/(5170:5170): Memoria.c: main: no se pudo levantar el servidor
+[INFO] 14:54:21:331 Memoria/(5180:5180): IP=127.0.0.1
+[INFO] 14:54:21:336 Memoria/(5180:5180): PUERTO=8007
+[INFO] 14:54:21:336 Memoria/(5180:5180): IP_FS=127.0.0.1
+[INFO] 14:54:21:336 Memoria/(5180:5180): PUERTO_FS=8006
+[INFO] 14:54:21:337 Memoria/(5180:5180): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 14:54:21:337 Memoria/(5180:5180): PUERTO_SEEDS=[8000,8001]
+[INFO] 14:54:21:337 Memoria/(5180:5180): RETARDO_MEM=600
+[INFO] 14:54:21:337 Memoria/(5180:5180): RETARDO_FS=600
+[INFO] 14:54:21:338 Memoria/(5180:5180): TAM_MEM=2048
+[INFO] 14:54:21:338 Memoria/(5180:5180): RETARDO_JOURNAL=60000
+[INFO] 14:54:21:338 Memoria/(5180:5180): RETARDO_GOSSIPING=30000
+[INFO] 14:54:21:338 Memoria/(5180:5180): MEMORY_NUMBER=1
+[INFO] 14:54:21:339 Memoria/(5180:5180): Conectado al LFS. Iniciando Handshake.
+[INFO] 14:54:21:339 Memoria/(5180:5180): El size del value es: 4
+[INFO] 14:54:21:343 Memoria/(5180:5180): El punto de montaje es: mnt/FileSystem/
+[ERROR] 14:54:21:344 Memoria/(5180:5180): Memoria.c: main: no se pudo levantar el servidor
+[INFO] 14:54:22:644 Memoria/(5185:5185): IP=127.0.0.1
+[INFO] 14:54:22:649 Memoria/(5185:5185): PUERTO=8007
+[INFO] 14:54:22:649 Memoria/(5185:5185): IP_FS=127.0.0.1
+[INFO] 14:54:22:650 Memoria/(5185:5185): PUERTO_FS=8006
+[INFO] 14:54:22:650 Memoria/(5185:5185): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 14:54:22:650 Memoria/(5185:5185): PUERTO_SEEDS=[8000,8001]
+[INFO] 14:54:22:650 Memoria/(5185:5185): RETARDO_MEM=600
+[INFO] 14:54:22:650 Memoria/(5185:5185): RETARDO_FS=600
+[INFO] 14:54:22:651 Memoria/(5185:5185): TAM_MEM=2048
+[INFO] 14:54:22:651 Memoria/(5185:5185): RETARDO_JOURNAL=60000
+[INFO] 14:54:22:651 Memoria/(5185:5185): RETARDO_GOSSIPING=30000
+[INFO] 14:54:22:651 Memoria/(5185:5185): MEMORY_NUMBER=1
+[INFO] 14:54:22:652 Memoria/(5185:5185): Conectado al LFS. Iniciando Handshake.
+[INFO] 14:54:22:652 Memoria/(5185:5185): El size del value es: 4
+[INFO] 14:54:22:652 Memoria/(5185:5185): El punto de montaje es: mnt/FileSystem/
+[ERROR] 14:54:22:657 Memoria/(5185:5185): Memoria.c: main: no se pudo levantar el servidor
+[INFO] 14:54:23:367 Memoria/(5190:5190): IP=127.0.0.1
+[INFO] 14:54:23:372 Memoria/(5190:5190): PUERTO=8007
+[INFO] 14:54:23:372 Memoria/(5190:5190): IP_FS=127.0.0.1
+[INFO] 14:54:23:372 Memoria/(5190:5190): PUERTO_FS=8006
+[INFO] 14:54:23:373 Memoria/(5190:5190): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 14:54:23:373 Memoria/(5190:5190): PUERTO_SEEDS=[8000,8001]
+[INFO] 14:54:23:373 Memoria/(5190:5190): RETARDO_MEM=600
+[INFO] 14:54:23:373 Memoria/(5190:5190): RETARDO_FS=600
+[INFO] 14:54:23:374 Memoria/(5190:5190): TAM_MEM=2048
+[INFO] 14:54:23:374 Memoria/(5190:5190): RETARDO_JOURNAL=60000
+[INFO] 14:54:23:374 Memoria/(5190:5190): RETARDO_GOSSIPING=30000
+[INFO] 14:54:23:374 Memoria/(5190:5190): MEMORY_NUMBER=1
+[INFO] 14:54:23:378 Memoria/(5190:5190): Conectado al LFS. Iniciando Handshake.
+[INFO] 14:54:23:379 Memoria/(5190:5190): El size del value es: 4
+[INFO] 14:54:23:380 Memoria/(5190:5190): El punto de montaje es: mnt/FileSystem/
+[ERROR] 14:54:23:381 Memoria/(5190:5190): Memoria.c: main: no se pudo levantar el servidor
+[INFO] 14:54:24:154 Memoria/(5195:5195): IP=127.0.0.1
+[INFO] 14:54:24:158 Memoria/(5195:5195): PUERTO=8007
+[INFO] 14:54:24:159 Memoria/(5195:5195): IP_FS=127.0.0.1
+[INFO] 14:54:24:159 Memoria/(5195:5195): PUERTO_FS=8006
+[INFO] 14:54:24:159 Memoria/(5195:5195): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 14:54:24:159 Memoria/(5195:5195): PUERTO_SEEDS=[8000,8001]
+[INFO] 14:54:24:160 Memoria/(5195:5195): RETARDO_MEM=600
+[INFO] 14:54:24:160 Memoria/(5195:5195): RETARDO_FS=600
+[INFO] 14:54:24:160 Memoria/(5195:5195): TAM_MEM=2048
+[INFO] 14:54:24:160 Memoria/(5195:5195): RETARDO_JOURNAL=60000
+[INFO] 14:54:24:160 Memoria/(5195:5195): RETARDO_GOSSIPING=30000
+[INFO] 14:54:24:161 Memoria/(5195:5195): MEMORY_NUMBER=1
+[INFO] 14:54:24:161 Memoria/(5195:5195): Conectado al LFS. Iniciando Handshake.
+[INFO] 14:54:24:166 Memoria/(5195:5195): El size del value es: 4
+[INFO] 14:54:24:166 Memoria/(5195:5195): El punto de montaje es: mnt/FileSystem/
+[ERROR] 14:54:24:168 Memoria/(5195:5195): Memoria.c: main: no se pudo levantar el servidor
+[INFO] 14:54:43:392 Memoria/(5163:5163): Finalizando proceso Memoria...
+[INFO] 14:54:45:439 Memoria/(5202:5202): IP=127.0.0.1
+[INFO] 14:54:45:446 Memoria/(5202:5202): PUERTO=8007
+[INFO] 14:54:45:448 Memoria/(5202:5202): IP_FS=127.0.0.1
+[INFO] 14:54:45:448 Memoria/(5202:5202): PUERTO_FS=8006
+[INFO] 14:54:45:448 Memoria/(5202:5202): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 14:54:45:448 Memoria/(5202:5202): PUERTO_SEEDS=[8000,8001]
+[INFO] 14:54:45:448 Memoria/(5202:5202): RETARDO_MEM=600
+[INFO] 14:54:45:449 Memoria/(5202:5202): RETARDO_FS=600
+[INFO] 14:54:45:449 Memoria/(5202:5202): TAM_MEM=2048
+[INFO] 14:54:45:449 Memoria/(5202:5202): RETARDO_JOURNAL=60000
+[INFO] 14:54:45:449 Memoria/(5202:5202): RETARDO_GOSSIPING=30000
+[INFO] 14:54:45:450 Memoria/(5202:5202): MEMORY_NUMBER=1
+[INFO] 14:54:45:450 Memoria/(5202:5202): Conectado al LFS. Iniciando Handshake.
+[INFO] 14:54:45:455 Memoria/(5202:5202): El size del value es: 4
+[INFO] 14:54:45:455 Memoria/(5202:5202): El punto de montaje es: mnt/FileSystem/
+[INFO] 14:54:45:457 Memoria/(5202:5202): Servidor encendido, esperando conexiones
+[ERROR] 14:54:45:458 Memoria/(5202:5205): La memoria no esta activa
+[ERROR] 14:54:45:458 Memoria/(5202:5205): La memoria no esta activa
+[INFO] 14:54:50:821 Memoria/(5208:5208): IP=127.0.0.1
+[INFO] 14:54:50:822 Memoria/(5208:5208): PUERTO=8007
+[INFO] 14:54:50:822 Memoria/(5208:5208): IP_FS=127.0.0.1
+[INFO] 14:54:50:822 Memoria/(5208:5208): PUERTO_FS=8006
+[INFO] 14:54:50:822 Memoria/(5208:5208): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 14:54:50:822 Memoria/(5208:5208): PUERTO_SEEDS=[8000,8001]
+[INFO] 14:54:50:823 Memoria/(5208:5208): RETARDO_MEM=600
+[INFO] 14:54:50:823 Memoria/(5208:5208): RETARDO_FS=600
+[INFO] 14:54:50:823 Memoria/(5208:5208): TAM_MEM=2048
+[INFO] 14:54:50:823 Memoria/(5208:5208): RETARDO_JOURNAL=60000
+[INFO] 14:54:50:823 Memoria/(5208:5208): RETARDO_GOSSIPING=30000
+[INFO] 14:54:50:824 Memoria/(5208:5208): MEMORY_NUMBER=1
+[INFO] 14:54:50:824 Memoria/(5208:5208): Conectado al LFS. Iniciando Handshake.
+[INFO] 14:54:50:824 Memoria/(5208:5208): El size del value es: 4
+[INFO] 14:54:50:825 Memoria/(5208:5208): El punto de montaje es: mnt/FileSystem/
+[ERROR] 14:54:50:826 Memoria/(5208:5208): Memoria.c: main: no se pudo levantar el servidor
+[INFO] 14:56:29:64 Memoria/(5202:5202): Finalizando proceso Memoria...
+[INFO] 14:57:11:322 Memoria/(5310:5310): IP=127.0.0.1
+[INFO] 14:57:11:326 Memoria/(5310:5310): PUERTO=8007
+[INFO] 14:57:11:327 Memoria/(5310:5310): IP_FS=127.0.0.1
+[INFO] 14:57:11:327 Memoria/(5310:5310): PUERTO_FS=8006
+[INFO] 14:57:11:327 Memoria/(5310:5310): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 14:57:11:327 Memoria/(5310:5310): PUERTO_SEEDS=[8000,8001]
+[INFO] 14:57:11:327 Memoria/(5310:5310): RETARDO_MEM=600
+[INFO] 14:57:11:327 Memoria/(5310:5310): RETARDO_FS=600
+[INFO] 14:57:11:327 Memoria/(5310:5310): TAM_MEM=2048
+[INFO] 14:57:11:327 Memoria/(5310:5310): RETARDO_JOURNAL=60000
+[INFO] 14:57:11:327 Memoria/(5310:5310): RETARDO_GOSSIPING=30000
+[INFO] 14:57:11:327 Memoria/(5310:5310): MEMORY_NUMBER=1
+[INFO] 14:57:11:328 Memoria/(5310:5310): Conectado al LFS. Iniciando Handshake.
+[INFO] 14:57:11:328 Memoria/(5310:5310): El size del value es: 4
+[INFO] 14:57:11:328 Memoria/(5310:5310): El punto de montaje es: mnt/FileSystem/
+[INFO] 14:57:11:329 Memoria/(5310:5310): Servidor encendido, esperando conexiones
+[ERROR] 14:57:11:331 Memoria/(5310:5313): La memoria no esta activa
+[ERROR] 14:57:11:331 Memoria/(5310:5313): La memoria no esta activa
+[INFO] 15:00:30:771 Memoria/(5310:5310): Finalizando proceso Memoria...
+[INFO] 15:00:31:690 Memoria/(5368:5368): IP=127.0.0.1
+[INFO] 15:00:31:695 Memoria/(5368:5368): PUERTO=8007
+[INFO] 15:00:31:696 Memoria/(5368:5368): IP_FS=127.0.0.1
+[INFO] 15:00:31:696 Memoria/(5368:5368): PUERTO_FS=8006
+[INFO] 15:00:31:696 Memoria/(5368:5368): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 15:00:31:696 Memoria/(5368:5368): PUERTO_SEEDS=[8000,8001]
+[INFO] 15:00:31:697 Memoria/(5368:5368): RETARDO_MEM=600
+[INFO] 15:00:31:697 Memoria/(5368:5368): RETARDO_FS=600
+[INFO] 15:00:31:697 Memoria/(5368:5368): TAM_MEM=2048
+[INFO] 15:00:31:697 Memoria/(5368:5368): RETARDO_JOURNAL=60000
+[INFO] 15:00:31:697 Memoria/(5368:5368): RETARDO_GOSSIPING=30000
+[INFO] 15:00:31:698 Memoria/(5368:5368): MEMORY_NUMBER=1
+[INFO] 15:00:31:698 Memoria/(5368:5368): Conectado al LFS. Iniciando Handshake.
+[INFO] 15:00:31:700 Memoria/(5368:5368): El size del value es: 4
+[INFO] 15:00:31:700 Memoria/(5368:5368): El punto de montaje es: mnt/FileSystem/
+[INFO] 15:00:31:701 Memoria/(5368:5368): Servidor encendido, esperando conexiones
+[ERROR] 15:00:31:702 Memoria/(5368:5371): La memoria no esta activa
+[ERROR] 15:00:31:703 Memoria/(5368:5371): Memoria conocida. Envia rmensaje
+[INFO] 15:28:45:434 Memoria/(5368:5368): Finalizando proceso Memoria...
+[INFO] 15:28:48:268 Memoria/(6153:6153): IP=127.0.0.1
+[INFO] 15:28:48:273 Memoria/(6153:6153): PUERTO=8007
+[INFO] 15:28:48:273 Memoria/(6153:6153): IP_FS=127.0.0.1
+[INFO] 15:28:48:273 Memoria/(6153:6153): PUERTO_FS=8006
+[INFO] 15:28:48:274 Memoria/(6153:6153): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 15:28:48:274 Memoria/(6153:6153): PUERTO_SEEDS=[8000,8001]
+[INFO] 15:28:48:274 Memoria/(6153:6153): RETARDO_MEM=600
+[INFO] 15:28:48:274 Memoria/(6153:6153): RETARDO_FS=600
+[INFO] 15:28:48:274 Memoria/(6153:6153): TAM_MEM=2048
+[INFO] 15:28:48:275 Memoria/(6153:6153): RETARDO_JOURNAL=60000
+[INFO] 15:28:48:275 Memoria/(6153:6153): RETARDO_GOSSIPING=30000
+[INFO] 15:28:48:275 Memoria/(6153:6153): MEMORY_NUMBER=1
+[INFO] 15:28:48:275 Memoria/(6153:6153): Conectado al LFS. Iniciando Handshake.
+[INFO] 15:28:48:323 Memoria/(6153:6153): El size del value es: 4
+[INFO] 15:28:48:324 Memoria/(6153:6153): El punto de montaje es: mnt/FileSystem/
+[ERROR] 15:28:48:325 Memoria/(6153:6156): La memoria no esta activa
+[ERROR] 15:28:48:326 Memoria/(6153:6156): Memoria conocida. Envia rmensaje
+[INFO] 15:28:57:346 Memoria/(6162:6162): IP=127.0.0.1
+[INFO] 15:28:57:351 Memoria/(6162:6162): PUERTO=8007
+[INFO] 15:28:57:351 Memoria/(6162:6162): IP_FS=127.0.0.1
+[INFO] 15:28:57:351 Memoria/(6162:6162): PUERTO_FS=8006
+[INFO] 15:28:57:351 Memoria/(6162:6162): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 15:28:57:352 Memoria/(6162:6162): PUERTO_SEEDS=[8000,8001]
+[INFO] 15:28:57:352 Memoria/(6162:6162): RETARDO_MEM=600
+[INFO] 15:28:57:352 Memoria/(6162:6162): RETARDO_FS=600
+[INFO] 15:28:57:352 Memoria/(6162:6162): TAM_MEM=2048
+[INFO] 15:28:57:352 Memoria/(6162:6162): RETARDO_JOURNAL=60000
+[INFO] 15:28:57:353 Memoria/(6162:6162): RETARDO_GOSSIPING=30000
+[INFO] 15:28:57:353 Memoria/(6162:6162): MEMORY_NUMBER=1
+[INFO] 15:28:57:353 Memoria/(6162:6162): Conectado al LFS. Iniciando Handshake.
+[INFO] 15:28:57:354 Memoria/(6162:6162): El size del value es: 4
+[INFO] 15:28:57:354 Memoria/(6162:6162): El punto de montaje es: mnt/FileSystem/
+[INFO] 15:28:57:355 Memoria/(6162:6162): Servidor encendido, esperando conexiones
+[ERROR] 15:28:57:357 Memoria/(6162:6165): La memoria no esta activa
+[ERROR] 15:28:57:358 Memoria/(6162:6165): Memoria conocida. Envia rmensaje
+[INFO] 15:31:41:916 Memoria/(6291:6291): IP=127.0.0.1
+[INFO] 15:31:41:921 Memoria/(6291:6291): PUERTO=8007
+[INFO] 15:31:41:921 Memoria/(6291:6291): IP_FS=127.0.0.1
+[INFO] 15:31:41:921 Memoria/(6291:6291): PUERTO_FS=8006
+[INFO] 15:31:41:921 Memoria/(6291:6291): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 15:31:41:921 Memoria/(6291:6291): PUERTO_SEEDS=[8000,8001]
+[INFO] 15:31:41:922 Memoria/(6291:6291): RETARDO_MEM=600
+[INFO] 15:31:41:922 Memoria/(6291:6291): RETARDO_FS=600
+[INFO] 15:31:41:922 Memoria/(6291:6291): TAM_MEM=2048
+[INFO] 15:31:41:922 Memoria/(6291:6291): RETARDO_JOURNAL=60000
+[INFO] 15:31:41:922 Memoria/(6291:6291): RETARDO_GOSSIPING=30000
+[INFO] 15:31:41:923 Memoria/(6291:6291): MEMORY_NUMBER=1
+[INFO] 15:31:41:923 Memoria/(6291:6291): Conectado al LFS. Iniciando Handshake.
+[INFO] 15:31:41:925 Memoria/(6291:6291): El size del value es: 4
+[INFO] 15:31:41:925 Memoria/(6291:6291): El punto de montaje es: mnt/FileSystem/
+[ERROR] 15:31:41:927 Memoria/(6291:6294): La memoria no esta activa
+[ERROR] 15:31:41:928 Memoria/(6291:6294): Memoria conocida. Envia rmensaje
+[INFO] 15:35:08:28 Memoria/(6449:6449): IP=127.0.0.1
+[INFO] 15:35:08:28 Memoria/(6449:6449): PUERTO=8007
+[INFO] 15:35:08:28 Memoria/(6449:6449): IP_FS=127.0.0.1
+[INFO] 15:35:08:28 Memoria/(6449:6449): PUERTO_FS=8006
+[INFO] 15:35:08:28 Memoria/(6449:6449): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 15:35:08:29 Memoria/(6449:6449): PUERTO_SEEDS=[8000,8001]
+[INFO] 15:35:08:29 Memoria/(6449:6449): RETARDO_MEM=600
+[INFO] 15:35:08:29 Memoria/(6449:6449): RETARDO_FS=600
+[INFO] 15:35:08:29 Memoria/(6449:6449): TAM_MEM=2048
+[INFO] 15:35:08:30 Memoria/(6449:6449): RETARDO_JOURNAL=60000
+[INFO] 15:35:08:30 Memoria/(6449:6449): RETARDO_GOSSIPING=30000
+[INFO] 15:35:08:30 Memoria/(6449:6449): MEMORY_NUMBER=1
+[INFO] 15:35:08:30 Memoria/(6449:6449): Conectado al LFS. Iniciando Handshake.
+[INFO] 15:35:08:31 Memoria/(6449:6449): El size del value es: 4
+[INFO] 15:35:08:31 Memoria/(6449:6449): El punto de montaje es: mnt/FileSystem/
+[INFO] 15:35:08:33 Memoria/(6449:6449): Servidor encendido, esperando conexiones
+[ERROR] 15:35:08:39 Memoria/(6449:6452): La memoria no esta activa
+[ERROR] 15:35:08:39 Memoria/(6449:6452): Memoria conocida. Envia rmensaje
+[INFO] 15:36:01:241 Memoria/(6500:6500): IP=127.0.0.1
+[INFO] 15:36:01:241 Memoria/(6500:6500): PUERTO=8007
+[INFO] 15:36:01:242 Memoria/(6500:6500): IP_FS=127.0.0.1
+[INFO] 15:36:01:242 Memoria/(6500:6500): PUERTO_FS=8006
+[INFO] 15:36:01:242 Memoria/(6500:6500): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 15:36:01:242 Memoria/(6500:6500): PUERTO_SEEDS=[8000,8001]
+[INFO] 15:36:01:243 Memoria/(6500:6500): RETARDO_MEM=600
+[INFO] 15:36:01:243 Memoria/(6500:6500): RETARDO_FS=600
+[INFO] 15:36:01:243 Memoria/(6500:6500): TAM_MEM=2048
+[INFO] 15:36:01:243 Memoria/(6500:6500): RETARDO_JOURNAL=60000
+[INFO] 15:36:01:243 Memoria/(6500:6500): RETARDO_GOSSIPING=30000
+[INFO] 15:36:01:244 Memoria/(6500:6500): MEMORY_NUMBER=1
+[INFO] 15:36:01:244 Memoria/(6500:6500): Conectado al LFS. Iniciando Handshake.
+[INFO] 15:36:01:245 Memoria/(6500:6500): El size del value es: 4
+[INFO] 15:36:01:245 Memoria/(6500:6500): El punto de montaje es: mnt/FileSystem/
+[INFO] 15:36:01:246 Memoria/(6500:6500): Servidor encendido, esperando conexiones
+[ERROR] 15:36:01:259 Memoria/(6500:6503): La memoria no esta activa
+[ERROR] 15:36:01:260 Memoria/(6500:6503): Memoria conocida. Envia rmensaje
+[INFO] 15:47:24:44 Memoria/(6809:6809): IP=127.0.0.1
+[INFO] 15:47:24:50 Memoria/(6809:6809): PUERTO=8007
+[INFO] 15:47:24:50 Memoria/(6809:6809): IP_FS=127.0.0.1
+[INFO] 15:47:24:50 Memoria/(6809:6809): PUERTO_FS=8006
+[INFO] 15:47:24:50 Memoria/(6809:6809): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 15:47:24:51 Memoria/(6809:6809): PUERTO_SEEDS=[8000,8001]
+[INFO] 15:47:24:51 Memoria/(6809:6809): RETARDO_MEM=600
+[INFO] 15:47:24:51 Memoria/(6809:6809): RETARDO_FS=600
+[INFO] 15:47:24:51 Memoria/(6809:6809): TAM_MEM=2048
+[INFO] 15:47:24:52 Memoria/(6809:6809): RETARDO_JOURNAL=60000
+[INFO] 15:47:24:52 Memoria/(6809:6809): RETARDO_GOSSIPING=30000
+[INFO] 15:47:24:52 Memoria/(6809:6809): MEMORY_NUMBER=1
+[INFO] 15:47:24:52 Memoria/(6809:6809): Conectado al LFS. Iniciando Handshake.
+[INFO] 15:47:24:54 Memoria/(6809:6809): El size del value es: 4
+[INFO] 15:47:24:54 Memoria/(6809:6809): El punto de montaje es: mnt/FileSystem/
+[INFO] 15:47:24:56 Memoria/(6809:6809): Servidor encendido, esperando conexiones
+[ERROR] 15:47:24:57 Memoria/(6809:6812): La memoria no esta activa
+[ERROR] 15:47:24:57 Memoria/(6809:6812): Memoria conocida. Envia rmensaje
+[INFO] 15:48:21:208 Memoria/(6856:6856): IP=127.0.0.1
+[INFO] 15:48:21:213 Memoria/(6856:6856): PUERTO=8007
+[INFO] 15:48:21:213 Memoria/(6856:6856): IP_FS=127.0.0.1
+[INFO] 15:48:21:214 Memoria/(6856:6856): PUERTO_FS=8006
+[INFO] 15:48:21:214 Memoria/(6856:6856): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 15:48:21:214 Memoria/(6856:6856): PUERTO_SEEDS=[8000,8001]
+[INFO] 15:48:21:214 Memoria/(6856:6856): RETARDO_MEM=600
+[INFO] 15:48:21:214 Memoria/(6856:6856): RETARDO_FS=600
+[INFO] 15:48:21:215 Memoria/(6856:6856): TAM_MEM=2048
+[INFO] 15:48:21:215 Memoria/(6856:6856): RETARDO_JOURNAL=60000
+[INFO] 15:48:21:215 Memoria/(6856:6856): RETARDO_GOSSIPING=30000
+[INFO] 15:48:21:215 Memoria/(6856:6856): MEMORY_NUMBER=1
+[INFO] 15:48:21:216 Memoria/(6856:6856): Conectado al LFS. Iniciando Handshake.
+[INFO] 15:48:21:218 Memoria/(6856:6856): El size del value es: 4
+[INFO] 15:48:21:218 Memoria/(6856:6856): El punto de montaje es: mnt/FileSystem/
+[INFO] 15:48:21:219 Memoria/(6856:6856): Servidor encendido, esperando conexiones
+[ERROR] 15:48:21:220 Memoria/(6856:6859): La memoria no esta activa
+[ERROR] 15:48:21:221 Memoria/(6856:6859): Memoria conocida. Envia rmensaje
+[INFO] 15:48:24:150 Memoria/(6863:6863): IP=127.0.0.1
+[INFO] 15:48:24:155 Memoria/(6863:6863): PUERTO=8007
+[INFO] 15:48:24:155 Memoria/(6863:6863): IP_FS=127.0.0.1
+[INFO] 15:48:24:156 Memoria/(6863:6863): PUERTO_FS=8006
+[INFO] 15:48:24:156 Memoria/(6863:6863): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 15:48:24:156 Memoria/(6863:6863): PUERTO_SEEDS=[8000,8001]
+[INFO] 15:48:24:156 Memoria/(6863:6863): RETARDO_MEM=600
+[INFO] 15:48:24:156 Memoria/(6863:6863): RETARDO_FS=600
+[INFO] 15:48:24:157 Memoria/(6863:6863): TAM_MEM=2048
+[INFO] 15:48:24:157 Memoria/(6863:6863): RETARDO_JOURNAL=60000
+[INFO] 15:48:24:157 Memoria/(6863:6863): RETARDO_GOSSIPING=30000
+[INFO] 15:48:24:157 Memoria/(6863:6863): MEMORY_NUMBER=1
+[INFO] 15:48:24:158 Memoria/(6863:6863): Conectado al LFS. Iniciando Handshake.
+[INFO] 15:48:24:159 Memoria/(6863:6863): El size del value es: 4
+[INFO] 15:48:24:159 Memoria/(6863:6863): El punto de montaje es: mnt/FileSystem/
+[INFO] 15:48:24:161 Memoria/(6863:6863): Servidor encendido, esperando conexiones
+[ERROR] 15:48:24:162 Memoria/(6863:6866): La memoria no esta activa
+[ERROR] 15:48:24:163 Memoria/(6863:6866): Memoria conocida. Envia rmensaje
+[INFO] 15:48:56:619 Memoria/(6871:6871): IP=127.0.0.1
+[INFO] 15:48:56:619 Memoria/(6871:6871): PUERTO=8007
+[INFO] 15:48:56:619 Memoria/(6871:6871): IP_FS=127.0.0.1
+[INFO] 15:48:56:620 Memoria/(6871:6871): PUERTO_FS=8006
+[INFO] 15:48:56:620 Memoria/(6871:6871): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 15:48:56:620 Memoria/(6871:6871): PUERTO_SEEDS=[8000,8001]
+[INFO] 15:48:56:620 Memoria/(6871:6871): RETARDO_MEM=600
+[INFO] 15:48:56:620 Memoria/(6871:6871): RETARDO_FS=600
+[INFO] 15:48:56:620 Memoria/(6871:6871): TAM_MEM=2048
+[INFO] 15:48:56:621 Memoria/(6871:6871): RETARDO_JOURNAL=60000
+[INFO] 15:48:56:621 Memoria/(6871:6871): RETARDO_GOSSIPING=30000
+[INFO] 15:48:56:621 Memoria/(6871:6871): MEMORY_NUMBER=1
+[INFO] 15:48:56:621 Memoria/(6871:6871): Conectado al LFS. Iniciando Handshake.
+[INFO] 15:48:56:622 Memoria/(6871:6871): El size del value es: 4
+[INFO] 15:48:56:622 Memoria/(6871:6871): El punto de montaje es: mnt/FileSystem/
+[INFO] 15:48:56:624 Memoria/(6871:6871): Servidor encendido, esperando conexiones
+[ERROR] 15:48:56:636 Memoria/(6871:6874): La memoria no esta activa
+[ERROR] 15:48:56:637 Memoria/(6871:6874): Memoria conocida. Envia rmensaje
+[INFO] 15:49:55:275 Memoria/(6940:6940): IP=127.0.0.1
+[INFO] 15:49:55:275 Memoria/(6940:6940): PUERTO=8007
+[INFO] 15:49:55:275 Memoria/(6940:6940): IP_FS=127.0.0.1
+[INFO] 15:49:55:275 Memoria/(6940:6940): PUERTO_FS=8006
+[INFO] 15:49:55:276 Memoria/(6940:6940): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 15:49:55:276 Memoria/(6940:6940): PUERTO_SEEDS=[8000,8001]
+[INFO] 15:49:55:276 Memoria/(6940:6940): RETARDO_MEM=600
+[INFO] 15:49:55:276 Memoria/(6940:6940): RETARDO_FS=600
+[INFO] 15:49:55:276 Memoria/(6940:6940): TAM_MEM=2048
+[INFO] 15:49:55:276 Memoria/(6940:6940): RETARDO_JOURNAL=60000
+[INFO] 15:49:55:276 Memoria/(6940:6940): RETARDO_GOSSIPING=30000
+[INFO] 15:49:55:277 Memoria/(6940:6940): MEMORY_NUMBER=1
+[INFO] 15:49:55:277 Memoria/(6940:6940): Conectado al LFS. Iniciando Handshake.
+[INFO] 15:49:55:280 Memoria/(6940:6940): El size del value es: 4
+[INFO] 15:49:55:280 Memoria/(6940:6940): El punto de montaje es: mnt/FileSystem/
+[INFO] 15:49:55:281 Memoria/(6940:6940): Servidor encendido, esperando conexiones
+[ERROR] 15:49:55:299 Memoria/(6940:6943): La memoria no esta activa
+[ERROR] 15:49:55:300 Memoria/(6940:6943): Memoria conocida. Envia rmensaje
+[INFO] 15:51:08:748 Memoria/(6985:6985): IP=127.0.0.1
+[INFO] 15:51:08:748 Memoria/(6985:6985): PUERTO=8007
+[INFO] 15:51:08:749 Memoria/(6985:6985): IP_FS=127.0.0.1
+[INFO] 15:51:08:749 Memoria/(6985:6985): PUERTO_FS=8006
+[INFO] 15:51:08:749 Memoria/(6985:6985): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 15:51:08:749 Memoria/(6985:6985): PUERTO_SEEDS=[8000,8001]
+[INFO] 15:51:08:749 Memoria/(6985:6985): RETARDO_MEM=600
+[INFO] 15:51:08:750 Memoria/(6985:6985): RETARDO_FS=600
+[INFO] 15:51:08:750 Memoria/(6985:6985): TAM_MEM=2048
+[INFO] 15:51:08:750 Memoria/(6985:6985): RETARDO_JOURNAL=60000
+[INFO] 15:51:08:750 Memoria/(6985:6985): RETARDO_GOSSIPING=30000
+[INFO] 15:51:08:750 Memoria/(6985:6985): MEMORY_NUMBER=1
+[INFO] 15:51:08:751 Memoria/(6985:6985): Conectado al LFS. Iniciando Handshake.
+[INFO] 15:51:08:751 Memoria/(6985:6985): El size del value es: 4
+[INFO] 15:51:08:752 Memoria/(6985:6985): El punto de montaje es: mnt/FileSystem/
+[INFO] 15:51:08:753 Memoria/(6985:6985): Servidor encendido, esperando conexiones
+[ERROR] 15:51:08:766 Memoria/(6985:6988): La memoria no esta activa
+[ERROR] 15:51:08:766 Memoria/(6985:6988): Memoria conocida. Envia rmensaje
+[INFO] 15:51:40:518 Memoria/(7019:7019): IP=127.0.0.1
+[INFO] 15:51:40:522 Memoria/(7019:7019): PUERTO=8007
+[INFO] 15:51:40:522 Memoria/(7019:7019): IP_FS=127.0.0.1
+[INFO] 15:51:40:522 Memoria/(7019:7019): PUERTO_FS=8006
+[INFO] 15:51:40:522 Memoria/(7019:7019): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 15:51:40:523 Memoria/(7019:7019): PUERTO_SEEDS=[8000,8001]
+[INFO] 15:51:40:523 Memoria/(7019:7019): RETARDO_MEM=600
+[INFO] 15:51:40:523 Memoria/(7019:7019): RETARDO_FS=600
+[INFO] 15:51:40:523 Memoria/(7019:7019): TAM_MEM=2048
+[INFO] 15:51:40:523 Memoria/(7019:7019): RETARDO_JOURNAL=60000
+[INFO] 15:51:40:524 Memoria/(7019:7019): RETARDO_GOSSIPING=30000
+[INFO] 15:51:40:524 Memoria/(7019:7019): MEMORY_NUMBER=1
+[INFO] 15:51:40:524 Memoria/(7019:7019): Conectado al LFS. Iniciando Handshake.
+[INFO] 15:51:40:529 Memoria/(7019:7019): El size del value es: 4
+[INFO] 15:51:40:533 Memoria/(7019:7019): El punto de montaje es: mnt/FileSystem/
+[INFO] 15:51:40:534 Memoria/(7019:7019): Servidor encendido, esperando conexiones
+[ERROR] 15:51:40:543 Memoria/(7019:7023): La memoria no esta activa
+[ERROR] 15:51:40:543 Memoria/(7019:7023): Memoria conocida. Envia rmensaje
+[INFO] 15:52:06:264 Memoria/(7039:7039): IP=127.0.0.1
+[INFO] 15:52:06:265 Memoria/(7039:7039): PUERTO=8007
+[INFO] 15:52:06:265 Memoria/(7039:7039): IP_FS=127.0.0.1
+[INFO] 15:52:06:265 Memoria/(7039:7039): PUERTO_FS=8006
+[INFO] 15:52:06:265 Memoria/(7039:7039): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 15:52:06:265 Memoria/(7039:7039): PUERTO_SEEDS=[8000,8001]
+[INFO] 15:52:06:266 Memoria/(7039:7039): RETARDO_MEM=600
+[INFO] 15:52:06:266 Memoria/(7039:7039): RETARDO_FS=600
+[INFO] 15:52:06:266 Memoria/(7039:7039): TAM_MEM=2048
+[INFO] 15:52:06:266 Memoria/(7039:7039): RETARDO_JOURNAL=60000
+[INFO] 15:52:06:267 Memoria/(7039:7039): RETARDO_GOSSIPING=30000
+[INFO] 15:52:06:267 Memoria/(7039:7039): MEMORY_NUMBER=1
+[INFO] 15:52:06:271 Memoria/(7039:7039): Conectado al LFS. Iniciando Handshake.
+[INFO] 15:52:06:279 Memoria/(7039:7039): El size del value es: 4
+[INFO] 15:52:06:279 Memoria/(7039:7039): El punto de montaje es: mnt/FileSystem/
+[INFO] 15:52:06:280 Memoria/(7039:7039): Servidor encendido, esperando conexiones
+[ERROR] 15:52:06:293 Memoria/(7039:7042): La memoria no esta activa
+[ERROR] 15:52:06:293 Memoria/(7039:7042): Memoria conocida. Envia rmensaje
+[INFO] 15:53:59:507 Memoria/(7094:7094): IP=127.0.0.1
+[INFO] 15:53:59:512 Memoria/(7094:7094): PUERTO=8007
+[INFO] 15:53:59:512 Memoria/(7094:7094): IP_FS=127.0.0.1
+[INFO] 15:53:59:513 Memoria/(7094:7094): PUERTO_FS=8006
+[INFO] 15:53:59:513 Memoria/(7094:7094): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 15:53:59:513 Memoria/(7094:7094): PUERTO_SEEDS=[8000,8001]
+[INFO] 15:53:59:514 Memoria/(7094:7094): RETARDO_MEM=600
+[INFO] 15:53:59:514 Memoria/(7094:7094): RETARDO_FS=600
+[INFO] 15:53:59:514 Memoria/(7094:7094): TAM_MEM=2048
+[INFO] 15:53:59:515 Memoria/(7094:7094): RETARDO_JOURNAL=60000
+[INFO] 15:53:59:515 Memoria/(7094:7094): RETARDO_GOSSIPING=30000
+[INFO] 15:53:59:515 Memoria/(7094:7094): MEMORY_NUMBER=1
+[INFO] 15:53:59:515 Memoria/(7094:7094): Conectado al LFS. Iniciando Handshake.
+[INFO] 15:53:59:543 Memoria/(7094:7094): El size del value es: 4
+[INFO] 15:53:59:543 Memoria/(7094:7094): El punto de montaje es: mnt/FileSystem/
+[ERROR] 15:53:59:544 Memoria/(7094:7097): La memoria no esta activa
+[ERROR] 15:53:59:544 Memoria/(7094:7097): Memoria conocida. Envia rmensaje
+[INFO] 15:54:24:375 Memoria/(7146:7146): IP=127.0.0.1
+[INFO] 15:54:24:380 Memoria/(7146:7146): PUERTO=8007
+[INFO] 15:54:24:380 Memoria/(7146:7146): IP_FS=127.0.0.1
+[INFO] 15:54:24:380 Memoria/(7146:7146): PUERTO_FS=8006
+[INFO] 15:54:24:380 Memoria/(7146:7146): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 15:54:24:380 Memoria/(7146:7146): PUERTO_SEEDS=[8000,8001]
+[INFO] 15:54:24:381 Memoria/(7146:7146): RETARDO_MEM=600
+[INFO] 15:54:24:381 Memoria/(7146:7146): RETARDO_FS=600
+[INFO] 15:54:24:381 Memoria/(7146:7146): TAM_MEM=2048
+[INFO] 15:54:24:381 Memoria/(7146:7146): RETARDO_JOURNAL=60000
+[INFO] 15:54:24:382 Memoria/(7146:7146): RETARDO_GOSSIPING=30000
+[INFO] 15:54:24:382 Memoria/(7146:7146): MEMORY_NUMBER=1
+[INFO] 15:54:24:383 Memoria/(7146:7146): Conectado al LFS. Iniciando Handshake.
+[INFO] 15:54:24:385 Memoria/(7146:7146): El size del value es: 4
+[INFO] 15:54:24:385 Memoria/(7146:7146): El punto de montaje es: mnt/FileSystem/
+[INFO] 15:54:24:386 Memoria/(7146:7146): Servidor encendido, esperando conexiones
+[ERROR] 15:54:24:387 Memoria/(7146:7149): La memoria no esta activa
+[ERROR] 15:54:24:388 Memoria/(7146:7149): Memoria conocida. Envia rmensaje
+[INFO] 15:55:36:364 Memoria/(7205:7205): IP=127.0.0.1
+[INFO] 15:55:36:372 Memoria/(7205:7205): PUERTO=8007
+[INFO] 15:55:36:373 Memoria/(7205:7205): IP_FS=127.0.0.1
+[INFO] 15:55:36:373 Memoria/(7205:7205): PUERTO_FS=8006
+[INFO] 15:55:36:373 Memoria/(7205:7205): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 15:55:36:373 Memoria/(7205:7205): PUERTO_SEEDS=[8000,8001]
+[INFO] 15:55:36:374 Memoria/(7205:7205): RETARDO_MEM=600
+[INFO] 15:55:36:374 Memoria/(7205:7205): RETARDO_FS=600
+[INFO] 15:55:36:374 Memoria/(7205:7205): TAM_MEM=2048
+[INFO] 15:55:36:380 Memoria/(7205:7205): RETARDO_JOURNAL=60000
+[INFO] 15:55:36:380 Memoria/(7205:7205): RETARDO_GOSSIPING=30000
+[INFO] 15:55:36:380 Memoria/(7205:7205): MEMORY_NUMBER=1
+[INFO] 15:55:36:381 Memoria/(7205:7205): Conectado al LFS. Iniciando Handshake.
+[INFO] 15:55:36:382 Memoria/(7205:7205): El size del value es: 4
+[INFO] 15:55:36:382 Memoria/(7205:7205): El punto de montaje es: mnt/FileSystem/
+[ERROR] 15:55:36:386 Memoria/(7205:7208): La memoria no esta activa
+[ERROR] 15:55:36:386 Memoria/(7205:7208): Memoria conocida. Envia rmensaje
+[INFO] 15:56:11:231 Memoria/(7265:7265): IP=127.0.0.1
+[INFO] 15:56:11:232 Memoria/(7265:7265): PUERTO=8007
+[INFO] 15:56:11:232 Memoria/(7265:7265): IP_FS=127.0.0.1
+[INFO] 15:56:11:232 Memoria/(7265:7265): PUERTO_FS=8006
+[INFO] 15:56:11:232 Memoria/(7265:7265): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 15:56:11:232 Memoria/(7265:7265): PUERTO_SEEDS=[8000,8001]
+[INFO] 15:56:11:232 Memoria/(7265:7265): RETARDO_MEM=600
+[INFO] 15:56:11:232 Memoria/(7265:7265): RETARDO_FS=600
+[INFO] 15:56:11:232 Memoria/(7265:7265): TAM_MEM=2048
+[INFO] 15:56:11:233 Memoria/(7265:7265): RETARDO_JOURNAL=60000
+[INFO] 15:56:11:233 Memoria/(7265:7265): RETARDO_GOSSIPING=30000
+[INFO] 15:56:11:233 Memoria/(7265:7265): MEMORY_NUMBER=1
+[INFO] 15:56:11:233 Memoria/(7265:7265): Conectado al LFS. Iniciando Handshake.
+[INFO] 15:56:11:238 Memoria/(7265:7265): El size del value es: 4
+[INFO] 15:56:11:238 Memoria/(7265:7265): El punto de montaje es: mnt/FileSystem/
+[INFO] 15:56:11:240 Memoria/(7265:7265): Servidor encendido, esperando conexiones
+[ERROR] 15:56:11:250 Memoria/(7265:7268): La memoria no esta activa
+[ERROR] 15:56:11:250 Memoria/(7265:7268): Memoria conocida. Envia rmensaje
+[INFO] 15:57:19:475 Memoria/(7322:7322): IP=127.0.0.1
+[INFO] 15:57:19:475 Memoria/(7322:7322): PUERTO=8007
+[INFO] 15:57:19:475 Memoria/(7322:7322): IP_FS=127.0.0.1
+[INFO] 15:57:19:476 Memoria/(7322:7322): PUERTO_FS=8006
+[INFO] 15:57:19:476 Memoria/(7322:7322): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 15:57:19:476 Memoria/(7322:7322): PUERTO_SEEDS=[8000,8001]
+[INFO] 15:57:19:481 Memoria/(7322:7322): RETARDO_MEM=600
+[INFO] 15:57:19:481 Memoria/(7322:7322): RETARDO_FS=600
+[INFO] 15:57:19:481 Memoria/(7322:7322): TAM_MEM=2048
+[INFO] 15:57:19:482 Memoria/(7322:7322): RETARDO_JOURNAL=60000
+[INFO] 15:57:19:482 Memoria/(7322:7322): RETARDO_GOSSIPING=30000
+[INFO] 15:57:19:482 Memoria/(7322:7322): MEMORY_NUMBER=1
+[INFO] 15:57:19:505 Memoria/(7322:7322): Conectado al LFS. Iniciando Handshake.
+[INFO] 15:57:19:509 Memoria/(7322:7322): El size del value es: 4
+[INFO] 15:57:19:509 Memoria/(7322:7322): El punto de montaje es: mnt/FileSystem/
+[INFO] 15:57:19:510 Memoria/(7322:7322): Servidor encendido, esperando conexiones
+[ERROR] 15:57:19:516 Memoria/(7322:7326): La memoria no esta activa
+[ERROR] 15:57:19:520 Memoria/(7322:7326): Memoria conocida. Envia rmensaje
+[INFO] 16:00:28:126 Memoria/(7461:7461): IP=127.0.0.1
+[INFO] 16:00:28:132 Memoria/(7461:7461): PUERTO=8007
+[INFO] 16:00:28:132 Memoria/(7461:7461): IP_FS=127.0.0.1
+[INFO] 16:00:28:133 Memoria/(7461:7461): PUERTO_FS=8006
+[INFO] 16:00:28:133 Memoria/(7461:7461): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 16:00:28:133 Memoria/(7461:7461): PUERTO_SEEDS=[8000,8001]
+[INFO] 16:00:28:133 Memoria/(7461:7461): RETARDO_MEM=600
+[INFO] 16:00:28:134 Memoria/(7461:7461): RETARDO_FS=600
+[INFO] 16:00:28:139 Memoria/(7461:7461): TAM_MEM=2048
+[INFO] 16:00:28:139 Memoria/(7461:7461): RETARDO_JOURNAL=60000
+[INFO] 16:00:28:140 Memoria/(7461:7461): RETARDO_GOSSIPING=30000
+[INFO] 16:00:28:140 Memoria/(7461:7461): MEMORY_NUMBER=1
+[INFO] 16:00:28:140 Memoria/(7461:7461): Conectado al LFS. Iniciando Handshake.
+[INFO] 16:00:28:143 Memoria/(7461:7461): El size del value es: 4
+[INFO] 16:00:28:143 Memoria/(7461:7461): El punto de montaje es: mnt/FileSystem/
+[INFO] 16:00:28:144 Memoria/(7461:7461): Servidor encendido, esperando conexiones
+[ERROR] 16:00:28:146 Memoria/(7461:7464): La memoria no esta activa
+[ERROR] 16:00:28:147 Memoria/(7461:7464): Memoria conocida. Envia rmensaje
+[INFO] 16:02:44:556 Memoria/(7607:7607): IP=127.0.0.1
+[INFO] 16:02:44:556 Memoria/(7607:7607): PUERTO=8007
+[INFO] 16:02:44:556 Memoria/(7607:7607): IP_FS=127.0.0.1
+[INFO] 16:02:44:556 Memoria/(7607:7607): PUERTO_FS=8006
+[INFO] 16:02:44:556 Memoria/(7607:7607): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 16:02:44:556 Memoria/(7607:7607): PUERTO_SEEDS=[8000,8001]
+[INFO] 16:02:44:556 Memoria/(7607:7607): RETARDO_MEM=600
+[INFO] 16:02:44:556 Memoria/(7607:7607): RETARDO_FS=600
+[INFO] 16:02:44:556 Memoria/(7607:7607): TAM_MEM=2048
+[INFO] 16:02:44:556 Memoria/(7607:7607): RETARDO_JOURNAL=60000
+[INFO] 16:02:44:556 Memoria/(7607:7607): RETARDO_GOSSIPING=30000
+[INFO] 16:02:44:557 Memoria/(7607:7607): MEMORY_NUMBER=1
+[INFO] 16:02:44:557 Memoria/(7607:7607): Conectado al LFS. Iniciando Handshake.
+[INFO] 16:02:44:557 Memoria/(7607:7607): El size del value es: 4
+[INFO] 16:02:44:557 Memoria/(7607:7607): El punto de montaje es: mnt/FileSystem/
+[ERROR] 16:02:44:564 Memoria/(7607:7610): La memoria no esta activa
+[ERROR] 16:02:44:565 Memoria/(7607:7610): Memoria conocida. Envia rmensaje
+[INFO] 16:03:05:651 Memoria/(7623:7623): IP=127.0.0.1
+[INFO] 16:03:05:734 Memoria/(7623:7623): PUERTO=8007
+[INFO] 16:03:05:743 Memoria/(7623:7623): IP_FS=127.0.0.1
+[INFO] 16:03:05:745 Memoria/(7623:7623): PUERTO_FS=8006
+[INFO] 16:03:05:746 Memoria/(7623:7623): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 16:03:05:747 Memoria/(7623:7623): PUERTO_SEEDS=[8000,8001]
+[INFO] 16:03:05:773 Memoria/(7623:7623): RETARDO_MEM=600
+[INFO] 16:03:05:777 Memoria/(7623:7623): RETARDO_FS=600
+[INFO] 16:03:05:778 Memoria/(7623:7623): TAM_MEM=2048
+[INFO] 16:03:05:783 Memoria/(7623:7623): RETARDO_JOURNAL=60000
+[INFO] 16:03:05:787 Memoria/(7623:7623): RETARDO_GOSSIPING=30000
+[INFO] 16:03:05:788 Memoria/(7623:7623): MEMORY_NUMBER=1
+[INFO] 16:03:05:833 Memoria/(7623:7623): Conectado al LFS. Iniciando Handshake.
+[INFO] 16:03:05:869 Memoria/(7623:7623): El size del value es: 4
+[INFO] 16:03:05:870 Memoria/(7623:7623): El punto de montaje es: mnt/FileSystem/
+[ERROR] 16:03:06:28 Memoria/(7623:7629): La memoria no esta activa
+[ERROR] 16:03:06:159 Memoria/(7623:7629): Memoria conocida. Envia rmensaje
+[INFO] 16:06:54:209 Memoria/(7649:7649): IP=127.0.0.1
+[INFO] 16:06:54:325 Memoria/(7649:7649): PUERTO=8007
+[INFO] 16:06:54:337 Memoria/(7649:7649): IP_FS=127.0.0.1
+[INFO] 16:06:54:338 Memoria/(7649:7649): PUERTO_FS=8006
+[INFO] 16:06:54:340 Memoria/(7649:7649): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 16:06:54:342 Memoria/(7649:7649): PUERTO_SEEDS=[8000,8001]
+[INFO] 16:06:54:378 Memoria/(7649:7649): RETARDO_MEM=600
+[INFO] 16:06:54:390 Memoria/(7649:7649): RETARDO_FS=600
+[INFO] 16:06:54:392 Memoria/(7649:7649): TAM_MEM=2048
+[INFO] 16:06:54:398 Memoria/(7649:7649): RETARDO_JOURNAL=60000
+[INFO] 16:06:54:405 Memoria/(7649:7649): RETARDO_GOSSIPING=30000
+[INFO] 16:06:54:406 Memoria/(7649:7649): MEMORY_NUMBER=1
+[INFO] 16:06:54:461 Memoria/(7649:7649): Conectado al LFS. Iniciando Handshake.
+[INFO] 16:06:54:519 Memoria/(7649:7649): El size del value es: 4
+[INFO] 16:06:54:520 Memoria/(7649:7649): El punto de montaje es: mnt/FileSystem/
+[ERROR] 16:06:54:807 Memoria/(7649:7653): La memoria no esta activa
+[ERROR] 16:06:54:890 Memoria/(7649:7653): Memoria conocida. Envia rmensaje
+[INFO] 16:14:59:125 Memoria/(8030:8030): IP=127.0.0.1
+[INFO] 16:14:59:144 Memoria/(8030:8030): PUERTO=8007
+[INFO] 16:14:59:145 Memoria/(8030:8030): IP_FS=127.0.0.1
+[INFO] 16:14:59:145 Memoria/(8030:8030): PUERTO_FS=8006
+[INFO] 16:14:59:145 Memoria/(8030:8030): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 16:14:59:145 Memoria/(8030:8030): PUERTO_SEEDS=[8000,8001]
+[INFO] 16:14:59:145 Memoria/(8030:8030): RETARDO_MEM=600
+[INFO] 16:14:59:146 Memoria/(8030:8030): RETARDO_FS=600
+[INFO] 16:14:59:146 Memoria/(8030:8030): TAM_MEM=2048
+[INFO] 16:14:59:146 Memoria/(8030:8030): RETARDO_JOURNAL=60000
+[INFO] 16:14:59:146 Memoria/(8030:8030): RETARDO_GOSSIPING=30000
+[INFO] 16:14:59:146 Memoria/(8030:8030): MEMORY_NUMBER=1
+[INFO] 16:14:59:147 Memoria/(8030:8030): Conectado al LFS. Iniciando Handshake.
+[INFO] 16:14:59:239 Memoria/(8030:8030): El size del value es: 4
+[INFO] 16:14:59:239 Memoria/(8030:8030): El punto de montaje es: mnt/FileSystem/
+[ERROR] 16:14:59:241 Memoria/(8030:8034): La memoria no esta activa
+[ERROR] 16:14:59:242 Memoria/(8030:8034): Memoria conocida. Envia rmensaje
+[INFO] 16:23:51:868 Memoria/(8088:8088): IP=127.0.0.1
+[INFO] 16:23:51:869 Memoria/(8088:8088): PUERTO=8007
+[INFO] 16:23:51:870 Memoria/(8088:8088): IP_FS=127.0.0.1
+[INFO] 16:23:51:870 Memoria/(8088:8088): PUERTO_FS=8006
+[INFO] 16:23:51:870 Memoria/(8088:8088): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 16:23:51:870 Memoria/(8088:8088): PUERTO_SEEDS=[8000,8001]
+[INFO] 16:23:51:871 Memoria/(8088:8088): RETARDO_MEM=600
+[INFO] 16:23:51:874 Memoria/(8088:8088): RETARDO_FS=600
+[INFO] 16:23:51:874 Memoria/(8088:8088): TAM_MEM=2048
+[INFO] 16:23:51:878 Memoria/(8088:8088): RETARDO_JOURNAL=60000
+[INFO] 16:23:51:878 Memoria/(8088:8088): RETARDO_GOSSIPING=30000
+[INFO] 16:23:51:878 Memoria/(8088:8088): MEMORY_NUMBER=1
+[INFO] 16:23:51:878 Memoria/(8088:8088): Conectado al LFS. Iniciando Handshake.
+[INFO] 16:23:51:881 Memoria/(8088:8088): El size del value es: 4
+[INFO] 16:23:51:882 Memoria/(8088:8088): El punto de montaje es: mnt/FileSystem/
+[INFO] 16:23:51:884 Memoria/(8088:8088): Servidor encendido, esperando conexiones
+[ERROR] 16:23:51:884 Memoria/(8088:8092): La memoria no esta activa
+[ERROR] 16:23:51:885 Memoria/(8088:8092): Memoria conocida. Envia rmensaje
+[INFO] 16:25:44:277 Memoria/(8154:8154): IP=127.0.0.1
+[INFO] 16:25:44:280 Memoria/(8154:8154): PUERTO=8007
+[INFO] 16:25:44:280 Memoria/(8154:8154): IP_FS=127.0.0.1
+[INFO] 16:25:44:280 Memoria/(8154:8154): PUERTO_FS=8006
+[INFO] 16:25:44:280 Memoria/(8154:8154): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 16:25:44:280 Memoria/(8154:8154): PUERTO_SEEDS=[8000,8001]
+[INFO] 16:25:44:281 Memoria/(8154:8154): RETARDO_MEM=600
+[INFO] 16:25:44:282 Memoria/(8154:8154): RETARDO_FS=600
+[INFO] 16:25:44:282 Memoria/(8154:8154): TAM_MEM=2048
+[INFO] 16:25:44:282 Memoria/(8154:8154): RETARDO_JOURNAL=60000
+[INFO] 16:25:44:282 Memoria/(8154:8154): RETARDO_GOSSIPING=30000
+[INFO] 16:25:44:283 Memoria/(8154:8154): MEMORY_NUMBER=1
+[INFO] 16:25:44:283 Memoria/(8154:8154): Conectado al LFS. Iniciando Handshake.
+[INFO] 16:25:44:287 Memoria/(8154:8154): El size del value es: 4
+[INFO] 16:25:44:287 Memoria/(8154:8154): El punto de montaje es: mnt/FileSystem/
+[ERROR] 16:25:44:289 Memoria/(8154:8157): La memoria no esta activa
+[ERROR] 16:25:44:293 Memoria/(8154:8157): Memoria conocida. Envia rmensaje
+[INFO] 16:28:13:370 Memoria/(8212:8212): IP=127.0.0.1
+[INFO] 16:28:13:478 Memoria/(8212:8212): PUERTO=8007
+[INFO] 16:28:13:490 Memoria/(8212:8212): IP_FS=127.0.0.1
+[INFO] 16:28:13:492 Memoria/(8212:8212): PUERTO_FS=8006
+[INFO] 16:28:13:493 Memoria/(8212:8212): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 16:28:13:496 Memoria/(8212:8212): PUERTO_SEEDS=[8000,8001]
+[INFO] 16:28:13:530 Memoria/(8212:8212): RETARDO_MEM=600
+[INFO] 16:28:13:541 Memoria/(8212:8212): RETARDO_FS=600
+[INFO] 16:28:13:543 Memoria/(8212:8212): TAM_MEM=2048
+[INFO] 16:28:13:549 Memoria/(8212:8212): RETARDO_JOURNAL=60000
+[INFO] 16:28:13:555 Memoria/(8212:8212): RETARDO_GOSSIPING=30000
+[INFO] 16:28:13:556 Memoria/(8212:8212): MEMORY_NUMBER=1
+[INFO] 16:28:13:611 Memoria/(8212:8212): Conectado al LFS. Iniciando Handshake.
+[INFO] 16:28:13:678 Memoria/(8212:8212): El size del value es: 4
+[INFO] 16:28:13:679 Memoria/(8212:8212): El punto de montaje es: mnt/FileSystem/
+[ERROR] 16:28:13:965 Memoria/(8212:8216): La memoria no esta activa
+[ERROR] 16:28:14:60 Memoria/(8212:8216): Memoria conocida. Envia rmensaje
+[INFO] 16:29:59:635 Memoria/(8270:8270): IP=127.0.0.1
+[INFO] 16:29:59:635 Memoria/(8270:8270): PUERTO=8007
+[INFO] 16:29:59:635 Memoria/(8270:8270): IP_FS=127.0.0.1
+[INFO] 16:29:59:636 Memoria/(8270:8270): PUERTO_FS=8006
+[INFO] 16:29:59:636 Memoria/(8270:8270): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 16:29:59:636 Memoria/(8270:8270): PUERTO_SEEDS=[8000,8001]
+[INFO] 16:29:59:636 Memoria/(8270:8270): RETARDO_MEM=600
+[INFO] 16:29:59:636 Memoria/(8270:8270): RETARDO_FS=600
+[INFO] 16:29:59:637 Memoria/(8270:8270): TAM_MEM=2048
+[INFO] 16:29:59:637 Memoria/(8270:8270): RETARDO_JOURNAL=60000
+[INFO] 16:29:59:637 Memoria/(8270:8270): RETARDO_GOSSIPING=30000
+[INFO] 16:29:59:637 Memoria/(8270:8270): MEMORY_NUMBER=1
+[INFO] 16:29:59:638 Memoria/(8270:8270): Conectado al LFS. Iniciando Handshake.
+[INFO] 16:29:59:643 Memoria/(8270:8270): El size del value es: 4
+[INFO] 16:29:59:643 Memoria/(8270:8270): El punto de montaje es: mnt/FileSystem/
+[INFO] 16:29:59:652 Memoria/(8270:8270): Servidor encendido, esperando conexiones
+[ERROR] 16:29:59:654 Memoria/(8270:8274): La memoria no esta activa
+[ERROR] 16:29:59:655 Memoria/(8270:8274): Memoria conocida. Envia rmensaje
+[INFO] 16:31:01:603 Memoria/(8327:8327): IP=127.0.0.1
+[INFO] 16:31:01:606 Memoria/(8327:8327): PUERTO=8007
+[INFO] 16:31:01:606 Memoria/(8327:8327): IP_FS=127.0.0.1
+[INFO] 16:31:01:607 Memoria/(8327:8327): PUERTO_FS=8006
+[INFO] 16:31:01:607 Memoria/(8327:8327): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 16:31:01:607 Memoria/(8327:8327): PUERTO_SEEDS=[8000,8001]
+[INFO] 16:31:01:607 Memoria/(8327:8327): RETARDO_MEM=600
+[INFO] 16:31:01:608 Memoria/(8327:8327): RETARDO_FS=600
+[INFO] 16:31:01:608 Memoria/(8327:8327): TAM_MEM=2048
+[INFO] 16:31:01:608 Memoria/(8327:8327): RETARDO_JOURNAL=60000
+[INFO] 16:31:01:608 Memoria/(8327:8327): RETARDO_GOSSIPING=30000
+[INFO] 16:31:01:608 Memoria/(8327:8327): MEMORY_NUMBER=1
+[INFO] 16:31:01:609 Memoria/(8327:8327): Conectado al LFS. Iniciando Handshake.
+[INFO] 16:31:01:610 Memoria/(8327:8327): El size del value es: 4
+[INFO] 16:31:01:610 Memoria/(8327:8327): El punto de montaje es: mnt/FileSystem/
+[ERROR] 16:31:01:613 Memoria/(8327:8330): La memoria no esta activa
+[ERROR] 16:31:01:614 Memoria/(8327:8330): Memoria conocida. Envia rmensaje
+[INFO] 16:31:01:672 Memoria/(8327:8327): Servidor encendido, esperando conexiones
+[INFO] 16:33:59:22 Memoria/(8327:8327): Finalizando proceso Memoria...
+[INFO] 16:34:00:860 Memoria/(8439:8439): IP=127.0.0.1
+[INFO] 16:34:00:865 Memoria/(8439:8439): PUERTO=8007
+[INFO] 16:34:00:865 Memoria/(8439:8439): IP_FS=127.0.0.1
+[INFO] 16:34:00:865 Memoria/(8439:8439): PUERTO_FS=8006
+[INFO] 16:34:00:866 Memoria/(8439:8439): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 16:34:00:866 Memoria/(8439:8439): PUERTO_SEEDS=[8000,8001]
+[INFO] 16:34:00:866 Memoria/(8439:8439): RETARDO_MEM=600
+[INFO] 16:34:00:866 Memoria/(8439:8439): RETARDO_FS=600
+[INFO] 16:34:00:866 Memoria/(8439:8439): TAM_MEM=2048
+[INFO] 16:34:00:867 Memoria/(8439:8439): RETARDO_JOURNAL=60000
+[INFO] 16:34:00:867 Memoria/(8439:8439): RETARDO_GOSSIPING=30000
+[INFO] 16:34:00:867 Memoria/(8439:8439): MEMORY_NUMBER=1
+[INFO] 16:34:00:867 Memoria/(8439:8439): Conectado al LFS. Iniciando Handshake.
+[INFO] 16:34:00:869 Memoria/(8439:8439): El size del value es: 4
+[INFO] 16:34:00:869 Memoria/(8439:8439): El punto de montaje es: mnt/FileSystem/
+[ERROR] 16:34:00:871 Memoria/(8439:8442): La memoria no esta activa
+[ERROR] 16:34:00:872 Memoria/(8439:8442): Memoria conocida. Envia rmensaje
+[INFO] 16:34:00:917 Memoria/(8439:8439): Servidor encendido, esperando conexiones
+[INFO] 16:36:18:937 Memoria/(8439:8439): Finalizando proceso Memoria...
+[INFO] 16:36:20:560 Memoria/(8552:8552): IP=127.0.0.1
+[INFO] 16:36:20:564 Memoria/(8552:8552): PUERTO=8007
+[INFO] 16:36:20:565 Memoria/(8552:8552): IP_FS=127.0.0.1
+[INFO] 16:36:20:565 Memoria/(8552:8552): PUERTO_FS=8006
+[INFO] 16:36:20:565 Memoria/(8552:8552): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 16:36:20:565 Memoria/(8552:8552): PUERTO_SEEDS=[8000,8001]
+[INFO] 16:36:20:566 Memoria/(8552:8552): RETARDO_MEM=600
+[INFO] 16:36:20:566 Memoria/(8552:8552): RETARDO_FS=600
+[INFO] 16:36:20:566 Memoria/(8552:8552): TAM_MEM=2048
+[INFO] 16:36:20:566 Memoria/(8552:8552): RETARDO_JOURNAL=60000
+[INFO] 16:36:20:566 Memoria/(8552:8552): RETARDO_GOSSIPING=30000
+[INFO] 16:36:20:567 Memoria/(8552:8552): MEMORY_NUMBER=1
+[INFO] 16:36:20:567 Memoria/(8552:8552): Conectado al LFS. Iniciando Handshake.
+[INFO] 16:36:20:580 Memoria/(8552:8552): El size del value es: 4
+[INFO] 16:36:20:580 Memoria/(8552:8552): El punto de montaje es: mnt/FileSystem/
+[ERROR] 16:36:20:582 Memoria/(8552:8555): La memoria no esta activa
+[ERROR] 16:36:20:582 Memoria/(8552:8555): Memoria conocida. Envia rmensaje
+[INFO] 16:36:20:596 Memoria/(8552:8552): Servidor encendido, esperando conexiones
+[INFO] 16:39:25:685 Memoria/(8552:8552): Finalizando proceso Memoria...
+[INFO] 16:39:27:34 Memoria/(8630:8630): IP=127.0.0.1
+[INFO] 16:39:27:39 Memoria/(8630:8630): PUERTO=8007
+[INFO] 16:39:27:39 Memoria/(8630:8630): IP_FS=127.0.0.1
+[INFO] 16:39:27:40 Memoria/(8630:8630): PUERTO_FS=8006
+[INFO] 16:39:27:40 Memoria/(8630:8630): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 16:39:27:40 Memoria/(8630:8630): PUERTO_SEEDS=[8000,8001]
+[INFO] 16:39:27:40 Memoria/(8630:8630): RETARDO_MEM=600
+[INFO] 16:39:27:41 Memoria/(8630:8630): RETARDO_FS=600
+[INFO] 16:39:27:41 Memoria/(8630:8630): TAM_MEM=2048
+[INFO] 16:39:27:41 Memoria/(8630:8630): RETARDO_JOURNAL=60000
+[INFO] 16:39:27:41 Memoria/(8630:8630): RETARDO_GOSSIPING=30000
+[INFO] 16:39:27:41 Memoria/(8630:8630): MEMORY_NUMBER=1
+[INFO] 16:39:27:42 Memoria/(8630:8630): Conectado al LFS. Iniciando Handshake.
+[INFO] 16:39:27:43 Memoria/(8630:8630): El size del value es: 4
+[INFO] 16:39:27:44 Memoria/(8630:8630): El punto de montaje es: mnt/FileSystem/
+[INFO] 16:39:27:45 Memoria/(8630:8630): Servidor encendido, esperando conexiones
+[ERROR] 16:39:27:46 Memoria/(8630:8633): La memoria no esta activa
+[ERROR] 16:39:27:47 Memoria/(8630:8633): Memoria conocida. Envia rmensaje
+[INFO] 16:49:39:431 Memoria/(8630:8630): Finalizando proceso Memoria...
+[INFO] 16:49:40:864 Memoria/(8987:8987): IP=127.0.0.1
+[INFO] 16:49:40:869 Memoria/(8987:8987): PUERTO=8007
+[INFO] 16:49:40:870 Memoria/(8987:8987): IP_FS=127.0.0.1
+[INFO] 16:49:40:870 Memoria/(8987:8987): PUERTO_FS=8006
+[INFO] 16:49:40:870 Memoria/(8987:8987): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 16:49:40:870 Memoria/(8987:8987): PUERTO_SEEDS=[8000,8001]
+[INFO] 16:49:40:871 Memoria/(8987:8987): RETARDO_MEM=600
+[INFO] 16:49:40:871 Memoria/(8987:8987): RETARDO_FS=600
+[INFO] 16:49:40:871 Memoria/(8987:8987): TAM_MEM=2048
+[INFO] 16:49:40:871 Memoria/(8987:8987): RETARDO_JOURNAL=60000
+[INFO] 16:49:40:871 Memoria/(8987:8987): RETARDO_GOSSIPING=30000
+[INFO] 16:49:40:872 Memoria/(8987:8987): MEMORY_NUMBER=1
+[INFO] 16:49:40:872 Memoria/(8987:8987): Conectado al LFS. Iniciando Handshake.
+[INFO] 16:49:40:900 Memoria/(8987:8987): El size del value es: 4
+[INFO] 16:49:40:900 Memoria/(8987:8987): El punto de montaje es: mnt/FileSystem/
+[ERROR] 16:49:40:902 Memoria/(8987:8990): La memoria no esta activa
+[ERROR] 16:49:40:902 Memoria/(8987:8990): Memoria conocida. Envia rmensaje
+[INFO] 16:49:40:956 Memoria/(8987:8987): Servidor encendido, esperando conexiones
+[INFO] 16:54:23:782 Memoria/(8987:8987): Finalizando proceso Memoria...
+[INFO] 16:54:25:156 Memoria/(9105:9105): IP=127.0.0.1
+[INFO] 16:54:25:161 Memoria/(9105:9105): PUERTO=8007
+[INFO] 16:54:25:161 Memoria/(9105:9105): IP_FS=127.0.0.1
+[INFO] 16:54:25:162 Memoria/(9105:9105): PUERTO_FS=8006
+[INFO] 16:54:25:162 Memoria/(9105:9105): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 16:54:25:162 Memoria/(9105:9105): PUERTO_SEEDS=[8000,8001]
+[INFO] 16:54:25:162 Memoria/(9105:9105): RETARDO_MEM=600
+[INFO] 16:54:25:162 Memoria/(9105:9105): RETARDO_FS=600
+[INFO] 16:54:25:163 Memoria/(9105:9105): TAM_MEM=2048
+[INFO] 16:54:25:163 Memoria/(9105:9105): RETARDO_JOURNAL=60000
+[INFO] 16:54:25:163 Memoria/(9105:9105): RETARDO_GOSSIPING=30000
+[INFO] 16:54:25:163 Memoria/(9105:9105): MEMORY_NUMBER=1
+[INFO] 16:54:25:164 Memoria/(9105:9105): Conectado al LFS. Iniciando Handshake.
+[INFO] 16:54:25:165 Memoria/(9105:9105): El size del value es: 4
+[INFO] 16:54:25:165 Memoria/(9105:9105): El punto de montaje es: mnt/FileSystem/
+[ERROR] 16:54:25:168 Memoria/(9105:9108): La memoria no esta activa
+[ERROR] 16:54:25:168 Memoria/(9105:9108): Memoria conocida. Envia rmensaje
+[INFO] 16:54:25:170 Memoria/(9105:9105): Servidor encendido, esperando conexiones
+[INFO] 17:28:35:443 Memoria/(9902:9902): IP=127.0.0.1
+[INFO] 17:28:35:485 Memoria/(9902:9902): PUERTO=8007
+[INFO] 17:28:35:485 Memoria/(9902:9902): IP_FS=127.0.0.1
+[INFO] 17:28:35:485 Memoria/(9902:9902): PUERTO_FS=8006
+[INFO] 17:28:35:486 Memoria/(9902:9902): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 17:28:35:486 Memoria/(9902:9902): PUERTO_SEEDS=[8000,8001]
+[INFO] 17:28:35:486 Memoria/(9902:9902): RETARDO_MEM=600
+[INFO] 17:28:35:486 Memoria/(9902:9902): RETARDO_FS=600
+[INFO] 17:28:35:486 Memoria/(9902:9902): TAM_MEM=2048
+[INFO] 17:28:35:487 Memoria/(9902:9902): RETARDO_JOURNAL=60000
+[INFO] 17:28:35:487 Memoria/(9902:9902): RETARDO_GOSSIPING=30000
+[INFO] 17:28:35:487 Memoria/(9902:9902): MEMORY_NUMBER=1
+[INFO] 17:28:35:487 Memoria/(9902:9902): Conectado al LFS. Iniciando Handshake.
+[INFO] 17:28:35:701 Memoria/(9902:9902): El size del value es: 4
+[INFO] 17:28:35:702 Memoria/(9902:9902): El punto de montaje es: mnt/FileSystem/
+[ERROR] 17:28:35:704 Memoria/(9902:9906): La memoria no esta activa
+[ERROR] 17:28:35:704 Memoria/(9902:9906): Memoria conocida. Envia rmensaje
+[INFO] 17:28:35:723 Memoria/(9902:9902): Servidor encendido, esperando conexiones
+[INFO] 17:30:35:7 Memoria/(9902:9902): Finalizando proceso Memoria...
+[INFO] 17:30:36:754 Memoria/(9959:9959): IP=127.0.0.1
+[INFO] 17:30:36:759 Memoria/(9959:9959): PUERTO=8007
+[INFO] 17:30:36:760 Memoria/(9959:9959): IP_FS=127.0.0.1
+[INFO] 17:30:36:760 Memoria/(9959:9959): PUERTO_FS=8006
+[INFO] 17:30:36:760 Memoria/(9959:9959): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 17:30:36:760 Memoria/(9959:9959): PUERTO_SEEDS=[8000,8001]
+[INFO] 17:30:36:760 Memoria/(9959:9959): RETARDO_MEM=600
+[INFO] 17:30:36:760 Memoria/(9959:9959): RETARDO_FS=600
+[INFO] 17:30:36:761 Memoria/(9959:9959): TAM_MEM=2048
+[INFO] 17:30:36:761 Memoria/(9959:9959): RETARDO_JOURNAL=60000
+[INFO] 17:30:36:761 Memoria/(9959:9959): RETARDO_GOSSIPING=30000
+[INFO] 17:30:36:761 Memoria/(9959:9959): MEMORY_NUMBER=1
+[INFO] 17:30:36:762 Memoria/(9959:9959): Conectado al LFS. Iniciando Handshake.
+[INFO] 17:30:36:777 Memoria/(9959:9959): El size del value es: 4
+[INFO] 17:30:36:778 Memoria/(9959:9959): El punto de montaje es: mnt/FileSystem/
+[ERROR] 17:30:36:780 Memoria/(9959:9962): La memoria no esta activa
+[ERROR] 17:30:36:781 Memoria/(9959:9962): Memoria conocida. Envia rmensaje
+[INFO] 17:30:36:802 Memoria/(9959:9959): Servidor encendido, esperando conexiones
+[INFO] 18:25:09:967 Memoria/(9959:9959): Finalizando proceso Memoria...
+[INFO] 18:25:42:188 Memoria/(11013:11013): IP=127.0.0.1
+[INFO] 18:25:42:188 Memoria/(11013:11013): PUERTO=8007
+[INFO] 18:25:42:188 Memoria/(11013:11013): IP_FS=127.0.0.1
+[INFO] 18:25:42:189 Memoria/(11013:11013): PUERTO_FS=8006
+[INFO] 18:25:42:189 Memoria/(11013:11013): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 18:25:42:189 Memoria/(11013:11013): PUERTO_SEEDS=[8000,8001]
+[INFO] 18:25:42:189 Memoria/(11013:11013): RETARDO_MEM=600
+[INFO] 18:25:42:189 Memoria/(11013:11013): RETARDO_FS=600
+[INFO] 18:25:42:189 Memoria/(11013:11013): TAM_MEM=2048
+[INFO] 18:25:42:190 Memoria/(11013:11013): RETARDO_JOURNAL=60000
+[INFO] 18:25:42:190 Memoria/(11013:11013): RETARDO_GOSSIPING=30000
+[INFO] 18:25:42:190 Memoria/(11013:11013): MEMORY_NUMBER=1
+[INFO] 18:25:42:190 Memoria/(11013:11013): Conectado al LFS. Iniciando Handshake.
+[INFO] 18:25:42:279 Memoria/(11013:11013): El size del value es: 4
+[INFO] 18:25:42:279 Memoria/(11013:11013): El punto de montaje es: mnt/FileSystem/
+[ERROR] 18:25:42:281 Memoria/(11013:11017): La memoria no esta activa
+[ERROR] 18:25:42:282 Memoria/(11013:11017): La memoria no esta activa
+[INFO] 18:25:42:290 Memoria/(11013:11013): Servidor encendido, esperando conexiones
+[INFO] 18:25:52:755 Memoria/(11013:11013): Finalizando proceso Memoria...
+[INFO] 18:25:54:257 Memoria/(11027:11027): IP=127.0.0.1
+[INFO] 18:25:54:261 Memoria/(11027:11027): PUERTO=8007
+[INFO] 18:25:54:262 Memoria/(11027:11027): IP_FS=127.0.0.1
+[INFO] 18:25:54:262 Memoria/(11027:11027): PUERTO_FS=8006
+[INFO] 18:25:54:262 Memoria/(11027:11027): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 18:25:54:264 Memoria/(11027:11027): PUERTO_SEEDS=[8000,8001]
+[INFO] 18:25:54:264 Memoria/(11027:11027): RETARDO_MEM=600
+[INFO] 18:25:54:264 Memoria/(11027:11027): RETARDO_FS=600
+[INFO] 18:25:54:265 Memoria/(11027:11027): TAM_MEM=2048
+[INFO] 18:25:54:266 Memoria/(11027:11027): RETARDO_JOURNAL=60000
+[INFO] 18:25:54:266 Memoria/(11027:11027): RETARDO_GOSSIPING=30000
+[INFO] 18:25:54:266 Memoria/(11027:11027): MEMORY_NUMBER=1
+[INFO] 18:25:54:266 Memoria/(11027:11027): Conectado al LFS. Iniciando Handshake.
+[INFO] 18:25:54:267 Memoria/(11027:11027): El size del value es: 4
+[INFO] 18:25:54:267 Memoria/(11027:11027): El punto de montaje es: mnt/FileSystem/
+[INFO] 18:25:54:269 Memoria/(11027:11027): Servidor encendido, esperando conexiones
+[ERROR] 18:25:54:270 Memoria/(11027:11029): La memoria no esta activa
+[ERROR] 18:25:54:271 Memoria/(11027:11029): Memoria conocida. Envia rmensaje
+[INFO] 18:30:27:900 Memoria/(11129:11129): IP=127.0.0.1
+[INFO] 18:30:27:902 Memoria/(11129:11129): PUERTO=8007
+[INFO] 18:30:27:902 Memoria/(11129:11129): IP_FS=127.0.0.1
+[INFO] 18:30:27:902 Memoria/(11129:11129): PUERTO_FS=8006
+[INFO] 18:30:27:902 Memoria/(11129:11129): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 18:30:27:902 Memoria/(11129:11129): PUERTO_SEEDS=[8000,8001]
+[INFO] 18:30:27:902 Memoria/(11129:11129): RETARDO_MEM=600
+[INFO] 18:30:27:903 Memoria/(11129:11129): RETARDO_FS=600
+[INFO] 18:30:27:903 Memoria/(11129:11129): TAM_MEM=2048
+[INFO] 18:30:27:903 Memoria/(11129:11129): RETARDO_JOURNAL=60000
+[INFO] 18:30:27:903 Memoria/(11129:11129): RETARDO_GOSSIPING=30000
+[INFO] 18:30:27:903 Memoria/(11129:11129): MEMORY_NUMBER=1
+[INFO] 18:30:27:904 Memoria/(11129:11129): Conectado al LFS. Iniciando Handshake.
+[INFO] 18:30:27:979 Memoria/(11129:11129): El size del value es: 4
+[INFO] 18:30:27:979 Memoria/(11129:11129): El punto de montaje es: mnt/FileSystem/
+[ERROR] 18:30:27:980 Memoria/(11129:11132): La memoria no esta activa
+[ERROR] 18:30:27:980 Memoria/(11129:11132): La memoria no esta activa
+[INFO] 18:30:27:3 Memoria/(11129:11129): Servidor encendido, esperando conexiones
+[INFO] 18:30:42:770 Memoria/(11129:11129): Finalizando proceso Memoria...
+[INFO] 18:30:43:845 Memoria/(11143:11143): IP=127.0.0.1
+[INFO] 18:30:43:849 Memoria/(11143:11143): PUERTO=8007
+[INFO] 18:30:43:850 Memoria/(11143:11143): IP_FS=127.0.0.1
+[INFO] 18:30:43:850 Memoria/(11143:11143): PUERTO_FS=8006
+[INFO] 18:30:43:850 Memoria/(11143:11143): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 18:30:43:851 Memoria/(11143:11143): PUERTO_SEEDS=[8000,8001]
+[INFO] 18:30:43:851 Memoria/(11143:11143): RETARDO_MEM=600
+[INFO] 18:30:43:851 Memoria/(11143:11143): RETARDO_FS=600
+[INFO] 18:30:43:851 Memoria/(11143:11143): TAM_MEM=2048
+[INFO] 18:30:43:851 Memoria/(11143:11143): RETARDO_JOURNAL=60000
+[INFO] 18:30:43:852 Memoria/(11143:11143): RETARDO_GOSSIPING=30000
+[INFO] 18:30:43:852 Memoria/(11143:11143): MEMORY_NUMBER=1
+[INFO] 18:30:43:852 Memoria/(11143:11143): Conectado al LFS. Iniciando Handshake.
+[INFO] 18:30:43:854 Memoria/(11143:11143): El size del value es: 4
+[INFO] 18:30:43:854 Memoria/(11143:11143): El punto de montaje es: mnt/FileSystem/
+[INFO] 18:30:43:855 Memoria/(11143:11143): Servidor encendido, esperando conexiones
+[ERROR] 18:30:43:856 Memoria/(11143:11146): La memoria no esta activa
+[ERROR] 18:30:43:857 Memoria/(11143:11146): Memoria conocida. Envia rmensaje
+[INFO] 18:32:16:305 Memoria/(11219:11219): IP=127.0.0.1
+[INFO] 18:32:16:309 Memoria/(11219:11219): PUERTO=8007
+[INFO] 18:32:16:310 Memoria/(11219:11219): IP_FS=127.0.0.1
+[INFO] 18:32:16:310 Memoria/(11219:11219): PUERTO_FS=8006
+[INFO] 18:32:16:310 Memoria/(11219:11219): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 18:32:16:310 Memoria/(11219:11219): PUERTO_SEEDS=[8000,8001]
+[INFO] 18:32:16:310 Memoria/(11219:11219): RETARDO_MEM=600
+[INFO] 18:32:16:310 Memoria/(11219:11219): RETARDO_FS=600
+[INFO] 18:32:16:311 Memoria/(11219:11219): TAM_MEM=2048
+[INFO] 18:32:16:311 Memoria/(11219:11219): RETARDO_JOURNAL=60000
+[INFO] 18:32:16:311 Memoria/(11219:11219): RETARDO_GOSSIPING=30000
+[INFO] 18:32:16:311 Memoria/(11219:11219): MEMORY_NUMBER=1
+[INFO] 18:32:16:312 Memoria/(11219:11219): Conectado al LFS. Iniciando Handshake.
+[INFO] 18:32:16:314 Memoria/(11219:11219): El size del value es: 4
+[INFO] 18:32:16:314 Memoria/(11219:11219): El punto de montaje es: mnt/FileSystem/
+[INFO] 18:32:16:315 Memoria/(11219:11219): Servidor encendido, esperando conexiones
+[ERROR] 18:32:16:317 Memoria/(11219:11222): La memoria no esta activa
+[ERROR] 18:32:16:317 Memoria/(11219:11222): Memoria conocida. Envia rmensaje
+[INFO] 18:34:37:163 Memoria/(11310:11310): IP=127.0.0.1
+[INFO] 18:34:37:168 Memoria/(11310:11310): PUERTO=8007
+[INFO] 18:34:37:168 Memoria/(11310:11310): IP_FS=127.0.0.1
+[INFO] 18:34:37:168 Memoria/(11310:11310): PUERTO_FS=8006
+[INFO] 18:34:37:168 Memoria/(11310:11310): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 18:34:37:168 Memoria/(11310:11310): PUERTO_SEEDS=[8000,8001]
+[INFO] 18:34:37:169 Memoria/(11310:11310): RETARDO_MEM=600
+[INFO] 18:34:37:169 Memoria/(11310:11310): RETARDO_FS=600
+[INFO] 18:34:37:169 Memoria/(11310:11310): TAM_MEM=2048
+[INFO] 18:34:37:169 Memoria/(11310:11310): RETARDO_JOURNAL=60000
+[INFO] 18:34:37:170 Memoria/(11310:11310): RETARDO_GOSSIPING=30000
+[INFO] 18:34:37:170 Memoria/(11310:11310): MEMORY_NUMBER=1
+[INFO] 18:34:37:170 Memoria/(11310:11310): Conectado al LFS. Iniciando Handshake.
+[INFO] 18:34:37:172 Memoria/(11310:11310): El size del value es: 4
+[INFO] 18:34:37:172 Memoria/(11310:11310): El punto de montaje es: mnt/FileSystem/
+[INFO] 18:34:37:177 Memoria/(11310:11310): Servidor encendido, esperando conexiones
+[ERROR] 18:34:37:186 Memoria/(11310:11313): La memoria no esta activa
+[ERROR] 18:34:37:186 Memoria/(11310:11313): Memoria conocida. Envia rmensaje
+[INFO] 18:36:23:620 Memoria/(11399:11399): IP=127.0.0.1
+[INFO] 18:36:23:636 Memoria/(11399:11399): PUERTO=8007
+[INFO] 18:36:23:636 Memoria/(11399:11399): IP_FS=127.0.0.1
+[INFO] 18:36:23:636 Memoria/(11399:11399): PUERTO_FS=8006
+[INFO] 18:36:23:636 Memoria/(11399:11399): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 18:36:23:637 Memoria/(11399:11399): PUERTO_SEEDS=[8000,8001]
+[INFO] 18:36:23:637 Memoria/(11399:11399): RETARDO_MEM=600
+[INFO] 18:36:23:637 Memoria/(11399:11399): RETARDO_FS=600
+[INFO] 18:36:23:637 Memoria/(11399:11399): TAM_MEM=2048
+[INFO] 18:36:23:637 Memoria/(11399:11399): RETARDO_JOURNAL=60000
+[INFO] 18:36:23:638 Memoria/(11399:11399): RETARDO_GOSSIPING=30000
+[INFO] 18:36:23:638 Memoria/(11399:11399): MEMORY_NUMBER=1
+[INFO] 18:36:23:638 Memoria/(11399:11399): Conectado al LFS. Iniciando Handshake.
+[INFO] 18:36:23:640 Memoria/(11399:11399): El size del value es: 4
+[INFO] 18:36:23:640 Memoria/(11399:11399): El punto de montaje es: mnt/FileSystem/
+[INFO] 18:36:23:642 Memoria/(11399:11399): Servidor encendido, esperando conexiones
+[ERROR] 18:36:23:643 Memoria/(11399:11402): La memoria no esta activa
+[ERROR] 18:36:23:643 Memoria/(11399:11402): Memoria conocida. Envia rmensaje
+[INFO] 18:37:36:988 Memoria/(11462:11462): IP=127.0.0.1
+[INFO] 18:37:36:993 Memoria/(11462:11462): PUERTO=8007
+[INFO] 18:37:36:993 Memoria/(11462:11462): IP_FS=127.0.0.1
+[INFO] 18:37:36:993 Memoria/(11462:11462): PUERTO_FS=8006
+[INFO] 18:37:36:994 Memoria/(11462:11462): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 18:37:36:994 Memoria/(11462:11462): PUERTO_SEEDS=[8000,8001]
+[INFO] 18:37:36:994 Memoria/(11462:11462): RETARDO_MEM=600
+[INFO] 18:37:36:994 Memoria/(11462:11462): RETARDO_FS=600
+[INFO] 18:37:36:994 Memoria/(11462:11462): TAM_MEM=2048
+[INFO] 18:37:36:995 Memoria/(11462:11462): RETARDO_JOURNAL=60000
+[INFO] 18:37:36:995 Memoria/(11462:11462): RETARDO_GOSSIPING=30000
+[INFO] 18:37:36:995 Memoria/(11462:11462): MEMORY_NUMBER=1
+[INFO] 18:37:36:995 Memoria/(11462:11462): Conectado al LFS. Iniciando Handshake.
+[INFO] 18:37:36:997 Memoria/(11462:11462): El size del value es: 4
+[INFO] 18:37:36:997 Memoria/(11462:11462): El punto de montaje es: mnt/FileSystem/
+[INFO] 18:37:36:999 Memoria/(11462:11462): Servidor encendido, esperando conexiones
+[ERROR] 18:37:36:0 Memoria/(11462:11465): La memoria no esta activa
+[ERROR] 18:37:36:0 Memoria/(11462:11465): Memoria conocida. Envia rmensaje
+[INFO] 18:38:22:794 Memoria/(11462:11462): Finalizando proceso Memoria...
+[INFO] 18:38:39:811 Memoria/(11517:11517): IP=127.0.0.1
+[INFO] 18:38:39:816 Memoria/(11517:11517): PUERTO=8007
+[INFO] 18:38:39:816 Memoria/(11517:11517): IP_FS=127.0.0.1
+[INFO] 18:38:39:817 Memoria/(11517:11517): PUERTO_FS=8006
+[INFO] 18:38:39:817 Memoria/(11517:11517): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 18:38:39:817 Memoria/(11517:11517): PUERTO_SEEDS=[8000,8001]
+[INFO] 18:38:39:817 Memoria/(11517:11517): RETARDO_MEM=600
+[INFO] 18:38:39:817 Memoria/(11517:11517): RETARDO_FS=600
+[INFO] 18:38:39:818 Memoria/(11517:11517): TAM_MEM=2048
+[INFO] 18:38:39:818 Memoria/(11517:11517): RETARDO_JOURNAL=60000
+[INFO] 18:38:39:818 Memoria/(11517:11517): RETARDO_GOSSIPING=30000
+[INFO] 18:38:39:818 Memoria/(11517:11517): MEMORY_NUMBER=1
+[INFO] 18:38:39:819 Memoria/(11517:11517): Conectado al LFS. Iniciando Handshake.
+[INFO] 18:38:39:847 Memoria/(11517:11517): El size del value es: 4
+[INFO] 18:38:39:847 Memoria/(11517:11517): El punto de montaje es: mnt/FileSystem/
+[INFO] 18:38:39:848 Memoria/(11517:11517): Servidor encendido, esperando conexiones
+[ERROR] 18:38:39:849 Memoria/(11517:11520): La memoria no esta activa
+[ERROR] 18:38:39:849 Memoria/(11517:11520): La memoria no esta activa
+[INFO] 18:38:44:748 Memoria/(11517:11517): Finalizando proceso Memoria...
+[INFO] 18:39:25:120 Memoria/(11544:11544): IP=127.0.0.1
+[INFO] 18:39:25:125 Memoria/(11544:11544): PUERTO=8007
+[INFO] 18:39:25:125 Memoria/(11544:11544): IP_FS=127.0.0.1
+[INFO] 18:39:25:125 Memoria/(11544:11544): PUERTO_FS=8006
+[INFO] 18:39:25:125 Memoria/(11544:11544): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 18:39:25:125 Memoria/(11544:11544): PUERTO_SEEDS=[8000,8001]
+[INFO] 18:39:25:126 Memoria/(11544:11544): RETARDO_MEM=600
+[INFO] 18:39:25:126 Memoria/(11544:11544): RETARDO_FS=600
+[INFO] 18:39:25:126 Memoria/(11544:11544): TAM_MEM=2048
+[INFO] 18:39:25:126 Memoria/(11544:11544): RETARDO_JOURNAL=60000
+[INFO] 18:39:25:126 Memoria/(11544:11544): RETARDO_GOSSIPING=30000
+[INFO] 18:39:25:127 Memoria/(11544:11544): MEMORY_NUMBER=1
+[INFO] 18:39:25:127 Memoria/(11544:11544): Conectado al LFS. Iniciando Handshake.
+[INFO] 18:39:25:128 Memoria/(11544:11544): El size del value es: 4
+[INFO] 18:39:25:128 Memoria/(11544:11544): El punto de montaje es: mnt/FileSystem/
+[INFO] 18:39:25:129 Memoria/(11544:11544): Servidor encendido, esperando conexiones
+[ERROR] 18:39:25:132 Memoria/(11544:11547): La memoria no esta activa
+[ERROR] 18:39:25:132 Memoria/(11544:11547): La memoria no esta activa
+[INFO] 18:39:28:746 Memoria/(11544:11544): Finalizando proceso Memoria...
+[INFO] 18:39:52:968 Memoria/(11562:11562): IP=127.0.0.1
+[INFO] 18:39:52:974 Memoria/(11562:11562): PUERTO=8007
+[INFO] 18:39:52:974 Memoria/(11562:11562): IP_FS=127.0.0.1
+[INFO] 18:39:52:974 Memoria/(11562:11562): PUERTO_FS=8006
+[INFO] 18:39:52:974 Memoria/(11562:11562): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 18:39:52:974 Memoria/(11562:11562): PUERTO_SEEDS=[8000,8001]
+[INFO] 18:39:52:975 Memoria/(11562:11562): RETARDO_MEM=600
+[INFO] 18:39:52:975 Memoria/(11562:11562): RETARDO_FS=600
+[INFO] 18:39:52:975 Memoria/(11562:11562): TAM_MEM=2048
+[INFO] 18:39:52:975 Memoria/(11562:11562): RETARDO_JOURNAL=60000
+[INFO] 18:39:52:976 Memoria/(11562:11562): RETARDO_GOSSIPING=30000
+[INFO] 18:39:52:976 Memoria/(11562:11562): MEMORY_NUMBER=1
+[INFO] 18:39:52:976 Memoria/(11562:11562): Conectado al LFS. Iniciando Handshake.
+[INFO] 18:39:52:978 Memoria/(11562:11562): El size del value es: 4
+[INFO] 18:39:52:978 Memoria/(11562:11562): El punto de montaje es: mnt/FileSystem/
+[INFO] 18:39:52:980 Memoria/(11562:11562): Servidor encendido, esperando conexiones
+[ERROR] 18:39:52:981 Memoria/(11562:11565): La memoria no esta activa
+[ERROR] 18:39:52:982 Memoria/(11562:11565): Memoria conocida. Envia rmensaje
+[INFO] 18:40:17:334 Memoria/(11562:11562): Finalizando proceso Memoria...
+[INFO] 18:41:34:857 Memoria/(11655:11655): IP=127.0.0.1
+[INFO] 18:41:34:862 Memoria/(11655:11655): PUERTO=8007
+[INFO] 18:41:34:862 Memoria/(11655:11655): IP_FS=127.0.0.1
+[INFO] 18:41:34:862 Memoria/(11655:11655): PUERTO_FS=8006
+[INFO] 18:41:34:862 Memoria/(11655:11655): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 18:41:34:863 Memoria/(11655:11655): PUERTO_SEEDS=[8000,8001]
+[INFO] 18:41:34:863 Memoria/(11655:11655): RETARDO_MEM=600
+[INFO] 18:41:34:863 Memoria/(11655:11655): RETARDO_FS=600
+[INFO] 18:41:34:864 Memoria/(11655:11655): TAM_MEM=2048
+[INFO] 18:41:34:864 Memoria/(11655:11655): RETARDO_JOURNAL=60000
+[INFO] 18:41:34:864 Memoria/(11655:11655): RETARDO_GOSSIPING=30000
+[INFO] 18:41:34:864 Memoria/(11655:11655): MEMORY_NUMBER=1
+[INFO] 18:41:34:865 Memoria/(11655:11655): Conectado al LFS. Iniciando Handshake.
+[INFO] 18:41:34:866 Memoria/(11655:11655): El size del value es: 4
+[INFO] 18:41:34:867 Memoria/(11655:11655): El punto de montaje es: mnt/FileSystem/
+[INFO] 18:41:34:868 Memoria/(11655:11655): Servidor encendido, esperando conexiones
+[ERROR] 18:41:34:869 Memoria/(11655:11658): La memoria no esta activa
+[ERROR] 18:41:34:870 Memoria/(11655:11658): Memoria conocida. Envia rmensaje
+[INFO] 18:43:46:769 Memoria/(11743:11743): IP=127.0.0.1
+[INFO] 18:43:46:774 Memoria/(11743:11743): PUERTO=8007
+[INFO] 18:43:46:775 Memoria/(11743:11743): IP_FS=127.0.0.1
+[INFO] 18:43:46:775 Memoria/(11743:11743): PUERTO_FS=8006
+[INFO] 18:43:46:775 Memoria/(11743:11743): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 18:43:46:775 Memoria/(11743:11743): PUERTO_SEEDS=[8000,8001]
+[INFO] 18:43:46:775 Memoria/(11743:11743): RETARDO_MEM=600
+[INFO] 18:43:46:776 Memoria/(11743:11743): RETARDO_FS=600
+[INFO] 18:43:46:776 Memoria/(11743:11743): TAM_MEM=2048
+[INFO] 18:43:46:776 Memoria/(11743:11743): RETARDO_JOURNAL=60000
+[INFO] 18:43:46:777 Memoria/(11743:11743): RETARDO_GOSSIPING=30000
+[INFO] 18:43:46:777 Memoria/(11743:11743): MEMORY_NUMBER=1
+[INFO] 18:43:46:777 Memoria/(11743:11743): Conectado al LFS. Iniciando Handshake.
+[INFO] 18:43:46:779 Memoria/(11743:11743): El size del value es: 4
+[INFO] 18:43:46:779 Memoria/(11743:11743): El punto de montaje es: mnt/FileSystem/
+[INFO] 18:43:46:781 Memoria/(11743:11743): Servidor encendido, esperando conexiones
+[ERROR] 18:43:46:782 Memoria/(11743:11746): La memoria no esta activa
+[ERROR] 18:43:46:782 Memoria/(11743:11746): Memoria conocida. Envia rmensaje
+[INFO] 18:45:13:110 Memoria/(11809:11809): IP=127.0.0.1
+[INFO] 18:45:13:115 Memoria/(11809:11809): PUERTO=8007
+[INFO] 18:45:13:116 Memoria/(11809:11809): IP_FS=127.0.0.1
+[INFO] 18:45:13:116 Memoria/(11809:11809): PUERTO_FS=8006
+[INFO] 18:45:13:116 Memoria/(11809:11809): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 18:45:13:116 Memoria/(11809:11809): PUERTO_SEEDS=[8000,8001]
+[INFO] 18:45:13:117 Memoria/(11809:11809): RETARDO_MEM=600
+[INFO] 18:45:13:117 Memoria/(11809:11809): RETARDO_FS=600
+[INFO] 18:45:13:117 Memoria/(11809:11809): TAM_MEM=2048
+[INFO] 18:45:13:117 Memoria/(11809:11809): RETARDO_JOURNAL=60000
+[INFO] 18:45:13:117 Memoria/(11809:11809): RETARDO_GOSSIPING=30000
+[INFO] 18:45:13:118 Memoria/(11809:11809): MEMORY_NUMBER=1
+[INFO] 18:45:13:118 Memoria/(11809:11809): Conectado al LFS. Iniciando Handshake.
+[INFO] 18:45:13:120 Memoria/(11809:11809): El size del value es: 4
+[INFO] 18:45:13:120 Memoria/(11809:11809): El punto de montaje es: mnt/FileSystem/
+[INFO] 18:45:13:121 Memoria/(11809:11809): Servidor encendido, esperando conexiones
+[ERROR] 18:45:13:122 Memoria/(11809:11812): La memoria no esta activa
+[ERROR] 18:45:13:123 Memoria/(11809:11812): Memoria conocida. Envia rmensaje
+[INFO] 18:47:59:483 Memoria/(11897:11897): IP=127.0.0.1
+[INFO] 18:47:59:488 Memoria/(11897:11897): PUERTO=8007
+[INFO] 18:47:59:488 Memoria/(11897:11897): IP_FS=127.0.0.1
+[INFO] 18:47:59:488 Memoria/(11897:11897): PUERTO_FS=8006
+[INFO] 18:47:59:489 Memoria/(11897:11897): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 18:47:59:489 Memoria/(11897:11897): PUERTO_SEEDS=[8000,8001]
+[INFO] 18:47:59:489 Memoria/(11897:11897): RETARDO_MEM=600
+[INFO] 18:47:59:490 Memoria/(11897:11897): RETARDO_FS=600
+[INFO] 18:47:59:490 Memoria/(11897:11897): TAM_MEM=2048
+[INFO] 18:47:59:490 Memoria/(11897:11897): RETARDO_JOURNAL=60000
+[INFO] 18:47:59:490 Memoria/(11897:11897): RETARDO_GOSSIPING=30000
+[INFO] 18:47:59:490 Memoria/(11897:11897): MEMORY_NUMBER=1
+[INFO] 18:47:59:491 Memoria/(11897:11897): Conectado al LFS. Iniciando Handshake.
+[INFO] 18:47:59:493 Memoria/(11897:11897): El size del value es: 4
+[INFO] 18:47:59:493 Memoria/(11897:11897): El punto de montaje es: mnt/FileSystem/
+[INFO] 18:47:59:494 Memoria/(11897:11897): Servidor encendido, esperando conexiones
+[ERROR] 18:47:59:496 Memoria/(11897:11900): La memoria no esta activa
+[ERROR] 18:47:59:496 Memoria/(11897:11900): Memoria conocida. Envia rmensaje
+[INFO] 18:49:42:139 Memoria/(11964:11964): IP=127.0.0.1
+[INFO] 18:49:42:144 Memoria/(11964:11964): PUERTO=8007
+[INFO] 18:49:42:144 Memoria/(11964:11964): IP_FS=127.0.0.1
+[INFO] 18:49:42:145 Memoria/(11964:11964): PUERTO_FS=8006
+[INFO] 18:49:42:145 Memoria/(11964:11964): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 18:49:42:145 Memoria/(11964:11964): PUERTO_SEEDS=[8000,8001]
+[INFO] 18:49:42:145 Memoria/(11964:11964): RETARDO_MEM=600
+[INFO] 18:49:42:146 Memoria/(11964:11964): RETARDO_FS=600
+[INFO] 18:49:42:146 Memoria/(11964:11964): TAM_MEM=2048
+[INFO] 18:49:42:146 Memoria/(11964:11964): RETARDO_JOURNAL=60000
+[INFO] 18:49:42:146 Memoria/(11964:11964): RETARDO_GOSSIPING=30000
+[INFO] 18:49:42:146 Memoria/(11964:11964): MEMORY_NUMBER=1
+[INFO] 18:49:42:147 Memoria/(11964:11964): Conectado al LFS. Iniciando Handshake.
+[INFO] 18:49:42:147 Memoria/(11964:11964): El size del value es: 4
+[INFO] 18:49:42:148 Memoria/(11964:11964): El punto de montaje es: mnt/FileSystem/
+[INFO] 18:49:42:149 Memoria/(11964:11964): Servidor encendido, esperando conexiones
+[ERROR] 18:49:42:152 Memoria/(11964:11967): La memoria no esta activa
+[ERROR] 18:49:42:152 Memoria/(11964:11967): Memoria conocida. Envia rmensaje
+[INFO] 18:51:47:129 Memoria/(12073:12073): IP=127.0.0.1
+[INFO] 18:51:47:134 Memoria/(12073:12073): PUERTO=8007
+[INFO] 18:51:47:135 Memoria/(12073:12073): IP_FS=127.0.0.1
+[INFO] 18:51:47:135 Memoria/(12073:12073): PUERTO_FS=8006
+[INFO] 18:51:47:135 Memoria/(12073:12073): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 18:51:47:135 Memoria/(12073:12073): PUERTO_SEEDS=[8000,8001]
+[INFO] 18:51:47:136 Memoria/(12073:12073): RETARDO_MEM=600
+[INFO] 18:51:47:136 Memoria/(12073:12073): RETARDO_FS=600
+[INFO] 18:51:47:136 Memoria/(12073:12073): TAM_MEM=2048
+[INFO] 18:51:47:136 Memoria/(12073:12073): RETARDO_JOURNAL=60000
+[INFO] 18:51:47:137 Memoria/(12073:12073): RETARDO_GOSSIPING=30000
+[INFO] 18:51:47:137 Memoria/(12073:12073): MEMORY_NUMBER=1
+[INFO] 18:51:47:137 Memoria/(12073:12073): Conectado al LFS. Iniciando Handshake.
+[INFO] 18:51:47:139 Memoria/(12073:12073): El size del value es: 4
+[INFO] 18:51:47:139 Memoria/(12073:12073): El punto de montaje es: mnt/FileSystem/
+[INFO] 18:51:47:141 Memoria/(12073:12073): Servidor encendido, esperando conexiones
+[ERROR] 18:51:47:142 Memoria/(12073:12076): La memoria no esta activa
+[ERROR] 18:51:47:143 Memoria/(12073:12076): Memoria conocida. Envia rmensaje
+[INFO] 18:53:02:895 Memoria/(12141:12141): IP=127.0.0.1
+[INFO] 18:53:02:900 Memoria/(12141:12141): PUERTO=8007
+[INFO] 18:53:02:900 Memoria/(12141:12141): IP_FS=127.0.0.1
+[INFO] 18:53:02:900 Memoria/(12141:12141): PUERTO_FS=8006
+[INFO] 18:53:02:900 Memoria/(12141:12141): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 18:53:02:901 Memoria/(12141:12141): PUERTO_SEEDS=[8000,8001]
+[INFO] 18:53:02:901 Memoria/(12141:12141): RETARDO_MEM=600
+[INFO] 18:53:02:901 Memoria/(12141:12141): RETARDO_FS=600
+[INFO] 18:53:02:902 Memoria/(12141:12141): TAM_MEM=2048
+[INFO] 18:53:02:902 Memoria/(12141:12141): RETARDO_JOURNAL=60000
+[INFO] 18:53:02:902 Memoria/(12141:12141): RETARDO_GOSSIPING=30000
+[INFO] 18:53:02:902 Memoria/(12141:12141): MEMORY_NUMBER=1
+[INFO] 18:53:02:903 Memoria/(12141:12141): Conectado al LFS. Iniciando Handshake.
+[INFO] 18:53:02:904 Memoria/(12141:12141): El size del value es: 4
+[INFO] 18:53:02:904 Memoria/(12141:12141): El punto de montaje es: mnt/FileSystem/
+[INFO] 18:53:02:906 Memoria/(12141:12141): Servidor encendido, esperando conexiones
+[ERROR] 18:53:02:907 Memoria/(12141:12144): La memoria no esta activa
+[ERROR] 18:53:02:907 Memoria/(12141:12144): Memoria conocida. Envia rmensaje
+[INFO] 18:54:01:842 Memoria/(12204:12204): IP=127.0.0.1
+[INFO] 18:54:01:847 Memoria/(12204:12204): PUERTO=8007
+[INFO] 18:54:01:847 Memoria/(12204:12204): IP_FS=127.0.0.1
+[INFO] 18:54:01:848 Memoria/(12204:12204): PUERTO_FS=8006
+[INFO] 18:54:01:848 Memoria/(12204:12204): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 18:54:01:848 Memoria/(12204:12204): PUERTO_SEEDS=[8000,8001]
+[INFO] 18:54:01:848 Memoria/(12204:12204): RETARDO_MEM=600
+[INFO] 18:54:01:849 Memoria/(12204:12204): RETARDO_FS=600
+[INFO] 18:54:01:849 Memoria/(12204:12204): TAM_MEM=2048
+[INFO] 18:54:01:849 Memoria/(12204:12204): RETARDO_JOURNAL=60000
+[INFO] 18:54:01:849 Memoria/(12204:12204): RETARDO_GOSSIPING=30000
+[INFO] 18:54:01:850 Memoria/(12204:12204): MEMORY_NUMBER=1
+[INFO] 18:54:01:850 Memoria/(12204:12204): Conectado al LFS. Iniciando Handshake.
+[INFO] 18:54:01:851 Memoria/(12204:12204): El size del value es: 4
+[INFO] 18:54:01:851 Memoria/(12204:12204): El punto de montaje es: mnt/FileSystem/
+[INFO] 18:54:01:852 Memoria/(12204:12204): Servidor encendido, esperando conexiones
+[ERROR] 18:54:01:854 Memoria/(12204:12207): La memoria no esta activa
+[ERROR] 18:54:01:855 Memoria/(12204:12207): La memoria no esta activa
+[INFO] 18:54:15:131 Memoria/(12204:12204): Finalizando proceso Memoria...
+[INFO] 18:54:25:137 Memoria/(12220:12220): IP=127.0.0.1
+[INFO] 18:54:25:143 Memoria/(12220:12220): PUERTO=8007
+[INFO] 18:54:25:143 Memoria/(12220:12220): IP_FS=127.0.0.1
+[INFO] 18:54:25:143 Memoria/(12220:12220): PUERTO_FS=8006
+[INFO] 18:54:25:143 Memoria/(12220:12220): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 18:54:25:144 Memoria/(12220:12220): PUERTO_SEEDS=[8000,8001]
+[INFO] 18:54:25:144 Memoria/(12220:12220): RETARDO_MEM=600
+[INFO] 18:54:25:144 Memoria/(12220:12220): RETARDO_FS=600
+[INFO] 18:54:25:144 Memoria/(12220:12220): TAM_MEM=2048
+[INFO] 18:54:25:145 Memoria/(12220:12220): RETARDO_JOURNAL=60000
+[INFO] 18:54:25:145 Memoria/(12220:12220): RETARDO_GOSSIPING=30000
+[INFO] 18:54:25:145 Memoria/(12220:12220): MEMORY_NUMBER=1
+[INFO] 18:54:25:146 Memoria/(12220:12220): Conectado al LFS. Iniciando Handshake.
+[INFO] 18:54:25:147 Memoria/(12220:12220): El size del value es: 4
+[INFO] 18:54:25:147 Memoria/(12220:12220): El punto de montaje es: mnt/FileSystem/
+[INFO] 18:54:25:149 Memoria/(12220:12220): Servidor encendido, esperando conexiones
+[ERROR] 18:54:25:151 Memoria/(12220:12223): La memoria no esta activa
+[ERROR] 18:54:25:151 Memoria/(12220:12223): Memoria conocida. Envia rmensaje
+[INFO] 18:55:54:424 Memoria/(12265:12265): IP=127.0.0.1
+[INFO] 18:55:54:464 Memoria/(12265:12265): PUERTO=8007
+[INFO] 18:55:54:465 Memoria/(12265:12265): IP_FS=127.0.0.1
+[INFO] 18:55:54:465 Memoria/(12265:12265): PUERTO_FS=8006
+[INFO] 18:55:54:465 Memoria/(12265:12265): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 18:55:54:466 Memoria/(12265:12265): PUERTO_SEEDS=[8000,8001]
+[INFO] 18:55:54:466 Memoria/(12265:12265): RETARDO_MEM=600
+[INFO] 18:55:54:466 Memoria/(12265:12265): RETARDO_FS=600
+[INFO] 18:55:54:466 Memoria/(12265:12265): TAM_MEM=2048
+[INFO] 18:55:54:466 Memoria/(12265:12265): RETARDO_JOURNAL=60000
+[INFO] 18:55:54:466 Memoria/(12265:12265): RETARDO_GOSSIPING=30000
+[INFO] 18:55:54:467 Memoria/(12265:12265): MEMORY_NUMBER=1
+[INFO] 18:55:54:467 Memoria/(12265:12265): Conectado al LFS. Iniciando Handshake.
+[INFO] 18:55:54:487 Memoria/(12265:12265): El size del value es: 4
+[INFO] 18:55:54:487 Memoria/(12265:12265): El punto de montaje es: mnt/FileSystem/
+[INFO] 18:55:54:487 Memoria/(12265:12265): Servidor encendido, esperando conexiones
+[ERROR] 18:55:54:498 Memoria/(12265:12268): La memoria no esta activa
+[ERROR] 18:55:54:512 Memoria/(12265:12268): Memoria conocida. Envia rmensaje
+[INFO] 18:58:28:470 Memoria/(12382:12382): IP=127.0.0.1
+[INFO] 18:58:28:491 Memoria/(12382:12382): PUERTO=8007
+[INFO] 18:58:28:491 Memoria/(12382:12382): IP_FS=127.0.0.1
+[INFO] 18:58:28:491 Memoria/(12382:12382): PUERTO_FS=8006
+[INFO] 18:58:28:491 Memoria/(12382:12382): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 18:58:28:491 Memoria/(12382:12382): PUERTO_SEEDS=[8000,8001]
+[INFO] 18:58:28:492 Memoria/(12382:12382): RETARDO_MEM=600
+[INFO] 18:58:28:492 Memoria/(12382:12382): RETARDO_FS=600
+[INFO] 18:58:28:492 Memoria/(12382:12382): TAM_MEM=2048
+[INFO] 18:58:28:492 Memoria/(12382:12382): RETARDO_JOURNAL=60000
+[INFO] 18:58:28:492 Memoria/(12382:12382): RETARDO_GOSSIPING=30000
+[INFO] 18:58:28:492 Memoria/(12382:12382): MEMORY_NUMBER=1
+[INFO] 18:58:28:493 Memoria/(12382:12382): Conectado al LFS. Iniciando Handshake.
+[INFO] 18:58:28:494 Memoria/(12382:12382): El size del value es: 4
+[INFO] 18:58:28:494 Memoria/(12382:12382): El punto de montaje es: mnt/FileSystem/
+[INFO] 18:58:28:495 Memoria/(12382:12382): Servidor encendido, esperando conexiones
+[ERROR] 18:58:28:496 Memoria/(12382:12385): La memoria no esta activa
+[ERROR] 18:58:28:504 Memoria/(12382:12385): Memoria conocida. Envia rmensaje
+[INFO] 19:02:48:392 Memoria/(12477:12477): IP=127.0.0.1
+[INFO] 19:02:48:398 Memoria/(12477:12477): PUERTO=8007
+[INFO] 19:02:48:398 Memoria/(12477:12477): IP_FS=127.0.0.1
+[INFO] 19:02:48:398 Memoria/(12477:12477): PUERTO_FS=8006
+[INFO] 19:02:48:398 Memoria/(12477:12477): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 19:02:48:399 Memoria/(12477:12477): PUERTO_SEEDS=[8000,8001]
+[INFO] 19:02:48:399 Memoria/(12477:12477): RETARDO_MEM=600
+[INFO] 19:02:48:399 Memoria/(12477:12477): RETARDO_FS=600
+[INFO] 19:02:48:400 Memoria/(12477:12477): TAM_MEM=2048
+[INFO] 19:02:48:405 Memoria/(12477:12477): RETARDO_JOURNAL=60000
+[INFO] 19:02:48:406 Memoria/(12477:12477): RETARDO_GOSSIPING=30000
+[INFO] 19:02:48:406 Memoria/(12477:12477): MEMORY_NUMBER=1
+[INFO] 19:02:48:407 Memoria/(12477:12477): Conectado al LFS. Iniciando Handshake.
+[INFO] 19:02:48:410 Memoria/(12477:12477): El size del value es: 4
+[INFO] 19:02:48:410 Memoria/(12477:12477): El punto de montaje es: mnt/FileSystem/
+[INFO] 19:02:48:411 Memoria/(12477:12477): Servidor encendido, esperando conexiones
+[ERROR] 19:02:48:413 Memoria/(12477:12480): La memoria no esta activa
+[ERROR] 19:02:48:417 Memoria/(12477:12480): Memoria conocida. Envia rmensaje
+[INFO] 19:04:06:879 Memoria/(12548:12548): IP=127.0.0.1
+[INFO] 19:04:06:885 Memoria/(12548:12548): PUERTO=8007
+[INFO] 19:04:06:885 Memoria/(12548:12548): IP_FS=127.0.0.1
+[INFO] 19:04:06:885 Memoria/(12548:12548): PUERTO_FS=8006
+[INFO] 19:04:06:885 Memoria/(12548:12548): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 19:04:06:885 Memoria/(12548:12548): PUERTO_SEEDS=[8000,8001]
+[INFO] 19:04:06:886 Memoria/(12548:12548): RETARDO_MEM=600
+[INFO] 19:04:06:886 Memoria/(12548:12548): RETARDO_FS=600
+[INFO] 19:04:06:886 Memoria/(12548:12548): TAM_MEM=2048
+[INFO] 19:04:06:886 Memoria/(12548:12548): RETARDO_JOURNAL=60000
+[INFO] 19:04:06:887 Memoria/(12548:12548): RETARDO_GOSSIPING=30000
+[INFO] 19:04:06:887 Memoria/(12548:12548): MEMORY_NUMBER=1
+[INFO] 19:04:06:887 Memoria/(12548:12548): Conectado al LFS. Iniciando Handshake.
+[INFO] 19:04:06:892 Memoria/(12548:12548): El size del value es: 4
+[INFO] 19:04:06:893 Memoria/(12548:12548): El punto de montaje es: mnt/FileSystem/
+[INFO] 19:04:06:894 Memoria/(12548:12548): Servidor encendido, esperando conexiones
+[ERROR] 19:04:06:895 Memoria/(12548:12551): La memoria no esta activa
+[ERROR] 19:04:06:902 Memoria/(12548:12551): Memoria conocida. Envia rmensaje
+[INFO] 19:06:08:235 Memoria/(12548:12548): Finalizando proceso Memoria...
+[INFO] 19:06:09:481 Memoria/(12615:12615): IP=127.0.0.1
+[INFO] 19:06:09:486 Memoria/(12615:12615): PUERTO=8007
+[INFO] 19:06:09:487 Memoria/(12615:12615): IP_FS=127.0.0.1
+[INFO] 19:06:09:487 Memoria/(12615:12615): PUERTO_FS=8006
+[INFO] 19:06:09:487 Memoria/(12615:12615): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 19:06:09:487 Memoria/(12615:12615): PUERTO_SEEDS=[8000,8001]
+[INFO] 19:06:09:487 Memoria/(12615:12615): RETARDO_MEM=600
+[INFO] 19:06:09:488 Memoria/(12615:12615): RETARDO_FS=600
+[INFO] 19:06:09:488 Memoria/(12615:12615): TAM_MEM=2048
+[INFO] 19:06:09:488 Memoria/(12615:12615): RETARDO_JOURNAL=60000
+[INFO] 19:06:09:488 Memoria/(12615:12615): RETARDO_GOSSIPING=30000
+[INFO] 19:06:09:488 Memoria/(12615:12615): MEMORY_NUMBER=1
+[INFO] 19:06:09:489 Memoria/(12615:12615): Conectado al LFS. Iniciando Handshake.
+[INFO] 19:06:09:490 Memoria/(12615:12615): El size del value es: 4
+[INFO] 19:06:09:490 Memoria/(12615:12615): El punto de montaje es: mnt/FileSystem/
+[INFO] 19:06:09:491 Memoria/(12615:12615): Servidor encendido, esperando conexiones
+[ERROR] 19:06:09:493 Memoria/(12615:12618): La memoria no esta activa
+[ERROR] 19:06:09:498 Memoria/(12615:12618): Memoria conocida. Envia rmensaje
+[INFO] 19:08:17:455 Memoria/(12691:12691): IP=127.0.0.1
+[INFO] 19:08:17:461 Memoria/(12691:12691): PUERTO=8007
+[INFO] 19:08:17:461 Memoria/(12691:12691): IP_FS=127.0.0.1
+[INFO] 19:08:17:461 Memoria/(12691:12691): PUERTO_FS=8006
+[INFO] 19:08:17:461 Memoria/(12691:12691): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 19:08:17:462 Memoria/(12691:12691): PUERTO_SEEDS=[8000,8001]
+[INFO] 19:08:17:462 Memoria/(12691:12691): RETARDO_MEM=600
+[INFO] 19:08:17:462 Memoria/(12691:12691): RETARDO_FS=600
+[INFO] 19:08:17:462 Memoria/(12691:12691): TAM_MEM=2048
+[INFO] 19:08:17:462 Memoria/(12691:12691): RETARDO_JOURNAL=60000
+[INFO] 19:08:17:463 Memoria/(12691:12691): RETARDO_GOSSIPING=30000
+[INFO] 19:08:17:463 Memoria/(12691:12691): MEMORY_NUMBER=1
+[INFO] 19:08:17:463 Memoria/(12691:12691): Conectado al LFS. Iniciando Handshake.
+[INFO] 19:08:17:465 Memoria/(12691:12691): El size del value es: 4
+[INFO] 19:08:17:465 Memoria/(12691:12691): El punto de montaje es: mnt/FileSystem/
+[INFO] 19:08:17:467 Memoria/(12691:12691): Servidor encendido, esperando conexiones
+[ERROR] 19:08:17:468 Memoria/(12691:12694): La memoria no esta activa
+[ERROR] 19:08:17:477 Memoria/(12691:12694): Memoria conocida. Envia rmensaje
+[INFO] 19:15:15:637 Memoria/(12691:12691): Finalizando proceso Memoria...
+[INFO] 00:03:14:29 Memoria/(4737:4737): IP=127.0.0.1
+[INFO] 00:03:14:52 Memoria/(4737:4737): PUERTO=8007
+[INFO] 00:03:14:52 Memoria/(4737:4737): IP_FS=127.0.0.1
+[INFO] 00:03:14:53 Memoria/(4737:4737): PUERTO_FS=8006
+[INFO] 00:03:14:53 Memoria/(4737:4737): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 00:03:14:53 Memoria/(4737:4737): PUERTO_SEEDS=[8000,8001]
+[INFO] 00:03:14:53 Memoria/(4737:4737): RETARDO_MEM=600
+[INFO] 00:03:14:53 Memoria/(4737:4737): RETARDO_FS=600
+[INFO] 00:03:14:54 Memoria/(4737:4737): TAM_MEM=2048
+[INFO] 00:03:14:54 Memoria/(4737:4737): RETARDO_JOURNAL=60000
+[INFO] 00:03:14:54 Memoria/(4737:4737): RETARDO_GOSSIPING=30000
+[INFO] 00:03:14:54 Memoria/(4737:4737): MEMORY_NUMBER=1
+[INFO] 00:03:14:55 Memoria/(4737:4737): Conectado al LFS. Iniciando Handshake.
+[INFO] 00:03:14:55 Memoria/(4737:4737): El size del value es: 4
+[INFO] 00:03:14:55 Memoria/(4737:4737): El punto de montaje es: mnt/FileSystem/
+[INFO] 00:03:14:57 Memoria/(4737:4737): Servidor encendido, esperando conexiones
+[INFO] 00:04:23:62 Memoria/(4737:4737): Finalizando proceso Memoria...
+[INFO] 00:04:24:413 Memoria/(4792:4792): IP=127.0.0.1
+[INFO] 00:04:24:413 Memoria/(4792:4792): PUERTO=8007
+[INFO] 00:04:24:413 Memoria/(4792:4792): IP_FS=127.0.0.1
+[INFO] 00:04:24:413 Memoria/(4792:4792): PUERTO_FS=8006
+[INFO] 00:04:24:414 Memoria/(4792:4792): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 00:04:24:414 Memoria/(4792:4792): PUERTO_SEEDS=[8000,8001]
+[INFO] 00:04:24:414 Memoria/(4792:4792): RETARDO_MEM=600
+[INFO] 00:04:24:414 Memoria/(4792:4792): RETARDO_FS=600
+[INFO] 00:04:24:414 Memoria/(4792:4792): TAM_MEM=2048
+[INFO] 00:04:24:415 Memoria/(4792:4792): RETARDO_JOURNAL=60000
+[INFO] 00:04:24:415 Memoria/(4792:4792): RETARDO_GOSSIPING=30000
+[INFO] 00:04:24:415 Memoria/(4792:4792): MEMORY_NUMBER=1
+[INFO] 00:04:24:416 Memoria/(4792:4792): Conectado al LFS. Iniciando Handshake.
+[INFO] 00:04:24:416 Memoria/(4792:4792): El size del value es: 4
+[INFO] 00:04:24:416 Memoria/(4792:4792): El punto de montaje es: mnt/FileSystem/
+[ERROR] 00:04:24:419 Memoria/(4792:4794): Memoria conocida. Envia rmensaje
+[INFO] 00:04:24:428 Memoria/(4792:4792): Servidor encendido, esperando conexiones
+[INFO] 00:06:17:597 Memoria/(4885:4885): IP=127.0.0.1
+[INFO] 00:06:17:597 Memoria/(4885:4885): PUERTO=8007
+[INFO] 00:06:17:598 Memoria/(4885:4885): IP_FS=127.0.0.1
+[INFO] 00:06:17:598 Memoria/(4885:4885): PUERTO_FS=8006
+[INFO] 00:06:17:598 Memoria/(4885:4885): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 00:06:17:598 Memoria/(4885:4885): PUERTO_SEEDS=[8000,8001]
+[INFO] 00:06:17:598 Memoria/(4885:4885): RETARDO_MEM=600
+[INFO] 00:06:17:599 Memoria/(4885:4885): RETARDO_FS=600
+[INFO] 00:06:17:599 Memoria/(4885:4885): TAM_MEM=2048
+[INFO] 00:06:17:599 Memoria/(4885:4885): RETARDO_JOURNAL=60000
+[INFO] 00:06:17:599 Memoria/(4885:4885): RETARDO_GOSSIPING=30000
+[INFO] 00:06:17:599 Memoria/(4885:4885): MEMORY_NUMBER=1
+[INFO] 00:06:17:600 Memoria/(4885:4885): Conectado al LFS. Iniciando Handshake.
+[INFO] 00:06:17:600 Memoria/(4885:4885): El size del value es: 4
+[INFO] 00:06:17:600 Memoria/(4885:4885): El punto de montaje es: mnt/FileSystem/
+[INFO] 00:06:17:602 Memoria/(4885:4885): Servidor encendido, esperando conexiones
+[ERROR] 00:06:17:603 Memoria/(4885:4887): Memoria conocida. Envia rmensaje
+[INFO] 00:06:25:361 Memoria/(4896:4896): IP=127.0.0.1
+[INFO] 00:06:25:362 Memoria/(4896:4896): PUERTO=8007
+[INFO] 00:06:25:362 Memoria/(4896:4896): IP_FS=127.0.0.1
+[INFO] 00:06:25:362 Memoria/(4896:4896): PUERTO_FS=8006
+[INFO] 00:06:25:362 Memoria/(4896:4896): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 00:06:25:362 Memoria/(4896:4896): PUERTO_SEEDS=[8000,8001]
+[INFO] 00:06:25:363 Memoria/(4896:4896): RETARDO_MEM=600
+[INFO] 00:06:25:363 Memoria/(4896:4896): RETARDO_FS=600
+[INFO] 00:06:25:363 Memoria/(4896:4896): TAM_MEM=2048
+[INFO] 00:06:25:363 Memoria/(4896:4896): RETARDO_JOURNAL=60000
+[INFO] 00:06:25:363 Memoria/(4896:4896): RETARDO_GOSSIPING=30000
+[INFO] 00:06:25:364 Memoria/(4896:4896): MEMORY_NUMBER=1
+[INFO] 00:06:25:364 Memoria/(4896:4896): Conectado al LFS. Iniciando Handshake.
+[INFO] 00:06:25:364 Memoria/(4896:4896): El size del value es: 4
+[INFO] 00:06:25:365 Memoria/(4896:4896): El punto de montaje es: mnt/FileSystem/
+[INFO] 00:06:25:366 Memoria/(4896:4896): Servidor encendido, esperando conexiones
+[ERROR] 00:06:25:367 Memoria/(4896:4898): La memoria no esta activa
+[ERROR] 00:06:25:368 Memoria/(4896:4898): La memoria no esta activa
+[INFO] 00:06:38:864 Memoria/(4896:4896): Finalizando proceso Memoria...
+[INFO] 00:06:40:366 Memoria/(4910:4910): IP=127.0.0.1
+[INFO] 00:06:40:366 Memoria/(4910:4910): PUERTO=8007
+[INFO] 00:06:40:366 Memoria/(4910:4910): IP_FS=127.0.0.1
+[INFO] 00:06:40:366 Memoria/(4910:4910): PUERTO_FS=8006
+[INFO] 00:06:40:366 Memoria/(4910:4910): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 00:06:40:366 Memoria/(4910:4910): PUERTO_SEEDS=[8000,8001]
+[INFO] 00:06:40:367 Memoria/(4910:4910): RETARDO_MEM=600
+[INFO] 00:06:40:367 Memoria/(4910:4910): RETARDO_FS=600
+[INFO] 00:06:40:367 Memoria/(4910:4910): TAM_MEM=2048
+[INFO] 00:06:40:367 Memoria/(4910:4910): RETARDO_JOURNAL=60000
+[INFO] 00:06:40:368 Memoria/(4910:4910): RETARDO_GOSSIPING=30000
+[INFO] 00:06:40:368 Memoria/(4910:4910): MEMORY_NUMBER=1
+[INFO] 00:06:40:368 Memoria/(4910:4910): Conectado al LFS. Iniciando Handshake.
+[INFO] 00:06:40:369 Memoria/(4910:4910): El size del value es: 4
+[INFO] 00:06:40:369 Memoria/(4910:4910): El punto de montaje es: mnt/FileSystem/
+[INFO] 00:06:40:370 Memoria/(4910:4910): Servidor encendido, esperando conexiones
+[ERROR] 00:06:40:371 Memoria/(4910:4912): La memoria no esta activa
+[ERROR] 00:06:40:372 Memoria/(4910:4912): La memoria no esta activa
+[INFO] 00:07:13:959 Memoria/(4910:4910): Finalizando proceso Memoria...
+[INFO] 00:07:18:324 Memoria/(4934:4934): IP=127.0.0.1
+[INFO] 00:07:18:324 Memoria/(4934:4934): PUERTO=8007
+[INFO] 00:07:18:324 Memoria/(4934:4934): IP_FS=127.0.0.1
+[INFO] 00:07:18:324 Memoria/(4934:4934): PUERTO_FS=8006
+[INFO] 00:07:18:324 Memoria/(4934:4934): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 00:07:18:325 Memoria/(4934:4934): PUERTO_SEEDS=[8000,8001]
+[INFO] 00:07:18:325 Memoria/(4934:4934): RETARDO_MEM=600
+[INFO] 00:07:18:325 Memoria/(4934:4934): RETARDO_FS=600
+[INFO] 00:07:18:325 Memoria/(4934:4934): TAM_MEM=2048
+[INFO] 00:07:18:325 Memoria/(4934:4934): RETARDO_JOURNAL=60000
+[INFO] 00:07:18:326 Memoria/(4934:4934): RETARDO_GOSSIPING=30000
+[INFO] 00:07:18:326 Memoria/(4934:4934): MEMORY_NUMBER=1
+[INFO] 00:07:18:326 Memoria/(4934:4934): Conectado al LFS. Iniciando Handshake.
+[INFO] 00:07:18:327 Memoria/(4934:4934): El size del value es: 4
+[INFO] 00:07:18:327 Memoria/(4934:4934): El punto de montaje es: mnt/FileSystem/
+[INFO] 00:07:18:328 Memoria/(4934:4934): Servidor encendido, esperando conexiones
+[ERROR] 00:07:18:330 Memoria/(4934:4936): La memoria no esta activa
+[ERROR] 00:07:18:330 Memoria/(4934:4936): Memoria conocida. Envia rmensaje
+[INFO] 00:08:09:285 Memoria/(4958:4958): IP=127.0.0.1
+[INFO] 00:08:09:285 Memoria/(4958:4958): PUERTO=8007
+[INFO] 00:08:09:285 Memoria/(4958:4958): IP_FS=127.0.0.1
+[INFO] 00:08:09:286 Memoria/(4958:4958): PUERTO_FS=8006
+[INFO] 00:08:09:286 Memoria/(4958:4958): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 00:08:09:286 Memoria/(4958:4958): PUERTO_SEEDS=[8000,8001]
+[INFO] 00:08:09:286 Memoria/(4958:4958): RETARDO_MEM=600
+[INFO] 00:08:09:287 Memoria/(4958:4958): RETARDO_FS=600
+[INFO] 00:08:09:287 Memoria/(4958:4958): TAM_MEM=2048
+[INFO] 00:08:09:287 Memoria/(4958:4958): RETARDO_JOURNAL=60000
+[INFO] 00:08:09:287 Memoria/(4958:4958): RETARDO_GOSSIPING=30000
+[INFO] 00:08:09:287 Memoria/(4958:4958): MEMORY_NUMBER=1
+[ERROR] 00:08:09:288 Memoria/(4958:4958): El LFS no está levantado. Cerrar la Memoria, levantar el LFS y volver a levantar la Memoria
+[INFO] 00:08:09:288 Memoria/(4958:4958): Conectado al LFS. Iniciando Handshake.
+[INFO] 00:08:23:738 Memoria/(4967:4967): IP=127.0.0.1
+[INFO] 00:08:23:740 Memoria/(4967:4967): PUERTO=8007
+[INFO] 00:08:23:740 Memoria/(4967:4967): IP_FS=127.0.0.1
+[INFO] 00:08:23:740 Memoria/(4967:4967): PUERTO_FS=8006
+[INFO] 00:08:23:740 Memoria/(4967:4967): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 00:08:23:742 Memoria/(4967:4967): PUERTO_SEEDS=[8000,8001]
+[INFO] 00:08:23:742 Memoria/(4967:4967): RETARDO_MEM=600
+[INFO] 00:08:23:746 Memoria/(4967:4967): RETARDO_FS=600
+[INFO] 00:08:23:746 Memoria/(4967:4967): TAM_MEM=2048
+[INFO] 00:08:23:746 Memoria/(4967:4967): RETARDO_JOURNAL=60000
+[INFO] 00:08:23:747 Memoria/(4967:4967): RETARDO_GOSSIPING=30000
+[INFO] 00:08:23:747 Memoria/(4967:4967): MEMORY_NUMBER=1
+[INFO] 00:08:23:748 Memoria/(4967:4967): Conectado al LFS. Iniciando Handshake.
+[INFO] 00:08:23:749 Memoria/(4967:4967): El size del value es: 4
+[INFO] 00:08:23:749 Memoria/(4967:4967): El punto de montaje es: mnt/FileSystem/
+[INFO] 00:08:23:754 Memoria/(4967:4967): Servidor encendido, esperando conexiones
+[ERROR] 00:08:23:763 Memoria/(4967:4969): La memoria no esta activa
+[ERROR] 00:08:23:763 Memoria/(4967:4969): La memoria no esta activa
+[INFO] 00:08:36:213 Memoria/(4967:4967): Finalizando proceso Memoria...
+[INFO] 00:08:43:90 Memoria/(4977:4977): IP=127.0.0.1
+[INFO] 00:08:43:90 Memoria/(4977:4977): PUERTO=8007
+[INFO] 00:08:43:90 Memoria/(4977:4977): IP_FS=127.0.0.1
+[INFO] 00:08:43:90 Memoria/(4977:4977): PUERTO_FS=8006
+[INFO] 00:08:43:90 Memoria/(4977:4977): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 00:08:43:90 Memoria/(4977:4977): PUERTO_SEEDS=[8000,8001]
+[INFO] 00:08:43:91 Memoria/(4977:4977): RETARDO_MEM=600
+[INFO] 00:08:43:91 Memoria/(4977:4977): RETARDO_FS=600
+[INFO] 00:08:43:91 Memoria/(4977:4977): TAM_MEM=2048
+[INFO] 00:08:43:91 Memoria/(4977:4977): RETARDO_JOURNAL=60000
+[INFO] 00:08:43:92 Memoria/(4977:4977): RETARDO_GOSSIPING=30000
+[INFO] 00:08:43:92 Memoria/(4977:4977): MEMORY_NUMBER=1
+[INFO] 00:08:43:92 Memoria/(4977:4977): Conectado al LFS. Iniciando Handshake.
+[INFO] 00:08:43:93 Memoria/(4977:4977): El size del value es: 4
+[INFO] 00:08:43:93 Memoria/(4977:4977): El punto de montaje es: mnt/FileSystem/
+[INFO] 00:08:43:94 Memoria/(4977:4977): Servidor encendido, esperando conexiones
+[ERROR] 00:08:43:95 Memoria/(4977:4979): La memoria no esta activa
+[ERROR] 00:08:43:96 Memoria/(4977:4979): Memoria conocida. Envia rmensaje
+[INFO] 00:10:41:875 Memoria/(5062:5062): IP=127.0.0.1
+[INFO] 00:10:41:875 Memoria/(5062:5062): PUERTO=8007
+[INFO] 00:10:41:875 Memoria/(5062:5062): IP_FS=127.0.0.1
+[INFO] 00:10:41:876 Memoria/(5062:5062): PUERTO_FS=8006
+[INFO] 00:10:41:876 Memoria/(5062:5062): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 00:10:41:876 Memoria/(5062:5062): PUERTO_SEEDS=[8000,8001]
+[INFO] 00:10:41:876 Memoria/(5062:5062): RETARDO_MEM=600
+[INFO] 00:10:41:876 Memoria/(5062:5062): RETARDO_FS=600
+[INFO] 00:10:41:876 Memoria/(5062:5062): TAM_MEM=2048
+[INFO] 00:10:41:877 Memoria/(5062:5062): RETARDO_JOURNAL=60000
+[INFO] 00:10:41:877 Memoria/(5062:5062): RETARDO_GOSSIPING=30000
+[INFO] 00:10:41:877 Memoria/(5062:5062): MEMORY_NUMBER=1
+[INFO] 00:10:41:878 Memoria/(5062:5062): Conectado al LFS. Iniciando Handshake.
+[INFO] 00:10:41:878 Memoria/(5062:5062): El size del value es: 4
+[INFO] 00:10:41:878 Memoria/(5062:5062): El punto de montaje es: mnt/FileSystem/
+[INFO] 00:10:41:880 Memoria/(5062:5062): Servidor encendido, esperando conexiones
+[ERROR] 00:10:41:881 Memoria/(5062:5064): La memoria no esta activa
+[ERROR] 00:10:41:881 Memoria/(5062:5064): Memoria conocida. Envia rmensaje
+[INFO] 00:10:51:51 Memoria/(5069:5069): IP=127.0.0.1
+[INFO] 00:10:51:51 Memoria/(5069:5069): PUERTO=8007
+[INFO] 00:10:51:51 Memoria/(5069:5069): IP_FS=127.0.0.1
+[INFO] 00:10:51:52 Memoria/(5069:5069): PUERTO_FS=8006
+[INFO] 00:10:51:52 Memoria/(5069:5069): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 00:10:51:52 Memoria/(5069:5069): PUERTO_SEEDS=[8000,8001]
+[INFO] 00:10:51:52 Memoria/(5069:5069): RETARDO_MEM=600
+[INFO] 00:10:51:52 Memoria/(5069:5069): RETARDO_FS=600
+[INFO] 00:10:51:53 Memoria/(5069:5069): TAM_MEM=2048
+[INFO] 00:10:51:53 Memoria/(5069:5069): RETARDO_JOURNAL=60000
+[INFO] 00:10:51:53 Memoria/(5069:5069): RETARDO_GOSSIPING=30000
+[INFO] 00:10:51:53 Memoria/(5069:5069): MEMORY_NUMBER=1
+[INFO] 00:10:51:54 Memoria/(5069:5069): Conectado al LFS. Iniciando Handshake.
+[INFO] 00:10:51:54 Memoria/(5069:5069): El size del value es: 4
+[INFO] 00:10:51:55 Memoria/(5069:5069): El punto de montaje es: mnt/FileSystem/
+[INFO] 00:10:51:56 Memoria/(5069:5069): Servidor encendido, esperando conexiones
+[ERROR] 00:10:51:57 Memoria/(5069:5071): La memoria no esta activa
+[ERROR] 00:10:51:58 Memoria/(5069:5071): La memoria no esta activa
+[INFO] 00:11:36:356 Memoria/(5069:5069): Finalizando proceso Memoria...
+[INFO] 00:11:37:52 Memoria/(5116:5116): IP=127.0.0.1
+[INFO] 00:11:37:52 Memoria/(5116:5116): PUERTO=8007
+[INFO] 00:11:37:52 Memoria/(5116:5116): IP_FS=127.0.0.1
+[INFO] 00:11:37:52 Memoria/(5116:5116): PUERTO_FS=8006
+[INFO] 00:11:37:52 Memoria/(5116:5116): IP_SEEDS=[127.0.0.1,127.0.0.1]
+[INFO] 00:11:37:53 Memoria/(5116:5116): PUERTO_SEEDS=[8000,8001]
+[INFO] 00:11:37:53 Memoria/(5116:5116): RETARDO_MEM=600
+[INFO] 00:11:37:53 Memoria/(5116:5116): RETARDO_FS=600
+[INFO] 00:11:37:53 Memoria/(5116:5116): TAM_MEM=2048
+[INFO] 00:11:37:54 Memoria/(5116:5116): RETARDO_JOURNAL=60000
+[INFO] 00:11:37:54 Memoria/(5116:5116): RETARDO_GOSSIPING=30000
+[INFO] 00:11:37:54 Memoria/(5116:5116): MEMORY_NUMBER=1
+[INFO] 00:11:37:54 Memoria/(5116:5116): Conectado al LFS. Iniciando Handshake.
+[INFO] 00:11:37:55 Memoria/(5116:5116): El size del value es: 4
+[INFO] 00:11:37:55 Memoria/(5116:5116): El punto de montaje es: mnt/FileSystem/
+[INFO] 00:11:37:57 Memoria/(5116:5116): Servidor encendido, esperando conexiones
+[ERROR] 00:11:37:59 Memoria/(5116:5118): Memoria conocida. Envia rmensaje
