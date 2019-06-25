@@ -56,6 +56,7 @@ t_list *tablasExistentes;
 
 
 //FUNCIONES: Publicas
+int iniciar_sistema_de_criterios(void);
 Memoria *determinar_memoria_para_tabla(char *tabla);
 int add_memory(char *numeroMemoria, char *consistencia); //Asocia una memoria a una consistencia para poder usarla. Internamente chequea los valores de consistencia y numero para que no se le puedan enviar cosas chanchas
 int procesar_describe(char *cadenaResultadoDescribe);

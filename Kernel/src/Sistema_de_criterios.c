@@ -20,6 +20,19 @@ static Memoria *ec_determinar_memoria(MetadataTabla *tabla);
 
 
 
+int iniciar_sistema_de_criterios(void){
+	memoriasSC = list_create();
+	memoriasHSC = list_create();
+	memoriasEC = list_create();
+	memoriasExistentes = list_create();
+	tablasExistentes = list_create();
+	return EXIT_SUCCESS;
+}
+
+
+
+
+
 Memoria *determinar_memoria_para_tabla(char *nombreTabla){ //No liberar nunca nombreTabla por que es: o parte de una linea lql o parte de una request individual. Lo que se tenga que liberar, se libera en Unidad_de_ejecucion.c
 	MetadataTabla *tabla;
 	if((tabla = machearTabla(nombreTabla)) == NULL){
@@ -98,9 +111,9 @@ int procesar_describe(char *cadenaResultadoDescribe){
 		tabla->nombre = string_from_format(descompresion[i]);
 		if(string_equals_ignore_case(descompresion[i+1], "SC"))
 			tabla->consistencia = SC;
-		if(string_equals_ignore_case(descompresion[i+1], "HSC"))
+		else if(string_equals_ignore_case(descompresion[i+1], "HSC"))
 			tabla->consistencia = HSC;
-		if(string_equals_ignore_case(descompresion[i+1], "EC"))
+		else if(string_equals_ignore_case(descompresion[i+1], "EC"))
 			tabla->consistencia = EC;
 		else return EXIT_FAILURE;
 		tabla->particiones = atoi(descompresion[i+2]);
@@ -115,15 +128,34 @@ int procesar_describe(char *cadenaResultadoDescribe){
 
 
 void mostrar_describe(char *cadenaResultadoDescribe){
+	int usarCadena = FALSE; //Solo para debugear, muestra el contenido de la lista de tablas, o el contenido del ultimo resultado del describe (que seria la cadena)
+	if(usarCadena)
+		goto CAD;
+	else
+		goto LIST;
+
+	CAD: ;
 	char **descompresion = descomprimir_describe(cadenaResultadoDescribe);
 	for(int i=0; descompresion[i]!= NULL; i+=4){
-		printf(GRN"Tabla: %s"STD, descompresion[i]);
-		printf("Consistencia: %s", descompresion[i+1]);
-		printf("Numero de particiones: %s", descompresion[i+2]);
+		printf(GRN"Tabla: %s | "STD, descompresion[i]);
+		printf("Consistencia: %s | ", descompresion[i+1]);
+		printf("Numero de particiones: %s | ", descompresion[i+2]);
 		printf("Tiempo entre compactacion: %s", descompresion[i+3]);
 		printf("\n");
 	}
 	destruir_split_tablas(descompresion);
+	return ;
+
+	LIST: ;
+	void mostrar(void *elemento){
+		printf(GRN"Tabla: %s | "STD, ((MetadataTabla*)elemento)->nombre);
+		printf("Consistencia: %d | ", ((MetadataTabla*)elemento)->consistencia);
+		printf("Numero de particiones: %d | ", ((MetadataTabla*)elemento)->particiones);
+		printf("Tiempo entre compactacion: %d\n", ((MetadataTabla*)elemento)->tiempoEntreCompactaciones);
+	}
+	printf(BLU"0: SC | 1: HSC | 2: EC\n"STD);
+	list_iterate(tablasExistentes, mostrar);
+	return ;
 }
 
 
