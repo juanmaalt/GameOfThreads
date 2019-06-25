@@ -7,14 +7,21 @@
 
 #include "Sistema_de_criterios.h"
 
-//FUNCIONES: Privadas
+//FUNCIONES: Privadas: buscar
 static bool tabla_esta_en_la_lista(char *tabla);
 static bool memoria_esta_en_la_lista(t_list *lista, int numeroMemoria);
+
+//FUNCIONES: Privadas: buscar y traer
 static MetadataTabla *machearTabla(char *tabla);//Dado el nombre de una tabla devuelve la estructura que la representa. Si no existe devuelve null
 static Memoria *machearMemoria(int numeroMemoria);
+
+//FUNCIONES: Privadas: asignacion de memorias
 static Memoria *sc_determinar_memoria(MetadataTabla *tabla); //Dada una tabla con SC, determina que memoria la deberia atender
 static Memoria *hsc_determinar_memoria(MetadataTabla *tabla);
 static Memoria *ec_determinar_memoria(MetadataTabla *tabla);
+
+//FUNCIONES: Privadas: gestion de nuevas tablas
+static MetadataTabla *crear_tabla(char* nombre, char *consistencia, char *particiones, char *tiempoEntreCompactacion);
 
 
 
@@ -58,7 +65,7 @@ Memoria *determinar_memoria_para_tabla(char *nombreTabla){ //No liberar nunca no
 
 
 
-int add_memory(char *numeroMemoria, char *consistencia){
+int asociar_memoria(char *numeroMemoria, char *consistencia){
 	Memoria *memoria;
 	if((memoria = machearMemoria(atoi(numeroMemoria))) == NULL)
 		RETURN_ERROR("Sistema_de_criterios.c: add_memory: el numero de memoria es invalido o aun no se conoce");
@@ -72,7 +79,7 @@ int add_memory(char *numeroMemoria, char *consistencia){
 			return EXIT_SUCCESS;
 		}
 	}
-	if(string_equals_ignore_case(consistencia, "HSC")){
+	else if(string_equals_ignore_case(consistencia, "HSC")){
 		if(!memoria_esta_en_la_lista(memoriasHSC, memoria->numero)){
 			list_add(memoriasHSC, memoria);
 		}else{
@@ -81,7 +88,7 @@ int add_memory(char *numeroMemoria, char *consistencia){
 			return EXIT_SUCCESS;
 		}
 	}
-	if(string_equals_ignore_case(consistencia, "EC")){
+	else if(string_equals_ignore_case(consistencia, "EC")){
 		if(!memoria_esta_en_la_lista(memoriasEC, memoria->numero)){
 			list_add(memoriasEC, memoria);
 		}else{
@@ -101,25 +108,23 @@ int procesar_describe(char *cadenaResultadoDescribe){
 	if(tablasExistentes == NULL)
 		return EXIT_FAILURE;
 
-	char **descompresion = descomprimir_describe(cadenaResultadoDescribe);
-	for(int i=0; descompresion[i]!= NULL; i+=4){
-		MetadataTabla *tabla;
-		if((tabla = machearTabla(descompresion[i])) == NULL){//Si ya existe, la trae de la lista y se pisan los valores con el objetivo de actualizarlos, pero mantener aquellos valores que no cambiaron. Por ejemplo, el caso de una tabla SC, su memoria asignada no cambia
-			tabla = malloc(sizeof(MetadataTabla));//Si no existe, se crea una nueva
-			list_add(tablasExistentes, tabla);
+	MetadataTabla *tabla;
+	t_list *listaAuxiliar = list_create(); //Creo una lista vacia sobre la cual voy a trabajar
+
+	char **descompresion = descomprimir_describe(cadenaResultadoDescribe); //Descomprimo los resultados del ultimo describe
+	for(int i=0; descompresion[i]!= NULL; i+=4){ //Este for maneja los bloques de la descompresion como 4-upla ya que la cadena esta convenientemente ordenada
+		if((tabla = machearTabla(descompresion[i])) == NULL){ //Buscar la tabla (por nombre) en la lista de tablasExistentes
+			tabla = crear_tabla(descompresion[i], descompresion[i+1], descompresion[i+2], descompresion[i+2]); //Si no se encuentra, creo una nueva
+			if(tabla == NULL) return EXIT_FAILURE;
+			list_add(listaAuxiliar, tabla); //La agrego a mi lista auxiliar
+		}else{
+			list_add(listaAuxiliar, tabla); //Si se encuentra, agrego esa referencia de tablasExistentes a mi listaAuxiliar. Esto lo hago asi por que hay ciertos atributos que se asignan en momentos distintos, por ejemplo, a una tabla SC se le asigna una memoria, y necesito que siga siendo siempre la misma, por eso quiero usar la misma referencia a esa tabla.
 		}
-		tabla->nombre = string_from_format(descompresion[i]);
-		if(string_equals_ignore_case(descompresion[i+1], "SC"))
-			tabla->consistencia = SC;
-		else if(string_equals_ignore_case(descompresion[i+1], "HSC"))
-			tabla->consistencia = HSC;
-		else if(string_equals_ignore_case(descompresion[i+1], "EC"))
-			tabla->consistencia = EC;
-		else return EXIT_FAILURE;
-		tabla->particiones = atoi(descompresion[i+2]);
-		tabla->tiempoEntreCompactaciones = atoi(descompresion[i+3]);
 	}
 	destruir_split_tablas(descompresion);
+	list_destroy(tablasExistentes); //Libero las referencias de la lista, sin liberar cada uno de sus elementos. Es decir, libero solo los nodos
+	tablasExistentes = list_duplicate(listaAuxiliar); //Duplico la lista auxiliar con todos los elementos del nuevo describe, manteniendo los del anterior describe (son sus respecrtivos atributos de criterios), y eliminando los viejos (ya que nunca se agregaron a la listaAuxiliar)
+	list_destroy(listaAuxiliar);
 	return EXIT_SUCCESS;
 }
 
@@ -128,11 +133,11 @@ int procesar_describe(char *cadenaResultadoDescribe){
 
 
 void mostrar_describe(char *cadenaResultadoDescribe){
-	int usarCadena = FALSE; //Solo para debugear, muestra el contenido de la lista de tablas, o el contenido del ultimo resultado del describe (que seria la cadena)
-	if(usarCadena)
-		goto CAD;
+	int usarCadenaResultado = FALSE;
+	if(usarCadenaResultado)
+		goto CAD; //Muestra el contenido de la cadena, que podria no ser el de la lista de tablas existentes, en un momento dado
 	else
-		goto LIST;
+		goto LIST; //Muestra el contenido real de la lista de tablas existentes
 
 	CAD: ;
 	char **descompresion = descomprimir_describe(cadenaResultadoDescribe);
@@ -174,8 +179,8 @@ int procesar_gossiping(char *cadenaResultadoGossiping){
 			list_add(memoriasExistentes, memoria);
 		}
 		memoria->numero = atoi(descompresion[i]);
-		memoria->ip = descompresion[i+1];
-		memoria->puerto = descompresion[i+2];
+		memoria->ip = string_from_format(descompresion[i+1]);
+		memoria->puerto = string_from_format(descompresion[i+2]);
 	}
 	destruir_split_memorias(descompresion);
 	return EXIT_SUCCESS;
@@ -212,6 +217,8 @@ static bool memoria_esta_en_la_lista(t_list *lista, int numeroMemoria){
 	}
 	return list_any_satisfy(lista, buscar);
 }
+
+
 
 
 
@@ -293,5 +300,24 @@ static Memoria *ec_determinar_memoria(MetadataTabla *tabla){
 		return NULL;
 	}
 	return (Memoria*)list_get(memoriasEC, getNumberUntil(list_size(memoriasEC)));
+}
+
+
+
+
+
+static MetadataTabla *crear_tabla(char* nombre, char *consistencia, char *particiones, char *tiempoEntreCompactacion){
+	MetadataTabla *retorno = malloc(sizeof(MetadataTabla));
+	retorno->nombre = string_from_format(nombre);
+	if(string_equals_ignore_case(consistencia, "SC"))
+		retorno->consistencia = SC;
+	else if(string_equals_ignore_case(consistencia, "HSC"))
+		retorno->consistencia = HSC;
+	else if(string_equals_ignore_case(consistencia, "EC"))
+		retorno->consistencia = EC;
+	else return NULL;
+	retorno->particiones = atoi(particiones);
+	retorno->tiempoEntreCompactaciones = atoi(tiempoEntreCompactacion);
+	return retorno;
 }
 

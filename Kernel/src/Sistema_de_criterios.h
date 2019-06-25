@@ -56,11 +56,54 @@ t_list *tablasExistentes;
 
 
 //FUNCIONES: Publicas
-int iniciar_sistema_de_criterios(void);
-Memoria *determinar_memoria_para_tabla(char *tabla);
-int add_memory(char *numeroMemoria, char *consistencia); //Asocia una memoria a una consistencia para poder usarla. Internamente chequea los valores de consistencia y numero para que no se le puedan enviar cosas chanchas
-int procesar_describe(char *cadenaResultadoDescribe);
-int procesar_gossiping(char *cadenaResultadoGossiping);
-void mostrar_describe(char *cadenaResultadoDescribe);
+
+	/**
+	* @NAME: iniciar_sistema_de_criterios
+	* @DESC: inicializa todas las listas y estructuras para poder usar el sistema de criterios. Devuelve
+	* 		 codigo de error (EXIT_FAILURE O EXIT_SUCCESS)
+	*/
+	int iniciar_sistema_de_criterios(void);
+
+
+	/**
+	* @NAME: determinar_memoria_para_tabla
+	* @DESC: dado el nombre de una tabla, hace lo necesario para devolver una memoria sobre la cual ejecutar
+	* 		 la request. Devuelve NULL si no encontro memoria. Por ejemplo, una request hacia la tabla ASD implica
+	* 		 buscar en la lista de metadatas de tabla, para ver que consistencia tiene etc etc y devolver una memoria
+	*/
+	Memoria *determinar_memoria_para_tabla(char *tabla);
+
+
+	/**
+	* @NAME: asociar_memoria
+	* @DESC: asocia una memoria a un criterio, lo cual implica agregarla a la lista de memoriasSC, HSC o SC. Para eso
+	* 		 se extrae una de la lista de memoriasExistentes. Esta ultima se rellena gracias al proceso de gossiping
+	* 		 Se usa en la consola para dar servicio a la api ADD MEMORY TO CRITERIO
+	*/
+	int asociar_memoria(char *numeroMemoria, char *consistencia);
+
+
+	/**
+	* @NAME: procesar_describe
+	* @DESC: una request describe devuelve como resultado una cadena con todas las metadatas de las tablas comprimidas en un
+	* 		 char*. Asique esta funcion la descomprime y las va a agregando a la lista de metadatas de tablas, actualizando
+	* 		 las viejas, removiendo las que ya no estan, y dando de alta las nuevas
+	*/
+	int procesar_describe(char *cadenaResultadoDescribe);
+
+
+	/**
+	* @NAME: procesar_gossiping
+	* @DESC: Analogo a procesar_describe pero con gossiping. Rellena la lista de memoriasExistentes
+	*/
+	int procesar_gossiping(char *cadenaResultadoGossiping);
+
+
+	/**
+	* @NAME: mostrar_describe
+	* @DESC: muestra el describe por pantalla. Tambien puede mostrarse el describe accediento a la lista de tablasExistentes
+	* 		 Se puede usar para debugear
+	*/
+	void mostrar_describe(char *cadenaResultadoDescribe);
 
 #endif /* SISTEMA_DE_CRITERIOS_H_ */
