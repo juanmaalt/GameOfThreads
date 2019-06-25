@@ -2,7 +2,7 @@
  * Unidad_de_ejecucion.c
  *
  *  Created on: 8 may. 2019
- *      Author: utnso
+ *      Author: facundosalerno
  */
 
 #include "Unidad_de_ejecucion.h"

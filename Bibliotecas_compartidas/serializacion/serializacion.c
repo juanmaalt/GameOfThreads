@@ -77,7 +77,7 @@ int send_msg(int socket, Operacion operacion) {
 		total = sizeof(int) + sizeof(int) + sizeof(char) * longCadena + sizeof(id);
 		content = malloc(total);
 		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
-		memcpy(content, &longCadena, sizeof(int));
+		memcpy(content+sizeof(int), &longCadena, sizeof(int));
 		memcpy(content+2*sizeof(int), operacion.Argumentos.DESCRIBE_REQUEST.resultado_comprimido, sizeof(char)*longCadena);
 		memcpy(content+2*sizeof(int)+sizeof(char)*longCadena, &(operacion.opCode), sizeof(id));
 		break;
@@ -100,7 +100,7 @@ Operacion recv_msg(int socket) {
 	int longitud = 0;
 	int result = recv(socket, &(retorno.TipoDeMensaje), sizeof(int), 0);
 	if (result <= 0)
-		RECV_FAIL("Error en la recepcion del resultado. Es posible que se haya perdido la conexion");
+		RECV_FAIL("(Serializacion.c: recv_msg) Error en la recepcion del resultado. Es posible que se haya perdido la conexion");
 
 	switch (retorno.TipoDeMensaje) {
 	case TEXTO_PLANO:
@@ -144,7 +144,7 @@ Operacion recv_msg(int socket) {
 		retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido[longitud] = '\0';
 		break;
 	default:
-		RECV_FAIL("Error en la recepcion del resultado. Tipo de operacion desconocido");
+		RECV_FAIL("(Serializacion.c: recv_msg) Error en la recepcion del resultado. Tipo de operacion desconocido");
 	}
 	recv(socket, &(retorno.opCode), sizeof(id), 0);
 	return retorno;
