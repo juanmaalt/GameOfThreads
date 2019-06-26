@@ -1,0 +1,42 @@
+dump(){
+	wait(semaforoLista);
+	
+	crearArchivoTemp();
+		
+	while(hayaElementosEnMemtable){
+		int i;
+		registro= list_get(tabla, posición);
+		
+		string=malloc char*;
+		
+		concatenarString(string)
+		
+		escribirFileTemp();		
+	
+		i++;
+		
+		list_remove(tabla, posicion);//checkear
+	}
+	signal(semaforoLista);
+}
+
+
+
+
+
+compactacion(){
+	wait(semaforoLista);
+	
+	while(hayaFileTemps){
+		FILE* temp;
+		
+		temp = abrirArchivoTemp();
+		
+		while(leer(temp)!=EOF){
+			leerLinea();
+			escribirLineaEnBloque(); //Ver el primer bloque disponible, ver cuanto lenght queda, escribir hasta donde se pueda y lo que sigue en otro bloque
+			actualizarParticion();		
+		}
+	}
+	signal(semaforoLista);
+}
