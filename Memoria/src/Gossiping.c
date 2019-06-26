@@ -178,17 +178,39 @@ Operacion recibir_gossiping (Operacion resultado){
 	knownMemory_t * recupero;
 	char * envio = NULL;
 	printf("ENTRO FUNCION RECIBIR GOSSIPING\n");
-	/*char **descompresion = descomprimir_memoria(resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
-		for(int i=0; descompresion[0]!=NULL; i+=3){
-			if(memoria_esta_en_la_lista(atoi(descompresion[i])));
-				continue;
-				knownMemory_t *memoria = malloc(sizeof(knownMemory_t));
+	/*
+	 *
+	 t_list *aux = list_create();
+	 char **descompresion = descomprimir_memoria(resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
+	for(int i=0; descompresion[i]!=NULL; i+=3){
+		knownMemory_t *memoria;
+		if((memoria = machearMemoria(atoi(descompresion[i]))) == NULL){
+			printf("NO MACHEA\n");
+			knownMemory_t *memoria = malloc(sizeof(knownMemory_t));
 			memoria->memory_number = atoi(descompresion[i]);
 			memoria->ip = descompresion[i+1];
 			memoria->ip_port = descompresion[i+2];
+			list_add(aux, memoria);
+		} else {
+			list_add(aux, memoria);
 
-			int tamaño = list_size(list_filter (listaMemoriasConocidas,comparoMemorias) );
-			list_add(listaMemoriasConocidas, (knownMemory_t *) memoria);
+		}
+
+
+		printf("AGREGO EN LISTA\n %s\n%s\n%s\n",descompresion[i],descompresion[i+1],descompresion[i+2]);
+		//memoria->memory_number = atoi(descompresion[i]);
+		printf("MODIFIQUE NUMERO\n");
+		//memoria->ip = descompresion[i+1];
+		//memoria->ip_port = descompresion[i+2];
+		printf("YA MODIFICO VALORES LISTA\n");
+	}
+	destruir_split_memorias(descompresion);
+	list_destroy(listaMemoriasConocidas); //Libero las referencias de la lista, sin liberar cada uno de sus elementos. Es decir, libero solo los nodos
+	listaMemoriasConocidas = list_duplicate(aux); //Duplico la lista auxiliar con todos los elementos del nuevo describe, manteniendo los del anterior describe (son sus respecrtivos atributos de criterios), y eliminando los viejos (ya que nunca se agregaron a la listaAuxiliar)
+		list_destroy(aux);
+	// Ya agregue las memorias que me llegaron
+	// Logica para enviar mi lista
+	printf("Lista actualizada\n");
 		}*/
 
 
@@ -220,6 +242,7 @@ Operacion recibir_gossiping (Operacion resultado){
 			 recupero  = (knownMemory_t *)list_get(listaMemoriasConocidas , i);
 
 			 concatenar_memoria(&envio, string_from_format("%d", recupero->memory_number) ,recupero->ip , recupero->ip_port);
+			 printf("CONCATENO MENSAJE : %s\n",envio);
 		 }
 	resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido = envio;
 
