@@ -27,8 +27,8 @@ int iniciar_gossiping() {
 	knownMemory_t * mem = malloc(sizeof(knownMemory_t)/*sizeof(int)+ sizeof(ip_port_compresed)+1*/ ) ;
 			//Asigno a sus atributos los valores correspondientes
 			mem->memory_number = atoi(fconfig.numero_memoria);
-			mem->ip = fconfig.ip;
-			mem->ip_port = fconfig.puerto;
+			mem->ip = string_from_format(fconfig.ip);
+			mem->ip_port = string_from_format(fconfig.puerto);
 
 			list_add(listaMemoriasConocidas, (knownMemory_t *) mem);
 	for (int i = 0; IPs[i] != NULL; ++i)	//Muestro por pantalla las IP seeds
@@ -58,8 +58,8 @@ void *conectar_seeds(void *null) { // hilo envia a las seeds
 	pthread_detach(pthread_self());
 	conectarConSeed();
 	// puertoSocket = ConsultoPorMemoriasConocidas(puertoSocket);
-	liberarIPs(IPs);
-	liberarIPs(IPsPorts);
+	//liberarIPs(IPs);
+	//liberarIPs(IPsPorts);
 	//for (;;) {
 	// Envia mensaje a las seeds que conoce
 // }
@@ -151,13 +151,14 @@ void conectarConSeed() {
 	 		if((memoria = machearMemoria(atoi(descompresion[i]))) == NULL){
 	 			knownMemory_t *memoria = malloc(sizeof(knownMemory_t));
 	 			memoria->memory_number = atoi(descompresion[i]);
-	 			memoria->ip = descompresion[i+1];
-		 		memoria->ip_port = descompresion[i+2];
+	 			memoria->ip = string_from_format(descompresion[i+1]);
+		 		memoria->ip_port = string_from_format(descompresion[i+2]);
 	 			list_add(listaMemoriasConocidas, memoria);
 	 		}
 
 
 	 	}
+
 	 	destruir_split_memorias(descompresion);
 
 	 	printf("Fin GOSSIP\n");
@@ -178,41 +179,9 @@ Operacion recibir_gossiping (Operacion resultado){
 	knownMemory_t * recupero;
 	char * envio = NULL;
 	printf("ENTRO FUNCION RECIBIR GOSSIPING\n");
-	/*
-	 *
-	 t_list *aux = list_create();
-	 char **descompresion = descomprimir_memoria(resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
-	for(int i=0; descompresion[i]!=NULL; i+=3){
-		knownMemory_t *memoria;
-		if((memoria = machearMemoria(atoi(descompresion[i]))) == NULL){
-			printf("NO MACHEA\n");
-			knownMemory_t *memoria = malloc(sizeof(knownMemory_t));
-			memoria->memory_number = atoi(descompresion[i]);
-			memoria->ip = descompresion[i+1];
-			memoria->ip_port = descompresion[i+2];
-			list_add(aux, memoria);
-		} else {
-			list_add(aux, memoria);
-
-		}
 
 
-		printf("AGREGO EN LISTA\n %s\n%s\n%s\n",descompresion[i],descompresion[i+1],descompresion[i+2]);
-		//memoria->memory_number = atoi(descompresion[i]);
-		printf("MODIFIQUE NUMERO\n");
-		//memoria->ip = descompresion[i+1];
-		//memoria->ip_port = descompresion[i+2];
-		printf("YA MODIFICO VALORES LISTA\n");
-	}
-	destruir_split_memorias(descompresion);
-	list_destroy(listaMemoriasConocidas); //Libero las referencias de la lista, sin liberar cada uno de sus elementos. Es decir, libero solo los nodos
-	listaMemoriasConocidas = list_duplicate(aux); //Duplico la lista auxiliar con todos los elementos del nuevo describe, manteniendo los del anterior describe (son sus respecrtivos atributos de criterios), y eliminando los viejos (ya que nunca se agregaron a la listaAuxiliar)
-		list_destroy(aux);
-	// Ya agregue las memorias que me llegaron
-	// Logica para enviar mi lista
-	printf("Lista actualizada\n");
-		}*/
-
+/*
 
 	char **descompresion = descomprimir_memoria(resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 	for(int i=0; descompresion[i]!=NULL; i+=3){
@@ -233,9 +202,43 @@ Operacion recibir_gossiping (Operacion resultado){
 		printf("YA MODIFICO VALORES LISTA\n");
 	}
 	destruir_split_memorias(descompresion);
+	*/
 	// Ya agregue las memorias que me llegaron
 	// Logica para enviar mi lista
-	printf("Lista actualizada\n");
+	t_list *aux = list_create();
+		 list_add_all(aux,listaMemoriasConocidas);
+		 char **descompresion = descomprimir_memoria(resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
+		for(int i=0; descompresion[i]!=NULL; i+=3){
+			knownMemory_t *memoria;
+			if((memoria = machearMemoria(atoi(descompresion[i]))) == NULL){
+				printf("NO MACHEA\n");
+				knownMemory_t *memoria = malloc(sizeof(knownMemory_t));
+				memoria->memory_number = atoi(descompresion[i]);
+				memoria->ip = string_from_format(descompresion[i+1]);
+				memoria->ip_port =string_from_format( descompresion[i+2]);
+				printf("AGREGO EN LISTA\n %s\n%s\n%s\n",descompresion[i],descompresion[i+1],descompresion[i+2]);
+				list_add(aux, memoria);
+			} else {
+				printf("MACHEA\n");
+				printf("AGREGO EN LISTA\n %s\n%s\n%s\n",descompresion[i],descompresion[i+1],descompresion[i+2]);
+
+
+			}
+
+
+
+			printf("MODIFIQUE NUMERO\n");
+			printf("YA MODIFICO VALORES LISTA\n");
+		}
+		destruir_split_memorias(descompresion);
+		list_destroy(listaMemoriasConocidas); //Libero las referencias de la lista, sin liberar cada uno de sus elementos. Es decir, libero solo los nodos
+		listaMemoriasConocidas = list_duplicate(aux); //Duplico la lista auxiliar con todos los elementos del nuevo describe, manteniendo los del anterior describe (son sus respecrtivos atributos de criterios), y eliminando los viejos (ya que nunca se agregaron a la listaAuxiliar)
+			list_destroy(aux);
+		// Ya agregue las memorias que me llegaron
+		// Logica para enviar mi lista
+		printf("Lista actualizada\n");
+
+
 
 	for(int i = 0; list_size(listaMemoriasConocidas ) > i ; i++) {
 			 printf("Entro en lista\n");
