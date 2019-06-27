@@ -123,6 +123,10 @@ void *connection_handler(void *nSocket) {
 		resultado = recibir_gossiping(resultado);
 		send_msg(socket, resultado);
 		break;
+	case GOSSIPING_REQUEST_KERNEL:
+		resultado = recibir_gossiping(resultado);
+		send_msg(socket, resultado);
+		break;
 	default:
 		fprintf(stderr, RED"No se pude interpretar el enum %d"STD"\n",
 				resultado.TipoDeMensaje);

@@ -181,6 +181,7 @@ Operacion recibir_gossiping (Operacion resultado){
 	printf("ENTRO FUNCION RECIBIR GOSSIPING\n");
 
 
+
 /*
 
 	char **descompresion = descomprimir_memoria(resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
@@ -205,6 +206,7 @@ Operacion recibir_gossiping (Operacion resultado){
 	*/
 	// Ya agregue las memorias que me llegaron
 	// Logica para enviar mi lista
+	if(resultado.TipoDeMensaje == GOSSIPING_REQUEST){	// si es gossping request, proceso las memorias que me envian
 	t_list *aux = list_create();
 		 list_add_all(aux,listaMemoriasConocidas);
 		 char **descompresion = descomprimir_memoria(resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
@@ -237,9 +239,10 @@ Operacion recibir_gossiping (Operacion resultado){
 		// Ya agregue las memorias que me llegaron
 		// Logica para enviar mi lista
 		printf("Lista actualizada\n");
+	}
 
 
-
+	// Preparo mensaje para enviar mis memorias conocidas
 	for(int i = 0; list_size(listaMemoriasConocidas ) > i ; i++) {
 			 printf("Entro en lista\n");
 			 recupero  = (knownMemory_t *)list_get(listaMemoriasConocidas , i);
