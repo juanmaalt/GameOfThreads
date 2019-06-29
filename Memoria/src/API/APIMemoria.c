@@ -120,7 +120,6 @@ Operacion selectAPI(char* input, Comando comando) {
 					return resultadoSelect;
 				}
 
-				//TODO: PUEDE DEVOLVER FULL OJOOOOOO, en este caso el resultado de select es ERROR con mensaje MEMORIA FULL
 				return resultadoSelect;
 			}else { //SE DEVUELVE EL ERROR QUE DA EL LFS
 				return resultadoSelect;

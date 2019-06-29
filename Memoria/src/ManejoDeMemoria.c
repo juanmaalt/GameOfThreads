@@ -76,7 +76,7 @@ int hayPaginaDisponible(void) {
 
 // Se debe tener en cuenta que la página a reemplazar no debe tener el Flag de Modificado activado
 
-int insertarPaginaDeSegmento(char* value, uint16_t key, timestamp_t ts, segmento_t * segmento, bool esInsert) { //TODO: PUEDE DEVOLVER FULL OJOOOOOO
+int insertarPaginaDeSegmento(char* value, uint16_t key, timestamp_t ts, segmento_t * segmento, bool esInsert) {
 
 	if (hayPaginaDisponible()) {
 		crearRegistroEnTabla(segmento->tablaPaginas,colocarPaginaEnMemoria(ts, key, value), esInsert);
@@ -132,7 +132,6 @@ void actualizarValueDeKey(char *value, registroTablaPag_t *registro){
 }
 
 int crearSegmentoInsertandoRegistro(char * nombreTabla, char* value, timestamp_t ts, uint16_t key, bool esInsert){
-	//TODO: PUEDE DEVOLVER FULL en la parte de insertar
 
 	//Crear un segmento
 	segmento_t* segmentoNuevo = malloc(sizeof(segmento_t));
@@ -147,7 +146,7 @@ int crearSegmentoInsertandoRegistro(char * nombreTabla, char* value, timestamp_t
 	//Agregar segmento Nuevo a tabla de segmentos
 	list_add(tablaSegmentos.listaSegmentos, (segmento_t*) segmentoNuevo);
 
-	return insertarPaginaDeSegmento(value, key, ts, segmentoNuevo, esInsert); //TODO: PUEDE DEVOLVER FULL OJOOOOOO
+	return insertarPaginaDeSegmento(value, key, ts, segmentoNuevo, esInsert);
 
 
 }
