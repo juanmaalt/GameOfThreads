@@ -220,8 +220,18 @@ Operacion recibir_gossiping (Operacion resultado){
 				memoria->memory_number = atoi(descompresion[i]);
 				memoria->ip = string_from_format(descompresion[i+1]);
 				memoria->ip_port =string_from_format( descompresion[i+2]);
-				printf("AGREGO EN LISTA\n %s\n%s\n%s\n",descompresion[i],descompresion[i+1],descompresion[i+2]);
-				list_add(aux, memoria);
+				int socketNew = connect_to_server(descompresion[i+1],descompresion[i+2]);
+		 				if (socketNew == EXIT_FAILURE) {
+		 					log_error(logger_invisible, "La memoria no esta activa");
+		 					printf("No activa\n");
+
+		 					// Debo quitar del diccionario esta memoria ya que no esta
+		 				} else {
+		 					list_add(listaMemoriasConocidas, memoria);
+		 					close(socketNew);
+		 				}
+				//printf("AGREGO EN LISTA\n %s\n%s\n%s\n",descompresion[i],descompresion[i+1],descompresion[i+2]);
+				//list_add(aux, memoria);
 			} else {
 				printf("MACHEA\n");
 				printf("AGREGO EN LISTA\n %s\n%s\n%s\n",descompresion[i],descompresion[i+1],descompresion[i+2]);
