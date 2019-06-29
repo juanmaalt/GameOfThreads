@@ -114,13 +114,13 @@ Operacion selectAPI(char* input, Comando comando) {
 			if(resultadoSelect.TipoDeMensaje==REGISTRO){
 				//INSERTAR VALOR EN BLOQUE DE MEMORIA Y METER CREAR REGISTRO EN TABLA DE PAGINAS DEL SEGMENTO
 
-				if(insertarPaginaDeSegmento(resultadoSelect.Argumentos.REGISTRO.value, keyBuscada, resultadoSelect.Argumentos.REGISTRO.timestamp, segmentoSeleccionado, false)== ERROR_MEMORIA_FULL){
-					resultadoSelect.TipoDeMensaje = ERROR;
-					resultadoSelect.Argumentos.ERROR.mensajeError= string_from_format("MEMORIA FULL, REALIZAR JOURNAL");
+				if(insertarPaginaDeSegmento(resultadoSelect.Argumentos.REGISTRO.value, keyBuscada, resultadoSelect.Argumentos.REGISTRO.timestamp, segmentoSeleccionado, false)== EXIT_SUCCESS){
 					return resultadoSelect;
 				}
-
+				resultadoSelect.TipoDeMensaje = ERROR;
+				resultadoSelect.Argumentos.ERROR.mensajeError= string_from_format("MEMORIA FULL, REALIZAR JOURNAL");
 				return resultadoSelect;
+
 			}else { //SE DEVUELVE EL ERROR QUE DA EL LFS
 				return resultadoSelect;
 			}
@@ -134,21 +134,19 @@ Operacion selectAPI(char* input, Comando comando) {
 		enviarRequestFS(input);
 
 		resultadoSelect=recibirRequestFS();
+
 		if(resultadoSelect.TipoDeMensaje==REGISTRO){
-			if(crearSegmentoInsertandoRegistro(comando.argumentos.SELECT.nombreTabla, resultadoSelect.Argumentos.REGISTRO.value, resultadoSelect.Argumentos.REGISTRO.timestamp, keyBuscada, false)== ERROR_MEMORIA_FULL){
-				resultadoSelect.TipoDeMensaje = ERROR;
-				resultadoSelect.Argumentos.ERROR.mensajeError= string_from_format("MEMORIA FULL, REALIZAR JOURNAL");
+			if(crearSegmentoInsertandoRegistro(comando.argumentos.SELECT.nombreTabla, resultadoSelect.Argumentos.REGISTRO.value, resultadoSelect.Argumentos.REGISTRO.timestamp, keyBuscada, false)== EXIT_SUCCESS){
+
 				return resultadoSelect;
 			}
-			return resultadoSelect;
-		}else {
+
+			resultadoSelect.TipoDeMensaje = ERROR;
+			resultadoSelect.Argumentos.ERROR.mensajeError= string_from_format("MEMORIA FULL, REALIZAR JOURNAL");
 			return resultadoSelect;
 		}
-	 }
-
-	resultadoSelect.Argumentos.ERROR.mensajeError = string_from_format(
-			"NO SE HA ENCONTRADO LA KEY");
-	return resultadoSelect;
+		return resultadoSelect;
+	}
 
 }
 /*
@@ -210,34 +208,36 @@ Operacion insertAPI(char* input, Comando comando) {
 
 		} else {//No contiene la KEY, se solicita una nueva página para almacenar la misma.
 
-			if(insertarPaginaDeSegmento(comando.argumentos.INSERT.value, keyBuscada,getCurrentTime(), segmentoSeleccionado, true)== ERROR_MEMORIA_FULL){
-				resultadoInsert.TipoDeMensaje = ERROR;
-				resultadoInsert.Argumentos.ERROR.mensajeError= string_from_format("MEMORIA FULL, REALIZAR JOURNAL");
+			if(insertarPaginaDeSegmento(comando.argumentos.INSERT.value, keyBuscada,getCurrentTime(), segmentoSeleccionado, true)== EXIT_SUCCESS){
+				resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
+				resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format(
+									"INSERT REALIZADO CON EXITO");
 				return resultadoInsert;
 			}
 
-			resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
-			resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format(
-					"INSERT REALIZADO CON EXITO");
-
+			resultadoInsert.TipoDeMensaje = ERROR;
+			resultadoInsert.Argumentos.ERROR.mensajeError= string_from_format("MEMORIA FULL, REALIZAR JOURNAL");
 			return resultadoInsert;
+
+
 		}
 	} else {	//NO EXISTE SEGMENTO
 		/*
 		 * se creará y se agregará la nueva Key con el Timestamp actual,
 		 junto con el nombre de la tabla en el segmento. Para esto se debe generar el nuevo segmento y solicitar una nueva página
 		 */
-		if(crearSegmentoInsertandoRegistro(comando.argumentos.INSERT.nombreTabla, comando.argumentos.INSERT.value, getCurrentTime(), keyBuscada, true) == ERROR_MEMORIA_FULL){
-			resultadoInsert.TipoDeMensaje = ERROR;
-			resultadoInsert.Argumentos.ERROR.mensajeError= string_from_format("MEMORIA FULL, REALIZAR JOURNAL");
+		if(crearSegmentoInsertandoRegistro(comando.argumentos.INSERT.nombreTabla, comando.argumentos.INSERT.value, getCurrentTime(), keyBuscada, true) == EXIT_SUCCESS){
+			resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
+			resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format(
+					"INSERT REALIZADO CON EXITO");
+
 			return resultadoInsert;
 		}
 
-		resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
-		resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format(
-				"INSERT REALIZADO CON EXITO");
-
+		resultadoInsert.TipoDeMensaje = ERROR;
+		resultadoInsert.Argumentos.ERROR.mensajeError= string_from_format("MEMORIA FULL, REALIZAR JOURNAL");
 		return resultadoInsert;
+
 	}
 
 }
