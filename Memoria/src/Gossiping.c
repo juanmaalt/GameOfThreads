@@ -138,7 +138,7 @@ void conectarConSeed() {
 	 request.Argumentos.GOSSIPING_REQUEST.resultado_comprimido = envio;
 
 	 send_msg(socketSEEDS,request);
-	 printf("Envio\n");
+	 printf("Envio %d\n",request.TipoDeMensaje);
 	 request = recv_msg(socketSEEDS);
 	 printf("Respuesta\n");
 
@@ -214,6 +214,8 @@ Operacion recibir_gossiping (Operacion resultado){
 			knownMemory_t *memoria;
 			if((memoria = machearMemoria(atoi(descompresion[i]))) == NULL){
 				printf("NO MACHEA\n");
+
+
 				knownMemory_t *memoria = malloc(sizeof(knownMemory_t));
 				memoria->memory_number = atoi(descompresion[i]);
 				memoria->ip = string_from_format(descompresion[i+1]);
