@@ -76,14 +76,15 @@ int hayPaginaDisponible(void) {
 
 // Se debe tener en cuenta que la página a reemplazar no debe tener el Flag de Modificado activado
 
-void insertarPaginaDeSegmento(char* value, uint16_t key, timestamp_t ts, segmento_t * segmento, bool esInsert) { //TODO: PUEDE DEVOLVER FULL OJOOOOOO
+int insertarPaginaDeSegmento(char* value, uint16_t key, timestamp_t ts, segmento_t * segmento, bool esInsert) { //TODO: PUEDE DEVOLVER FULL OJOOOOOO
+
 	if (hayPaginaDisponible()) {
 		crearRegistroEnTabla(segmento->tablaPaginas,colocarPaginaEnMemoria(ts, key, value), esInsert);
-		//TODO: no olvidar
 		printf("Se ingreso el registro\n");
+		return EXIT_SUCCESS;
 
 	} else {//aplicar el algoritmo de reemplazo (LRU) y en caso de que la memoria se encuentre full iniciar el proceso Journal.
-		printf("HACER LRU Y SINO AVISAR QUE SE DEBE REALIZAR JOURNAL YA QUE LA MEMORIA ESTA FULL\n");
+		return ERROR_MEMORIA_FULL;
 	}
 }
 
@@ -130,7 +131,7 @@ void actualizarValueDeKey(char *value, registroTablaPag_t *registro){
 
 }
 
-void crearSegmentoInsertandoRegistro(char * nombreTabla, char* value, timestamp_t ts, uint16_t key, bool esInsert){
+int crearSegmentoInsertandoRegistro(char * nombreTabla, char* value, timestamp_t ts, uint16_t key, bool esInsert){
 	//TODO: PUEDE DEVOLVER FULL en la parte de insertar
 
 	//Crear un segmento
@@ -143,9 +144,11 @@ void crearSegmentoInsertandoRegistro(char * nombreTabla, char* value, timestamp_
 	segmentoNuevo->tablaPaginas = malloc(sizeof(tabla_de_paginas_t));
 	segmentoNuevo->tablaPaginas->registrosPag = list_create();
 
-	insertarPaginaDeSegmento(value, key, ts, segmentoNuevo, esInsert); //TODO: PUEDE DEVOLVER FULL OJOOOOOO
-
 	//Agregar segmento Nuevo a tabla de segmentos
 	list_add(tablaSegmentos.listaSegmentos, (segmento_t*) segmentoNuevo);
+
+	return insertarPaginaDeSegmento(value, key, ts, segmentoNuevo, esInsert); //TODO: PUEDE DEVOLVER FULL OJOOOOOO
+
+
 }
 

@@ -203,9 +203,11 @@ Operacion insertAPI(char* input, Comando comando) {
 
 		} else {//No contiene la KEY, se solicita una nueva página para almacenar la misma.
 
-			insertarPaginaDeSegmento(comando.argumentos.INSERT.value, keyBuscada,getCurrentTime(), segmentoSeleccionado, true);
-
-			//TODO: PUEDE DEVOLVER FULL OJOOOOOO, en este caso el resultado de INSERT es ERROR con mensaje MEMORIA FULL
+			if(insertarPaginaDeSegmento(comando.argumentos.INSERT.value, keyBuscada,getCurrentTime(), segmentoSeleccionado, true)== ERROR_MEMORIA_FULL){
+				resultadoInsert.TipoDeMensaje = ERROR;
+				resultadoInsert.Argumentos.ERROR.mensajeError=resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format("MEMORIA FULL, REALIZAR JOURNAL");
+				return resultadoInsert;
+			}
 
 			resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
 			resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format(
@@ -218,10 +220,11 @@ Operacion insertAPI(char* input, Comando comando) {
 		 * se creará y se agregará la nueva Key con el Timestamp actual,
 		 junto con el nombre de la tabla en el segmento. Para esto se debe generar el nuevo segmento y solicitar una nueva página
 		 */
-
-		crearSegmentoInsertandoRegistro(comando.argumentos.INSERT.nombreTabla, comando.argumentos.INSERT.value, getCurrentTime(), keyBuscada, true);
-
-		//TODO: PUEDE DEVOLVER FULL OJOOOOOO, en este caso el resultado de INSERT es ERROR con mensaje MEMORIA FULL
+		if(crearSegmentoInsertandoRegistro(comando.argumentos.INSERT.nombreTabla, comando.argumentos.INSERT.value, getCurrentTime(), keyBuscada, true) == ERROR_MEMORIA_FULL){
+			resultadoInsert.TipoDeMensaje = ERROR;
+			resultadoInsert.Argumentos.ERROR.mensajeError=resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format("MEMORIA FULL, REALIZAR JOURNAL");
+			return resultadoInsert;
+		}
 
 		resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
 		resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format(

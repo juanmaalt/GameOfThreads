@@ -29,11 +29,11 @@ Operacion tomarContenidoPagina(registroTablaPag_t);
 
 int hayPaginaDisponible(void);
 
-void insertarPaginaDeSegmento(char* , uint16_t , timestamp_t, segmento_t * , bool); //bool para indicar se es INSERT o SELECT
+int insertarPaginaDeSegmento(char* , uint16_t , timestamp_t, segmento_t * , bool); //bool para indicar se es INSERT o SELECT
 
 void actualizarValueDeKey(char *, registroTablaPag_t *);
 
-void crearSegmentoInsertandoRegistro(char * , char*, timestamp_t , uint16_t, bool); //bool para indicar se es INSERT o SELECT
+int crearSegmentoInsertandoRegistro(char * , char*, timestamp_t , uint16_t, bool); //bool para indicar se es INSERT o SELECT
 
 
 
