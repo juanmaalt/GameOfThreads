@@ -114,7 +114,11 @@ Operacion selectAPI(char* input, Comando comando) {
 			if(resultadoSelect.TipoDeMensaje==REGISTRO){
 				//INSERTAR VALOR EN BLOQUE DE MEMORIA Y METER CREAR REGISTRO EN TABLA DE PAGINAS DEL SEGMENTO
 
-				insertarPaginaDeSegmento(resultadoSelect.Argumentos.REGISTRO.value, keyBuscada, resultadoSelect.Argumentos.REGISTRO.timestamp, segmentoSeleccionado, false);
+				if(insertarPaginaDeSegmento(resultadoSelect.Argumentos.REGISTRO.value, keyBuscada, resultadoSelect.Argumentos.REGISTRO.timestamp, segmentoSeleccionado, false)== ERROR_MEMORIA_FULL){
+					resultadoSelect.TipoDeMensaje = ERROR;
+					resultadoSelect.Argumentos.ERROR.mensajeError= string_from_format("MEMORIA FULL, REALIZAR JOURNAL");
+					return resultadoSelect;
+				}
 
 				//TODO: PUEDE DEVOLVER FULL OJOOOOOO, en este caso el resultado de select es ERROR con mensaje MEMORIA FULL
 				return resultadoSelect;
@@ -132,7 +136,11 @@ Operacion selectAPI(char* input, Comando comando) {
 
 		resultadoSelect=recibirRequestFS();
 		if(resultadoSelect.TipoDeMensaje==REGISTRO){
-			crearSegmentoInsertandoRegistro(comando.argumentos.SELECT.nombreTabla, resultadoSelect.Argumentos.REGISTRO.value, resultadoSelect.Argumentos.REGISTRO.timestamp, keyBuscada, false);
+			if(crearSegmentoInsertandoRegistro(comando.argumentos.SELECT.nombreTabla, resultadoSelect.Argumentos.REGISTRO.value, resultadoSelect.Argumentos.REGISTRO.timestamp, keyBuscada, false)== ERROR_MEMORIA_FULL){
+				resultadoSelect.TipoDeMensaje = ERROR;
+				resultadoSelect.Argumentos.ERROR.mensajeError= string_from_format("MEMORIA FULL, REALIZAR JOURNAL");
+				return resultadoSelect;
+			}
 			return resultadoSelect;
 		}else {
 			return resultadoSelect;
@@ -205,7 +213,7 @@ Operacion insertAPI(char* input, Comando comando) {
 
 			if(insertarPaginaDeSegmento(comando.argumentos.INSERT.value, keyBuscada,getCurrentTime(), segmentoSeleccionado, true)== ERROR_MEMORIA_FULL){
 				resultadoInsert.TipoDeMensaje = ERROR;
-				resultadoInsert.Argumentos.ERROR.mensajeError=resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format("MEMORIA FULL, REALIZAR JOURNAL");
+				resultadoInsert.Argumentos.ERROR.mensajeError= string_from_format("MEMORIA FULL, REALIZAR JOURNAL");
 				return resultadoInsert;
 			}
 
@@ -222,7 +230,7 @@ Operacion insertAPI(char* input, Comando comando) {
 		 */
 		if(crearSegmentoInsertandoRegistro(comando.argumentos.INSERT.nombreTabla, comando.argumentos.INSERT.value, getCurrentTime(), keyBuscada, true) == ERROR_MEMORIA_FULL){
 			resultadoInsert.TipoDeMensaje = ERROR;
-			resultadoInsert.Argumentos.ERROR.mensajeError=resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format("MEMORIA FULL, REALIZAR JOURNAL");
+			resultadoInsert.Argumentos.ERROR.mensajeError= string_from_format("MEMORIA FULL, REALIZAR JOURNAL");
 			return resultadoInsert;
 		}
 
