@@ -314,15 +314,25 @@ Operacion dropAPI(char* input, Comando comando) {
 		liberarSegmento(segmentoSeleccionado);
 
 		printf("Drop realizado\n");
-
+		/*
 		resultadoDrop.TipoDeMensaje = TEXTO_PLANO;
 		resultadoDrop.Argumentos.TEXTO_PLANO.texto = string_from_format(
 				"Drop realizado con exito");
+*/
 	} else {
+		/*
 		resultadoDrop.TipoDeMensaje = ERROR;
 		resultadoDrop.Argumentos.ERROR.mensajeError = string_from_format(
-				"La tabla buscada no existe en memoria");
+				"La tabla buscada no existe en memoria, se envia la request al File System");
+				*/
 	}
+	//Enviar al FS la operacion
+	enviarRequestFS(input);
+
+	//Lo que recibo del FS lo retorno
+
+	resultadoDrop=recibirRequestFS();
+
 	return resultadoDrop;
 
 }
