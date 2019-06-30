@@ -42,6 +42,8 @@ void crearRegistroEnTabla(tabla_de_paginas_t *tablaDondeSeEncuentra, int indiceM
 
 	registroACrear->nroMarco = indiceMarco;
 
+	registroACrear->ultimoUso=getCurrentTime();
+
 	registroACrear->flagModificado=esInsert;
 
 	list_add(tablaDondeSeEncuentra->registrosPag,(registroTablaPag_t*) registroACrear);
@@ -70,21 +72,71 @@ int colocarPaginaEnMemoria(timestamp_t timestamp, uint16_t key, char* value) { /
 	return marcoObjetivo->nroMarco;
 }
 
-int hayPaginaDisponible(void) {
+int hayMarcoDisponible(void) {
 	return queue_is_empty(memoriaPrincipal.marcosLibres) != true;
 }
 
 // Se debe tener en cuenta que la página a reemplazar no debe tener el Flag de Modificado activado
 
+int realizarLRU(char* value, uint16_t key, timestamp_t ts, segmento_t * segmento, bool esInsert){
+	registroTablaPag_t* registroVictima = NULL;
+	segmento_t* segmentoDeVictima = NULL;
+	bool primerMacheo = true;
+
+	void buscarSegmentoDeNuevaVictima(void * segmento){
+
+		void buscarRegistroVictima(void* registro){
+			if((((registroTablaPag_t *) registro)->flagModificado==false) && primerMacheo){
+				registroVictima=(registroTablaPag_t *) registro;
+				segmentoDeVictima= (segmento_t *) segmento;
+				primerMacheo=false;
+				return;
+			}
+
+			if((((registroTablaPag_t *) registro)->flagModificado==false) && (registroVictima->ultimoUso > ((registroTablaPag_t *) registro)->ultimoUso)){
+				registroVictima= (registroTablaPag_t *) registro;
+				segmentoDeVictima= (segmento_t *) segmento;
+				return;
+			}
+		}
+
+		list_iterate(((segmento_t *) segmento)->tablaPaginas->registrosPag, buscarRegistroVictima);
+
+	}
+
+	list_iterate(tablaSegmentos.listaSegmentos, buscarSegmentoDeNuevaVictima);
+
+	if(registroVictima != NULL){
+		printf("LIBERANDO REGISTRO Y CREANDO NUEVO\n");
+		//Elimino el registro
+		//TODO: LIBERAR REGISTRO
+		bool esRegistroVictima(void * registro){
+			return ((registroTablaPag_t *) registro)-> nroMarco == registroVictima ->nroMarco;
+		}
+		void eliminarRegistroVictima(void *registro){
+			free((registroTablaPag_t *)registro);
+		}
+		list_remove_and_destroy_by_condition(segmentoDeVictima->tablaPaginas->registrosPag,
+				esRegistroVictima, liberarRegistroTablaPags);
+
+
+		crearRegistroEnTabla(segmento->tablaPaginas,colocarPaginaEnMemoria(ts, key, value), esInsert);
+		return EXIT_SUCCESS;
+	}
+
+	return ERROR_MEMORIA_FULL;
+}
+
 int insertarPaginaDeSegmento(char* value, uint16_t key, timestamp_t ts, segmento_t * segmento, bool esInsert) {
 
-	if (hayPaginaDisponible()) {
+	if(hayMarcoDisponible()) {
 		crearRegistroEnTabla(segmento->tablaPaginas,colocarPaginaEnMemoria(ts, key, value), esInsert);
 		printf("Se ingreso el registro\n");
 		return EXIT_SUCCESS;
 
 	} else {//aplicar el algoritmo de reemplazo (LRU) y en caso de que la memoria se encuentre full iniciar el proceso Journal.
-		return ERROR_MEMORIA_FULL;
+		printf("INICIO LRU \n");
+		return realizarLRU(value, key, ts, segmento, esInsert);   //ERROR_MEMORIA_FULL;
 	}
 }
 
@@ -121,8 +173,9 @@ Operacion tomarContenidoPagina(registroTablaPag_t registro) {
 void actualizarValueDeKey(char *value, registroTablaPag_t *registro){
 	void * direccionMarco = memoriaPrincipal.memoria + memoriaPrincipal.tamanioMarco * registro->nroMarco;
 
-	//Seteo el flag de Modificado
+	//Seteo el flag de Modificado y actualizo uso
 	registro->flagModificado=true;
+	registro->ultimoUso=getCurrentTime();
 
 	timestamp_t tsActualizado = getCurrentTime();
 
@@ -133,20 +186,25 @@ void actualizarValueDeKey(char *value, registroTablaPag_t *registro){
 
 int crearSegmentoInsertandoRegistro(char * nombreTabla, char* value, timestamp_t ts, uint16_t key, bool esInsert){
 
-	//Crear un segmento
-	segmento_t* segmentoNuevo = malloc(sizeof(segmento_t));
+	if(hayMarcoDisponible()){
+		//Crear un segmento
+		segmento_t* segmentoNuevo = malloc(sizeof(segmento_t));
+		//Asignar path determinado
+		asignarPathASegmento(segmentoNuevo, nombreTabla);
+		//Crear su tabla de paginas
+		segmentoNuevo->tablaPaginas = malloc(sizeof(tabla_de_paginas_t));
+		segmentoNuevo->tablaPaginas->registrosPag = list_create();
 
-	//Asignar path determinado
-	asignarPathASegmento(segmentoNuevo, nombreTabla);
+		insertarPaginaDeSegmento(value, key, ts, segmentoNuevo, esInsert);
 
-	//Crear su tabla de paginas
-	segmentoNuevo->tablaPaginas = malloc(sizeof(tabla_de_paginas_t));
-	segmentoNuevo->tablaPaginas->registrosPag = list_create();
+		//Agregar segmento Nuevo a tabla de segmentos
+		list_add(tablaSegmentos.listaSegmentos, (segmento_t*) segmentoNuevo);
 
-	//Agregar segmento Nuevo a tabla de segmentos
-	list_add(tablaSegmentos.listaSegmentos, (segmento_t*) segmentoNuevo);
+		return EXIT_SUCCESS;
+	}
 
-	return insertarPaginaDeSegmento(value, key, ts, segmentoNuevo, esInsert);
+
+	return ERROR_MEMORIA_FULL;
 
 
 }

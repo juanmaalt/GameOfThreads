@@ -62,8 +62,8 @@ void liberarRecursos(void) {
 	}else{
 		list_destroy_and_destroy_elements(tablaSegmentos.listaSegmentos, liberarSegmento);
 	}
-	liberarIPs(IPs);
-	liberarIPs(IPsPorts);
+	//liberarIPs(IPs);
+	//liberarIPs(IPsPorts);
 	queue_clean(memoriaPrincipal.marcosLibres);
 	queue_destroy(memoriaPrincipal.marcosLibres);
 

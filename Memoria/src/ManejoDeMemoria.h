@@ -27,7 +27,9 @@ void crearRegistroEnTabla(tabla_de_paginas_t *, int ,bool);
 
 Operacion tomarContenidoPagina(registroTablaPag_t);
 
-int hayPaginaDisponible(void);
+int hayMarcoDisponible(void);
+
+int realizarLRU(char* , uint16_t , timestamp_t, segmento_t * , bool); //bool para indicar se es INSERT o SELECT
 
 int insertarPaginaDeSegmento(char* , uint16_t , timestamp_t, segmento_t * , bool); //bool para indicar se es INSERT o SELECT
 

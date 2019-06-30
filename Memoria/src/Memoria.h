@@ -109,6 +109,7 @@ typedef struct marco{
 //typedef void pagina_t;
 
 typedef struct registroTablaPag{
+	timestamp_t ultimoUso;		//Para LRU
 	bool flagModificado;
 	int nroPagina;
 	int nroMarco; //coincide con el numero de marco en memoria

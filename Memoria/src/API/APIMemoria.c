@@ -102,6 +102,8 @@ Operacion selectAPI(char* input, Comando comando) {
 		if (contieneKey(segmentoSeleccionado, keyBuscada, &registroBuscado)) {
 
 			resultadoSelect = tomarContenidoPagina(*registroBuscado);
+			//Actualizo uso
+			registroBuscado->ultimoUso=getCurrentTime();
 
 			return resultadoSelect;
 
@@ -111,6 +113,7 @@ Operacion selectAPI(char* input, Comando comando) {
 			enviarRequestFS(input);
 
 			resultadoSelect=recibirRequestFS();
+
 			if(resultadoSelect.TipoDeMensaje==REGISTRO){
 				//INSERTAR VALOR EN BLOQUE DE MEMORIA Y METER CREAR REGISTRO EN TABLA DE PAGINAS DEL SEGMENTO
 
@@ -355,8 +358,7 @@ void mostrarRegistrosConFlagDeModificado(void){
 		void muestroRegistro(void* registro){
 
 			void mostrarRetorno(Operacion retorno) {
-							printf("REGISTRO\n");
-							printf("Timestamp: %llu\nKey:%d\nValue: %s\n",
+							printf("Timestamp: %llu\nKey:%d\nValue: %s\n\n",
 									retorno.Argumentos.REGISTRO.timestamp,
 									retorno.Argumentos.REGISTRO.key,
 									retorno.Argumentos.REGISTRO.value);
@@ -364,8 +366,12 @@ void mostrarRegistrosConFlagDeModificado(void){
 
 			}
 
-			if(((registroTablaPag_t *) registro)->flagModificado){
+			if(/*((registroTablaPag_t *) registro)->flagModificado*/1){
+				printf("REGISTRO\n\n");
+				printf("Ultimo uso: %llu\n",((registroTablaPag_t *) registro)->ultimoUso);
+				printf("Flag Modificado: %d\n",((registroTablaPag_t *) registro)->flagModificado);
 				mostrarRetorno(tomarContenidoPagina(*((registroTablaPag_t *) registro)));
+
 			}
 		}
 
@@ -383,8 +389,9 @@ void mostrarRegistrosConFlagDeModificado(void){
 Operacion journalAPI(){
 	Operacion resultadoJournal;
 	char * input;
-	usleep(vconfig.retardoJOURNAL() * 1000);
+	//usleep(vconfig.retardoJOURNAL() * 1000);
 
+	/*
 	//char*   string_from_format(const char* format, ...);
 	//1. Por cada MCB en la listaAdminMarcos ver si tiene el flag de modificado
 	//(si en vez de tener en esa lista, lo tengo en la tabla de paginas de cada segmento, ya tengo la tabla PENSAR )
@@ -409,8 +416,8 @@ Operacion journalAPI(){
 
 	}
 	return resultadoJournal;
-
-	//mostrarRegistrosConFlagDeModificado();
+*/
+	mostrarRegistrosConFlagDeModificado();
 }
 
 
