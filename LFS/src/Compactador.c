@@ -18,7 +18,7 @@ void compactar(char* nombreTabla){
 	strcat(pathTabla, "/");
 	strcat(pathTabla, nombreTabla);
 
-	printf("path: %s\n", pathTabla);
+	//printf("path: %s\n", pathTabla);
 
 	if((dir = opendir(pathTabla)) != NULL){
 		/*Cambio el nombre de los archivos temporales de .tmp a .tmpc*/
@@ -34,21 +34,22 @@ void compactar(char* nombreTabla){
 
 				strcpy(pathFile, pathTabla);
 				strcat(pathFile, "/");
-				strcat(pathFile, "nombreArchivo");
+				strcat(pathFile, nombreArchivo);
 
-				//FILE* temp= fopen(pathFile, "r");
+				FILE* temp;
+			    int timestamp, key;
+			    char value[1000];
 
-/*
-				while(leer(temp)!=EOF){
-					//leerLinea();
-					//calcularParticion();
-					//agregarBloqueEnParticion();
-					//escribirLineaEnBloque(); //Ver el primer bloque disponible, ver cuanto lenght queda, escribir hasta donde se pueda y lo que sigue en otro bloque
+			    log_info(logger_visible, "Compactar(%s): [%s] es un archivo temporal, compactar\n", nombreTabla, nombreArchivo);
+
+				temp= fopen(pathFile, "r");
+				while(fscanf(temp, "%d;%d;%[^\n]s", &timestamp, &key, value)!= EOF){
+					printf("%d;%d;%s\n", timestamp, key ,value);
 				}
-*/
+				fclose(temp);
 			}
 			else{
-				printf("No hay archivos temporales para compactar\n");
+				log_info(logger_visible, "Compactar(%s): [%s] no es un archivo temporal, no compactar\n", nombreTabla, nombreArchivo);
 			}
 		}
 
