@@ -208,6 +208,7 @@ Operacion recibir_gossiping (Operacion resultado){
 	// Logica para enviar mi lista
 	if(resultado.TipoDeMensaje == GOSSIPING_REQUEST){	// si es gossping request, proceso las memorias que me envian
 	t_list *aux = list_create();
+	t_list *aux_filtro = list_create();
 		 list_add_all(aux,listaMemoriasConocidas);
 		 char **descompresion = descomprimir_memoria(resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 		for(int i=0; descompresion[i]!=NULL; i+=3){
@@ -225,7 +226,8 @@ Operacion recibir_gossiping (Operacion resultado){
 		 					log_error(logger_invisible, "La memoria no esta activa");
 		 					printf("No activa\n");
 
-		 					// Debo quitar del diccionario esta memoria ya que no esta
+		 					// Debo quitar de la lista esta memoria ya que no esta
+
 		 				} else {
 		 					list_add(listaMemoriasConocidas, memoria);
 		 					close(socketNew);
