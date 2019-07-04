@@ -56,13 +56,15 @@ int iniciar_gossiping() {
 
 void *conectar_seeds(void *null) { // hilo envia a las seeds
 	pthread_detach(pthread_self());
-	conectarConSeed();
+	//conectarConSeed();
 	// puertoSocket = ConsultoPorMemoriasConocidas(puertoSocket);
 	//liberarIPs(IPs);
 	//liberarIPs(IPsPorts);
-	//for (;;) {
+	for (;;) {
+		conectarConSeed();
+		usleep(vconfig.retardoGossiping() * 1000);
 	// Envia mensaje a las seeds que conoce
-// }
+ }
 	return NULL;
 }
 
@@ -120,6 +122,7 @@ void conectarConSeed() {
 
 
  void ConsultoPorMemoriasConocidas(int socketSEEDS) {
+
 	 Operacion request;
 	 char * envio = NULL;
 	 knownMemory_t * recupero;
@@ -142,8 +145,13 @@ void conectarConSeed() {
 	 request = recv_msg(socketSEEDS);
 	 printf("Respuesta\n");
 
-
-
+	 t_list *aux = list_create();
+/*
+	 recibo lista.
+	 elemento no machea => agrego en aux (es nuevo)
+	 elemento machea => voy a la lista y la quito. agrego en aux (es viejo)
+	 Al final los que quedan en la lista vieja son las bajas
+	 */
 	 char **descompresion = descomprimir_memoria(request.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 		printf("Mensaje corrido recibido: %s \n",request.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 	 	for(int i=0; descompresion[i]!=NULL; i+=3){
@@ -153,13 +161,31 @@ void conectarConSeed() {
 	 			memoria->memory_number = atoi(descompresion[i]);
 	 			memoria->ip = string_from_format(descompresion[i+1]);
 		 		memoria->ip_port = string_from_format(descompresion[i+2]);
-	 			list_add(listaMemoriasConocidas, memoria);
+	 			list_add(aux, memoria);
+	 		} else {//NO MACHEA
+	 			knownMemory_t *memoria = malloc(sizeof(knownMemory_t));
+	 				 			memoria->memory_number = atoi(descompresion[i]);
+	 				 			memoria->ip = string_from_format(descompresion[i+1]);
+	 					 		memoria->ip_port = string_from_format(descompresion[i+2]);
+	 			list_add(aux,memoria);
+	 			 bool buscarMemoria(void * buscoMemoria){
+	 				return atoi(descompresion[i]) == ((knownMemory_t*)buscoMemoria)->memory_number;
+	 			 }
+	 			 void destruirMemoria ( void * destruir){
+	 				 free(destruir);
+	 			 }
+	 			list_remove_and_destroy_by_condition(listaMemoriasConocidas,buscarMemoria,destruirMemoria);
+
 	 		}
 
 
 	 	}
 
 	 	destruir_split_memorias(descompresion);
+	 	list_destroy(listaMemoriasConocidas); //Libero las referencias de la lista, sin liberar cada uno de sus elementos. Es decir, libero solo los nodos
+	 	listaMemoriasConocidas = list_duplicate(aux); //Duplico la lista auxiliar con todos los elementos del nuevo describe, manteniendo los del anterior describe (son sus respecrtivos atributos de criterios), y eliminando los viejos (ya que nunca se agregaron a la listaAuxiliar)
+	 	list_destroy(aux);
+
 
 	 	printf("Fin GOSSIP\n");
 
@@ -227,10 +253,23 @@ Operacion recibir_gossiping (Operacion resultado){
 		 					printf("No activa\n");
 
 		 					// Debo quitar de la lista esta memoria ya que no esta
+		 					for(int j = 0; list_size(listaMemoriasConocidas ) > j ; j++) {
+		 								 printf("Entro a filtar para quitar de lista\n");
+		 								 recupero  = (knownMemory_t *)list_get(listaMemoriasConocidas , j);
+		 								 if(!(recupero->ip == descompresion[j+1]) && (recupero->ip_port == descompresion[j+2]))
+		 									 list_add(aux_filtro,recupero);
+		 								 concatenar_memoria(&envio, string_from_format("%d", recupero->memory_number) ,recupero->ip , recupero->ip_port);
+		 								 printf("CONCATENO MENSAJE : %s\n",envio);
+		 							 }
+		 					list_destroy(aux); //Libero las referencias de la lista, sin liberar cada uno de sus elementos. Es decir, libero solo los nodos
+		 					aux = list_duplicate(aux_filtro); //Duplico la lista auxiliar con todos los elementos del nuevo describe, manteniendo los del anterior describe (son sus respecrtivos atributos de criterios), y eliminando los viejos (ya que nunca se agregaron a la listaAuxiliar)
+		 						list_destroy(aux_filtro);
+
 
 		 				} else {
-		 					list_add(listaMemoriasConocidas, memoria);
+		 					list_add(aux, memoria);
 		 					close(socketNew);
+		 					printf("Cierro Socket\n");
 		 				}
 				//printf("AGREGO EN LISTA\n %s\n%s\n%s\n",descompresion[i],descompresion[i+1],descompresion[i+2]);
 				//list_add(aux, memoria);
