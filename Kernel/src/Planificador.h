@@ -14,8 +14,10 @@
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <commons/collections/queue.h>
+#include <commons/collections/list.h>
 #include "Kernel.h"
 #include "Unidad_de_ejecucion.h"
+#include "Gossiping.h"
 
 //ESTRUCTURAS
 typedef enum PCB_DataType_e{
@@ -42,5 +44,6 @@ int new(PCB_DataType tipo, void *data, char *nombreArchivoLQL); //Esta funcion v
 PCB *seleccionar_siguiente();
 void desalojar(PCB *pcb);
 void simular_retardo(void);
+int verificar_memoria_principal();
 
 #endif /* PLANIFICADOR_H_ */
