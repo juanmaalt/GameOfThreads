@@ -22,7 +22,7 @@ static Memoria *ec_determinar_memoria(MetadataTabla *tabla);
 
 //FUNCIONES: Privadas: gestion de nuevas tablas
 static MetadataTabla *crear_tabla(char* nombre, char *consistencia, char *particiones, char *tiempoEntreCompactacion);
-
+static Memoria *crear_memoria(int numero, char *ip, char *puerto);
 
 
 
@@ -116,7 +116,7 @@ int procesar_describe(char *cadenaResultadoDescribe){
 	for(int i=0; descompresion[i]!= NULL; i+=4){ //Este for maneja los bloques de la descompresion como 4-upla ya que la cadena esta convenientemente ordenada
 		if((tabla = machearTabla(descompresion[i])) == NULL){ //Buscar la tabla (por nombre) en la lista de tablasExistentes
 			tabla = crear_tabla(descompresion[i], descompresion[i+1], descompresion[i+2], descompresion[i+2]); //Si no se encuentra, creo una nueva
-			if(tabla == NULL) return EXIT_FAILURE;
+			if(tabla == NULL) return EXIT_FAILURE; //El crear tabla puede fallar
 			list_add(listaAuxiliar, tabla); //La agrego a mi lista auxiliar
 		}else{
 			list_add(listaAuxiliar, tabla); //Si se encuentra, agrego esa referencia de tablasExistentes a mi listaAuxiliar. Esto lo hago asi por que hay ciertos atributos que se asignan en momentos distintos, por ejemplo, a una tabla SC se le asigna una memoria, y necesito que siga siendo siempre la misma, por eso quiero usar la misma referencia a esa tabla.
@@ -172,18 +172,22 @@ int procesar_gossiping(char *cadenaResultadoGossiping){
 	if(memoriasExistentes == NULL)
 		return EXIT_FAILURE;
 
+	Memoria *memoria;
+	t_list *listaAuxiliar = list_create();
+
 	char **descompresion = descomprimir_memoria(cadenaResultadoGossiping);
 	for(int i=0; descompresion[i]!=NULL; i+=3){
-		Memoria *memoria;
 		if((memoria = machearMemoria(atoi(descompresion[i]))) == NULL){
-			Memoria *memoria = malloc(sizeof(Memoria));
-			list_add(memoriasExistentes, memoria);
+			memoria = crear_memoria(atoi(descompresion[i]), descompresion[i+1], descompresion[i+2]);
+			list_add(listaAuxiliar, memoria);
+		}else{
+			list_add(listaAuxiliar, memoria);
 		}
-		memoria->numero = atoi(descompresion[i]);
-		memoria->ip = string_from_format(descompresion[i+1]);
-		memoria->puerto = string_from_format(descompresion[i+2]);
 	}
 	destruir_split_memorias(descompresion);
+	list_destroy(tablasExistentes);
+	tablasExistentes = list_duplicate(listaAuxiliar);
+	list_destroy(listaAuxiliar);
 	return EXIT_SUCCESS;
 }
 
@@ -330,5 +334,17 @@ static MetadataTabla *crear_tabla(char* nombre, char *consistencia, char *partic
 	retorno->particiones = atoi(particiones);
 	retorno->tiempoEntreCompactaciones = atoi(tiempoEntreCompactacion);
 	return retorno;
+}
+
+
+
+
+
+static Memoria *crear_memoria(int numero, char *ip, char *puerto){
+	Memoria *memoria = malloc(sizeof(Memoria));
+	memoria->numero = numero;
+	memoria->ip = string_from_format(ip);
+	memoria->puerto = string_from_format(puerto);
+	return memoria;
 }
 

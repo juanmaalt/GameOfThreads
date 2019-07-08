@@ -136,7 +136,6 @@ static int exec_string_comando(PCB *pcb){
 	}
 	target.inicioOperacion = getCurrentTime();
 	Operacion request;
-	request.opCode = getNumber();
 	request.TipoDeMensaje = COMANDO;
 	request.Argumentos.COMANDO.comandoParseable = (char*)pcb->data;
 	send_msg(target.socket, request);
@@ -187,14 +186,11 @@ static int exec_file_lql(PCB *pcb){
 			return INSTRUCCION_ERROR;
 		}
 		target.inicioOperacion = getCurrentTime();
-		id TEMPORTAL_OPCODE = getNumber(); //TODO: Fix para que se vea el opcode, sacar cuando el resto del sistema sea compatible con esto
-		request.opCode = TEMPORTAL_OPCODE;
 		request.TipoDeMensaje = COMANDO;
 		request.Argumentos.COMANDO.comandoParseable = line;
 		send_msg(target.socket, request);
 
 		request = recv_msg(target.socket);
-		request.opCode = TEMPORTAL_OPCODE;
 		if(procesar_retorno_operacion(request, pcb, line) == INSTRUCCION_ERROR){
 			fclose(lql);
 			free(pcb->nombreArchivoLQL);
@@ -224,31 +220,31 @@ static int procesar_retorno_operacion(Operacion op, PCB* pcb, char* instruccionA
 	char *instruccionActualTemp = NULL;
 	switch(op.TipoDeMensaje){
 	case TEXTO_PLANO:
-		log_info(logger_visible,"CPU: %d | ID Operacion: %d | %s", process_get_thread_id(), op.opCode, op.Argumentos.TEXTO_PLANO.texto);
-		log_info(logger_invisible,"CPU: %d | ID Operacion: %d | %s", process_get_thread_id(), op.opCode, op.Argumentos.TEXTO_PLANO.texto);
+		log_info(logger_visible,"CPU: %d | %s", process_get_thread_id(), op.Argumentos.TEXTO_PLANO.texto);
+		log_info(logger_invisible,"CPU: %d | %s", process_get_thread_id(), op.Argumentos.TEXTO_PLANO.texto);
 		return CONTINUAR;
 	case REGISTRO:
-		log_info(logger_visible,"CPU: %d | ID Operacion: %d | Timestamp: %llu, Key: %d, Value: %s", process_get_thread_id(), op.opCode, op.Argumentos.REGISTRO.timestamp, op.Argumentos.REGISTRO.key, op.Argumentos.REGISTRO.value);
-		log_info(logger_invisible,"CPU: %d | ID Operacion: %d | Timestamp: %llu, Key: %d, Value: %s", process_get_thread_id(), op.opCode, op.Argumentos.REGISTRO.timestamp, op.Argumentos.REGISTRO.key, op.Argumentos.REGISTRO.value);
+		log_info(logger_visible,"CPU: %d | Timestamp: %llu, Key: %d, Value: %s", process_get_thread_id(), op.Argumentos.REGISTRO.timestamp, op.Argumentos.REGISTRO.key, op.Argumentos.REGISTRO.value);
+		log_info(logger_invisible,"CPU: %d | Timestamp: %llu, Key: %d, Value: %s", process_get_thread_id(), op.Argumentos.REGISTRO.timestamp, op.Argumentos.REGISTRO.key, op.Argumentos.REGISTRO.value);
 		return CONTINUAR;
 	case ERROR:
 		instruccionActualTemp = remover_new_line(instruccionActual);
-		log_error(logger_error,"CPU: %d | ID Operacion: %d | Fallo en la instruccion '%s', Path: '%s'. Abortando: %s", process_get_thread_id(), op.opCode, instruccionActualTemp, pcb->nombreArchivoLQL, op.Argumentos.ERROR.mensajeError);
-		log_error(logger_invisible,"CPU: %d | ID Operacion: %d | Fallo en la instruccion '%s', Path: '%s'. Abortando: %s", process_get_thread_id(), op.opCode, instruccionActualTemp, pcb->nombreArchivoLQL, op.Argumentos.ERROR.mensajeError);
+		log_error(logger_error,"CPU: %d | Fallo en la instruccion '%s', Path: '%s'. Abortando: %s", process_get_thread_id(), instruccionActualTemp, pcb->nombreArchivoLQL, op.Argumentos.ERROR.mensajeError);
+		log_error(logger_invisible,"CPU: %d | Fallo en la instruccion '%s', Path: '%s'. Abortando: %s", process_get_thread_id(), instruccionActualTemp, pcb->nombreArchivoLQL, op.Argumentos.ERROR.mensajeError);
 		free(instruccionActualTemp);
 		return INSTRUCCION_ERROR;
 	case DESCRIBE_REQUEST:
 		if(procesar_describe(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido) == EXIT_FAILURE){
-			log_error(logger_error,"CPU: %d | ID Operacion: %d | Abortando: Fallo Describe", process_get_thread_id(), op.opCode);
-			log_error(logger_invisible,"CPU: %d | ID Operacion: %d | Abortando: Fallo Describe", process_get_thread_id(), op.opCode);
+			log_error(logger_error,"CPU: %d | Abortando: Fallo Describe", process_get_thread_id());
+			log_error(logger_invisible,"CPU: %d | Abortando: Fallo Describe", process_get_thread_id());
 			return INSTRUCCION_ERROR;
 		}
 		mostrar_describe(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
 		return CONTINUAR;
 	default:
 		instruccionActualTemp = remover_new_line(instruccionActual);
-		log_error(logger_visible,"CPU: %d | ID Operacion: %d | Instruccion '%s' invalida o fuera de contexto", process_get_thread_id(), op.opCode, instruccionActualTemp);
-		log_error(logger_invisible,"CPU: %d | ID Operacion: %d | Instruccion '%s' invalida o fuera de contexto", process_get_thread_id(), op.opCode, instruccionActualTemp);
+		log_error(logger_visible,"CPU: %d | Instruccion '%s' invalida o fuera de contexto", process_get_thread_id(), instruccionActualTemp);
+		log_error(logger_invisible,"CPU: | Instruccion '%s' invalida o fuera de contexto", process_get_thread_id(), instruccionActualTemp);
 		free(instruccionActualTemp);
 		return INSTRUCCION_ERROR;
 	}
