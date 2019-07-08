@@ -155,6 +155,7 @@ typedef struct{
 memoria_principal memoriaPrincipal;
 
 pthread_t idConsola;
+pthread_t idJournal;
 
 //TODO: HILO DE GOSSIPING?
 
@@ -171,6 +172,7 @@ void memoriaConUnSegmentoYUnaPagina(void);
 
 int iniciar_consola();
 int iniciar_serverMemoria (void);
-
+int iniciar_Journal(void);
+void *realizarJournal(void*);
 
 #endif /* MEMORIA_H_ */

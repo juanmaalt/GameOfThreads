@@ -408,8 +408,6 @@ Operacion journalAPI(){
 	Operacion registroAEnviar;
 
 	char * input;
-	//usleep(vconfig.retardoJOURNAL() * 1000);
-
 	//	1.1. Si tiene modificado, armo un insert con todos sus datos (viendo de que tabla es) y lo mando al FS
 
 	//  1.2. Si no esta modificado avanzo
@@ -428,6 +426,10 @@ Operacion journalAPI(){
 				printf("Request mandada: %s \n", input);
 
 				//enviarRequestFS(input);
+
+				//resultadoJournal=recibirRequestFS();
+
+				//TODO: loggear resultado
 
 				free(nombreTabla);
 				free(input);
@@ -466,6 +468,9 @@ Operacion journalAPI(){
 
 	}*/
 
+	resultadoJournal.TipoDeMensaje = TEXTO_PLANO;
+	resultadoJournal.Argumentos.TEXTO_PLANO.texto = string_from_format(
+						"JOURNAL REALIZADO CON EXITO");
 	return resultadoJournal;
 
 	//mostrarRegistrosConFlagDeModificado();

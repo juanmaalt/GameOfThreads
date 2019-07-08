@@ -55,7 +55,7 @@ int main(void) {
 	//TODO:GOSSIPING
 	//iniciar_gossiping();
 
-	//FUNCIONES PARA TEST DE SELECT
+	//FUNCIONES PARA TEST DE SELECT TODO: ELIMINAR
 	memoriaConUnSegmentoYUnaPagina();
 
 	mostrarContenidoMemoria();
@@ -79,10 +79,34 @@ int main(void) {
 	}
 
 	//TODO: hilo de JOURNAL
-
+	if(iniciar_Journal() == EXIT_FAILURE){
+	}
 
 	liberarRecursos();
 }
+
+void *realizarJournal(void* null){
+	pthread_detach(pthread_self());
+	printf("HILO Journal AUTOMATICO\n");
+	while(1){
+		usleep(vconfig.retardoJOURNAL() * 1000);
+		printf("Journal AUTOMATICO\n");
+		//TODO: LOGGEAR CUANDO SE VA HACER JOURNAL AUTOMATICO
+		journalAPI();
+	}
+}
+
+int iniciar_Journal(void){
+	if (pthread_create(&idJournal, NULL, realizarJournal, NULL)) {
+			log_error(logger_invisible,
+					"Memoria.c: iniciar_consola: fallo el hilo de JOURNAL automatico");
+			return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
+}
+
+
+
 
 int iniciar_serverMemoria(void) {
 
