@@ -386,19 +386,69 @@ void mostrarRegistrosConFlagDeModificado(void){
 //COSAS A TENER EN CUENTA
 //Una vez efectuados estos envíos se procederá a eliminar los segmentos actuales.
 
+void getNombreTabla(char * nombreSegmento, char **nombreTabla){
+	char** pathSeparado=string_split(nombreSegmento,"/");
+	int contador=0;
+	for(int i =0 ; pathSeparado [i] !=NULL; i++ ){
+		contador=i;
+	}
+
+	*nombreTabla=string_from_format(pathSeparado[contador]);
+
+	if(pathSeparado != NULL){
+		for(int i = 0; pathSeparado[i] != NULL ; ++i)
+			free(*(pathSeparado + i));
+		free(pathSeparado);
+	}
+
+}
+
 Operacion journalAPI(){
 	Operacion resultadoJournal;
+	Operacion registroAEnviar;
+
 	char * input;
 	//usleep(vconfig.retardoJOURNAL() * 1000);
 
-	/*
-	//char*   string_from_format(const char* format, ...);
-	//1. Por cada MCB en la listaAdminMarcos ver si tiene el flag de modificado
-	//(si en vez de tener en esa lista, lo tengo en la tabla de paginas de cada segmento, ya tengo la tabla PENSAR )
 	//	1.1. Si tiene modificado, armo un insert con todos sus datos (viendo de que tabla es) y lo mando al FS
 
 	//  1.2. Si no esta modificado avanzo
-	for(int i=0; i< JournalTestNumber; i++){
+	void recorrerSegmento(void * segmento){
+
+		void enviarRegistroModificado(void* registro){
+			if(((registroTablaPag_t *) registro)->flagModificado){
+				registroAEnviar=tomarContenidoPagina(*((registroTablaPag_t *) registro));
+				char *nombreTabla=NULL;
+
+				getNombreTabla(((segmento_t *) segmento)->pathTabla, &nombreTabla);
+
+				//INSERT <NombreTabla> <KEY> “<VALUE>” <TIMESTAMP>
+				input=string_from_format("INSERT %s %d \"%s\" %llu",nombreTabla,registroAEnviar.Argumentos.REGISTRO.key,registroAEnviar.Argumentos.REGISTRO.value, registroAEnviar.Argumentos.REGISTRO.timestamp);
+
+				printf("Request mandada: %s \n", input);
+
+				//enviarRequestFS(input);
+
+				free(nombreTabla);
+				free(input);
+			}
+		}
+
+		list_iterate(((segmento_t *) segmento)->tablaPaginas->registrosPag, enviarRegistroModificado);
+	}
+
+	list_iterate(tablaSegmentos.listaSegmentos, recorrerSegmento);
+
+
+	void dropearTablas(void * segmento){
+		removerSegmentoDeTabla(((segmento_t *) segmento));
+		liberarSegmento(((segmento_t *) segmento));
+	}
+	list_iterate(tablaSegmentos.listaSegmentos, dropearTablas);
+	//
+	/* CODIGO EJEMPLO
+	 *
+	 * for(int i=0; i< JournalTestNumber; i++){
 
 
 		//Enviar al FS la operacion
@@ -414,10 +464,11 @@ Operacion journalAPI(){
 		resultadoJournal=recibirRequestFS();
 
 
-	}
+	}*/
+
 	return resultadoJournal;
-*/
-	mostrarRegistrosConFlagDeModificado();
+
+	//mostrarRegistrosConFlagDeModificado();
 }
 
 
