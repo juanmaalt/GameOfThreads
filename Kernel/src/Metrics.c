@@ -144,6 +144,8 @@ static void refrescar_valores(){
 	}
 	list_iterate(memoriasExistentes, refrescar_memoria);
 
+	metricas.operacionesTotales = 0;
+
 	metricas.At.EventualConsistency.readLatency = 0;
 	metricas.At.EventualConsistency.acumuladorTiemposRead = 0;
 	metricas.At.EventualConsistency.acumuladorTiemposWrite = 0;
