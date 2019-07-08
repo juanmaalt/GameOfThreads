@@ -82,11 +82,16 @@ static DynamicAddressingRequest direccionar_request(char *request){
 			retorno.socket = comunicarse_con_memoria_principal();
 			return retorno;
 		}
-		retorno.socket = EXIT_FAILURE;
+		retorno.socket = NO_HAY_MEMORIAS;
 		return retorno;
 	}
-	retorno.socket = comunicarse_con_memoria(memoria);
 	retorno.memoria = memoria;
+	retorno.socket = comunicarse_con_memoria(memoria);
+	if(retorno.socket == EXIT_FAILURE){
+		log_error(logger_visible, "Unidad_de_ejecucion.c: direccionar_request: la memoria elegida parece estar caida. Se eligira otra");
+		log_error(logger_invisible, "Unidad_de_ejecucion.c: direccionar_request: la memoria elegida parece estar caida. Se eligira otra");
+		remover_memoria(memoria);
+	}
 	return retorno;
 }
 
@@ -126,12 +131,15 @@ static socket_t comunicarse_con_memoria_principal(){
 
 
 static int exec_string_comando(PCB *pcb){
-	DynamicAddressingRequest target = direccionar_request((char *)pcb->data);
-	if(target.socket == EXIT_FAILURE){
+	DynamicAddressingRequest target;
+	do{
+		target = direccionar_request((char *)pcb->data);
+	}while(target.socket == EXIT_FAILURE);
+	if(target.socket == NO_HAY_MEMORIAS){
 		free(pcb->data);
 		free(pcb);
-		log_error(logger_error, "Unidad_de_ejecucion.c: exec_string_comando: no se pudo direccionar la request");
-		log_error(logger_invisible, "Unidad_de_ejecucion.c: exec_string_comando: no se pudo direccionar la request");
+		log_error(logger_error, "Unidad_de_ejecucion.c: exec_string_comando: no hay mas memorias. Abortando.");
+		log_error(logger_invisible, "Unidad_de_ejecucion.c: exec_string_comando: no hay mas memorias. Abortando.");
 		return INSTRUCCION_ERROR;
 	}
 	target.inicioOperacion = getCurrentTime();
@@ -175,14 +183,17 @@ static int exec_file_lql(PCB *pcb){
 			free(pcb);
 			return FINALIZO;
 		}
-		DynamicAddressingRequest target = direccionar_request(line);
-		if(target.socket == EXIT_FAILURE){
+		DynamicAddressingRequest target;
+		do{
+			target = direccionar_request(line);
+		}while(target.socket == EXIT_FAILURE);
+		if(target.socket == NO_HAY_MEMORIAS){
 			printf("\n");
 			fclose(lql);
 			free(pcb->nombreArchivoLQL);
 			free(pcb);
-			log_error(logger_error, "Unidad_de_ejecucion.c: exec_file_lql: no se pudo direccionar la request");
-			log_error(logger_invisible, "Unidad_de_ejecucion.c: exec_file_lql: no se pudo direccionar la request");
+			log_error(logger_error, "Unidad_de_ejecucion.c: exec_file_lql: no hay mas memorias. Abortando.");
+			log_error(logger_invisible, "Unidad_de_ejecucion.c: exec_file_lql: no hay mas memorias. Abortando.");
 			return INSTRUCCION_ERROR;
 		}
 		target.inicioOperacion = getCurrentTime();

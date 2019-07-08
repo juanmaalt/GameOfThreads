@@ -113,9 +113,9 @@ t_list *tablasExistentes;
 
 	/**
 	* @NAME: procesar_gossiping
-	* @DESC: Analogo a procesar_describe pero con gossiping. Rellena la lista de memoriasExistentes
+	* @DESC: TODO
 	*/
-	int procesar_gossiping(char *cadenaResultadoGossiping);
+	t_list *procesar_gossiping(char *cadenaResultadoGossiping);
 
 
 	/**
@@ -130,5 +130,18 @@ t_list *tablasExistentes;
 	* @DESC: devuelve el enum de la consistencia de una tabla, -1 si no encontro nada
 	*/
 	Consistencia consistencia_de_tabla(char *nombreTabla);
+
+	/**
+	* @NAME: remover_memoria
+	* @DESC: remueve de todos lados una memoria. Por ejemplo si nos intentamos conectar y su socket parece offline,
+	*        podemos removerla usando esta funcion
+	*/
+	void remover_memoria(Memoria *memoria);
+
+	/**
+	* @NAME: agregar_sin_repetidos
+	* @DESC: TODO
+	*/
+	void agregar_sin_repetidos(t_list *destino, t_list *fuente);
 
 #endif /* SISTEMA_DE_CRITERIOS_H_ */

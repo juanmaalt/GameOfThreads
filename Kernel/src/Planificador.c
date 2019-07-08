@@ -34,8 +34,10 @@ int iniciar_planificador(){
 
 
 int verificar_memoria_principal(){
-	if(connect_to_server(fconfig.ip_memoria_principal, fconfig.puerto_memoria_principal) == EXIT_FAILURE)
+	int socket;
+	if((socket = connect_to_server(fconfig.ip_memoria_principal, fconfig.puerto_memoria_principal)) == EXIT_FAILURE)
 		return EXIT_FAILURE;
+	close(socket);
 	Memoria *principal = malloc(sizeof(Memoria));
 	principal->ip = string_from_format(fconfig.ip_memoria_principal);
 	principal->puerto = string_from_format(fconfig.puerto_memoria_principal);
