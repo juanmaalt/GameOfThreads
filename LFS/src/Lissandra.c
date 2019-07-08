@@ -30,7 +30,6 @@ int main(void) {
 
 	/*Inicio la Memtable*/
 	memtable = inicializarDiccionario();
-	bitmap = inicializarBitmap(metadataFS.blocks, metadataFS.blockSize);
 
 	agregarDatos(memtable);//funcion para pruebas TODO:Borrar esto
 
@@ -191,7 +190,7 @@ int iniciar_consola(){
 	return EXIT_SUCCESS;
 }
 
-Operacion ejecutarOperacion(char* input) { //TODO: TIPO de retorno Resultado
+Operacion ejecutarOperacion(char* input) {
 	Comando *parsed = malloc(sizeof(Comando));
 	Operacion retorno;
 	*parsed = parsear_comando(input);
@@ -292,15 +291,21 @@ void agregarDatos(t_dictionary* memtable) {
 void dump(t_dictionary* memtable) {
 	//TODO: wait semaforo
 	numeroDump++;
-	//dictionary_iterator(memtable, (void*) dumpTabla);//TODO:Arreglar
+	dictionary_iterator(memtable, (void*) dumpTabla);//TODO:Arreglar
 	dictionary_clean(memtable);
 }
 
-void dumpTabla(char* nombreTable, void* value) {
+void dumpTabla(char* nombreTable, void* value){
 	char* path = malloc(100 * sizeof(char));
 	setPathTabla(path, nombreTable);
 
-	char* pathArchivo;// = pathArchivo(path); //TODO:Arreglar
+	char* pathArchivo = malloc(110 * sizeof(char));
+	strcpy(pathArchivo,path);
+	strcat(pathArchivo, "dump_");
+	char str[12];
+	sprintf(str, "%d", numeroDump);
+	strcat(pathArchivo, str);
+	strcat(pathArchivo, ".tmp");
 
 	FILE* file = fopen(pathArchivo,"w");
 	t_list* list = (t_list*) value;
@@ -317,17 +322,6 @@ void dumpTabla(char* nombreTable, void* value) {
 	list_clean(list);
 	fclose(file);
 	free(pathArchivo);
-}
-
-char* pathArchivo(char* path) {
-	char* pathArchivo = malloc(110 * sizeof(char));
-	strcpy(pathArchivo,path);
-	strcat(pathArchivo, "dunp_");
-	char str[12];
-	sprintf(str, "%d", numeroDump);
-	strcat(pathArchivo, str);
-	strcat(pathArchivo, ".tmp");
-	return pathArchivo;
 }
 
 void dumpRegistro(FILE* file, Registro* registro) {

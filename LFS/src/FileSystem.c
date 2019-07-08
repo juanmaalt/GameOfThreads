@@ -60,6 +60,9 @@ void crearEstructuraFS(int blockSize, int blocks, char* magicNumber){
 	crearMetadata(path, blockSize, blocks, magicNumber);
 
 	/*Creo el bitmap para controlar los Bloques*/
+	crearArchivo(path, "/Bitmap.bin");
+	/*Levantar Bitmap*/
+	leerBitmap(0);
 
 	free(path);
 }
@@ -99,12 +102,50 @@ void extraer_MetadataFS(){
 	metadataFS.blocks = config_get_int_value(metadata_FS, "BLOCKS");
 }
 
-t_bitarray*	inicializarBitmap(int blocks, int blockSize){
-	int size = blocks*blockSize;
-	char* bits= malloc(size*sizeof(char));
+void leerBitmap(int time){
+	log_info(logger_invisible, "Inicio levantarBitmap");
+	int size = (metadataFS.blocks/8+1);
+	char* path = malloc(1000 * sizeof(char));
+	strcpy(path, config.punto_montaje);
+	strcat(path, "Metadata/Bitmap.bin");
 
-	//TODO:Arreglar Bitarray
-	return bitarray_create_with_mode(bits, size, MSB_FIRST);
+	printf("path: %s\n", path);
+
+	int fileDescriptor;
+	char* bitmap;
+
+	/*Abro el bitmap.bin, provisto o creado por la consola del fileSystem*/
+	fileDescriptor = open(path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+	/*Trunco el archivo con la longitud de los bloques, para evitar problemas*/
+	ftruncate(fileDescriptor, size);//
+	if(fileDescriptor == -1){
+		log_error(logger_visible, "No se pudo abrir el archivo");
+		return;
+	}
+	/*Mapeo a la variable bitmap el contenido del fileDescriptor*/
+	bitmap = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor, 0);
+	if(strlen(bitmap)==0){
+		memset(bitmap,0,size);
+	}
+	/*Creo el bitarray para poder manejar lo leído del bitmap*/
+	bitarray = bitarray_create_with_mode(bitmap, size, MSB_FIRST);
+
+	/*Inicializo solo si es la primera vez que se abre*/
+	if(time==0){
+		for(int i=0;metadataFS.blocks;i++){
+			bitarray_set_bit(bitarray, i);
+		}
+	}
+
+	/*Sincronizo el archivo con los datos del bitarray*/
+	msync(bitarray, size, MS_SYNC);
+
+	//log_info(logger_visible, "El tamanio del bitmap es de %lu bits", tamanio);
+
+	munmap(bitarray,size);
+	close(fileDescriptor);
+	free(path);
+
 }
 /*FIN FUNCIONES*/
 
