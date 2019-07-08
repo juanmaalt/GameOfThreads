@@ -15,6 +15,7 @@
 typedef timestamp_t timeEpoch;
 
 struct valores_de_metricas{
+	int operacionesTotales;
 	enum{
 		StrongConsistency,
 		HashStrongConsistency,

@@ -51,23 +51,23 @@ static DynamicAddressingRequest direccionar_request(char *request){
 	Memoria *memoria;
 	switch(comando.keyword){//A esta altura ya nos aseguramos de que el comando habia sido valido
 	case SELECT:
-		memoria = determinar_memoria_para_tabla(comando.argumentos.SELECT.nombreTabla);
+		memoria = determinar_memoria_para_tabla(comando.argumentos.SELECT.nombreTabla, comando.argumentos.SELECT.key);
 		retorno.criterioQueSeUso = consistencia_de_tabla(comando.argumentos.SELECT.nombreTabla);
 		retorno.tipoOperacion = SELECT;
 		break;
 	case INSERT:
-		memoria = determinar_memoria_para_tabla(comando.argumentos.INSERT.nombreTabla);
+		memoria = determinar_memoria_para_tabla(comando.argumentos.INSERT.nombreTabla, comando.argumentos.INSERT.key);
 		retorno.criterioQueSeUso = consistencia_de_tabla(comando.argumentos.INSERT.nombreTabla);
 		retorno.tipoOperacion = INSERT;
 		break;
 	case CREATE:
-		memoria = determinar_memoria_para_tabla(comando.argumentos.CREATE.nombreTabla);
+		memoria = determinar_memoria_para_tabla(comando.argumentos.CREATE.nombreTabla, NULL);
 		break;
 	case DESCRIBE:
-		memoria = determinar_memoria_para_tabla(comando.argumentos.DESCRIBE.nombreTabla);
+		memoria = determinar_memoria_para_tabla(comando.argumentos.DESCRIBE.nombreTabla, NULL);
 		break;
 	case DROP:
-		memoria = determinar_memoria_para_tabla(comando.argumentos.DROP.nombreTabla);
+		memoria = determinar_memoria_para_tabla(comando.argumentos.DROP.nombreTabla, NULL);
 		break;
 	default:
 		retorno.socket = EXIT_FAILURE;
@@ -264,18 +264,21 @@ static void generar_estadisticas(DynamicAddressingRequest *link){
 		return;
 	if(!link->operacionExitosa)
 		return;
+	metricas.operacionesTotales += 1;
 	switch(link->criterioQueSeUso){
 	case SC:
 		if(link->tipoOperacion == SELECT){
 			++metricas.At.StrongConsistency.reads;
 			metricas.At.StrongConsistency.acumuladorTiemposRead += link->finOperacion - link->inicioOperacion;
 			metricas.At.StrongConsistency.readLatency = metricas.At.StrongConsistency.acumuladorTiemposRead / metricas.At.StrongConsistency.reads;
+			link->memoria->Metrics.SC.cantidadSelect += 1;
 			return;
 		}
 		if(link->tipoOperacion == INSERT){
 			++metricas.At.StrongConsistency.writes;
 			metricas.At.StrongConsistency.acumuladorTiemposWrite += link->finOperacion - link->inicioOperacion;
 			metricas.At.StrongConsistency.writeLatency = metricas.At.StrongConsistency.acumuladorTiemposWrite / metricas.At.StrongConsistency.writes;
+			link->memoria->Metrics.SC.cantidadInsert += 1;
 			return;
 		}
 		break;
@@ -284,12 +287,14 @@ static void generar_estadisticas(DynamicAddressingRequest *link){
 			++metricas.At.HashStrongConsistency.reads;
 			metricas.At.HashStrongConsistency.acumuladorTiemposRead += link->finOperacion - link->inicioOperacion;
 			metricas.At.HashStrongConsistency.readLatency = metricas.At.HashStrongConsistency.acumuladorTiemposRead / metricas.At.HashStrongConsistency.reads;
+			link->memoria->Metrics.HSC.cantidadSelect += 1;
 			return;
 		}
 		if(link->tipoOperacion == INSERT){
 			++metricas.At.HashStrongConsistency.writes;
 			metricas.At.HashStrongConsistency.acumuladorTiemposWrite += link->finOperacion - link->inicioOperacion;
 			metricas.At.HashStrongConsistency.writeLatency = metricas.At.HashStrongConsistency.acumuladorTiemposWrite / metricas.At.HashStrongConsistency.writes;
+			link->memoria->Metrics.HSC.cantidadInsert += 1;
 			return;
 		}
 		break;
@@ -298,12 +303,14 @@ static void generar_estadisticas(DynamicAddressingRequest *link){
 			++metricas.At.EventualConsistency.reads;
 			metricas.At.EventualConsistency.acumuladorTiemposRead += link->finOperacion - link->inicioOperacion;
 			metricas.At.EventualConsistency.readLatency = metricas.At.EventualConsistency.acumuladorTiemposRead / metricas.At.EventualConsistency.reads;
+			link->memoria->Metrics.EC.cantidadSelect += 1;
 			return;
 		}
 		if(link->tipoOperacion == INSERT){
 			++metricas.At.EventualConsistency.writes;
 			metricas.At.EventualConsistency.acumuladorTiemposWrite += link->finOperacion - link->inicioOperacion;
 			metricas.At.EventualConsistency.writeLatency = metricas.At.EventualConsistency.acumuladorTiemposWrite / metricas.At.EventualConsistency.writes;
+			link->memoria->Metrics.EC.cantidadInsert += 1;
 			return;
 		}
 		break;

@@ -72,7 +72,27 @@ static int mostrar_metricas_por_pantalla(){
 		RETURN_ERROR("Metrics.c: mostrar_metricas: deberia esperar a que se inicien las estructuras de las memorias");
 	}
 
+	void mostrar_estadisticas_de_memorias(void *memoria){
+		printf("\n");
+			if(((Memoria*)memoria)->fueAsociada){
+				log_info(logger_visible, "Memoria %d %s: %s", ((Memoria*)memoria)->numero, ((Memoria*)memoria)->ip, ((Memoria*)memoria)->puerto);
+				if(((Memoria*)memoria)->Metrics.SC.estaAsociada)
+					log_info(logger_visible, "Asignada al criterio SC | INSERTS: %d | SELECTS: %d", ((Memoria*)memoria)->Metrics.SC.cantidadInsert, ((Memoria*)memoria)->Metrics.SC.cantidadSelect);
+				if(((Memoria*)memoria)->Metrics.HSC.estaAsociada)
+					log_info(logger_visible, "Asignada al criterio HSC | INSERTS: %d | SELECTS: %d", ((Memoria*)memoria)->Metrics.HSC.cantidadInsert, ((Memoria*)memoria)->Metrics.HSC.cantidadSelect);
+				if(((Memoria*)memoria)->Metrics.EC.estaAsociada)
+					log_info(logger_visible, "Asignada al criterio EC | INSERTS: %d | SELECTS: %d", ((Memoria*)memoria)->Metrics.EC.cantidadInsert, ((Memoria*)memoria)->Metrics.EC.cantidadSelect);
+			}else{
+				log_info(logger_visible, "Memoria %d %s:%s no esta asociada a ningun criterio", ((Memoria*)memoria)->numero, ((Memoria*)memoria)->ip, ((Memoria*)memoria)->puerto);
+			}
+		printf("\n");
+	}
+
 	//Logger visible
+
+	printf("\n");
+
+	log_info(logger_visible, GRN"Operaciones totales: %d"STD, metricas.operacionesTotales);
 
 	printf("\n");
 
@@ -99,6 +119,9 @@ static int mostrar_metricas_por_pantalla(){
 	log_info(logger_visible, "Writes: %d", metricas.At.EventualConsistency.writes);
 
 	printf("\n");
+
+	log_info(logger_visible, GRN"Memorias"STD);
+	list_iterate(memoriasExistentes, mostrar_estadisticas_de_memorias);
 
 	//Logger invisible
 	//TODO: mostrar metricas invisibles

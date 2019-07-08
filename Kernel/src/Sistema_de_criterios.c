@@ -17,7 +17,7 @@ static Memoria *machearMemoria(int numeroMemoria);
 
 //FUNCIONES: Privadas: asignacion de memorias
 static Memoria *sc_determinar_memoria(MetadataTabla *tabla); //Dada una tabla con SC, determina que memoria la deberia atender
-static Memoria *hsc_determinar_memoria(MetadataTabla *tabla);
+static Memoria *hsc_determinar_memoria(MetadataTabla *tabla, char *key);
 static Memoria *ec_determinar_memoria(MetadataTabla *tabla);
 
 //FUNCIONES: Privadas: gestion de nuevas tablas
@@ -40,7 +40,7 @@ int iniciar_sistema_de_criterios(void){
 
 
 
-Memoria *determinar_memoria_para_tabla(char *nombreTabla){ //No liberar nunca nombreTabla por que es: o parte de una linea lql o parte de una request individual. Lo que se tenga que liberar, se libera en Unidad_de_ejecucion.c
+Memoria *determinar_memoria_para_tabla(char *nombreTabla, char *keyDeSerNecesaria){ //No liberar nunca nombreTabla ni key por que es: o parte de una linea lql o parte de una request individual. Lo que se tenga que liberar, se libera en Unidad_de_ejecucion.c
 	MetadataTabla *tabla;
 	if((tabla = machearTabla(nombreTabla)) == NULL){
 		log_error(logger_error, "Sistema_de_criterios.c: determinar_memoria_para_tabla: la tabla no existe o aun no se conoce");
@@ -52,7 +52,7 @@ Memoria *determinar_memoria_para_tabla(char *nombreTabla){ //No liberar nunca no
 	case SC:
 		return sc_determinar_memoria(tabla);
 	case HSC:
-		return hsc_determinar_memoria(tabla);
+		return hsc_determinar_memoria(tabla, keyDeSerNecesaria);
 	case EC:
 		return ec_determinar_memoria(tabla);
 	default:
@@ -97,6 +97,7 @@ int asociar_memoria(char *numeroMemoria, char *consistencia){
 			return EXIT_SUCCESS;
 		}
 	}else RETURN_ERROR("Sistema_de_criterios.c: add_memory: el tipo de consistencia es invalido. Solo se admite SC, HSC o EC");
+	memoria->fueAsociada = true;
 	return EXIT_SUCCESS;
 }
 
@@ -286,7 +287,7 @@ static Memoria *sc_determinar_memoria(MetadataTabla *tabla){
 
 
 
-static Memoria *hsc_determinar_memoria(MetadataTabla *tabla){
+static Memoria *hsc_determinar_memoria(MetadataTabla *tabla, char *key){ //La verdad que la tabla no se usa para nada pero bueno paja
 	if(memoriasHSC == NULL)
 		return NULL;
 	if(list_is_empty(memoriasHSC)){
@@ -294,7 +295,7 @@ static Memoria *hsc_determinar_memoria(MetadataTabla *tabla){
 		log_info(logger_invisible, "Sistema_de_criterios.c: hsc_determinar_memoria: No se puede responder la request por que no hay memorias Hash Strong Consistency disponibles");
 		return NULL;
 	}
-	return (Memoria*)list_get(memoriasHSC, getHash(tabla->nombre, list_size(memoriasHSC)));
+	return key == NULL ? (Memoria*)list_get(memoriasHSC, 0) : (Memoria*)list_get(memoriasHSC, getHash(key, list_size(memoriasHSC)));
 }
 
 

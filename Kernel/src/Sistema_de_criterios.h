@@ -24,16 +24,20 @@ typedef struct memoria{
 	int numero;
 	char *ip;
 	char *puerto;
+	bool fueAsociada; //A algun criterio cualquiera como minimo
 	struct{
 		struct{
+			bool estaAsociada; //Para hacer metricas mas limpias
 			int cantidadInsert;
 			int cantidadSelect;
 		}SC;
 		struct{
+			bool estaAsociada;
 			int cantidadInsert;
 			int cantidadSelect;
 		}HSC;
 		struct{
+			bool estaAsociada;
 			int cantidadInsert;
 			int cantidadSelect;
 		}EC;
@@ -82,10 +86,11 @@ t_list *tablasExistentes;
 	/**
 	* @NAME: determinar_memoria_para_tabla
 	* @DESC: dado el nombre de una tabla, hace lo necesario para devolver una memoria sobre la cual ejecutar
+	* 		 la request. En el caso de que esa tabla sea HSC, usa la key para averiguar a que memoria debe dirigir
 	* 		 la request. Devuelve NULL si no encontro memoria. Por ejemplo, una request hacia la tabla ASD implica
 	* 		 buscar en la lista de metadatas de tabla, para ver que consistencia tiene etc etc y devolver una memoria
 	*/
-	Memoria *determinar_memoria_para_tabla(char *tabla);
+	Memoria *determinar_memoria_para_tabla(char *tabla, char *keyDeSerNecesaria);
 
 
 	/**
