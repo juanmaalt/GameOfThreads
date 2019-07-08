@@ -168,27 +168,21 @@ void mostrar_describe(char *cadenaResultadoDescribe){
 
 
 
-int procesar_gossiping(char *cadenaResultadoGossiping){
-	if(memoriasExistentes == NULL)
-		return EXIT_FAILURE;
-
+t_list *procesar_gossiping(char *cadenaResultadoGossiping){
 	Memoria *memoria;
-	t_list *listaAuxiliar = list_create();
+	t_list *lista = list_create();
 
 	char **descompresion = descomprimir_memoria(cadenaResultadoGossiping);
 	for(int i=0; descompresion[i]!=NULL; i+=3){
-		if((memoria = machearMemoria(atoi(descompresion[i]))) == NULL){
-			memoria = crear_memoria(atoi(descompresion[i]), descompresion[i+1], descompresion[i+2]);
-			list_add(listaAuxiliar, memoria);
-		}else{
-			list_add(listaAuxiliar, memoria);
-		}
+		int socket;
+		if((socket = connect_to_server(descompresion[i+1], descompresion[i+2])) == EXIT_FAILURE)
+			continue;
+		close(socket);
+		memoria = crear_memoria(atoi(descompresion[i]), descompresion[i+1], descompresion[i+2]);
+		list_add(lista, memoria);
 	}
 	destruir_split_memorias(descompresion);
-	list_destroy(tablasExistentes);
-	tablasExistentes = list_duplicate(listaAuxiliar);
-	list_destroy(listaAuxiliar);
-	return EXIT_SUCCESS;
+	return lista;
 }
 
 
@@ -201,6 +195,40 @@ Consistencia consistencia_de_tabla(char *nombreTabla){
 		return -1;
 	else
 		return tabla->consistencia;
+}
+
+
+
+
+
+void remover_memoria(Memoria *memoria_a_remover){
+	bool remover_por_numero(void *memoria){
+		return memoria_a_remover->numero == ((Memoria*)memoria)->numero;
+	}
+	void destruir_memoria_encontrada(void *memoria){
+		free(((Memoria*)memoria)->ip);
+		free(((Memoria*)memoria)->puerto);
+		free((Memoria*)memoria);
+	}
+	list_remove_by_condition(memoriasEC, remover_por_numero); //Solo remueven los nodos
+	list_remove_by_condition(memoriasHSC, remover_por_numero);
+	list_remove_by_condition(memoriasSC, remover_por_numero);
+	list_remove_and_destroy_by_condition(memoriasExistentes, remover_por_numero, destruir_memoria_encontrada); //Y el ultimo que remueva el nodo tambien deberia liberarlo
+}
+
+
+
+
+
+void agregar_sin_repetidos(t_list *destino, t_list *fuente){
+	void agregar_distinct(void *elementoFuente){
+		bool buscar(void *elementoDestino){
+			return ((Memoria*)elementoDestino)->numero == ((Memoria*)elementoFuente)->numero;
+		}
+		if(!list_all_satisfy(destino, buscar))
+			list_add(destino, elementoFuente);
+	}
+	list_iterate(fuente, agregar_distinct);
 }
 
 
