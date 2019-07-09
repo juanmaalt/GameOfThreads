@@ -40,6 +40,5 @@ void levantarTablasEnMemtable();
 int levantarMetadata();
 t_config* leer_MetadataFS();
 void extraer_MetadataFS();
-t_bitarray*	inicializarBitmap(int blocks, int blockSize);
 
 #endif /* FILESYSTEM_H_ */

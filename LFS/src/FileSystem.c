@@ -32,7 +32,7 @@ void checkEstructuraFS(){
 
 
 void crearEstructuraFS(int blockSize, int blocks, char* magicNumber){
-	char* path = malloc(100 * sizeof(char));
+	char* path = malloc(1000 * sizeof(char));
 
 	/*Creo el directorio de montaje*/
 	crearDirectorioDeMontaje(config.punto_montaje);
@@ -60,6 +60,7 @@ void crearEstructuraFS(int blockSize, int blocks, char* magicNumber){
 	crearMetadata(path, blockSize, blocks, magicNumber);
 
 	/*Creo el bitmap para controlar los Bloques*/
+	crearArchivo(path, "/Bitmap.bin");
 
 	free(path);
 }
@@ -97,14 +98,6 @@ t_config* leer_MetadataFS(){
 void extraer_MetadataFS(){
 	metadataFS.blockSize = config_get_int_value(metadata_FS, "BLOCKSIZE");
 	metadataFS.blocks = config_get_int_value(metadata_FS, "BLOCKS");
-}
-
-t_bitarray*	inicializarBitmap(int blocks, int blockSize){
-	int size = blocks*blockSize;
-	char* bits= malloc(size*sizeof(char));
-
-	//TODO:Arreglar Bitarray
-	return bitarray_create_with_mode(bits, size, MSB_FIRST);
 }
 /*FIN FUNCIONES*/
 
@@ -216,7 +209,7 @@ void levantarTablasEnMemtable(){
 			if(!strcmp(nombreCarpeta, ".") || !strcmp(nombreCarpeta, "..")){
 			}else{
 				crearTablaEnMemtable(nombreCarpeta);
-				printf("Tabla levantada: %s\n", nombreCarpeta);
+				log_info(logger_visible, "Tabla levantada: %s\n", nombreCarpeta);
 			}
 		}
 		closedir (dir);

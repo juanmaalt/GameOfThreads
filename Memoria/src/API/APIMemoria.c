@@ -20,9 +20,9 @@ Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 			break;
 		case INSERT:
 			if ((strlen(parsed->argumentos.INSERT.value) + 1) > tamanioValue) {
-				printf("TamValue teorico: %d\nTamValue real: %d\n",
+				/*log_error(logger_error,"TamValue teorico: %d\nTamValue real: %d\n",
 						tamanioValue,
-						(strlen(parsed->argumentos.INSERT.value) + 1));
+						(strlen(parsed->argumentos.INSERT.value) + 1));*/
 				retorno.Argumentos.ERROR.mensajeError = string_from_format(
 						"Error en el tamanio del value. Segmentation Fault");
 				retorno.TipoDeMensaje = ERROR;
@@ -108,8 +108,8 @@ Operacion selectAPI(char* input, Comando comando) {
 			return resultadoSelect;
 
 		}else{
-			printf(YEL"APIMemoria.c: select: no encontro la key. Enviar a LFS la request"STD"\n"); //TODO: meter en log
-
+			//printf(YEL"APIMemoria.c: select: no encontro la key. Enviar a LFS la request"STD"\n");
+			log_error(logger_error,"APIMemoria.c: select: no encontro la key. Enviar a LFS la request");
 			enviarRequestFS(input);
 
 			resultadoSelect=recibirRequestFS();
@@ -132,7 +132,7 @@ Operacion selectAPI(char* input, Comando comando) {
 		}
 
 	}else{ //NO EXISTE EL SEGMENTO
-		printf(YEL"APIMemoria.c: select: no se encontro el path. Enviando a LFS la request"STD"\n");
+		log_error(logger_error,"APIMemoria.c: select: no se encontro el path. Enviando a LFS la request");
 
 		enviarRequestFS(input);
 
@@ -199,7 +199,7 @@ Operacion insertAPI(char* input, Comando comando) {
 
 			actualizarValueDeKey(comando.argumentos.INSERT.value, registroBuscado);
 
-			printf("Se realizo el INSERT\n");
+			log_info(logger_invisible,"Se realizo el INSERT, estaba en memoria\n");
 
 			resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
 			resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format(
@@ -215,9 +215,12 @@ Operacion insertAPI(char* input, Comando comando) {
 				resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
 				resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format(
 									"INSERT REALIZADO CON EXITO");
+
+				log_info(logger_invisible,"Se realizo el INSERT, se pide pidio pagina\n");
 				return resultadoInsert;
 			}
 
+			//log_info(logger_invisible,"Se realizo el INSERT, estaba en memoria\n");
 			resultadoInsert.TipoDeMensaje = ERROR;
 			resultadoInsert.Argumentos.ERROR.mensajeError= string_from_format("MEMORIA FULL, REALIZAR JOURNAL");
 			return resultadoInsert;
@@ -326,7 +329,7 @@ Operacion dropAPI(char* input, Comando comando) {
 
 		liberarSegmento(segmentoSeleccionado);
 
-		printf("Drop realizado\n");
+		log_info(logger_visible,"Drop realizado\n");
 		/*
 		resultadoDrop.TipoDeMensaje = TEXTO_PLANO;
 		resultadoDrop.Argumentos.TEXTO_PLANO.texto = string_from_format(
@@ -386,19 +389,71 @@ void mostrarRegistrosConFlagDeModificado(void){
 //COSAS A TENER EN CUENTA
 //Una vez efectuados estos envíos se procederá a eliminar los segmentos actuales.
 
+void getNombreTabla(char * nombreSegmento, char **nombreTabla){
+	char** pathSeparado=string_split(nombreSegmento,"/");
+	int contador=0;
+	for(int i =0 ; pathSeparado [i] !=NULL; i++ ){
+		contador=i;
+	}
+
+	*nombreTabla=string_from_format(pathSeparado[contador]);
+
+	if(pathSeparado != NULL){
+		for(int i = 0; pathSeparado[i] != NULL ; ++i)
+			free(*(pathSeparado + i));
+		free(pathSeparado);
+	}
+
+}
+
 Operacion journalAPI(){
 	Operacion resultadoJournal;
-	char * input;
-	//usleep(vconfig.retardoJOURNAL() * 1000);
+	Operacion registroAEnviar;
 
-	/*
-	//char*   string_from_format(const char* format, ...);
-	//1. Por cada MCB en la listaAdminMarcos ver si tiene el flag de modificado
-	//(si en vez de tener en esa lista, lo tengo en la tabla de paginas de cada segmento, ya tengo la tabla PENSAR )
+	char * input;
 	//	1.1. Si tiene modificado, armo un insert con todos sus datos (viendo de que tabla es) y lo mando al FS
 
 	//  1.2. Si no esta modificado avanzo
-	for(int i=0; i< JournalTestNumber; i++){
+	void recorrerSegmento(void * segmento){
+
+		void enviarRegistroModificado(void* registro){
+			if(((registroTablaPag_t *) registro)->flagModificado){
+				registroAEnviar=tomarContenidoPagina(*((registroTablaPag_t *) registro));
+				char *nombreTabla=NULL;
+
+				getNombreTabla(((segmento_t *) segmento)->pathTabla, &nombreTabla);
+
+				//INSERT <NombreTabla> <KEY> “<VALUE>” <TIMESTAMP>
+				input=string_from_format("INSERT %s %d \"%s\" %llu",nombreTabla,registroAEnviar.Argumentos.REGISTRO.key,registroAEnviar.Argumentos.REGISTRO.value, registroAEnviar.Argumentos.REGISTRO.timestamp);
+
+				log_info(logger_invisible,"Request mandada: %s \n", input);
+
+				//enviarRequestFS(input);
+
+				//resultadoJournal=recibirRequestFS();
+
+				//TODO: loggear resultado
+
+				free(nombreTabla);
+				free(input);
+			}
+		}
+
+		list_iterate(((segmento_t *) segmento)->tablaPaginas->registrosPag, enviarRegistroModificado);
+	}
+
+	list_iterate(tablaSegmentos.listaSegmentos, recorrerSegmento);
+
+
+	void dropearTablas(void * segmento){
+		removerSegmentoDeTabla(((segmento_t *) segmento));
+		liberarSegmento(((segmento_t *) segmento));
+	}
+	list_iterate(tablaSegmentos.listaSegmentos, dropearTablas);
+	//
+	/* CODIGO EJEMPLO
+	 *
+	 * for(int i=0; i< JournalTestNumber; i++){
 
 
 		//Enviar al FS la operacion
@@ -414,10 +469,14 @@ Operacion journalAPI(){
 		resultadoJournal=recibirRequestFS();
 
 
-	}
+	}*/
+
+	resultadoJournal.TipoDeMensaje = TEXTO_PLANO;
+	resultadoJournal.Argumentos.TEXTO_PLANO.texto = string_from_format(
+						"JOURNAL REALIZADO CON EXITO");
 	return resultadoJournal;
-*/
-	mostrarRegistrosConFlagDeModificado();
+
+	//mostrarRegistrosConFlagDeModificado();
 }
 
 

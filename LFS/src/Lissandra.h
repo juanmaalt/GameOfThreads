@@ -33,6 +33,7 @@
 
 #include "adhoc/Consola.h"
 #include "adhoc/APILissandra.h"
+#include "adhoc/Bitmap.h"
 #include "FileSystem.h"
 #include "Compactador.h"
 
@@ -69,7 +70,7 @@ pthread_t idConsola;
 
 t_dictionary* memtable;
 t_dictionary* diccCompactacion;
-t_bitarray* bitmap;
+t_bitarray* bitarray;
 
 int numeroDump;
 
@@ -97,6 +98,7 @@ timestamp_t obtenerTimestamp(Registro* registro);
 void setPathTabla(char* path, char* nombreTabla);
 void dump(t_dictionary* memtable);
 void dumpRegistro(FILE* file, Registro* registro);
+void dumpTabla(char* nombreTable, void* value);
 
 
 #endif /* LISSANDRA_H_ */

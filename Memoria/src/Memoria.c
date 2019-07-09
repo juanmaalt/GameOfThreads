@@ -26,7 +26,7 @@ void mostrarPathSegmentos() {
 int main(void) {
 	//Se hacen las configuraciones iniciales para log y config
 	if (configuracion_inicial() == EXIT_FAILURE) {
-		log_error(logger_invisible,
+		log_error(logger_error,
 				"Memoria.c: main: no se pudo generar la configuracion inicial");
 
 		return EXIT_FAILURE;
@@ -45,17 +45,18 @@ int main(void) {
 
 	// Inicializar la memoria principal
 	if (inicializar_memoriaPrincipal() == EXIT_FAILURE) {
-		log_error(logger_invisible,
+		log_error(logger_error,
 				"Memoria.c: main: no se pudo inicializar la memoria principal");
 
 		return EXIT_FAILURE;
 	}
-	printf("Memoria Inicializada correctamente\n");
+
+	log_info(logger_visible,"Memoria Inicializada correctamente\n");
 
 	//TODO:GOSSIPING
 	//iniciar_gossiping();
 
-	//FUNCIONES PARA TEST DE SELECT
+	//FUNCIONES PARA TEST DE SELECT TODO: ELIMINAR
 	memoriaConUnSegmentoYUnaPagina();
 
 	mostrarContenidoMemoria();
@@ -64,25 +65,54 @@ int main(void) {
 	//Inicio consola
 
 	if (iniciar_consola() == EXIT_FAILURE) {
-		log_error(logger_invisible,
+		log_error(logger_error,
 				"Memoria.c: main: no se pudo levantar la consola");
 
 		return EXIT_FAILURE;
 	}
 
+	//TODO: hilo de JOURNAL
+	if(iniciar_Journal() == EXIT_FAILURE){
+		log_error(logger_error,
+						"Memoria.c: main: no se pudo iniciar el hilo journal");
+
+				return EXIT_FAILURE;
+	}
+
 	//Habilita el server y queda en modo en listen
 	if (iniciar_serverMemoria() == EXIT_FAILURE) {
-		log_error(logger_invisible,
+		log_error(logger_error,
 				"Memoria.c: main: no se pudo levantar el servidor");
 
 		return EXIT_FAILURE;
 	}
 
-	//TODO: hilo de JOURNAL
 
 
 	liberarRecursos();
 }
+
+void *realizarJournal(void* null){
+	pthread_detach(pthread_self());
+	while(1){
+		usleep(vconfig.retardoJOURNAL() * 1000);
+
+		log_info(logger_invisible,"Inicio Journal automatico");
+		journalAPI();
+	}
+}
+
+int iniciar_Journal(void){
+	if (pthread_create(&idJournal, NULL, realizarJournal, NULL)) {
+			log_error(logger_error,
+					"Memoria.c: iniciar_consola: fallo el hilo de JOURNAL automatico");
+			return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
+}
+
+
+
 
 int iniciar_serverMemoria(void) {
 
@@ -109,7 +139,7 @@ void *connection_handler(void *nSocket) {
 
 	switch (resultado.TipoDeMensaje) {
 	case COMANDO:
-		log_info(logger_visible,"Comando recibido: %s\n",resultado.Argumentos.COMANDO.comandoParseable);
+		log_info(logger_visible,"Request recibido por SOCKET: %s\n",resultado.Argumentos.COMANDO.comandoParseable);
 		resultado = ejecutarOperacion(resultado.Argumentos.COMANDO.comandoParseable,false);
 		send_msg(socket, resultado);
 		break;
@@ -148,6 +178,7 @@ int realizarHandshake(void) {
 		return EXIT_FAILURE;
 	}
 	printf("TAMAÑO_VALUE= %d\n", tamanioValue);
+	log_info(logger_visible, "Handshake realizado correctamente");
 	return EXIT_SUCCESS;
 }
 
@@ -217,7 +248,7 @@ int inicializar_memoriaPrincipal() {
 
 int iniciar_consola() {
 	if (pthread_create(&idConsola, NULL, recibir_comandos, NULL)) {
-		log_error(logger_invisible,
+		log_error(logger_error,
 				"Memoria.c: iniciar_consola: fallo la creacion de la consola");
 
 		return EXIT_FAILURE;
@@ -226,31 +257,27 @@ int iniciar_consola() {
 }
 
 int configuracion_inicial() {
+	//INICIALIZAR SEMAFOROS ACA
 
-	logger_visible = iniciar_logger(true);
-	if (logger_visible == NULL) {
-		log_error(logger_invisible,
-				"Memoria.c: configuracion_inicial: error en 'logger_visible = iniciar_logger(true)");
-		//printf(
-		//		RED"Memoria.c: configuracion_inicial: error en 'logger_visible = iniciar_logger(true);'"STD"\n");
-		return EXIT_FAILURE;
-	}
+	mkdir("Logs", 0777); //Crea la carpeta Logs junto al ejecutable (si ya existe no toca nada de lo que haya adentro)
 
-	logger_invisible = iniciar_logger(false);
-	if (logger_visible == NULL) {
-		log_error(logger_invisible,
-				"Memoria.c: configuracion_inicial: error en 'logger_invisible = iniciar_logger(false)");
-		//printf(
-		//	RED"Memoria.c: configuracion_inicial: error en 'logger_invisible = iniciar_logger(false);'"STD"\n");
-		return EXIT_FAILURE;
-	}
+	remove("Logs/MemoriaResumen.log"); //Esto define que cada ejecucion, el log se renueva
 
-	if (inicializar_configs() == EXIT_FAILURE) {
-		log_error(logger_invisible,
-				"Memoria.c: configuracion_inicial: error en el archivo 'Memoria.config'");
+	logger_visible = iniciar_logger("Logs/MemoriaResumen.log", true, LOG_LEVEL_INFO);
+	if(logger_visible == NULL)
+		RETURN_ERROR("Memoria.c: configuracion_inicial: error en 'logger_visible = iniciar_logger(true);'");
 
-		return EXIT_FAILURE;
-	}
+	logger_invisible = iniciar_logger("Logs/MemoriaTodo.log", false, LOG_LEVEL_INFO);
+	if(logger_invisible == NULL)
+		RETURN_ERROR("Memoria.c: configuracion_inicial: error en 'logger_invisible = iniciar_logger(false);'");
+
+	remove("Logs/MemoriaErrores.log");
+	logger_error = iniciar_logger("Logs/MemoriaErrores.log", true, LOG_LEVEL_ERROR);
+	if(logger_error == NULL)
+		RETURN_ERROR("Memoria.c: configuracion_inicial: error en 'logger_error = iniciar_logger(true);'");
+
+	if (inicializar_configs() == EXIT_FAILURE)
+		RETURN_ERROR("Memoria.c: configuracion_inicial: error en la extraccion de datos del archivo de configuracion");
 
 	return EXIT_SUCCESS;
 }
@@ -259,7 +286,7 @@ int inicializar_configs() {
 	configFile = config_create(STANDARD_PATH_MEMORIA_CONFIG);
 
 	if (configFile == NULL) {
-		printf(
+		log_error(logger_error,
 				"Memoria.c: extraer_data_config: no se encontro el archivo 'Memoria.config'. Deberia estar junto al ejecutable");
 		return EXIT_FAILURE;
 	}
@@ -282,9 +309,10 @@ int inicializar_configs() {
 	return EXIT_SUCCESS;
 }
 
-t_log* iniciar_logger(bool visible) {
-	return log_create("Memoria.log", "Memoria", visible, LOG_LEVEL_INFO);
+t_log* iniciar_logger(char* fileName, bool visibilidad, t_log_level level) {
+	return log_create(fileName, "Memoria", visibilidad, level);
 }
+
 
 void extraer_data_fija_config() {
 	fconfig.ip = config_get_string_value(configFile, "IP");

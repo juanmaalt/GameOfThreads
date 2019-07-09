@@ -68,7 +68,7 @@ int conectarLFS() {
 	//Obtiene el socket por el cual se va a conectar al LFS como cliente / * Conectarse al proceso File System
 	int socket = connect_to_server(fconfig.ip_fileSystem, fconfig.puerto_fileSystem);
 	if (socket == EXIT_FAILURE) {
-		log_error(logger_visible,"El LFS no está levantado. Cerrar la Memoria, levantar el LFS y volver a levantar la Memoria");
+		log_error(logger_error,"El LFS no está levantado. Cerrar la Memoria, levantar el LFS y volver a levantar la Memoria");
 		return EXIT_FAILURE;
 	}
 	return socket;

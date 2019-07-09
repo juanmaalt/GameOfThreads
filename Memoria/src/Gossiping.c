@@ -35,13 +35,11 @@ int iniciar_gossiping() {
 		printf("IP %d: %s:%s:\n", i, IPs[i], IPsPorts[i]);
 
 	if (pthread_create(&idGossipSend, NULL, conectar_seeds, NULL)) {
-		printf(
-				RED"Memoria.c: iniciar_gossiping: fallo la creacion hilo gossiping envios"STD"\n");
-		printf("Error hilo\n");
+
+		log_error(logger_error,"Memoria.c: iniciar_gossiping: fallo la creacion hilo gossiping envios");
 		return EXIT_FAILURE;
 	}
 
-	printf("TERMINO\n");
 
 	//if(pthread_create(&idConsola, NULL, recibir_comandos, NULL)){
 	/*if (pthread_create(&idGossipReciv, NULL, recibir_seeds, NULL)) {
@@ -61,6 +59,7 @@ void *conectar_seeds(void *null) { // hilo envia a las seeds
 	//liberarIPs(IPs);
 	//liberarIPs(IPsPorts);
 	for (;;) {
+		log_info(logger_invisible,"inicio gossiping");
 		conectarConSeed();
 		usleep(vconfig.retardoGossiping() * 1000);
 	// Envia mensaje a las seeds que conoce
@@ -68,14 +67,6 @@ void *conectar_seeds(void *null) { // hilo envia a las seeds
 	return NULL;
 }
 
-void *recibir_seeds(void *null) { // hilo que responde con las memorias conocidas
-	//pthread_detach(pthread_self());
-
-	for (;;) {
-		//Escucha todo el tiempo y cuando llegue mensaje devuelve las memorias que conoce y estan activas
-	}
-	return NULL;
-}
 void quitarCaracteresPpioFin(char* cadena) {
 	//char * temporal = malloc(sizeof(char) * (strlen(cadena) - 1)); //Me sobran 2 de comillas (-2) y +1 para el '\0'
 	int i;
@@ -103,8 +94,8 @@ void conectarConSeed() {
 		printf("FOR IPS\n");
 		int socket = connect_to_server(IPs[conteo_seeds],IPsPorts[conteo_seeds]);
 		if (socket == EXIT_FAILURE) {
-			log_error(logger_invisible, "La memoria no esta activa");
-			printf("No activa\n");
+			log_info(logger_invisible, "La memoria seed no esta activa %s:%s",IPs[conteo_seeds],IPsPorts[conteo_seeds]);
+
 			 bool buscarMemoria(void * buscoMemoria){
 				 printf("Buscar Memoria %s %s\n",IPs[conteo_seeds],IPsPorts[conteo_seeds]);
 				 int comparoPort = strcmp(IPsPorts[conteo_seeds],((knownMemory_t*)buscoMemoria)->ip_port);
@@ -112,7 +103,7 @@ void conectarConSeed() {
 				 //return ((IPs[conteo_seeds] == ((knownMemory_t*)buscoMemoria)->ip) && (IPsPorts[conteo_seeds] == ((knownMemory_t*)buscoMemoria)->ip_port));
 				 printf("Buscar primeri %s  BUSCAR SEGUNDO %s\n",IPsPorts[conteo_seeds],((knownMemory_t*)buscoMemoria)->ip_port);
 
-				 if((comparoPort * comparoPort + comparoPort * comparoPort ) == 0) // Como me puede dar negativo, saco los modulos. En el caso de que la IP y el puerto sean iguales devuelve 0 la suma
+				 if((comparoPort * comparoPort + comparoIP * comparoIP ) == 0) // Como me puede dar negativo, saco los modulos. En el caso de que la IP y el puerto sean iguales devuelve 0 la suma
 					 return 1; //Tengo que ir a destruirMemoria
 				 else
 					 return 0;	// No hago nada
@@ -128,7 +119,7 @@ void conectarConSeed() {
 			// Debo quitar del diccionario esta memoria ya que no esta
 		} else {
 		 printf ("memoria activa\n");
-		 log_error(logger_invisible, "Memoria conocida. Envia rmensaje");
+		 log_info(logger_invisible, "Memoria conocida. Enviar mensaje %s:%s ",IPs[conteo_seeds],IPsPorts[conteo_seeds]);
 
 		 ConsultoPorMemoriasConocidas(socket); //
 
@@ -157,10 +148,11 @@ void conectarConSeed() {
 		request.TipoDeMensaje = GOSSIPING_REQUEST;
 		printf("Paquete armado\n");
 	 request.Argumentos.GOSSIPING_REQUEST.resultado_comprimido = envio;
-
+	 log_info(logger_invisible, "Envio gossiping %d\n",request.TipoDeMensaje);
 	 send_msg(socketSEEDS,request);
 	 printf("Envio %d\n",request.TipoDeMensaje);
 	 request = recv_msg(socketSEEDS);
+	 log_info(logger_invisible, "Respuesta gossiping %d\n",request.TipoDeMensaje);
 	 printf("Respuesta\n");
 
 	 t_list *aux = list_create();
@@ -208,8 +200,7 @@ void conectarConSeed() {
 	 	listaMemoriasConocidas = list_duplicate(aux); //Duplico la lista auxiliar con todos los elementos del nuevo describe, manteniendo los del anterior describe (son sus respecrtivos atributos de criterios), y eliminando los viejos (ya que nunca se agregaron a la listaAuxiliar)
 	 	list_destroy(aux);
 
-
-	 	printf("Fin GOSSIP\n");
+	 	log_info(logger_invisible,"Fin GOSSIP\n");
 	 	close(socketSEEDS);
 
  }
@@ -225,6 +216,7 @@ Operacion recibir_gossiping (Operacion resultado){
 	t_list *aux = list_create();
 	t_list *aux_filtro = list_create();
 		 list_add_all(aux,listaMemoriasConocidas);
+		 log_info(logger_invisible, "Recibo mensaje gossiping: %s",resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 		 char **descompresion = descomprimir_memoria(resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 		for(int i=0; descompresion[i]!=NULL; i+=3){
 			knownMemory_t *memoria;
@@ -238,7 +230,7 @@ Operacion recibir_gossiping (Operacion resultado){
 				memoria->ip_port =string_from_format( descompresion[i+2]);
 				int socketNew = connect_to_server(descompresion[i+1],descompresion[i+2]);
 		 				if (socketNew == EXIT_FAILURE) {
-		 					log_error(logger_invisible, "La memoria no esta activa");
+		 					log_info(logger_invisible, "La memoria no esta activa %s:%s",descompresion[i+1],descompresion[i+2]);
 		 					printf("No activa\n");
 
 		 					// Debo quitar de la lista esta memoria ya que no esta
@@ -297,7 +289,7 @@ Operacion recibir_gossiping (Operacion resultado){
 		 }
 	resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido = envio;
 
-
+	log_info(logger_visible,"Envio mensaje gossiping %s",envio);
 
 
 

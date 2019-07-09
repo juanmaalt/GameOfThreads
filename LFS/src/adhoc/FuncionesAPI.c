@@ -196,7 +196,7 @@ void escribirArchivoMetadata(char* path, Comando comando){
 
 void crearArchivosBinarios(char* path, int particiones){
 	char* pathArchivo = malloc(2000 * sizeof(char));
-	char filename[8];
+	char filename[10];
 	FILE* binario;
 
 	for(int i=0;i<particiones;i++){
@@ -205,8 +205,9 @@ void crearArchivosBinarios(char* path, int particiones){
 		strcpy(pathArchivo, path);
 		strcat(pathArchivo, filename);
 
+		int bloque = getBloqueLibre();
 		binario = txt_open_for_append(pathArchivo);
-		txt_write_in_file(binario, string_from_format("SIZE=0\nBLOCKS=[]\n"));
+		txt_write_in_file(binario, string_from_format("SIZE=0\nBLOCKS=[%d]\n",bloque));
 	}
 	free(pathArchivo);
 	free(binario);
