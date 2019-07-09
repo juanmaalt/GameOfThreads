@@ -26,7 +26,7 @@ void mostrarPathSegmentos() {
 int main(void) {
 	//Se hacen las configuraciones iniciales para log y config
 	if (configuracion_inicial() == EXIT_FAILURE) {
-		log_error(logger_invisible,
+		log_error(logger_error,
 				"Memoria.c: main: no se pudo generar la configuracion inicial");
 
 		return EXIT_FAILURE;
@@ -45,12 +45,13 @@ int main(void) {
 
 	// Inicializar la memoria principal
 	if (inicializar_memoriaPrincipal() == EXIT_FAILURE) {
-		log_error(logger_invisible,
+		log_error(logger_error,
 				"Memoria.c: main: no se pudo inicializar la memoria principal");
 
 		return EXIT_FAILURE;
 	}
-	printf("Memoria Inicializada correctamente\n");
+
+	log_info(logger_visible,"Memoria Inicializada correctamente\n");
 
 	//TODO:GOSSIPING
 	//iniciar_gossiping();
@@ -64,7 +65,7 @@ int main(void) {
 	//Inicio consola
 
 	if (iniciar_consola() == EXIT_FAILURE) {
-		log_error(logger_invisible,
+		log_error(logger_error,
 				"Memoria.c: main: no se pudo levantar la consola");
 
 		return EXIT_FAILURE;
@@ -72,7 +73,7 @@ int main(void) {
 
 	//TODO: hilo de JOURNAL
 	if(iniciar_Journal() == EXIT_FAILURE){
-		log_error(logger_invisible,
+		log_error(logger_error,
 						"Memoria.c: main: no se pudo iniciar el hilo journal");
 
 				return EXIT_FAILURE;
@@ -80,7 +81,7 @@ int main(void) {
 
 	//Habilita el server y queda en modo en listen
 	if (iniciar_serverMemoria() == EXIT_FAILURE) {
-		log_error(logger_invisible,
+		log_error(logger_error,
 				"Memoria.c: main: no se pudo levantar el servidor");
 
 		return EXIT_FAILURE;
@@ -95,15 +96,15 @@ void *realizarJournal(void* null){
 	pthread_detach(pthread_self());
 	while(1){
 		usleep(vconfig.retardoJOURNAL() * 1000);
-		printf("Journal AUTOMATICO\n");
-		//TODO: LOGGEAR CUANDO SE VA HACER JOURNAL AUTOMATICO
+
+		log_info(logger_invisible,"Inicio Journal automatico");
 		journalAPI();
 	}
 }
 
 int iniciar_Journal(void){
 	if (pthread_create(&idJournal, NULL, realizarJournal, NULL)) {
-			log_error(logger_invisible,
+			log_error(logger_error,
 					"Memoria.c: iniciar_consola: fallo el hilo de JOURNAL automatico");
 			return EXIT_FAILURE;
 	}
@@ -138,7 +139,7 @@ void *connection_handler(void *nSocket) {
 
 	switch (resultado.TipoDeMensaje) {
 	case COMANDO:
-		log_info(logger_visible,"Comando recibido: %s\n",resultado.Argumentos.COMANDO.comandoParseable);
+		log_info(logger_visible,"Request recibido por SOCKET: %s\n",resultado.Argumentos.COMANDO.comandoParseable);
 		resultado = ejecutarOperacion(resultado.Argumentos.COMANDO.comandoParseable,false);
 		send_msg(socket, resultado);
 		break;
@@ -177,6 +178,7 @@ int realizarHandshake(void) {
 		return EXIT_FAILURE;
 	}
 	printf("TAMAÑO_VALUE= %d\n", tamanioValue);
+	log_info(logger_visible, "Handshake realizado correctamente");
 	return EXIT_SUCCESS;
 }
 
@@ -246,7 +248,7 @@ int inicializar_memoriaPrincipal() {
 
 int iniciar_consola() {
 	if (pthread_create(&idConsola, NULL, recibir_comandos, NULL)) {
-		log_error(logger_invisible,
+		log_error(logger_error,
 				"Memoria.c: iniciar_consola: fallo la creacion de la consola");
 
 		return EXIT_FAILURE;
@@ -284,7 +286,7 @@ int inicializar_configs() {
 	configFile = config_create(STANDARD_PATH_MEMORIA_CONFIG);
 
 	if (configFile == NULL) {
-		printf(
+		log_error(logger_error,
 				"Memoria.c: extraer_data_config: no se encontro el archivo 'Memoria.config'. Deberia estar junto al ejecutable");
 		return EXIT_FAILURE;
 	}

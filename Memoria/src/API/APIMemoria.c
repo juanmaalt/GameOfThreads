@@ -20,9 +20,9 @@ Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 			break;
 		case INSERT:
 			if ((strlen(parsed->argumentos.INSERT.value) + 1) > tamanioValue) {
-				printf("TamValue teorico: %d\nTamValue real: %d\n",
+				/*log_error(logger_error,"TamValue teorico: %d\nTamValue real: %d\n",
 						tamanioValue,
-						(strlen(parsed->argumentos.INSERT.value) + 1));
+						(strlen(parsed->argumentos.INSERT.value) + 1));*/
 				retorno.Argumentos.ERROR.mensajeError = string_from_format(
 						"Error en el tamanio del value. Segmentation Fault");
 				retorno.TipoDeMensaje = ERROR;
@@ -108,8 +108,8 @@ Operacion selectAPI(char* input, Comando comando) {
 			return resultadoSelect;
 
 		}else{
-			printf(YEL"APIMemoria.c: select: no encontro la key. Enviar a LFS la request"STD"\n"); //TODO: meter en log
-
+			//printf(YEL"APIMemoria.c: select: no encontro la key. Enviar a LFS la request"STD"\n");
+			log_error(logger_error,"APIMemoria.c: select: no encontro la key. Enviar a LFS la request");
 			enviarRequestFS(input);
 
 			resultadoSelect=recibirRequestFS();
@@ -132,7 +132,7 @@ Operacion selectAPI(char* input, Comando comando) {
 		}
 
 	}else{ //NO EXISTE EL SEGMENTO
-		printf(YEL"APIMemoria.c: select: no se encontro el path. Enviando a LFS la request"STD"\n");
+		log_error(logger_error,"APIMemoria.c: select: no se encontro el path. Enviando a LFS la request");
 
 		enviarRequestFS(input);
 
@@ -199,7 +199,7 @@ Operacion insertAPI(char* input, Comando comando) {
 
 			actualizarValueDeKey(comando.argumentos.INSERT.value, registroBuscado);
 
-			printf("Se realizo el INSERT\n");
+			log_info(logger_invisible,"Se realizo el INSERT, estaba en memoria\n");
 
 			resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
 			resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format(
@@ -215,9 +215,12 @@ Operacion insertAPI(char* input, Comando comando) {
 				resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
 				resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format(
 									"INSERT REALIZADO CON EXITO");
+
+				log_info(logger_invisible,"Se realizo el INSERT, se pide pidio pagina\n");
 				return resultadoInsert;
 			}
 
+			//log_info(logger_invisible,"Se realizo el INSERT, estaba en memoria\n");
 			resultadoInsert.TipoDeMensaje = ERROR;
 			resultadoInsert.Argumentos.ERROR.mensajeError= string_from_format("MEMORIA FULL, REALIZAR JOURNAL");
 			return resultadoInsert;
@@ -326,7 +329,7 @@ Operacion dropAPI(char* input, Comando comando) {
 
 		liberarSegmento(segmentoSeleccionado);
 
-		printf("Drop realizado\n");
+		log_info(logger_visible,"Drop realizado\n");
 		/*
 		resultadoDrop.TipoDeMensaje = TEXTO_PLANO;
 		resultadoDrop.Argumentos.TEXTO_PLANO.texto = string_from_format(
@@ -423,7 +426,7 @@ Operacion journalAPI(){
 				//INSERT <NombreTabla> <KEY> “<VALUE>” <TIMESTAMP>
 				input=string_from_format("INSERT %s %d \"%s\" %llu",nombreTabla,registroAEnviar.Argumentos.REGISTRO.key,registroAEnviar.Argumentos.REGISTRO.value, registroAEnviar.Argumentos.REGISTRO.timestamp);
 
-				printf("Request mandada: %s \n", input);
+				log_info(logger_invisible,"Request mandada: %s \n", input);
 
 				//enviarRequestFS(input);
 

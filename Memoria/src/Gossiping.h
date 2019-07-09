@@ -38,7 +38,7 @@ void liberarIPs(char** );
 void quitarCaracteresPpioFin(char* );
 void conectarConSeed();
 void *conectar_seeds(void*);
-void *recibir_seeds(void*);
+
 void ConsultoPorMemoriasConocidas(int );
 Operacion recibir_gossiping (Operacion);
 static knownMemory_t *machearMemoria(int );

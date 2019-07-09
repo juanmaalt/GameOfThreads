@@ -9,16 +9,16 @@
 void mostrarRetorno(Operacion retorno) {
 	switch (retorno.TipoDeMensaje) {
 	case REGISTRO:
-		printf("Timestamp: %llu\nKey:%d\nValue: %s\n",
+		log_info(logger_visible,"Timestamp: %llu\nKey:%d\nValue: %s\n",
 				retorno.Argumentos.REGISTRO.timestamp,
 				retorno.Argumentos.REGISTRO.key,
 				retorno.Argumentos.REGISTRO.value);
 		return;
 	case TEXTO_PLANO:
-		printf("Resultado: %s\n",retorno.Argumentos.TEXTO_PLANO.texto);
+		log_info(logger_visible,"Resultado: %s\n",retorno.Argumentos.TEXTO_PLANO.texto);
 		return;
 	case ERROR:
-		printf("ERROR: %s \n",retorno.Argumentos.ERROR.mensajeError);
+		log_error(logger_error,"%s \n",retorno.Argumentos.ERROR.mensajeError);
 		return;
 	case COMANDO:
 		return;
@@ -30,6 +30,7 @@ void *recibir_comandos(void *null) {
 	Operacion retorno;
 	for (;;) {
 		char *userInput = readline("> ");
+		log_info(logger_invisible,"Request recibida por CONSOLA: %s",userInput);
 		retorno = ejecutarOperacion(userInput, true); //libera el userInput en la funcion
 		mostrarRetorno(retorno);
 		destruir_operacion(retorno);
