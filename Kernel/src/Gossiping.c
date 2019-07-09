@@ -30,12 +30,14 @@ static void hacer_gossiping(void *memoria){
 	int socket = connect_to_server(((Memoria*)memoria)->ip, ((Memoria*)memoria)->puerto);
 	if(socket == EXIT_FAILURE)
 		return;
-
 	Operacion op;
 	t_list *memoriasActivas;
 	op.TipoDeMensaje = GOSSIPING_REQUEST_KERNEL;
+
 	send_msg(socket, op);
+	printf("ENVIO GOSSIPING REQUEST\n");
 	op = recv_msg(socket);
+	printf("RECIBO %s\n",op.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 	if(op.TipoDeMensaje == GOSSIPING_REQUEST)
 		if(op.Argumentos.GOSSIPING_REQUEST.resultado_comprimido != NULL)
 			memoriasActivas = procesar_gossiping(op.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);

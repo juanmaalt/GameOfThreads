@@ -152,6 +152,7 @@ void *connection_handler(void *nSocket) {
 	case GOSSIPING_REQUEST:
 		resultado = recibir_gossiping(resultado);
 		send_msg(socket, resultado);
+
 		break;
 	case GOSSIPING_REQUEST_KERNEL:
 		resultado = recibir_gossiping(resultado);

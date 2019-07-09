@@ -278,7 +278,9 @@ Operacion recibir_gossiping (Operacion resultado){
 		printf("Lista actualizada\n");
 	}
 
-
+	if(resultado.TipoDeMensaje == GOSSIPING_REQUEST_KERNEL) {
+		printf("FACUNDO SALERNO\n");
+	}
 	// Preparo mensaje para enviar mis memorias conocidas
 	for(int i = 0; list_size(listaMemoriasConocidas ) > i ; i++) {
 			 printf("Entro en lista\n");
@@ -287,6 +289,7 @@ Operacion recibir_gossiping (Operacion resultado){
 			 concatenar_memoria(&envio, string_from_format("%d", recupero->memory_number) ,recupero->ip , recupero->ip_port);
 			 printf("CONCATENO MENSAJE : %s\n",envio);
 		 }
+	resultado.TipoDeMensaje = GOSSIPING_REQUEST;
 	resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido = envio;
 
 	log_info(logger_visible,"Envio mensaje gossiping %s",envio);
