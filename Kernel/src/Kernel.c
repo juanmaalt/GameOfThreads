@@ -112,7 +112,6 @@ static int inicializar_configs() {
 	strcpy(fconfig.puerto_memoria_principal, config_get_string_value(configFile, "PUERTO_MEMORIA"));
 
 	fconfig.multiprocesamiento = config_get_int_value(configFile, "MULTIPROCESAMIENTO");
-	fconfig.numero_memoria_principal = config_get_int_value(configFile, "MEMORY_NUMBER");
 
 	config_destroy(configFile);
 

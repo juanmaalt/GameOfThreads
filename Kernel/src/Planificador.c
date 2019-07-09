@@ -13,11 +13,12 @@ static int iniciar_unidades_de_ejecucion();
 int iniciar_planificador(){
 	if(iniciar_unidades_de_ejecucion() == EXIT_FAILURE)
 		RETURN_ERROR("Planificador.c: iniciar_planificador: no se pudieron iniciar las unidades de ejecucion");
-	if(verificar_memoria_principal() == EXIT_FAILURE)
-		RETURN_ERROR("Planificador.c: iniciar_planificador: no se pudo establecer una conexion con la memoria principal");
 
 	if(iniciar_sistema_de_criterios() == EXIT_FAILURE)
 		RETURN_ERROR("Planificador.c: iniciar_planificador: no se pudo iniciar el sistema de criterios");
+
+	if(verificar_memoria_principal() == EXIT_FAILURE)
+			RETURN_ERROR("Planificador.c: iniciar_planificador: no se pudo establecer una conexion con la memoria principal");
 
 	colaDeReady = queue_create();
 	sem_post(&disponibilidadPlanificador); //No queremos que la consola agregue algo a la cola de news si todavia no existe la cola de news
@@ -41,8 +42,9 @@ int verificar_memoria_principal(){
 	Memoria *principal = malloc(sizeof(Memoria));
 	principal->ip = string_from_format(fconfig.ip_memoria_principal);
 	principal->puerto = string_from_format(fconfig.puerto_memoria_principal);
-	principal->numero = fconfig.numero_memoria_principal;
+	principal->numero = 1; //TODO
 	list_add(memoriasExistentes, principal);
+	return EXIT_SUCCESS;
 }
 
 

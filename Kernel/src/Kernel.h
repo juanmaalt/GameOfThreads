@@ -40,7 +40,6 @@
 struct Config_datos_fijos{
 	char *ip_memoria_principal;
 	char *puerto_memoria_principal;
-	int numero_memoria_principal;
 	int multiprocesamiento;
 };
 
