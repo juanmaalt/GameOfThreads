@@ -68,9 +68,10 @@ int send_msg(int socket, Operacion operacion) {
 		memcpy(content+2*sizeof(int)+sizeof(char)*longCadena, &(operacion.opCode), sizeof(id));
 		break;
 	case GOSSIPING_REQUEST_KERNEL:
-		total = sizeof(int);
+		total = sizeof(int) + sizeof(int);
 		content=malloc(total);
 		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
+		memcpy(content+sizeof(int), &(operacion.opCode), sizeof(int));
 		break;
 	case DESCRIBE_REQUEST:
 		longCadena = strlen(operacion.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
