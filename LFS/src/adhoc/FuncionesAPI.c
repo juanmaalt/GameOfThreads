@@ -196,7 +196,7 @@ void escribirArchivoMetadata(char* path, Comando comando){
 
 void crearArchivosBinarios(char* path, int particiones){
 	char* pathArchivo = malloc(2000 * sizeof(char));
-	char filename[8];
+	char filename[10];
 	FILE* binario;
 
 	for(int i=0;i<particiones;i++){

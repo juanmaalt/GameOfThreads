@@ -14,9 +14,13 @@ void compactar(char* nombreTabla){
 	char* nombreArchivo;
 
 	strcpy(pathTabla,config.punto_montaje);
-	strcat(pathTabla, "Tables");
-	strcat(pathTabla, "/");
+	strcat(pathTabla, "Tables/");
 	strcat(pathTabla, nombreTabla);
+
+	t_config* metadataFile = leerMetadata(nombreTabla);
+	if(getMetadata(nombreTabla, metadataFile)==EXIT_FAILURE){
+		printf("No existe el archivo Metadata de la tabla solicitada.\n");
+	}
 
 	//printf("path: %s\n", pathTabla);
 
@@ -30,26 +34,20 @@ void compactar(char* nombreTabla){
 		while((entry = readdir (dir)) != NULL){
 			nombreArchivo = string_from_format(entry->d_name);
 			if(string_contains(nombreArchivo, ".tmpc")){
-				char* pathFile = malloc(1000 * sizeof(char));
+				char* pathTemp = malloc(1000 * sizeof(char));
 
-				strcpy(pathFile, pathTabla);
-				strcat(pathFile, "/");
-				strcat(pathFile, nombreArchivo);
-
-				FILE* temp;
-			    int timestamp, key;
-			    char value[1000];
+				strcpy(pathTemp, pathTabla);
+				strcat(pathTemp, "/");
+				strcat(pathTemp, nombreArchivo);
 
 			    log_info(logger_visible, "Compactar(%s): [%s] es un archivo temporal, compactar\n", nombreTabla, nombreArchivo);
 
-				temp= fopen(pathFile, "r");
-				while(fscanf(temp, "%d;%d;%[^\n]s", &timestamp, &key, value)!= EOF){
-					printf("%d;%d;%s\n", timestamp, key ,value);
-				}
-				fclose(temp);
+			    leerTemporal(pathTemp, metadata.partitions, nombreTabla);
+
+				//remove(pathFile); //Descomentar cuando ande todo como se espera
 			}
 			else{
-				log_info(logger_visible, "Compactar(%s): [%s] no es un archivo temporal, no compactar\n", nombreTabla, nombreArchivo);
+				log_info(logger_invisible, "Compactar(%s): [%s] no es un archivo temporal, no compactar\n", nombreTabla, nombreArchivo);
 			}
 		}
 
@@ -75,3 +73,79 @@ void compactar(char* nombreTabla){
 	}
 	free(pathTabla);
 }
+
+
+void leerTemporal(char* pathTemp, int particiones, char* nombreTabla){
+	FILE* temp;
+    int timestamp, key;
+    char value[1000];
+
+	temp= fopen(pathTemp, "r");
+	while(fscanf(temp, "%d;%d;%[^\n]s", &timestamp, &key, value)!= EOF){
+		printf("%d;%d;%s\n", timestamp, key ,value);
+		int particionNbr = calcularParticionNbr(string_from_format("%d", key), particiones);
+		printf("Partición Nro: %d\n", particionNbr);
+
+		char* listaDeBloques= obtenerListaDeBloques(particionNbr, nombreTabla);
+		printf("bloques: %s\n",listaDeBloques);
+
+		readAndWriteBloque(listaDeBloques);
+
+	}
+	fclose(temp);
+}
+
+char* obtenerListaDeBloques(int particion, char* nombreTabla){
+	char* pathFile = malloc(1000 * sizeof(char));
+	strcpy(pathFile,config.punto_montaje);
+	strcat(pathFile, "Tables/");
+	strcat(pathFile, nombreTabla);
+	strcat(pathFile, "/");
+	strcat(pathFile, string_from_format("%d", particion));
+	strcat(pathFile, ".bin");
+
+	t_config* particionFile;
+	particionFile = config_create(pathFile);
+	char* resultado = config_get_string_value(particionFile, "BLOCKS");
+	char* listaDeBloques = string_from_format(resultado);
+
+	config_destroy(particionFile);
+	free(pathFile);
+
+	return listaDeBloques;
+}
+
+void readAndWriteBloque(char* listaDeBloques){
+	char* pathBloques = malloc(1000 * sizeof(char));
+	strcpy(pathBloques,config.punto_montaje);
+	strcat(pathBloques, "Bloques/");
+	char* pathBloque = malloc(1000 * sizeof(char));
+
+	char** bloques = string_get_string_as_array(listaDeBloques);
+
+	for(int i=0;bloques[i]!=NULL;i++){
+		strcpy(pathBloque,pathBloques);
+		strcat(pathBloque, bloques[i]);
+		strcat(pathBloque, ".bin");
+		//printf("path: %s\n", pathBloque);
+
+		FILE* fBloque = fopen(pathBloque, "r+");
+		char ch;
+		int count=0;
+
+		while((ch=fgetc(fBloque))!=EOF){
+			count++;
+		}
+		printf("la cantidad de caracteres en %s.bin es %d\n", bloques[i], count);
+
+		fclose(fBloque);
+	}
+
+	free(pathBloque);
+	free(pathBloques);
+}
+
+
+
+
+

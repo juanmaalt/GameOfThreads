@@ -74,8 +74,8 @@ int getBloqueLibre(){
 }
 
 void liberarBloque(int pos){
-	if(bitarray_test_bit(bitarray, pos)){
-		bitarray_clean_bit(bitarray, pos);
+	if(bitarray_test_bit(bitarray, (pos-1))){
+		bitarray_clean_bit(bitarray, (pos-1));
 		escribirBitmap();
 	}
 }
