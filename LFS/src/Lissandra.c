@@ -36,6 +36,9 @@ int main(void) {
 	/*Levantar Tablas*/
 	levantarTablasEnMemtable();
 
+	/*Levantar Bitmap*/
+	leerBitmap();
+
 	/*Creo el diccionario para las tablas en compactación*/
 	diccCompactacion = inicializarDiccionario();
 
