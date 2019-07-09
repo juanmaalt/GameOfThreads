@@ -57,6 +57,7 @@ int main(void) {
 	/*Libero recursos*/
 	config_destroy(configFile);
 	dictionary_destroy(memtable);
+	bitarray_destroy(bitarray);
 
 	return EXIT_SUCCESS;
 }

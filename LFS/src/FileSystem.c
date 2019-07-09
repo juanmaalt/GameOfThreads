@@ -32,7 +32,7 @@ void checkEstructuraFS(){
 
 
 void crearEstructuraFS(int blockSize, int blocks, char* magicNumber){
-	char* path = malloc(100 * sizeof(char));
+	char* path = malloc(1000 * sizeof(char));
 
 	/*Creo el directorio de montaje*/
 	crearDirectorioDeMontaje(config.punto_montaje);
@@ -98,58 +98,6 @@ t_config* leer_MetadataFS(){
 void extraer_MetadataFS(){
 	metadataFS.blockSize = config_get_int_value(metadata_FS, "BLOCKSIZE");
 	metadataFS.blocks = config_get_int_value(metadata_FS, "BLOCKS");
-}
-
-void leerBitmap(){
-	log_info(logger_invisible, "Inicio levantarBitmap");
-	int size = ((metadataFS.blocks/8)+1);
-	char* path = malloc(1000 * sizeof(char));
-	strcpy(path, config.punto_montaje);
-	strcat(path, "Metadata/Bitmap.bin");
-
-	//printf("path: %s\n", path);
-
-	int fileDescriptor;
-	char* bitmap;
-
-	/*Abro el bitmap.bin, provisto o creado por la consola del fileSystem*/
-	fileDescriptor = open(path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
-	/*Trunco el archivo con la longitud de los bloques, para evitar problemas*/
-	ftruncate(fileDescriptor, size);
-	if(fileDescriptor == -1){
-		log_error(logger_visible, "No se pudo abrir el archivo");
-		return;
-	}
-
-		//printf("antes del mmap\n");
-	/*Mapeo a la variable bitmap el contenido del fileDescriptor*/
-	bitmap = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor, 0);
-
-	/*Inicializo el bitmap ni bien se abre, si está vacío*/
-	if(strlen(bitmap)==0){
-		memset(bitmap,0,size);
-	}
-
-		//printf("antes del bitarray_create\nsize= %d\n", size);
-	/*Creo el bitarray para poder manejar lo leído del bitmap*/
-	bitarray = bitarray_create_with_mode(bitmap, size, MSB_FIRST);
-
-		//printf("antes del msync\n");
-	/*Sincronizo el archivo con los datos del bitarray*/
-	msync(bitarray, size, MS_SYNC);
-
-	//log_info(logger_visible, "El tamanio del bitmap es de %lu bits", tamanio);
-
-	munmap(bitarray,size);
-/*Función para imprimir
-	for(int i=0;i<metadataFS.blocks;i++){
-		bool valor = bitarray_test_bit(bitarray, i);
-		printf("valor bit= %d\n", valor);
-	}
-*/
-	close(fileDescriptor);
-	free(path);
-
 }
 /*FIN FUNCIONES*/
 
@@ -261,7 +209,7 @@ void levantarTablasEnMemtable(){
 			if(!strcmp(nombreCarpeta, ".") || !strcmp(nombreCarpeta, "..")){
 			}else{
 				crearTablaEnMemtable(nombreCarpeta);
-				printf("Tabla levantada: %s\n", nombreCarpeta);
+				log_info(logger_visible, "Tabla levantada: %s\n", nombreCarpeta);
 			}
 		}
 		closedir (dir);

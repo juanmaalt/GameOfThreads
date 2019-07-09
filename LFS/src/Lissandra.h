@@ -33,6 +33,7 @@
 
 #include "adhoc/Consola.h"
 #include "adhoc/APILissandra.h"
+#include "adhoc/Bitmap.h"
 #include "FileSystem.h"
 #include "Compactador.h"
 

@@ -11,8 +11,6 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <sys/mman.h>
-#include <fcntl.h>
 
 #include "Lissandra.h"
 
@@ -42,6 +40,5 @@ void levantarTablasEnMemtable();
 int levantarMetadata();
 t_config* leer_MetadataFS();
 void extraer_MetadataFS();
-void leerBitmap();
 
 #endif /* FILESYSTEM_H_ */
