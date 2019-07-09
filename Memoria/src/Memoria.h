@@ -10,6 +10,15 @@
 
 #define STANDARD_PATH_MEMORIA_CONFIG "Memoria.config"
 
+#define RETURN_ERROR(mensaje) {if(logger_error != NULL && logger_invisible != NULL){ \
+									log_error(logger_error, "%s", mensaje); \
+									log_error(logger_invisible, "%s", mensaje); \
+								}else{ \
+									printf(RED"%s"STD"\n", mensaje); \
+								} \
+								return EXIT_FAILURE; \
+							   }
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -28,6 +37,7 @@
 #include <epoch/epoch.h>
 #include <pthread.h>
 #include <semaphore.h>
+#include <sys/stat.h> //Para mkdir
 
 #include "Consola.h"
 #include "API/APIMemoria.h"
@@ -67,7 +77,7 @@ int configuracion_inicial(void);
 int realizarHandshake(void);
 void *connection_handler(void *);
 
-t_log* iniciar_logger(bool);
+t_log* iniciar_logger(char* fileName, bool visibilidad, t_log_level level);
 int inicializar_configs();
 
 
@@ -94,6 +104,7 @@ vConfig vconfig; //Contiene solo los datos variables del config
 
 t_log* logger_visible;
 t_log* logger_invisible;
+t_log* logger_error;
 
 //Estructuras de memoria
 

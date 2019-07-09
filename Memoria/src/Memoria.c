@@ -93,7 +93,6 @@ int main(void) {
 
 void *realizarJournal(void* null){
 	pthread_detach(pthread_self());
-	printf("HILO Journal AUTOMATICO\n");
 	while(1){
 		usleep(vconfig.retardoJOURNAL() * 1000);
 		printf("Journal AUTOMATICO\n");
@@ -256,31 +255,27 @@ int iniciar_consola() {
 }
 
 int configuracion_inicial() {
+	//INICIALIZAR SEMAFOROS ACA
 
-	logger_visible = iniciar_logger(true);
-	if (logger_visible == NULL) {
-		log_error(logger_invisible,
-				"Memoria.c: configuracion_inicial: error en 'logger_visible = iniciar_logger(true)");
-		//printf(
-		//		RED"Memoria.c: configuracion_inicial: error en 'logger_visible = iniciar_logger(true);'"STD"\n");
-		return EXIT_FAILURE;
-	}
+	mkdir("Logs", 0777); //Crea la carpeta Logs junto al ejecutable (si ya existe no toca nada de lo que haya adentro)
 
-	logger_invisible = iniciar_logger(false);
-	if (logger_visible == NULL) {
-		log_error(logger_invisible,
-				"Memoria.c: configuracion_inicial: error en 'logger_invisible = iniciar_logger(false)");
-		//printf(
-		//	RED"Memoria.c: configuracion_inicial: error en 'logger_invisible = iniciar_logger(false);'"STD"\n");
-		return EXIT_FAILURE;
-	}
+	remove("Logs/MemoriaResumen.log"); //Esto define que cada ejecucion, el log se renueva
 
-	if (inicializar_configs() == EXIT_FAILURE) {
-		log_error(logger_invisible,
-				"Memoria.c: configuracion_inicial: error en el archivo 'Memoria.config'");
+	logger_visible = iniciar_logger("Logs/MemoriaResumen.log", true, LOG_LEVEL_INFO);
+	if(logger_visible == NULL)
+		RETURN_ERROR("Memoria.c: configuracion_inicial: error en 'logger_visible = iniciar_logger(true);'");
 
-		return EXIT_FAILURE;
-	}
+	logger_invisible = iniciar_logger("Logs/MemoriaTodo.log", false, LOG_LEVEL_INFO);
+	if(logger_invisible == NULL)
+		RETURN_ERROR("Memoria.c: configuracion_inicial: error en 'logger_invisible = iniciar_logger(false);'");
+
+	remove("Logs/MemoriaErrores.log");
+	logger_error = iniciar_logger("Logs/MemoriaErrores.log", true, LOG_LEVEL_ERROR);
+	if(logger_error == NULL)
+		RETURN_ERROR("Memoria.c: configuracion_inicial: error en 'logger_error = iniciar_logger(true);'");
+
+	if (inicializar_configs() == EXIT_FAILURE)
+		RETURN_ERROR("Memoria.c: configuracion_inicial: error en la extraccion de datos del archivo de configuracion");
 
 	return EXIT_SUCCESS;
 }
@@ -312,9 +307,10 @@ int inicializar_configs() {
 	return EXIT_SUCCESS;
 }
 
-t_log* iniciar_logger(bool visible) {
-	return log_create("Memoria.log", "Memoria", visible, LOG_LEVEL_INFO);
+t_log* iniciar_logger(char* fileName, bool visibilidad, t_log_level level) {
+	return log_create(fileName, "Memoria", visibilidad, level);
 }
+
 
 void extraer_data_fija_config() {
 	fconfig.ip = config_get_string_value(configFile, "IP");
