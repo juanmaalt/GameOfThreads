@@ -28,8 +28,11 @@ static void *main_gossiping(void *null){
 
 static void hacer_gossiping(void *memoria){
 	int socket = connect_to_server(((Memoria*)memoria)->ip, ((Memoria*)memoria)->puerto);
-	if(socket == EXIT_FAILURE)
+	if(socket == EXIT_FAILURE){
+		remover_memoria((Memoria*)memoria);
 		return;
+	}
+
 	Operacion op;
 	t_list *memoriasActivas;
 	op.TipoDeMensaje = GOSSIPING_REQUEST_KERNEL;
@@ -43,6 +46,12 @@ static void hacer_gossiping(void *memoria){
 			memoriasActivas = procesar_gossiping(op.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 	agregar_sin_repetidos(memoriasExistentes, memoriasActivas);
 	list_destroy(memoriasActivas);
+	void mostarLista(void * memoria){
+		printf("%s %s %d \n",((Memoria*)memoria)->ip,((Memoria*)memoria)->puerto,((Memoria*)memoria)->numero);
+	}
+	printf("PRINCIPIO LISTA\n");
+	list_iterate(memoriasExistentes,mostarLista);
+	printf("FIN LISTA\n");
 }
 
 

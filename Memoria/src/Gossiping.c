@@ -278,9 +278,6 @@ Operacion recibir_gossiping (Operacion resultado){
 		printf("Lista actualizada\n");
 	}
 
-	if(resultado.TipoDeMensaje == GOSSIPING_REQUEST_KERNEL) {
-		printf("FACUNDO SALERNO\n");
-	}
 	// Preparo mensaje para enviar mis memorias conocidas
 	for(int i = 0; list_size(listaMemoriasConocidas ) > i ; i++) {
 			 printf("Entro en lista\n");
