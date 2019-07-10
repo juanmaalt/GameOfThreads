@@ -31,7 +31,7 @@ int main(void) {
 	/*Inicio la Memtable*/
 	memtable = inicializarDiccionario();
 
-	agregarDatos(memtable);//funcion para pruebas TODO:Borrar esto
+	//agregarDatos(memtable);//funcion para pruebas TODO:Borrar esto
 
 	/*Levantar Tablas*/
 	levantarTablasEnMemtable();
@@ -219,7 +219,8 @@ Operacion ejecutarOperacion(char* input) {
 			retorno = dropAPI(*parsed);
 			break;
 		case RUN:
-			compactar(parsed->argumentos.RUN.path);
+			agregarDatos(memtable);
+			//compactar(parsed->argumentos.RUN.path);
 			break;
 		default:
 			fprintf(stderr, RED"No se pude interpretar el enum: %d"STD"\n",parsed->keyword);
@@ -254,16 +255,16 @@ timestamp_t obtenerTimestamp(Registro* registro) {
 
 /*INICIO FUNCIONES TEST*/
 void agregarDatos(t_dictionary* memtable) {
-	Registro* reg1 = malloc(sizeof(Registro));
+	/*Registro* reg1 = malloc(sizeof(Registro));
 	Registro* reg2 = malloc(sizeof(Registro));
 	Registro* reg3 = malloc(sizeof(Registro));
 	Registro* reg4 = malloc(sizeof(Registro));
 
-	reg1->key = 3;
+	reg1->key = 1;
 	reg1->timestamp = 1558492233084;
 	reg1->value = string_from_format("pepe");
 
-	reg2->key = 4;
+	reg2->key = 2;
 	reg2->timestamp = 1558492233085;
 	reg2->value = string_from_format("carlos");
 
@@ -276,43 +277,94 @@ void agregarDatos(t_dictionary* memtable) {
 	reg4->value = string_from_format("carlos2");
 
 	t_list* lista = list_create();
-	char* tabla = string_from_format("test");
-
-	dictionary_put(memtable, tabla, lista);//Agrego una tabla y su data;
-
-	lista = dictionary_get(memtable, tabla);//obtengo la data, en el insert debera checkear que este dato no sea null
 
 	list_add(lista,reg1);
 	list_add(lista,reg2);
 	list_add(lista,reg3);
 	list_add(lista,reg4);
 
+	char* tabla = string_from_format("test");
+
+	dictionary_put(memtable, tabla, lista);//Agrego una tabla y su data;
+
+	//lista = dictionary_get(memtable, tabla);//obtengo la data, en el insert debera checkear que este dato no sea null
+*/
+	dumpTabla("test");
+
+
+
 }
 
 /*FIN FUNCIONES TEST*/
 
 /*INICIO FUNCIONES DUMP*/
-void dump(t_dictionary* memtable) {
+/*void dump(t_dictionary* memtable) {
 	//TODO: wait semaforo
-	numeroDump++;
+
 	dictionary_iterator(memtable, (void*) dumpTabla);//TODO:Arreglar
 	dictionary_clean(memtable);
 }
+*/
 
-void dumpTabla(char* nombreTable, void* value){
+int esTemp(char* nombre) {
+	char* extension = strrchr(nombre, '.');
+	if(!extension || extension == nombre) return 0;
+	return strcmp(extension + 1, "tmp") == 0;
+}
+
+int cuentaArchivos(char* path) {
+	int cuenta = 0;
+	DIR * dirp;
+	struct dirent * entry;
+
+	dirp = opendir(path);
+	while ((entry = readdir(dirp)) != NULL) {
+	    if ((entry->d_type == DT_REG) && (esTemp(entry->d_name) == 1)) {
+		 cuenta++;
+	    }
+	}
+
+	closedir(dirp);
+	return cuenta;
+}
+
+/*
+int cuentaArchivos(char* path) {
+	int cuenta = 0;
+	DIR * dirp;
+	struct dirent * entry;
+
+	dirp = opendir(path);
+	while ((entry = readdir(dirp)) != NULL) {
+	    if ((entry->d_type == DT_REG)&& string_contains(entry->d_name, "dump_")) {
+		 cuenta++;
+	    }
+	}
+
+	closedir(dirp);
+	return cuenta;
+}
+*/
+void dumpTabla(char* nombreTable){
+
 	char* path = malloc(100 * sizeof(char));
 	setPathTabla(path, nombreTable);
 
 	char* pathArchivo = malloc(110 * sizeof(char));
+
 	strcpy(pathArchivo,path);
-	strcat(pathArchivo, "dump_");
+	strcat(pathArchivo, "/dump_");
 	char str[12];
+
+	//numeroDump++;
+	int numeroDump = cuentaArchivos(path);
+
 	sprintf(str, "%d", numeroDump);
 	strcat(pathArchivo, str);
 	strcat(pathArchivo, ".tmp");
 
 	FILE* file = fopen(pathArchivo,"w");
-	t_list* list = (t_list*) value;
+	t_list * list = dictionary_get(memtable, nombreTable);//obtengo la data, en el insert debera checkear que este dato no sea null
 
 	Registro* reg = list_get(list, 0);
 
@@ -329,6 +381,6 @@ void dumpTabla(char* nombreTable, void* value){
 }
 
 void dumpRegistro(FILE* file, Registro* registro) {
-	fprintf(file, "%llu,%d,%s\n", registro->timestamp, registro->key, registro->value);
+	fprintf(file, "%llu;%d;%s\n", registro->timestamp, registro->key, registro->value);
 }
 /*FIN FUNCIONES DUMP*/
