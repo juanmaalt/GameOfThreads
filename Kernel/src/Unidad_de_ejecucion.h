@@ -16,7 +16,7 @@
 	* USAR_SOLO_MEMORIA_PRINCIPAL: Usa la memoria principal para atender todas las request sin importar si otras memorias
 	* se sumen.
 	*/
-	#define USAR_SOLO_MEMORIA_PRINCIPAL TRUE
+	#define USAR_SOLO_MEMORIA_PRINCIPAL FALSE
 
 	/**
 	* DELEGAR_A_MEMORIA_PRINCIPAL: Delega a la memoria principal todas las request que no hayan encontrado una memoria que las

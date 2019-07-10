@@ -44,7 +44,7 @@ void compactar(char* nombreTabla){
 
 			    leerTemporal(pathTemp, metadata.partitions, nombreTabla);
 
-				//remove(pathFile); //Descomentar cuando ande todo como se espera
+				remove(pathTemp); //Descomentar cuando ande todo como se espera
 			}
 			else{
 				log_info(logger_invisible, "Compactar(%s): [%s] no es un archivo temporal, no compactar\n", nombreTabla, nombreArchivo);
@@ -74,23 +74,28 @@ void compactar(char* nombreTabla){
 	free(pathTabla);
 }
 
-
 void leerTemporal(char* pathTemp, int particiones, char* nombreTabla){
 	FILE* temp;
     int timestamp, key;
-    char value[1000];
+    char value[atoi(config.tamanio_value)];
 
 	temp= fopen(pathTemp, "r");
 	while(fscanf(temp, "%d;%d;%[^\n]s", &timestamp, &key, value)!= EOF){
 		printf("%d;%d;%s\n", timestamp, key ,value);
+		char* linea = string_from_format("%d;%d;%s",timestamp, key, value);
+
 		int particionNbr = calcularParticionNbr(string_from_format("%d", key), particiones);
 		printf("Partición Nro: %d\n", particionNbr);
 
 		char* listaDeBloques= obtenerListaDeBloques(particionNbr, nombreTabla);
 		printf("bloques: %s\n",listaDeBloques);
 
-		readAndWriteBloque(listaDeBloques);
+		char* bloque = firstBloqueDisponible(listaDeBloques);
+		printf("firstBloqueDisponible: %s\n", bloque);
 
+		escribirEnBloque(bloque, linea);
+
+		free(linea);
 	}
 	fclose(temp);
 }
@@ -115,37 +120,73 @@ char* obtenerListaDeBloques(int particion, char* nombreTabla){
 	return listaDeBloques;
 }
 
-void readAndWriteBloque(char* listaDeBloques){
-	char* pathBloques = malloc(1000 * sizeof(char));
+char* firstBloqueDisponible(char* listaDeBloques){
+	char* pathBloques = malloc((strlen(config.punto_montaje)+250) * sizeof(char));
 	strcpy(pathBloques,config.punto_montaje);
 	strcat(pathBloques, "Bloques/");
-	char* pathBloque = malloc(1000 * sizeof(char));
-
+	char* pathBloque = malloc((strlen(config.punto_montaje)+300) * sizeof(char));
 	char** bloques = string_get_string_as_array(listaDeBloques);
 
-	for(int i=0;bloques[i]!=NULL;i++){
-		strcpy(pathBloque,pathBloques);
-		strcat(pathBloque, bloques[i]);
-		strcat(pathBloque, ".bin");
-		//printf("path: %s\n", pathBloque);
+	char* firstBloque=0;
+	int i=0;
 
-		FILE* fBloque = fopen(pathBloque, "r+");
-		char ch;
-		int count=0;
-
-		while((ch=fgetc(fBloque))!=EOF){
-			count++;
+	while(bloques[i]!=NULL){
+		int charsInFile = caracteresEnBloque(pathBloque,pathBloques,bloques[i]);
+		if(charsInFile < metadataFS.blockSize){
+			printf("Bloque %s con %d caracteres disponibles\n", bloques[i], (metadataFS.blockSize - charsInFile));
+			free(pathBloque);
+			free(pathBloques);
+			firstBloque=bloques[i];
 		}
-		printf("la cantidad de caracteres en %s.bin es %d\n", bloques[i], count);
-
-		fclose(fBloque);
+		else{
+			printf("Bloque %s sin caracteres disponibles\n", bloques[i]);
+			firstBloque="0";
+		}
+		i++;
 	}
+	return firstBloque;
+}
 
-	free(pathBloque);
-	free(pathBloques);
+int caracteresEnBloque(char* pathBloque, char* pathBloques, char* bloque){
+	strcpy(pathBloque,pathBloques);
+	strcat(pathBloque, bloque);
+	strcat(pathBloque, ".bin");
+	//printf("path: %s\n", pathBloque);
+
+	FILE* fBloque = fopen(pathBloque, "r+");
+	char ch;
+	int count=0;
+
+	while((ch=fgetc(fBloque))!=EOF){
+		count++;
+	}
+	//printf("la cantidad de caracteres en %s.bin es %d\n", bloque, count);
+
+	fclose(fBloque);
+	return count;
 }
 
 
+void escribirEnBloque(char* bloque, char* linea){
+	char* pathBloque = malloc((strlen(config.punto_montaje)+250) * sizeof(char));
+	strcpy(pathBloque,config.punto_montaje);
+	strcat(pathBloque, "Bloques/");
+	//char* pathBloqueNuevo = malloc((strlen(pathBloque)+250) * sizeof(char));
 
+	if(string_equals_ignore_case(bloque, "0")){
+		bloque = string_from_format("%d",getBloqueLibre());
+	}
+	strcat(pathBloque, bloque);
+	strcat(pathBloque, ".bin");
 
+	printf("pathBloque: %s\n", pathBloque);
 
+	FILE* fBloque = fopen(pathBloque, "a");
+
+	fprintf (fBloque, "%s",linea);
+
+	printf("linea:%s\n", linea);
+
+	fclose(fBloque);
+	free(pathBloque);
+}

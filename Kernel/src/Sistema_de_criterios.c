@@ -175,8 +175,11 @@ t_list *procesar_gossiping(char *cadenaResultadoGossiping){
 	char **descompresion = descomprimir_memoria(cadenaResultadoGossiping);
 	for(int i=0; descompresion[i]!=NULL; i+=3){
 		int socket;
-		if((socket = connect_to_server(descompresion[i+1], descompresion[i+2])) == EXIT_FAILURE)
+		if((socket = connect_to_server(descompresion[i+1], descompresion[i+2])) == EXIT_FAILURE){
+			printf("RECHAZA SOCKET %s %s %d \n",descompresion[i],descompresion[i+1],descompresion[i+2]);
 			continue;
+		}
+
 		close(socket);
 		memoria = crear_memoria(atoi(descompresion[i]), descompresion[i+1], descompresion[i+2]);
 		list_add(lista, memoria);
@@ -223,10 +226,15 @@ void remover_memoria(Memoria *memoria_a_remover){
 void agregar_sin_repetidos(t_list *destino, t_list *fuente){
 	void agregar_distinct(void *elementoFuente){
 		bool buscar(void *elementoDestino){
+
 			return ((Memoria*)elementoDestino)->numero == ((Memoria*)elementoFuente)->numero;
+
 		}
-		if(!list_all_satisfy(destino, buscar))
+		if(!list_any_satisfy(destino, buscar)){
 			list_add(destino, elementoFuente);
+			//printf("AGREGO EN LISTA %s %s %d\n",((Memoria*)elementoFuente)->puerto,((Memoria*)elementoFuente)->ip,((Memoria*)elementoFuente)->numero);
+		}
+
 	}
 	list_iterate(fuente, agregar_distinct);
 }

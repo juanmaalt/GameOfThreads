@@ -100,13 +100,13 @@ Operacion insertAPI(Comando comando){
 		resultadoInsert.Argumentos.ERROR.mensajeError = string_from_format("No existe el archivo Metadata de la tabla solicitada.");
 		return resultadoInsert;
 	}
-	int particionNbr = calcularParticionNbr(comando.argumentos.INSERT.key, metadata.partitions);
+	//int particionNbr = calcularParticionNbr(comando.argumentos.INSERT.key, metadata.partitions); //TODO: Borrar?
 
 
 	char* path = malloc(100 * sizeof(char));
-	setPathTabla(path, comando.argumentos.CREATE.nombreTabla);
+	setPathTabla(path, comando.argumentos.INSERT.nombreTabla);
 
-	insertInFile(path, particionNbr, comando.argumentos.INSERT.key, comando.argumentos.INSERT.value);
+	//insertInFile(path, particionNbr, comando.argumentos.INSERT.key, comando.argumentos.INSERT.value); //TODO: Borrar?
 
 	config_destroy(metadataFile);
 	//FIN AD-HOC//
