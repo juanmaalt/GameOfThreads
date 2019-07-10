@@ -72,7 +72,6 @@ t_dictionary* memtable;
 t_dictionary* diccCompactacion;
 t_bitarray* bitarray;
 
-int numeroDump;
 
 /*FUNCIONES*/
 void *connection_handler(void *nSocket);

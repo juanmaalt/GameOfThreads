@@ -328,24 +328,14 @@ int cuentaArchivos(char* path) {
 	return cuenta;
 }
 
-/*
-int cuentaArchivos(char* path) {
-	int cuenta = 0;
-	DIR * dirp;
-	struct dirent * entry;
+void dumpTabla(char* nombreTable){
 
-	dirp = opendir(path);
-	while ((entry = readdir(dirp)) != NULL) {
-	    if ((entry->d_type == DT_REG)&& string_contains(entry->d_name, "dump_")) {
-		 cuenta++;
-	    }
+	t_list * list = dictionary_get(memtable, nombreTable);//obtengo la data, en el insert debera checkear que este dato no sea null
+
+	if (list == NULL || list_size(list) == 0) {
+			return;
 	}
 
-	closedir(dirp);
-	return cuenta;
-}
-*/
-void dumpTabla(char* nombreTable){
 
 	char* path = malloc(100 * sizeof(char));
 	setPathTabla(path, nombreTable);
@@ -364,7 +354,6 @@ void dumpTabla(char* nombreTable){
 	strcat(pathArchivo, ".tmp");
 
 	FILE* file = fopen(pathArchivo,"w");
-	t_list * list = dictionary_get(memtable, nombreTable);//obtengo la data, en el insert debera checkear que este dato no sea null
 
 	Registro* reg = list_get(list, 0);
 
