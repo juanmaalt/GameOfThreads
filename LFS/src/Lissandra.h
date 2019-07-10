@@ -98,7 +98,7 @@ timestamp_t obtenerTimestamp(Registro* registro);
 void setPathTabla(char* path, char* nombreTabla);
 void dump(t_dictionary* memtable);
 void dumpRegistro(FILE* file, Registro* registro);
-void dumpTabla(char* nombreTable, void* value);
+void dumpTabla(char* nombreTable);
 
 
 #endif /* LISSANDRA_H_ */
