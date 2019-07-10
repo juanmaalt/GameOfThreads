@@ -19,7 +19,9 @@ void compactar(char* nombreTabla){
 
 	t_config* metadataFile = leerMetadata(nombreTabla);
 	if(getMetadata(nombreTabla, metadataFile)==EXIT_FAILURE){
-		printf("No existe el archivo Metadata de la tabla solicitada.\n");
+		log_error(logger_visible, "Compactador.c: compactar() - No existe el archivo Metadata de la tabla \"%s\". Compactación cancelada.", nombreTabla);
+		log_error(logger_error, "Compactador.c: compactar() - No existe el archivo Metadata de la tabla \"%s\". Compactación cancelada.", nombreTabla);
+		return;
 	}
 
 	//printf("path: %s\n", pathTabla);
@@ -29,25 +31,23 @@ void compactar(char* nombreTabla){
 		cambiarNombreFilesTemp(pathTabla);
 		/*Agrego la tabla en el diccionario de compactación, para bloquear el acceso de las funciones que lleguen*/
 		agregarTablaEnDiccCompactacion(nombreTabla);
-
 		/*Compacto los archivos .tmpc hasta que no haya más*/
 		while((entry = readdir (dir)) != NULL){
 			nombreArchivo = string_from_format(entry->d_name);
 			if(string_contains(nombreArchivo, ".tmpc")){
 				char* pathTemp = malloc(1000 * sizeof(char));
-
 				strcpy(pathTemp, pathTabla);
 				strcat(pathTemp, "/");
 				strcat(pathTemp, nombreArchivo);
 
-			    log_info(logger_visible, "Compactar(%s): [%s] es un archivo temporal, compactar\n", nombreTabla, nombreArchivo);
-
+			    log_info(logger_invisible, "Compactador.c: compactar(%s): [%s] es un archivo temporal, inciando su compactación.", nombreTabla, nombreArchivo);
+			    /*Leo el archivo temporal e inicio su compactación*/
 			    leerTemporal(pathTemp, metadata.partitions, nombreTabla);
 
-				remove(pathTemp); //Descomentar cuando ande todo como se espera
+				remove(pathTemp);
 			}
 			else{
-				log_info(logger_invisible, "Compactar(%s): [%s] no es un archivo temporal, no compactar\n", nombreTabla, nombreArchivo);
+				log_info(logger_invisible, "Compactador.c: compactar(%s): [%s] no es un archivo temporal, no se compactará", nombreTabla, nombreArchivo);
 			}
 		}
 
@@ -79,24 +79,27 @@ void leerTemporal(char* pathTemp, int particiones, char* nombreTabla){
     int timestamp, key;
     char value[atoi(config.tamanio_value)];
 
-	temp= fopen(pathTemp, "r");
+    /*Abro file .tmpc*/
+	temp = fopen(pathTemp, "r");
+	/*Leo el file linea a linea*/
 	while(fscanf(temp, "%d;%d;%[^\n]s", &timestamp, &key, value)!= EOF){
-		printf("%d;%d;%s\n", timestamp, key ,value);
+		log_info(logger_visible, "Compactador.c: leerTemporal() - Linea leída: %d;%d;%s\n", timestamp, key ,value);
 		char* linea = string_from_format("%d;%d;%s",timestamp, key, value);
 
 		int particionNbr = calcularParticionNbr(string_from_format("%d", key), particiones);
-		printf("Partición Nro: %d\n", particionNbr);
+		log_info(logger_visible, "Compactador.c: leerTemporal() - Partición Nro: %d\n", particionNbr);
 
 		char* listaDeBloques= obtenerListaDeBloques(particionNbr, nombreTabla);
-		printf("bloques: %s\n",listaDeBloques);
+		log_info(logger_visible, "Compactador.c: leerTemporal() - Bloques asignados: %s\n",listaDeBloques);
 
 		char* bloque = firstBloqueDisponible(listaDeBloques);
-		printf("firstBloqueDisponible: %s\n", bloque);
+		log_info(logger_visible, "Compactador.c: leerTemporal() - Primer bloque con espacio disponible: %s\n", bloque);
 
 		escribirEnBloque(bloque, linea);
 
 		free(linea);
 	}
+	free(value);
 	fclose(temp);
 }
 
@@ -133,13 +136,13 @@ char* firstBloqueDisponible(char* listaDeBloques){
 	while(bloques[i]!=NULL){
 		int charsInFile = caracteresEnBloque(pathBloque,pathBloques,bloques[i]);
 		if(charsInFile < metadataFS.blockSize){
-			printf("Bloque %s con %d caracteres disponibles\n", bloques[i], (metadataFS.blockSize - charsInFile));
+			log_info(logger_visible, "Compactador.c: firstBloqueDisponible() - Bloque %s con %d caracteres disponibles\n", bloques[i], (metadataFS.blockSize - charsInFile));
 			free(pathBloque);
 			free(pathBloques);
 			firstBloque=bloques[i];
 		}
 		else{
-			printf("Bloque %s sin caracteres disponibles\n", bloques[i]);
+			log_info(logger_visible, "Compactador.c: firstBloqueDisponible() - Bloque %s sin caracteres disponibles\n", bloques[i]);
 			firstBloque="0";
 		}
 		i++;
@@ -179,13 +182,13 @@ void escribirEnBloque(char* bloque, char* linea){
 	strcat(pathBloque, bloque);
 	strcat(pathBloque, ".bin");
 
-	printf("pathBloque: %s\n", pathBloque);
+	log_info(logger_visible, "Compactador.c: escribirEnBloque() - Path del Bloque a escribir: %s", pathBloque);
 
 	FILE* fBloque = fopen(pathBloque, "a");
 
 	fprintf (fBloque, "%s",linea);
 
-	printf("linea:%s\n", linea);
+	log_info(logger_visible, "Compactador.c: escribirEnBloque() - Línea a escribir: %s", linea);
 
 	fclose(fBloque);
 	free(pathBloque);

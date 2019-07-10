@@ -36,31 +36,38 @@ void crearEstructuraFS(int blockSize, int blocks, char* magicNumber){
 
 	/*Creo el directorio de montaje*/
 	crearDirectorioDeMontaje(config.punto_montaje);
+	log_info(logger_invisible, "FileSystem.c: crearEstructuraFS() - Se creó el directorio de montaje");
 
 	/*Creo el directorio de tablas*/
 	strcpy(path,config.punto_montaje);
 	strcat(path, "Tables");
 	crearDirectorio(path);
+	log_info(logger_invisible, "FileSystem.c: crearEstructuraFS() - Se creó el directorio \"Tables\"");
 
 	/*Creo el directorio de Bloques*/
 	strcpy(path,config.punto_montaje);
 	strcat(path, "Bloques");
 	crearDirectorio(path);
+	log_info(logger_invisible, "FileSystem.c: crearEstructuraFS() - Se creó el directorio \"Bloques\"");
 
 	/*Creo los Bloques*/
 	strcat(path, "/");
 	crearBloques(path, blocks);
+	log_info(logger_invisible, "FileSystem.c: crearEstructuraFS() - Se crearon los bloques vacíos en el directorio \"Bloques\"");
 
 	/*Creo el directorio de Metadata*/
 	strcpy(path,config.punto_montaje);
 	strcat(path, "Metadata");
 	crearDirectorio(path);
+	log_info(logger_invisible, "FileSystem.c: crearEstructuraFS() - Se creó el directorio \"Metadata\"");
 
 	/*Creo el archivo Metadata del File System*/
 	crearMetadata(path, blockSize, blocks, magicNumber);
+	log_info(logger_invisible, "FileSystem.c: crearEstructuraFS() - Se creó el archivo \"Metadata\"");
 
 	/*Creo el bitmap para controlar los Bloques*/
 	crearArchivo(path, "/Bitmap.bin");
+	log_info(logger_invisible, "FileSystem.c: crearEstructuraFS() - Se creó el archivo \"Bitmap.bin\"");
 
 	free(path);
 }
@@ -70,8 +77,7 @@ int levantarMetadata(){
 
 	metadata_FS=leer_MetadataFS();
 	if(metadata_FS == NULL){
-		printf(RED"FileSystem.c: levantarMetadata: error en el archivo 'Metadata.bin'"STD"\n");
-		return EXIT_FAILURE;
+		RETURN_ERROR("FileSystem.c: levantarMetadata() - Error en el archivo \"Metadata.bin\"");
 	}
 	extraer_MetadataFS();
 
@@ -83,8 +89,7 @@ t_config* leer_MetadataFS(){
 
 	char* path = malloc(1000 * sizeof(char));
 	strcpy(path,config.punto_montaje);
-	strcat(path, "Metadata/");
-	strcat(path, "Metadata.bin");
+	strcat(path, "Metadata/Metadata.bin");
 
 	pathMetadata = string_from_format(path);
 
@@ -141,10 +146,8 @@ void crearMetadata(char* path ,int blockSize, int blocks, char* magicNumber){
 	FILE* fsMetadata;
 
 	char* pathArchivo = malloc(110 * sizeof(char));
-
 	strcpy(pathArchivo,path);
-	strcat(pathArchivo, "/");
-	strcat(pathArchivo, "Metadata.bin");
+	strcat(pathArchivo, "/Metadata.bin");
 
 	fsMetadata = fopen(pathArchivo,"a");
 
@@ -154,7 +157,6 @@ void crearMetadata(char* path ,int blockSize, int blocks, char* magicNumber){
 
 	fclose(fsMetadata);
 	free(pathArchivo);
-
 }
 
 void checkExistenciaDirectorio(char* path, char* carpeta){
@@ -209,7 +211,7 @@ void levantarTablasEnMemtable(){
 			if(!strcmp(nombreCarpeta, ".") || !strcmp(nombreCarpeta, "..")){
 			}else{
 				crearTablaEnMemtable(nombreCarpeta);
-				log_info(logger_visible, "Tabla levantada: %s\n", nombreCarpeta);
+				log_info(logger_invisible, "FileSystem.c: levantarTablasEnMemtable() - Tabla levantada: %s", nombreCarpeta);
 			}
 		}
 		closedir (dir);

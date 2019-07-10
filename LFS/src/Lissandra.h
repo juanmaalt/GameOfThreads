@@ -7,6 +7,17 @@
 
 #ifndef LISSANDRA_H_
 #define LISSANDRA_H_
+#define STANDARD_PATH_LFS_CONFIG "LFS.config"
+#define RETURN_ERROR(mensaje) {if(logger_error != NULL && logger_invisible != NULL){ \
+									log_error(logger_error, "%s", mensaje); \
+									log_error(logger_invisible, "%s", mensaje); \
+								}else{ \
+									printf(RED"%s"STD"\n", mensaje); \
+								} \
+								return EXIT_FAILURE; \
+							   }
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -62,6 +73,7 @@ typedef struct{
 /*GLOBALES*/
 t_log* logger_visible;
 t_log* logger_invisible;
+t_log* logger_error;
 t_config* configFile;
 Config_final_data config;
 int socketMemoria;
@@ -77,7 +89,7 @@ t_bitarray* bitarray;
 void *connection_handler(void *nSocket);
 
 int configuracion_inicial();
-t_log* iniciar_logger(bool);
+t_log* iniciar_logger(bool visible, char* path);
 t_config* leer_config();
 void extraer_data_config();
 void ver_config();

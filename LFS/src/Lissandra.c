@@ -13,11 +13,10 @@
 int main(void) {
 	/*Configuración inicial para log y config*/
 	if(configuracion_inicial() == EXIT_FAILURE){
-		printf(RED"Lissandra.c: main: no se pudo generar la configuracion inicial"STD"\n");
-		return EXIT_FAILURE;
+		RETURN_ERROR("Lissandra.c: main() - No se pudo generar la configuracion inicial");
 	}
 	ver_config();
-	//Meter funcion para levantar las variables de tiempo retardo y tiempo_dump
+	//TODO:Meter funcion para levantar las variables de tiempo retardo y tiempo_dump
 
 	/*Inicio el File System*/
 	checkEstructuraFS();
@@ -26,7 +25,7 @@ int main(void) {
 	levantarMetadata();
 
 	/*Dump*/
-	numeroDump = 0;
+	//numeroDump = 0;//TODO: Checkear
 
 	/*Inicio la Memtable*/
 	memtable = inicializarDiccionario();
@@ -44,19 +43,18 @@ int main(void) {
 
 	/*Inicio la consola*/
 	if(iniciar_consola() == EXIT_FAILURE){
-		log_error(logger_invisible,	"Lissandra.c: main: no se pudo levantar la consola");
-		return EXIT_FAILURE;
+		RETURN_ERROR("Lissandra.c: main() - No se pudo levantar la consola");
 	}
 
 	/*Habilita al File System como server y queda en modo en listen*/
-
 	int miSocket = enable_server(config.ip, config.puerto_escucha);
-	log_info(logger_invisible, "Servidor encendido, esperando conexiones");
+	log_info(logger_invisible, "Lissandra.c: main() - Servidor encendido, esperando conexiones");
 	threadConnection(miSocket, connection_handler);
 
 	/*Libero recursos*/
 	config_destroy(configFile);
 	dictionary_destroy(memtable);
+	dictionary_destroy(diccCompactacion);
 	bitarray_destroy(bitarray);
 
 	return EXIT_SUCCESS;
@@ -70,12 +68,11 @@ void *connection_handler(void *nSocket){
 
 	resultado = recv_msg(socket);
 
-	printf("Hemos recibido algo!\n");
+	log_info(logger_invisible,"Lissandra.c: connection_handler() - Nueva conexión");
 
 	switch (resultado.TipoDeMensaje){
 	case COMANDO:
-		//TODO: logear comando recibido
-		printf("Comando recibido: %s\n",resultado.Argumentos.COMANDO.comandoParseable);
+		log_info(logger_invisible,"Lissandra.c: connection_handler() - Comando recibido: %s", resultado.Argumentos.COMANDO.comandoParseable);
 		resultado = ejecutarOperacion(resultado.Argumentos.COMANDO.comandoParseable);
 		send_msg(socket, resultado);
 		break;
@@ -96,34 +93,49 @@ void *connection_handler(void *nSocket){
 
 /*INICIO FUNCIONES CONFIG*/
 int configuracion_inicial(){
-	logger_visible = iniciar_logger(true);
-	if(logger_visible == NULL){
-		printf(RED"Lissandra.c: configuracion_inicial: error en 'logger_visible = iniciar_logger(true);'"STD"\n");
-		return EXIT_FAILURE;
+	/*Creo la carpeta de logs*/
+	mkdir("logs", 0777);
+	/*Borro el último archivo de log y error.log creado*/
+	remove("logs/LFS.log");
+	remove("logs/LFS_error.log");
+
+	/*Creo logger invisible de error*/
+	logger_error = iniciar_logger(false, "logs/LFS_error.log");
+	if(logger_error == NULL){
+		RETURN_ERROR("Lissandra.c: configuracion_inicial() - Error al iniciar logger_error;");
 	}
 
-	logger_invisible = iniciar_logger(false);
-	if(logger_visible == NULL){
-		printf(RED"Lissandra.c: configuracion_inicial: error en 'logger_invisible = iniciar_logger(false);'"STD"\n");
-		return EXIT_FAILURE;
+	/*Creo logger invisible*/
+	logger_invisible = iniciar_logger(false, "logs/LFS.log");
+	if(logger_invisible == NULL){
+		RETURN_ERROR("Lissandra.c: configuracion_inicial() - Error al iniciar logger_invisible;");
+	}else{
+		log_info(logger_invisible, "Lissandra.c: configuracion_inicial() - Se inició logger_error;");
+		log_info(logger_invisible, "Lissandra.c: configuracion_inicial() - Se inició logger_invisible;");
 	}
+
+	/*Creo logger visible*/
+	logger_visible = iniciar_logger(true, "logs/LFS.log");
+	if(logger_visible == NULL){
+		RETURN_ERROR("Lissandra.c: configuracion_inicial() - Error al iniciar logger_visible;");
+	}else{log_info(logger_invisible, "Lissandra.c: configuracion_inicial() - Se inició logger_visible;");}
 
 	configFile = leer_config();
 	if(configFile == NULL){
-		printf(RED"Lissandra.c: configuracion_inicial: error en el archivo 'LFS.config'"STD"\n");
-		return EXIT_FAILURE;
+		RETURN_ERROR("Lissandra.c: configuracion_inicial() - Error en leer_config();");
 	}
 	extraer_data_config();
+	log_info(logger_invisible, "Lissandra.c: configuracion_inicial() - Se extrajo la data del config;");
 
 	return EXIT_SUCCESS;
 }
 
-t_log* iniciar_logger(bool visible) {
-	return log_create("LFS.log", "LFS", visible, LOG_LEVEL_INFO);
+t_log* iniciar_logger(bool visible, char* path) {
+	return log_create(path, "LFS", visible, LOG_LEVEL_INFO);
 }
 
 t_config* leer_config() {
-	return config_create("LFS.config");
+	return config_create(STANDARD_PATH_LFS_CONFIG);
 }
 
 void extraer_data_config() {
@@ -152,7 +164,7 @@ t_dictionary* inicializarDiccionario() {
 }
 
 void handshakeMemoria(int socketMemoria) {
-	printf("Se conecta la Memoria\n");
+	log_info(logger_invisible, "Lissandra.c: handshakeMemoria() - Se conectó la memoria");
 
 	Operacion handshake;
 	handshake.TipoDeMensaje=TEXTO_PLANO;
@@ -167,13 +179,16 @@ void handshakeMemoria(int socketMemoria) {
 
 	switch (handshake.TipoDeMensaje) {
 		case TEXTO_PLANO:
-			if (strcmp(handshake.Argumentos.TEXTO_PLANO.texto, "handshake pathLFS") == 0) {
+			if (string_equals_ignore_case(handshake.Argumentos.TEXTO_PLANO.texto, "handshake pathLFS") == 0) {
 				destruir_operacion(handshake);
 				handshake.TipoDeMensaje = TEXTO_PLANO;
 				handshake.Argumentos.TEXTO_PLANO.texto=string_from_format(config.punto_montaje);
 				send_msg(socketMemoria, handshake);
 			}
-			else{printf(RED"No se pudo conectar la Memoria\n"STD);}
+			else{
+				log_error(logger_invisible,"Lissandra.c: handshakeMemoria() - No se pudo conectar la Memoria.");
+				log_error(logger_error,"Lissandra.c: handshakeMemoria() - No se pudo conectar la Memoria.");
+			}
 			break;
 		case ERROR:
 		case COMANDO:
@@ -183,14 +198,14 @@ void handshakeMemoria(int socketMemoria) {
 		case GOSSIPING_REQUEST_KERNEL:
 			break;
 	}
+	log_info(logger_invisible,"Lissandra.c: handshakeMemoria() - Memoria conectada exitosamente.");
 }
 
 int iniciar_consola(){
 	if(pthread_create(&idConsola, NULL, recibir_comandos, NULL)){
-		log_error(logger_invisible, "Lissandra.c: iniciar_consola: fallo la creacion de la consola");
-		return EXIT_FAILURE;
+		RETURN_ERROR("Lissandra.c: iniciar_consola() - Falló la creación de la consola.");
 	}
-
+	log_info(logger_invisible,"Lissandra.c: iniciar_consola() - Consola levantada exitosamente.");
 	return EXIT_SUCCESS;
 }
 
@@ -199,33 +214,39 @@ Operacion ejecutarOperacion(char* input) {
 	Operacion retorno;
 	*parsed = parsear_comando(input);
 
+	log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - Mensaje recibido %s", input);
+
 	usleep(atoi(config.retardo)*1000);
 
 	if (parsed->valido) {
 		switch (parsed->keyword){
 		case SELECT:
 			retorno = selectAPI(*parsed);
+			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <SELECT> Mensaje de retorno \"%s\"", retorno.Argumentos);
 			break;
 		case INSERT:
 			retorno = insertAPI(*parsed);
+			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <INSERT> Mensaje de retorno \"%s\"", retorno.Argumentos);
 			break;
 		case CREATE:
 			retorno = createAPI(*parsed);
+			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <CREATE> Mensaje de retorno \"%s\"", retorno.Argumentos);
 			break;
 		case DESCRIBE:
 			retorno = describeAPI(*parsed);
+			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <DESCRIBE> Mensaje de retorno \"%s\"", retorno.Argumentos);
 			break;
 		case DROP:
 			retorno = dropAPI(*parsed);
+			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <DROP> Mensaje de retorno \"%s\"", retorno.Argumentos);
 			break;
 		case RUN:
-			agregarDatos(memtable);
-			//compactar(parsed->argumentos.RUN.path);
+			//agregarDatos(memtable);
+			compactar(parsed->argumentos.RUN.path);
 			break;
 		default:
 			fprintf(stderr, RED"No se pude interpretar el enum: %d"STD"\n",parsed->keyword);
 		}
-
 		destruir_comando(*parsed);
 		free(parsed);
 		return retorno;
@@ -239,6 +260,8 @@ Operacion ejecutarOperacion(char* input) {
 	retorno.TipoDeMensaje = ERROR;
 	retorno.Argumentos.ERROR.mensajeError=malloc(sizeof(char)* (strlen("Error en la recepcion del resultado.")+1));
 	strcpy(retorno.Argumentos.ERROR.mensajeError, "Error en la recepcion del resultado.");
+
+	log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <ERROR> Mensaje de retorno \"%s\"", retorno.Argumentos);
 
 	return retorno;
 }
