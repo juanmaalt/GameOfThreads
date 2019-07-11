@@ -9,7 +9,7 @@
 #define UNIDAD_DE_EJECUCION_H_
 #define TRUE 1
 #define FALSE 0
-#define NO_HAY_MEMORIAS -1
+#define NULL_MEMORY -1
 
 	/*COMPORTAMIENTOS DE LA CPU*/
 	/**

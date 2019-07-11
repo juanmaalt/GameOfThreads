@@ -8,9 +8,9 @@
 #include "Unidad_de_ejecucion.h"
 
 //FUNCIONES: Privadas. No van en el header.
-static int exec_file_lql(PCB *pcb);
-static int exec_string_comando(PCB *pcb);
-static int procesar_retorno_operacion(Operacion op, PCB *pcb, char *instruccionActual);//Recibe el retorno de operacion (lo mas importante). El pcb es para mostrar datos extras como el nombre del archivo que fallo, al igual que la instruccion actual
+static ResultadoEjecucionInterno exec_file_lql(PCB *pcb);
+static ResultadoEjecucionInterno exec_string_comando(PCB *pcb);
+static ResultadoEjecucionInterno procesar_retorno_operacion(Operacion op, PCB *pcb, char *instruccionActual);//Recibe el retorno de operacion (lo mas importante). El pcb es para mostrar datos extras como el nombre del archivo que fallo, al igual que la instruccion actual
 static DynamicAddressingRequest direccionar_request(char *request);
 static socket_t comunicarse_con_memoria();
 static socket_t comunicarse_con_memoria_principal();
@@ -61,6 +61,8 @@ static DynamicAddressingRequest direccionar_request(char *request){
 		retorno.tipoOperacion = INSERT;
 		break;
 	case CREATE:
+		if(!tabla_esta_en_la_lista(comando.argumentos.CREATE.nombreTabla))
+			agregar_metadata_tabla(comando.argumentos.CREATE.nombreTabla, comando.argumentos.CREATE.tipoConsistencia, comando.argumentos.CREATE.numeroParticiones, comando.argumentos.CREATE.compactacionTime);
 		memoria = determinar_memoria_para_tabla(comando.argumentos.CREATE.nombreTabla, NULL);
 		break;
 	case DESCRIBE:
@@ -82,7 +84,7 @@ static DynamicAddressingRequest direccionar_request(char *request){
 			retorno.socket = comunicarse_con_memoria_principal();
 			return retorno;
 		}
-		retorno.socket = NO_HAY_MEMORIAS;
+		retorno.socket = NULL_MEMORY;
 		return retorno;
 	}
 	retorno.memoria = memoria;
@@ -91,6 +93,7 @@ static DynamicAddressingRequest direccionar_request(char *request){
 		log_error(logger_visible, "Unidad_de_ejecucion.c: direccionar_request: la memoria elegida parece estar caida. Se eligira otra");
 		log_error(logger_invisible, "Unidad_de_ejecucion.c: direccionar_request: la memoria elegida parece estar caida. Se eligira otra");
 		remover_memoria(memoria);
+		//Devuelve un socket como EXIT_FAILURE que se detecta mas adelante
 	}
 	return retorno;
 }
@@ -130,16 +133,16 @@ static socket_t comunicarse_con_memoria_principal(){
 
 
 
-static int exec_string_comando(PCB *pcb){
+static ResultadoEjecucionInterno exec_string_comando(PCB *pcb){
 	DynamicAddressingRequest target;
 	do{
 		target = direccionar_request((char *)pcb->data);
 	}while(target.socket == EXIT_FAILURE);
-	if(target.socket == NO_HAY_MEMORIAS){
+	if(target.socket == NULL_MEMORY){
 		free(pcb->data);
 		free(pcb);
-		log_error(logger_error, "Unidad_de_ejecucion.c: exec_string_comando: no hay mas memorias. Abortando.");
-		log_error(logger_invisible, "Unidad_de_ejecucion.c: exec_string_comando: no hay mas memorias. Abortando.");
+		log_error(logger_error, "Unidad_de_ejecucion.c: exec_string_comando: finalizando operacion.");
+		log_error(logger_invisible, "Unidad_de_ejecucion.c: exec_string_comando: finalizando operacion.");
 		return INSTRUCCION_ERROR;
 	}
 	target.inicioOperacion = getCurrentTime();
@@ -167,7 +170,7 @@ static int exec_string_comando(PCB *pcb){
 
 
 
-static int exec_file_lql(PCB *pcb){
+static ResultadoEjecucionInterno exec_file_lql(PCB *pcb){
 	Operacion request;
 	char buffer[MAX_BUFFER_SIZE_FOR_LQL_LINE];
 	char *line = NULL;
@@ -187,13 +190,13 @@ static int exec_file_lql(PCB *pcb){
 		do{
 			target = direccionar_request(line);
 		}while(target.socket == EXIT_FAILURE);
-		if(target.socket == NO_HAY_MEMORIAS){
+		if(target.socket == NULL_MEMORY){
 			printf("\n");
 			fclose(lql);
 			free(pcb->nombreArchivoLQL);
 			free(pcb);
-			log_error(logger_error, "Unidad_de_ejecucion.c: exec_file_lql: no hay mas memorias. Abortando.");
-			log_error(logger_invisible, "Unidad_de_ejecucion.c: exec_file_lql: no hay mas memorias. Abortando.");
+			log_error(logger_error, "Unidad_de_ejecucion.c: exec_file_lql: finalizando operacion.");
+			log_error(logger_invisible, "Unidad_de_ejecucion.c: exec_file_lql: finalizando operacion.");
 			return INSTRUCCION_ERROR;
 		}
 		target.inicioOperacion = getCurrentTime();
@@ -227,7 +230,7 @@ static int exec_file_lql(PCB *pcb){
 
 
 
-static int procesar_retorno_operacion(Operacion op, PCB* pcb, char* instruccionActual){
+static ResultadoEjecucionInterno procesar_retorno_operacion(Operacion op, PCB* pcb, char* instruccionActual){
 	char *instruccionActualTemp = NULL;
 	switch(op.TipoDeMensaje){
 	case TEXTO_PLANO:

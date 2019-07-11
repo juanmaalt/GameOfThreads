@@ -8,7 +8,6 @@
 #include "Sistema_de_criterios.h"
 
 //FUNCIONES: Privadas: buscar
-static bool tabla_esta_en_la_lista(char *tabla);
 static bool memoria_esta_en_la_lista(t_list *lista, int numeroMemoria);
 
 //FUNCIONES: Privadas: buscar y traer
@@ -226,15 +225,11 @@ void remover_memoria(Memoria *memoria_a_remover){
 void agregar_sin_repetidos(t_list *destino, t_list *fuente){
 	void agregar_distinct(void *elementoFuente){
 		bool buscar(void *elementoDestino){
-
 			return ((Memoria*)elementoDestino)->numero == ((Memoria*)elementoFuente)->numero;
-
 		}
 		if(!list_any_satisfy(destino, buscar)){
 			list_add(destino, elementoFuente);
-			//printf("AGREGO EN LISTA %s %s %d\n",((Memoria*)elementoFuente)->puerto,((Memoria*)elementoFuente)->ip,((Memoria*)elementoFuente)->numero);
 		}
-
 	}
 	list_iterate(fuente, agregar_distinct);
 }
@@ -243,7 +238,21 @@ void agregar_sin_repetidos(t_list *destino, t_list *fuente){
 
 
 
-static bool tabla_esta_en_la_lista(char *tabla){
+void agregar_metadata_tabla(char *nombre, char *consistencia, char *particiones, char *tiempoEntreCompactacion){
+	MetadataTabla *tabla = crear_tabla(nombre, consistencia, particiones, tiempoEntreCompactacion);
+	if(tabla == NULL){
+		log_error(logger_visible, "Sistema_de_criterios.c: agregar_metadata_tabla: no se puede agregar la metadata de la tabla %s", nombre);
+		log_error(logger_invisible, "Sistema_de_criterios.c: agregar_metadata_tabla: no se puede agregar la metadata de la tabla %s", nombre);
+		return;
+	}
+	list_add(tablasExistentes, tabla);
+}
+
+
+
+
+
+bool tabla_esta_en_la_lista(char *tabla){
 	if(tablasExistentes == NULL){
 		log_error(logger_error, "Sistema_de_criterios.c: tabla_esta_en_la_lista: aun no existen tablas conocidas en el sistema");
 		log_info(logger_invisible, "Sistema_de_criterios.c: tabla_esta_en_la_lista: aun no existen tablas conocidas en el sistema");

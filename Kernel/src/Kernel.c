@@ -192,7 +192,19 @@ static void finalizar_todos_los_hilos(){
 
 
 static void rutinas_de_finalizacion(){
-	printf(GRN"Finalizando kernel..."STD"\n");
+	printf(GRN"                       __\n");
+	printf("                     .'  '.\n");
+	printf("                 _.-'/  |  \\\n");
+	printf("    ,        _.-\"  ,|  /  0 `-\n");
+	printf("    |\\    .-\"       `--\"\"-.__.'=====================-,\n");
+	printf("    \\ '-'`        .___.--._)=========================|\n");
+	printf("     \\            .'      |                          |\n");
+	printf("      |     /,_.-'        |        QUE TENGA UN      |\n");
+	printf("    _/   _.'(             |         BUEN DIA!        |\n");
+	printf("   /  ,-' \\  \\            |                          |\n");
+	printf("   \\  \\    `-'            |                          |\n");
+	printf("    `-'                   '--------------------------'\n"STD);
+	//printf(GRN"Finalizando kernel..."STD"\n");
 	log_info(logger_invisible, "=============Finalizando kernel=============");
 	finalizar_todos_los_hilos();
 	fflush(stdout);

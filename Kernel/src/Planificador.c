@@ -17,33 +17,13 @@ int iniciar_planificador(){
 	if(iniciar_sistema_de_criterios() == EXIT_FAILURE)
 		RETURN_ERROR("Planificador.c: iniciar_planificador: no se pudo iniciar el sistema de criterios");
 
-	if(verificar_memoria_principal() == EXIT_FAILURE)
-			RETURN_ERROR("Planificador.c: iniciar_planificador: no se pudo establecer una conexion con la memoria principal");
+	if(iniciar_gossiping() == EXIT_FAILURE)
+		RETURN_ERROR("Planificador.c: iniciar_gossiping: no se pudo iniciar el sistema gossiping del kernel");
 
 	colaDeReady = queue_create();
 	sem_post(&disponibilidadPlanificador); //No queremos que la consola agregue algo a la cola de news si todavia no existe la cola de news
 
-	if(iniciar_gossiping() == EXIT_FAILURE)
-		RETURN_ERROR("Planificador.c: iniciar_gossiping: no se pudo iniciar el sistema gossiping del kernel");
-
 	sem_wait(&dormirProcesoPadre);
-	return EXIT_SUCCESS;
-}
-
-
-
-
-
-int verificar_memoria_principal(){
-	int socket;
-	if((socket = connect_to_server(fconfig.ip_memoria_principal, fconfig.puerto_memoria_principal)) == EXIT_FAILURE)
-		return EXIT_FAILURE;
-	close(socket);
-	Memoria *principal = malloc(sizeof(Memoria));
-	principal->ip = string_from_format(fconfig.ip_memoria_principal);
-	principal->puerto = string_from_format(fconfig.puerto_memoria_principal);
-	principal->numero = 1; //TODO
-	list_add(memoriasExistentes, principal);
 	return EXIT_SUCCESS;
 }
 

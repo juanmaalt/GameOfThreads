@@ -113,7 +113,7 @@ t_list *tablasExistentes;
 
 	/**
 	* @NAME: procesar_gossiping
-	* @DESC: TODO
+	* @DESC: procesa una cadena de gossiping y devuelve una lista de todas las memorias activas (levantadas)s
 	*/
 	t_list *procesar_gossiping(char *cadenaResultadoGossiping);
 
@@ -140,8 +140,25 @@ t_list *tablasExistentes;
 
 	/**
 	* @NAME: agregar_sin_repetidos
-	* @DESC: TODO
+	* @DESC: agrega los elementos de la lista fuente a la lista destino omitiendo los repetidos. La forma de saber si hay
+	* 		 repetidos es un particular del lugar donde se usa. Como se usa con memorias, se usa el numero de memoria
+	* 		 para comparar. No es una funcion muy reutilizable si no le pasamos por argumento alguna closure de comparacion
 	*/
 	void agregar_sin_repetidos(t_list *destino, t_list *fuente);
+
+	/**
+	* @NAME: agregar_metadata_tabla
+	* @DESC: agrega la metadata de una tabla a la lista de tablas existentes. Es util cuando se quiere agregar de forma
+	* 		 manual ya sea por que se ejecuto un create o lo que fuera. De esta manera, se tiene la metadata de una tabla
+	* 		 antes de hacer un describe (siempre y cuando el create se haga del kernel)
+	*/
+	void agregar_metadata_tabla(char *nombre, char *consistencia, char *particiones, char *tiempoEntreCompactacion);
+
+	/**
+	* @NAME: tabla_esta_en_la_lista
+	* @DESC: dice si una tabla esta en la lista de tablas existentes. La busqueda es por nombre de tabla. O sea yo no pregunto
+	* 		 si un determinado objeto tabla esta en la lista. Yo pregunto si el nombre de una tabla esta en la lista.
+	*/
+	bool tabla_esta_en_la_lista(char *tabla);
 
 #endif /* SISTEMA_DE_CRITERIOS_H_ */

@@ -120,8 +120,10 @@ static int mostrar_metricas_por_pantalla(){
 
 	printf("\n");
 
-	log_info(logger_visible, GRN"Memorias"STD);
-	list_iterate(memoriasExistentes, mostrar_estadisticas_de_memorias);
+	if(!list_is_empty(memoriasExistentes)){
+		log_info(logger_visible, GRN"Memorias"STD);
+		list_iterate(memoriasExistentes, mostrar_estadisticas_de_memorias);
+	}
 
 	//Logger invisible
 	//TODO: mostrar metricas invisibles
