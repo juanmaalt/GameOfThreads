@@ -85,7 +85,6 @@ static int mostrar_metricas_por_pantalla(){
 			}else{
 				log_info(logger_visible, "Memoria %d %s:%s no esta asociada a ningun criterio", ((Memoria*)memoria)->numero, ((Memoria*)memoria)->ip, ((Memoria*)memoria)->puerto);
 			}
-		printf("\n");
 	}
 
 	//Logger visible

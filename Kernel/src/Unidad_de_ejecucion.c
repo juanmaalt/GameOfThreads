@@ -53,31 +53,41 @@ static DynamicAddressingRequest direccionar_request(char *request){
 	case SELECT:
 		memoria = determinar_memoria_para_tabla(comando.argumentos.SELECT.nombreTabla, comando.argumentos.SELECT.key);
 		retorno.criterioQueSeUso = consistencia_de_tabla(comando.argumentos.SELECT.nombreTabla);
-		retorno.tipoOperacion = SELECT;
+		retorno.tipoOperacion = LECTURA;
 		break;
 	case INSERT:
 		if(!tabla_esta_en_la_lista(comando.argumentos.INSERT.nombreTabla))
-			memoria = elegir_cualquiera(); //TODO: revisar que este bien esta idea
+			memoria = elegir_cualquiera_ec(); //TODO: revisar que este bien esta idea
 		else
 			memoria = determinar_memoria_para_tabla(comando.argumentos.INSERT.nombreTabla, comando.argumentos.INSERT.key);
 		retorno.criterioQueSeUso = consistencia_de_tabla(comando.argumentos.INSERT.nombreTabla);
-		retorno.tipoOperacion = INSERT;
+		retorno.tipoOperacion = ESCRITURA;
 		break;
 	case CREATE:
 		if(!tabla_esta_en_la_lista(comando.argumentos.CREATE.nombreTabla))
 			agregar_metadata_tabla(comando.argumentos.CREATE.nombreTabla, comando.argumentos.CREATE.tipoConsistencia, comando.argumentos.CREATE.numeroParticiones, comando.argumentos.CREATE.compactacionTime);
 		memoria = determinar_memoria_para_tabla(comando.argumentos.CREATE.nombreTabla, NULL);
+		retorno.criterioQueSeUso = consistencia_de_tabla(comando.argumentos.CREATE.nombreTabla);
+		retorno.tipoOperacion = ESCRITURA;
 		break;
 	case DESCRIBE:
-		if(comando.argumentos.DESCRIBE.nombreTabla == NULL)
-			memoria = elegir_cualquiera();
-		else
+		if(comando.argumentos.DESCRIBE.nombreTabla == NULL){
+			memoria = elegir_cualquiera_ec();
+			retorno.criterioQueSeUso = EC;
+		}else{
 			memoria = determinar_memoria_para_tabla(comando.argumentos.DESCRIBE.nombreTabla, NULL);
+			retorno.tipoOperacion = consistencia_de_tabla(comando.argumentos.DESCRIBE.nombreTabla);
+		}
+		retorno.tipoOperacion = LECTURA;
 		break;
 	case DROP:
 		memoria = determinar_memoria_para_tabla(comando.argumentos.DROP.nombreTabla, NULL);
+		retorno.criterioQueSeUso = consistencia_de_tabla(comando.argumentos.DROP.nombreTabla);
+		retorno.tipoOperacion = ESCRITURA;
 		break;
 	default:
+		log_info(logger_invisible, "Instruccion ilegal");
+		log_info(logger_visible, "Instruccion ilegal");
 		memoria = NULL;
 	}
 	destruir_comando(comando);
@@ -282,14 +292,14 @@ static void generar_estadisticas(DynamicAddressingRequest *link){
 	metricas.operacionesTotales += 1;
 	switch(link->criterioQueSeUso){
 	case SC:
-		if(link->tipoOperacion == SELECT){
+		if(link->tipoOperacion == LECTURA){
 			++metricas.At.StrongConsistency.reads;
 			metricas.At.StrongConsistency.acumuladorTiemposRead += link->finOperacion - link->inicioOperacion;
 			metricas.At.StrongConsistency.readLatency = metricas.At.StrongConsistency.acumuladorTiemposRead / metricas.At.StrongConsistency.reads;
 			link->memoria->Metrics.SC.cantidadSelect += 1;
 			return;
 		}
-		if(link->tipoOperacion == INSERT){
+		if(link->tipoOperacion == ESCRITURA){
 			++metricas.At.StrongConsistency.writes;
 			metricas.At.StrongConsistency.acumuladorTiemposWrite += link->finOperacion - link->inicioOperacion;
 			metricas.At.StrongConsistency.writeLatency = metricas.At.StrongConsistency.acumuladorTiemposWrite / metricas.At.StrongConsistency.writes;
@@ -298,14 +308,14 @@ static void generar_estadisticas(DynamicAddressingRequest *link){
 		}
 		break;
 	case HSC:
-		if(link->tipoOperacion == SELECT){
+		if(link->tipoOperacion == LECTURA){
 			++metricas.At.HashStrongConsistency.reads;
 			metricas.At.HashStrongConsistency.acumuladorTiemposRead += link->finOperacion - link->inicioOperacion;
 			metricas.At.HashStrongConsistency.readLatency = metricas.At.HashStrongConsistency.acumuladorTiemposRead / metricas.At.HashStrongConsistency.reads;
 			link->memoria->Metrics.HSC.cantidadSelect += 1;
 			return;
 		}
-		if(link->tipoOperacion == INSERT){
+		if(link->tipoOperacion == ESCRITURA){
 			++metricas.At.HashStrongConsistency.writes;
 			metricas.At.HashStrongConsistency.acumuladorTiemposWrite += link->finOperacion - link->inicioOperacion;
 			metricas.At.HashStrongConsistency.writeLatency = metricas.At.HashStrongConsistency.acumuladorTiemposWrite / metricas.At.HashStrongConsistency.writes;
@@ -314,14 +324,14 @@ static void generar_estadisticas(DynamicAddressingRequest *link){
 		}
 		break;
 	case EC:
-		if(link->tipoOperacion == SELECT){
+		if(link->tipoOperacion == LECTURA){
 			++metricas.At.EventualConsistency.reads;
 			metricas.At.EventualConsistency.acumuladorTiemposRead += link->finOperacion - link->inicioOperacion;
 			metricas.At.EventualConsistency.readLatency = metricas.At.EventualConsistency.acumuladorTiemposRead / metricas.At.EventualConsistency.reads;
 			link->memoria->Metrics.EC.cantidadSelect += 1;
 			return;
 		}
-		if(link->tipoOperacion == INSERT){
+		if(link->tipoOperacion == ESCRITURA){
 			++metricas.At.EventualConsistency.writes;
 			metricas.At.EventualConsistency.acumuladorTiemposWrite += link->finOperacion - link->inicioOperacion;
 			metricas.At.EventualConsistency.writeLatency = metricas.At.EventualConsistency.acumuladorTiemposWrite / metricas.At.EventualConsistency.writes;

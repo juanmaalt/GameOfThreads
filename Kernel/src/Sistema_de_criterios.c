@@ -46,6 +46,7 @@ Memoria *determinar_memoria_para_tabla(char *nombreTabla, char *keyDeSerNecesari
 		log_info(logger_invisible, "Sistema_de_criterios.c: determinar_memoria_para_tabla: no se especifico el nombre de la tabla");
 		return NULL;
 	}
+
 	if((tabla = machearTabla(nombreTabla)) == NULL){
 		log_error(logger_error, "Sistema_de_criterios.c: determinar_memoria_para_tabla: la tabla no existe o aun no se conoce");
 		log_info(logger_invisible, "Sistema_de_criterios.c: determinar_memoria_para_tabla: la tabla no existe o aun no se conoce");
@@ -69,7 +70,7 @@ Memoria *determinar_memoria_para_tabla(char *nombreTabla, char *keyDeSerNecesari
 
 
 
-Memoria *elegir_cualquiera(){
+Memoria *elegir_cualquiera_ec(){
 	Memoria *m = (Memoria*)list_get(memoriasEC, getNumberUntil(list_size(memoriasEC)));
 	if(m == NULL){
 		log_error(logger_error, "Sistema_de_criterios.c: elegir_cualquiera: no hay memorias EC para responder a la request casual");
@@ -130,7 +131,7 @@ int asociar_memoria(char *numeroMemoria, char *consistencia){
 int procesar_describe(char *cadenaResultadoDescribe){
 	if(tablasExistentes == NULL)
 		return EXIT_FAILURE;
-
+	//TODO: bug encontrado: las tablas que se dan de bajas quedan purulando en la memoria. Este codigo solo las remueve, no libera
 	MetadataTabla *tabla;
 	t_list *listaAuxiliar = list_create(); //Creo una lista vacia sobre la cual voy a trabajar
 
@@ -361,7 +362,7 @@ static Memoria *hsc_determinar_memoria(MetadataTabla *tabla, char *key){ //La ve
 	if(memoriasHSC == NULL)
 		return NULL;
 	if(list_is_empty(memoriasHSC)){
-		log_error(logger_error, "Sistema_de_criterios.c: hsc_determinar_memoria: No se puede responder la request por que no hay memorias Hasg Strong Consistency disponibles");
+		log_error(logger_error, "Sistema_de_criterios.c: hsc_determinar_memoria: No se puede responder la request por que no hay memorias Hash Strong Consistency disponibles");
 		log_info(logger_invisible, "Sistema_de_criterios.c: hsc_determinar_memoria: No se puede responder la request por que no hay memorias Hash Strong Consistency disponibles");
 		return NULL;
 	}
@@ -390,13 +391,14 @@ static Memoria *ec_determinar_memoria(MetadataTabla *tabla){
 static MetadataTabla *crear_tabla(char* nombre, char *consistencia, char *particiones, char *tiempoEntreCompactacion){
 	MetadataTabla *retorno = malloc(sizeof(MetadataTabla));
 	retorno->nombre = string_from_format(nombre);
-	if(string_equals_ignore_case(consistencia, "SC"))
+	if(string_equals_ignore_case(consistencia, "SC")){
 		retorno->consistencia = SC;
-	else if(string_equals_ignore_case(consistencia, "HSC"))
+		retorno->Atributos.SC.memoriaAsignada = NULL;
+	}else if(string_equals_ignore_case(consistencia, "HSC")){
 		retorno->consistencia = HSC;
-	else if(string_equals_ignore_case(consistencia, "EC"))
+	}else if(string_equals_ignore_case(consistencia, "EC")){
 		retorno->consistencia = EC;
-	else return NULL;
+	}else return NULL;
 	retorno->particiones = atoi(particiones);
 	retorno->tiempoEntreCompactaciones = atoi(tiempoEntreCompactacion);
 	return retorno;

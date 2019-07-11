@@ -45,12 +45,17 @@ typedef enum{
 	CONTINUAR
 }ResultadoEjecucionInterno;
 
+typedef enum{
+	LECTURA,
+	ESCRITURA
+}TipoOperacion;
+
 typedef struct{
 	socket_t socket;
 	Memoria *memoria;
 	Consistencia criterioQueSeUso;
 	bool operacionExitosa;
-	int tipoOperacion;
+	TipoOperacion tipoOperacion;
 	timestamp_t inicioOperacion;
 	timestamp_t finOperacion;
 }DynamicAddressingRequest; //Como no es suficiente con saber el socket al cual quiero direccionar una request, recurro a esta estructura que contiene datos extras que se usan en las metricas. La idea es ir rellenandola a medida que se vayan coniciendo los datos y al final generar la metrica

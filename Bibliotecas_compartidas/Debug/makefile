@@ -11,7 +11,9 @@ RM := rm -rf
 -include server_multithread/subdir.mk
 -include server/subdir.mk
 -include serializacion/subdir.mk
+-include random/subdir.mk
 -include parser/subdir.mk
+-include hash/subdir.mk
 -include epoch/subdir.mk
 -include cliente/subdir.mk
 -include subdir.mk
