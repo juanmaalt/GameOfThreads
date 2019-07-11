@@ -91,6 +91,7 @@ static void modo_de_recuperacion(){
 			listaConLaMemoriaPrincipal = procesar_gossiping(ping.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 			agregar_sin_repetidos(memoriasExistentes, listaConLaMemoriaPrincipal);
 			list_destroy(listaConLaMemoriaPrincipal);
+			close(memoriaPrincipal);
 			return;
 		}
 	}while(1);

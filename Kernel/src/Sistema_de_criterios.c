@@ -41,6 +41,11 @@ int iniciar_sistema_de_criterios(void){
 
 Memoria *determinar_memoria_para_tabla(char *nombreTabla, char *keyDeSerNecesaria){ //No liberar nunca nombreTabla ni key por que es: o parte de una linea lql o parte de una request individual. Lo que se tenga que liberar, se libera en Unidad_de_ejecucion.c
 	MetadataTabla *tabla;
+	if(nombreTabla == NULL){
+		log_error(logger_error, "Sistema_de_criterios.c: determinar_memoria_para_tabla: no se especifico el nombre de la tabla");
+		log_info(logger_invisible, "Sistema_de_criterios.c: determinar_memoria_para_tabla: no se especifico el nombre de la tabla");
+		return NULL;
+	}
 	if((tabla = machearTabla(nombreTabla)) == NULL){
 		log_error(logger_error, "Sistema_de_criterios.c: determinar_memoria_para_tabla: la tabla no existe o aun no se conoce");
 		log_info(logger_invisible, "Sistema_de_criterios.c: determinar_memoria_para_tabla: la tabla no existe o aun no se conoce");
@@ -64,6 +69,19 @@ Memoria *determinar_memoria_para_tabla(char *nombreTabla, char *keyDeSerNecesari
 
 
 
+Memoria *elegir_cualquiera(){
+	Memoria *m = (Memoria*)list_get(memoriasEC, getNumberUntil(list_size(memoriasEC)));
+	if(m == NULL){
+		log_error(logger_error, "Sistema_de_criterios.c: elegir_cualquiera: no hay memorias EC para responder a la request casual");
+		log_info(logger_invisible, "Sistema_de_criterios.c: elegir_cualquiera: no hay memorias EC para responder a la request casual");
+	}
+	return m;
+}
+
+
+
+
+
 int asociar_memoria(char *numeroMemoria, char *consistencia){
 	Memoria *memoria;
 	if((memoria = machearMemoria(atoi(numeroMemoria))) == NULL)
@@ -71,32 +89,37 @@ int asociar_memoria(char *numeroMemoria, char *consistencia){
 
 	if(string_equals_ignore_case(consistencia, "SC")){
 		if(!memoria_esta_en_la_lista(memoriasSC, memoria->numero)){
+			memoria->Metrics.SC.estaAsociada = true;
 			list_add(memoriasSC, memoria);
 		}else{
 			log_info(logger_visible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");
-			log_info(logger_visible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");
+			log_info(logger_invisible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");
 			return EXIT_SUCCESS;
 		}
 	}
 	else if(string_equals_ignore_case(consistencia, "HSC")){
 		if(!memoria_esta_en_la_lista(memoriasHSC, memoria->numero)){
+			memoria->Metrics.HSC.estaAsociada = true;
 			list_add(memoriasHSC, memoria);
 		}else{
 			log_info(logger_visible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");
-			log_info(logger_visible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");
+			log_info(logger_invisible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");
 			return EXIT_SUCCESS;
 		}
 	}
 	else if(string_equals_ignore_case(consistencia, "EC")){
 		if(!memoria_esta_en_la_lista(memoriasEC, memoria->numero)){
+			memoria->Metrics.EC.estaAsociada = true;
 			list_add(memoriasEC, memoria);
 		}else{
 			log_info(logger_visible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");
-			log_info(logger_visible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");
+			log_info(logger_invisible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");
 			return EXIT_SUCCESS;
 		}
 	}else RETURN_ERROR("Sistema_de_criterios.c: add_memory: el tipo de consistencia es invalido. Solo se admite SC, HSC o EC");
 	memoria->fueAsociada = true;
+	log_info(logger_visible, "Sistema_de_criterios.c: add_memory: la memoria fue correctamente asignada");
+	log_info(logger_invisible, "Sistema_de_criterios.c: add_memory: la memoria fue correctamente asignada");
 	return EXIT_SUCCESS;
 }
 
@@ -175,10 +198,8 @@ t_list *procesar_gossiping(char *cadenaResultadoGossiping){
 	for(int i=0; descompresion[i]!=NULL; i+=3){
 		int socket;
 		if((socket = connect_to_server(descompresion[i+1], descompresion[i+2])) == EXIT_FAILURE){
-			printf("RECHAZA SOCKET %s %s %d \n",descompresion[i],descompresion[i+1],descompresion[i+2]);
 			continue;
 		}
-
 		close(socket);
 		memoria = crear_memoria(atoi(descompresion[i]), descompresion[i+1], descompresion[i+2]);
 		list_add(lista, memoria);
@@ -390,6 +411,16 @@ static Memoria *crear_memoria(int numero, char *ip, char *puerto){
 	memoria->numero = numero;
 	memoria->ip = string_from_format(ip);
 	memoria->puerto = string_from_format(puerto);
+	memoria->fueAsociada = false;
+	memoria->Metrics.EC.estaAsociada = false;
+	memoria->Metrics.EC.cantidadInsert = 0;
+	memoria->Metrics.EC.cantidadSelect = 0;
+	memoria->Metrics.SC.estaAsociada = false;
+	memoria->Metrics.SC.cantidadInsert = 0;
+	memoria->Metrics.SC.cantidadSelect = 0;
+	memoria->Metrics.HSC.estaAsociada = false;
+	memoria->Metrics.HSC.cantidadInsert = 0;
+	memoria->Metrics.HSC.cantidadSelect = 0;
 	return memoria;
 }
 

@@ -159,12 +159,12 @@ static int extraer_retardo_config(){
 
 
 void mostrar_por_pantalla_config(){
-	log_info(logger_visible, "IP_MEMORIA=%s", fconfig.ip_memoria_principal);
-	log_info(logger_visible, "PUERTO_MEMORIA=%s", fconfig.puerto_memoria_principal);
-	log_info(logger_visible, "QUANTUM=%d", vconfig.quantum());
-	log_info(logger_visible, "MULTIPROCESAMIENTO=%d", fconfig.multiprocesamiento);
-	log_info(logger_visible, "REFRESH_METADATA=%d", vconfig.refreshMetadata());
-	log_info(logger_visible, "RETARDO=%d", vconfig.retardo());
+	log_info(logger_visible, BLU"IP_MEMORIA=%s"STD, fconfig.ip_memoria_principal);
+	log_info(logger_visible, BLU"PUERTO_MEMORIA=%s"STD, fconfig.puerto_memoria_principal);
+	log_info(logger_visible, BLU"QUANTUM=%d"STD, vconfig.quantum());
+	log_info(logger_visible, BLU"MULTIPROCESAMIENTO=%d"STD, fconfig.multiprocesamiento);
+	log_info(logger_visible, BLU"REFRESH_METADATA=%d"STD, vconfig.refreshMetadata());
+	log_info(logger_visible, BLU"RETARDO=%d"STD, vconfig.retardo());
 
 	log_info(logger_invisible, "IP_MEMORIA=%s", fconfig.ip_memoria_principal);
 	log_info(logger_invisible, "PUERTO_MEMORIA=%s", fconfig.puerto_memoria_principal);

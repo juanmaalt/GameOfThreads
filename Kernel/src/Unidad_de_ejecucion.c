@@ -56,7 +56,10 @@ static DynamicAddressingRequest direccionar_request(char *request){
 		retorno.tipoOperacion = SELECT;
 		break;
 	case INSERT:
-		memoria = determinar_memoria_para_tabla(comando.argumentos.INSERT.nombreTabla, comando.argumentos.INSERT.key);
+		if(!tabla_esta_en_la_lista(comando.argumentos.INSERT.nombreTabla))
+			memoria = elegir_cualquiera(); //TODO: revisar que este bien esta idea
+		else
+			memoria = determinar_memoria_para_tabla(comando.argumentos.INSERT.nombreTabla, comando.argumentos.INSERT.key);
 		retorno.criterioQueSeUso = consistencia_de_tabla(comando.argumentos.INSERT.nombreTabla);
 		retorno.tipoOperacion = INSERT;
 		break;
@@ -66,14 +69,16 @@ static DynamicAddressingRequest direccionar_request(char *request){
 		memoria = determinar_memoria_para_tabla(comando.argumentos.CREATE.nombreTabla, NULL);
 		break;
 	case DESCRIBE:
-		memoria = determinar_memoria_para_tabla(comando.argumentos.DESCRIBE.nombreTabla, NULL);
+		if(comando.argumentos.DESCRIBE.nombreTabla == NULL)
+			memoria = elegir_cualquiera();
+		else
+			memoria = determinar_memoria_para_tabla(comando.argumentos.DESCRIBE.nombreTabla, NULL);
 		break;
 	case DROP:
 		memoria = determinar_memoria_para_tabla(comando.argumentos.DROP.nombreTabla, NULL);
 		break;
 	default:
-		retorno.socket = EXIT_FAILURE;
-		return retorno;
+		memoria = NULL;
 	}
 	destruir_comando(comando);
 
@@ -109,8 +114,8 @@ static socket_t comunicarse_con_memoria(Memoria *memoria){
 		log_error(logger_invisible, "Planificador.c: comunicarse_con_memoria: error al conectarse al servidor memoria %s:%s", memoria->ip, memoria->puerto);
 		return EXIT_FAILURE;
 	}
-	log_info(logger_invisible, "Conectado a la memoria numero: %d, %s:%s", memoria->numero, memoria->ip, memoria->puerto);
-	log_info(logger_visible, "Conectado a la memoria numero: %d, %s:%s", memoria->numero, memoria->ip, memoria->puerto);
+	log_info(logger_invisible, "Request dirigida a la memoria numero: %d, %s:%s", memoria->numero, memoria->ip, memoria->puerto);
+	log_info(logger_visible, "Request dirigida a la memoria numero: %d, %s:%s", memoria->numero, memoria->ip, memoria->puerto);
 	return socketServer;
 }
 
@@ -125,7 +130,7 @@ static socket_t comunicarse_con_memoria_principal(){
 		log_error(logger_invisible, "Unidad_de_ejecucion.c: comunicarse_con_memoria_principal: error al conectarse al servidor memoria %s:%s", fconfig.ip_memoria_principal, fconfig.puerto_memoria_principal);
 		return EXIT_FAILURE;
 	}
-	log_info(logger_invisible, "Conectado a la memoria principal %s:%s", fconfig.ip_memoria_principal, fconfig.puerto_memoria_principal);
+	log_info(logger_invisible, "Request dirigida a la memoria principal %s:%s", fconfig.ip_memoria_principal, fconfig.puerto_memoria_principal);
 	return socketServer;
 }
 
