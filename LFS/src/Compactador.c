@@ -8,14 +8,10 @@
 #include "Compactador.h"
 
 void compactar(char* nombreTabla){
-	char* pathTabla = malloc(1000 * sizeof(char));
+	char* pathTabla = string_from_format("%sTables/%s", config.punto_montaje, nombreTabla);
 	DIR *dir;
 	struct dirent *entry;
 	char* nombreArchivo;
-
-	strcpy(pathTabla,config.punto_montaje);
-	strcat(pathTabla, "Tables/");
-	strcat(pathTabla, nombreTabla);
 
 	t_config* metadataFile = leerMetadata(nombreTabla);
 	if(getMetadata(nombreTabla, metadataFile)==EXIT_FAILURE){
@@ -35,10 +31,7 @@ void compactar(char* nombreTabla){
 		while((entry = readdir (dir)) != NULL){
 			nombreArchivo = string_from_format(entry->d_name);
 			if(string_contains(nombreArchivo, ".tmpc")){
-				char* pathTemp = malloc(1000 * sizeof(char));
-				strcpy(pathTemp, pathTabla);
-				strcat(pathTemp, "/");
-				strcat(pathTemp, nombreArchivo);
+				char* pathTemp = string_from_format("%s/%s", pathTabla, nombreArchivo);
 
 			    log_info(logger_invisible, "Compactador.c: compactar(%s): [%s] es un archivo temporal, inciando su compactación.", nombreTabla, nombreArchivo);
 			    /*Leo el archivo temporal e inicio su compactación*/
@@ -71,7 +64,6 @@ void compactar(char* nombreTabla){
 		sacarTablaDeDiccCompactacion(nombreTabla);
 		closedir (dir);
 	}
-	free(pathTabla);
 }
 
 void leerTemporal(char* pathTemp, int particiones, char* nombreTabla){
@@ -114,9 +106,7 @@ char* obtenerListaDeBloques(int particion, char* nombreTabla){
 }
 
 char* firstBloqueDisponible(char* listaDeBloques){
-	char* pathBloques = malloc((strlen(config.punto_montaje)+250) * sizeof(char));
-	strcpy(pathBloques,config.punto_montaje);
-	strcat(pathBloques, "Bloques/");
+	char* pathBloques = string_from_format("%sBloques/", config.punto_montaje);
 	char** bloques = string_get_string_as_array(listaDeBloques);
 
 	char* firstBloque=0;
@@ -126,7 +116,6 @@ char* firstBloqueDisponible(char* listaDeBloques){
 		int charsInFile = caracteresEnBloque(pathBloques,bloques[i]);
 		if(charsInFile < metadataFS.blockSize){
 			log_info(logger_visible, "Compactador.c: firstBloqueDisponible() - Bloque %s con %d caracteres disponibles\n", bloques[i], (metadataFS.blockSize - charsInFile));
-			free(pathBloques);
 			firstBloque=bloques[i];
 		}
 		else{

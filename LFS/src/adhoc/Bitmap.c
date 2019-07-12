@@ -52,11 +52,12 @@ void leerBitmap(){
 	actualizarBitarray();
 
 	/*Función para imprimir*/
+	/*
 	for(int i=0;i<metadataFS.blocks;i++){
 		bool valor = bitarray_test_bit(bitarray, i);
 		printf("valor bit= %d\n", valor);
 	}
-
+	 */
 	close(fileDescriptor);
 	free(path);
 }
