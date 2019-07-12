@@ -18,5 +18,6 @@ void liberarBloque(int pos);
 void escribirBitmap();
 void binarioATexto(char* binario, char* texto, int cantSimbolos);
 unsigned long binarioADecimal(char* binario, int length);
+void actualizarBitarray();
 
 #endif /* ADHOC_BITMAP_H_ */

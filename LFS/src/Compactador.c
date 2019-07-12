@@ -96,21 +96,12 @@ void leerTemporal(char* pathTemp, int particiones, char* nombreTabla){
 		log_info(logger_visible, "Compactador.c: leerTemporal() - Primer bloque con espacio disponible: %s\n", bloque);
 
 		escribirEnBloque(bloque, linea);
-
-		free(linea);
 	}
-	free(value);
 	fclose(temp);
 }
 
 char* obtenerListaDeBloques(int particion, char* nombreTabla){
-	char* pathFile = malloc(1000 * sizeof(char));
-	strcpy(pathFile,config.punto_montaje);
-	strcat(pathFile, "Tables/");
-	strcat(pathFile, nombreTabla);
-	strcat(pathFile, "/");
-	strcat(pathFile, string_from_format("%d", particion));
-	strcat(pathFile, ".bin");
+	char* pathFile = string_from_format("%sTables/%s/%d.bin", config.punto_montaje, nombreTabla, particion);
 
 	t_config* particionFile;
 	particionFile = config_create(pathFile);
@@ -118,7 +109,6 @@ char* obtenerListaDeBloques(int particion, char* nombreTabla){
 	char* listaDeBloques = string_from_format(resultado);
 
 	config_destroy(particionFile);
-	free(pathFile);
 
 	return listaDeBloques;
 }
@@ -127,17 +117,15 @@ char* firstBloqueDisponible(char* listaDeBloques){
 	char* pathBloques = malloc((strlen(config.punto_montaje)+250) * sizeof(char));
 	strcpy(pathBloques,config.punto_montaje);
 	strcat(pathBloques, "Bloques/");
-	char* pathBloque = malloc((strlen(config.punto_montaje)+300) * sizeof(char));
 	char** bloques = string_get_string_as_array(listaDeBloques);
 
 	char* firstBloque=0;
 	int i=0;
 
 	while(bloques[i]!=NULL){
-		int charsInFile = caracteresEnBloque(pathBloque,pathBloques,bloques[i]);
+		int charsInFile = caracteresEnBloque(pathBloques,bloques[i]);
 		if(charsInFile < metadataFS.blockSize){
 			log_info(logger_visible, "Compactador.c: firstBloqueDisponible() - Bloque %s con %d caracteres disponibles\n", bloques[i], (metadataFS.blockSize - charsInFile));
-			free(pathBloque);
 			free(pathBloques);
 			firstBloque=bloques[i];
 		}
@@ -150,10 +138,8 @@ char* firstBloqueDisponible(char* listaDeBloques){
 	return firstBloque;
 }
 
-int caracteresEnBloque(char* pathBloque, char* pathBloques, char* bloque){
-	strcpy(pathBloque,pathBloques);
-	strcat(pathBloque, bloque);
-	strcat(pathBloque, ".bin");
+int caracteresEnBloque(char* pathBloques, char* bloque){
+	char* pathBloque = string_from_format("%s%s.bin", pathBloques, bloque);
 	//printf("path: %s\n", pathBloque);
 
 	FILE* fBloque = fopen(pathBloque, "r+");
@@ -171,16 +157,10 @@ int caracteresEnBloque(char* pathBloque, char* pathBloques, char* bloque){
 
 
 void escribirEnBloque(char* bloque, char* linea){
-	char* pathBloque = malloc((strlen(config.punto_montaje)+250) * sizeof(char));
-	strcpy(pathBloque,config.punto_montaje);
-	strcat(pathBloque, "Bloques/");
-	//char* pathBloqueNuevo = malloc((strlen(pathBloque)+250) * sizeof(char));
-
 	if(string_equals_ignore_case(bloque, "0")){
 		bloque = string_from_format("%d",getBloqueLibre());
 	}
-	strcat(pathBloque, bloque);
-	strcat(pathBloque, ".bin");
+	char* pathBloque = string_from_format("%sBloques/%s.bin", config.punto_montaje, bloque);
 
 	log_info(logger_visible, "Compactador.c: escribirEnBloque() - Path del Bloque a escribir: %s", pathBloque);
 
@@ -191,5 +171,4 @@ void escribirEnBloque(char* bloque, char* linea){
 	log_info(logger_visible, "Compactador.c: escribirEnBloque() - Línea a escribir: %s", linea);
 
 	fclose(fBloque);
-	free(pathBloque);
 }
