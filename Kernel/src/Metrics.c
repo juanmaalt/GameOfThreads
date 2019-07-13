@@ -39,7 +39,7 @@ void no_ver_metricas(){
 
 static void *servicio_metricas(void *null){
 	INICIO:
-	//refrescar_valores(); TODO: descomentar para la entrega final
+	refrescar_valores();
 	sleep(TIEMPO_DE_REFRESCO_DE_METRICAS);
 	mostrar_metricas_por_pantalla();
 	goto INICIO;

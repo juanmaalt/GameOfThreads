@@ -207,11 +207,13 @@ static ResultadoEjecucionInterno exec_file_lql(PCB *pcb){
 		}while(target.socket == EXIT_FAILURE);
 		if(target.socket == NULL_MEMORY){
 			printf("\n");
+			char *aux = remover_new_line(line);
+			log_error(logger_error, "Unidad_de_ejecucion.c: exec_file_lql: finalizando operacion '%s' debido a la instruccion '%s'", pcb->nombreArchivoLQL, aux);
+			log_error(logger_invisible, "Unidad_de_ejecucion.c: exec_file_lql: finalizando operacion '%s' debido a la instruccion '%s'", pcb->nombreArchivoLQL, aux);
+			free(aux);
 			fclose(lql);
 			free(pcb->nombreArchivoLQL);
 			free(pcb);
-			log_error(logger_error, "Unidad_de_ejecucion.c: exec_file_lql: finalizando operacion.");
-			log_error(logger_invisible, "Unidad_de_ejecucion.c: exec_file_lql: finalizando operacion.");
 			return INSTRUCCION_ERROR;
 		}
 		target.inicioOperacion = getCurrentTime();
@@ -263,12 +265,18 @@ static ResultadoEjecucionInterno procesar_retorno_operacion(Operacion op, PCB* p
 		free(instruccionActualTemp);
 		return INSTRUCCION_ERROR;
 	case DESCRIBE_REQUEST:
+		if(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido == NULL){
+			log_info(logger_visible, "CPU: %d | No se obtuvieron datos en el ultimo describe", process_get_thread_id());
+			log_info(logger_invisible, "CPU: %d | No se obtuvieron datos en el ultimo describe", process_get_thread_id());
+			return CONTINUAR;
+		}
 		if(procesar_describe(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido) == EXIT_FAILURE){
 			log_error(logger_error,"CPU: %d | Abortando: Fallo la descompresion del Describe", process_get_thread_id());
 			log_error(logger_invisible,"CPU: %d | Abortando: Fallo la descompresion del Describe", process_get_thread_id());
 			return INSTRUCCION_ERROR;
 		}
 		mostrar_describe(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
+		log_info(logger_invisible, "Resultado describe: %s", op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
 		return CONTINUAR;
 	default:
 		instruccionActualTemp = remover_new_line(instruccionActual);
