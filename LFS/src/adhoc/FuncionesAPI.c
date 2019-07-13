@@ -291,11 +291,13 @@ void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombr
 			if(string!=NULL){
 				resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = string_from_format(string);
 				resultadoDescribe->TipoDeMensaje= DESCRIBE_REQUEST;
+				resultadoDescribe->Argumentos.DESCRIBE_REQUEST.esGlobal=true;
 			}else{
 				resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = NULL;
 			}
 		}else{
 			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = NULL;
+			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.esGlobal=true;
 		}
 	}else{
 		if((dir = opendir (path)) != NULL){
@@ -311,10 +313,12 @@ void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombr
 			//printf("string: %s\n", string);
 			resultadoDescribe->TipoDeMensaje= DESCRIBE_REQUEST;
 			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = string_from_format(string);
+			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.esGlobal=false;
 			config_destroy(metadata);
 		}
 		else{
 			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = NULL;
+			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.esGlobal=false;
 		}
 	}
 
