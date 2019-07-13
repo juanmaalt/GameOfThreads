@@ -56,10 +56,15 @@ typedef struct{
 	char *ip_memoria;
 	char *puerto_memoria;
 	char *punto_montaje;
-	char *retardo; //Esta config la tengo que dejar como variable.
 	char *tamanio_value;
-	char *tiempo_dump; //Esta config la dejamos como variable.
 }Config_final_data;
+
+struct Config_datos_variables{
+	int (*retardo)();
+	int (*tiempoDump)();
+}; //Se actualizan en tiempo de ejecucion
+
+typedef struct Config_datos_variables vConfig;
 
 typedef unsigned long long timestamp_t;
 
@@ -76,6 +81,8 @@ t_log* logger_invisible;
 t_log* logger_error;
 t_config* configFile;
 Config_final_data config;
+vConfig vconfig;
+
 int socketMemoria;
 
 pthread_t idConsola;
@@ -92,6 +99,9 @@ int configuracion_inicial();
 t_log* iniciar_logger(bool visible, char* path);
 t_config* leer_config();
 void extraer_data_config();
+void extraer_data_vConfig();
+int extraer_retardo();
+int extraer_tiempoDump();
 void ver_config();
 t_dictionary* inicializarDiccionario();
 void handshakeMemoria(int socket);
