@@ -180,7 +180,7 @@ void conectarConSeed() {
 	 request.Argumentos.GOSSIPING_REQUEST.resultado_comprimido = envio;
 	 log_info(logger_invisible, "GOSSIPING.C:ConsultoPorMemoriasConocidas: Envio gossiping %d\n",request.TipoDeMensaje);
 	 send_msg(socketSEEDS,request);
-	 printf("Envio %d\n",request.TipoDeMensaje);
+	 //printf("Envio %d\n",request.TipoDeMensaje);
 	 request = recv_msg(socketSEEDS);
 	 log_info(logger_invisible, "GOSSIPING.C:ConsultoPorMemoriasConocidas: Respuesta gossiping %d\n",request.TipoDeMensaje);
 	 //printf("Respuesta\n");
@@ -282,7 +282,7 @@ Operacion recibir_gossiping (Operacion resultado){
 		 				} else {
 		 					list_add(aux, memoria);
 		 					close(socketNew);
-		 					printf("Cierro Socket\n");
+		 					//printf("Cierro Socket\n");
 		 				}
 				//printf("AGREGO EN LISTA\n %s\n%s\n%s\n",descompresion[i],descompresion[i+1],descompresion[i+2]);
 				//list_add(aux, memoria);

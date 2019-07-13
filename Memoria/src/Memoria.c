@@ -141,6 +141,7 @@ void *connection_handler(void *nSocket) {
 	case COMANDO:
 		log_info(logger_visible,"Request recibido por SOCKET: %s\n",resultado.Argumentos.COMANDO.comandoParseable);
 		resultado = ejecutarOperacion(resultado.Argumentos.COMANDO.comandoParseable,false);
+		log_info(logger_invisible,"Memoria.c: connection_handler: Resultado select Timestamp %llu Key %s value %s \n",resultado.Argumentos.REGISTRO.timestamp,resultado.Argumentos.REGISTRO.key,resultado.Argumentos.REGISTRO.value);
 		send_msg(socket, resultado);
 		break;
 	case TEXTO_PLANO:
