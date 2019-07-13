@@ -12,7 +12,7 @@ Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 	Comando *parsed = malloc(sizeof(Comando));
 	Operacion retorno;
 	*parsed = parsear_comando(input);
-	usleep(vconfig.retardoMemoria() * 1000); //TODO: va en los accesos al bloque de memo ppal
+
 	if (parsed->valido) {
 		switch (parsed->keyword) {
 		case SELECT:

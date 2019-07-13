@@ -22,6 +22,8 @@ int handshakeLFS(int socketLFS) {
 	//while((handshake = recv_msg(socketLFS)).TipoDeMensaje)
 	handshake = recv_msg(socketLFS);
 
+	usleep(vconfig.retardoFS() * 1000);
+
 	switch(handshake.TipoDeMensaje){
 		case TEXTO_PLANO:
 			tamanioValue=atoi(handshake.Argumentos.TEXTO_PLANO.texto);
@@ -45,6 +47,8 @@ int handshakeLFS(int socketLFS) {
 
 	//Recibo el punto de montaje
 	handshake = recv_msg(socketLFS);
+
+	usleep(vconfig.retardoFS() * 1000);
 
 	switch(handshake.TipoDeMensaje){
 			case TEXTO_PLANO:
@@ -92,6 +96,9 @@ void enviarRequestFS(char* input) {
 Operacion recibirRequestFS(void) {
 	Operacion resultado;
 	resultado = recv_msg(lfsSocket);
+
+	usleep(vconfig.retardoFS() * 1000);
+
 	return resultado;
 }
 

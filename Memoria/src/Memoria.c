@@ -120,8 +120,6 @@ void *connection_handler(void *nSocket) {
 
 	resultado = recv_msg(socket);
 
-	printf("Hemos recibido algo!\n");
-
 	switch (resultado.TipoDeMensaje) {
 	case COMANDO:
 		log_info(logger_visible,"Request recibido por SOCKET: %s\n",resultado.Argumentos.COMANDO.comandoParseable);
