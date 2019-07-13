@@ -226,9 +226,9 @@ void agregarBloqueEnBitarray(char* nombreCarpeta){
 			nombreArchivo = string_from_format(entry->d_name);
 			if(string_contains(nombreArchivo, ".bin")){
 				char* particionNbr =string_substring_until(nombreArchivo, (strlen(nombreArchivo)-4));
-				printf("antes de lista de bloques\n");
+				//printf("antes de lista de bloques\n");
 				char* listaDeBloques= obtenerListaDeBloques(atoi(particionNbr), nombreCarpeta);
-				printf("post de lista de bloques\n");
+				//printf("post de lista de bloques\n");
 				char** bloques = string_get_string_as_array(listaDeBloques);
 
 				int i=0;

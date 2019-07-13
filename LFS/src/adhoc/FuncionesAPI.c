@@ -228,11 +228,11 @@ void crearArchivosBinarios(char* path, int particiones){
 
 	for(int i=0;i<particiones;i++){
 		char* filename=string_from_format("%d.bin", i);
-		printf("path: %s\n", path);
-		printf("filename: %s\n", filename);
+		//printf("path: %s\n", path);
+		//printf("filename: %s\n", filename);
 		crearArchivo(path, filename);
 
-		printf("pathArchivo: %s\n", string_from_format("%s%s", path,filename));
+		//printf("pathArchivo: %s\n", string_from_format("%s%s", path,filename));
 
 		int bloque = getBloqueLibre();
 		binario = txt_open_for_append(string_from_format("%s%s", path,filename));

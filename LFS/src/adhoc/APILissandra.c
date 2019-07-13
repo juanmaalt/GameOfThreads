@@ -211,7 +211,7 @@ Operacion dropAPI(Comando comando){
 		char* pathFolder = string_from_format("%sTables/%s", config.punto_montaje, comando.argumentos.DROP.nombreTabla);
 
 		int removido=removerDirectorio(pathFolder);
-		printf("resultadoDrop= %d\n", removido);
+		//printf("resultadoDrop= %d\n", removido);
 
 		resultadoDrop.TipoDeMensaje = TEXTO_PLANO;
 		resultadoDrop.Argumentos.TEXTO_PLANO.texto = string_from_format("DROP realizado con exito.");
