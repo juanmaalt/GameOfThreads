@@ -190,21 +190,16 @@ void crearTablaEnMemtable(char* nombreTabla){
 
 
 void setPathTabla(char* path, char* nombreTabla){
-	strcpy(path,config.punto_montaje);
-	strcat(path, "Tables/");
-	strcat(path, nombreTabla);
+	string_from_format("%sTables/%s", config.punto_montaje, nombreTabla);
 }
 
 void crearDirectorioTabla(char* path){
 	crearDirectorio(path);
-	strcat(path,"/");
 }
 
 
 void crearArchivo(char* path, char* nombre){
-	char* pathArchivo = malloc(110 * sizeof(char));
-	strcpy(pathArchivo,path);
-	strcat(pathArchivo, nombre);
+	char* pathArchivo = string_from_format("%s%s", path, nombre);
 
 	//printf("archivo creado en: %s\n", pathArchivo);
 
@@ -212,7 +207,6 @@ void crearArchivo(char* path, char* nombre){
 	file = fopen(pathArchivo,"w");
 
 	fclose(file);
-	free(pathArchivo);
 }
 
 void escribirArchivoMetadata(char* path, Comando comando){

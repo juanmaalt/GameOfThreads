@@ -147,6 +147,7 @@ Operacion createAPI(Comando comando){
 	crearDirectorioTabla(path);
 
 	/*Creo el archivo de metadata de la tabla*/
+	string_append(&path, "/");
 	crearArchivo(path, "Metadata");
 
 	/*Escribo la metadata*/
