@@ -10,19 +10,6 @@
 
 #include "Memoria.h"
 
-void mostrarPathSegmentos() {
-	segmento_t * segmentoAux;
-
-	for (int i = 0; i < list_size(tablaSegmentos.listaSegmentos); ++i) {
-		segmentoAux = (segmento_t *) list_get(tablaSegmentos.listaSegmentos, i);
-		printf("EL PATH DEL SEGMENTO ES: %s\n", obtenerPath(segmentoAux));
-
-	}
-
-}
-
-//TODO: cada printf en rojo que indique el error se debe poner en el log
-
 int main(void) {
 	//Se hacen las configuraciones iniciales para log y config
 	if (configuracion_inicial() == EXIT_FAILURE) {
@@ -57,11 +44,11 @@ int main(void) {
 	iniciar_gossiping();
 
 	//FUNCIONES PARA TEST DE SELECT TODO: ELIMINAR
-	memoriaConUnSegmentoYUnaPagina();
+	/*memoriaConUnSegmentoYUnaPagina();
 
 	mostrarContenidoMemoria();
 	mostrarPathSegmentos();
-
+*/
 	//Inicio consola
 
 	if (iniciar_consola() == EXIT_FAILURE) {
@@ -86,8 +73,6 @@ int main(void) {
 
 		return EXIT_FAILURE;
 	}
-
-
 
 	liberarRecursos();
 }
@@ -141,7 +126,9 @@ void *connection_handler(void *nSocket) {
 	case COMANDO:
 		log_info(logger_visible,"Request recibido por SOCKET: %s\n",resultado.Argumentos.COMANDO.comandoParseable);
 		resultado = ejecutarOperacion(resultado.Argumentos.COMANDO.comandoParseable,false);
-		//log_info(logger_invisible,"Memoria.c: connection_handler: Resultado select Timestamp %llu Key %s value %s \n",resultado.Argumentos.REGISTRO.timestamp,resultado.Argumentos.REGISTRO.key,resultado.Argumentos.REGISTRO.value);
+
+		loggearRetorno(resultado, logger_invisible);
+
 		send_msg(socket, resultado);
 		break;
 	case TEXTO_PLANO:
@@ -185,31 +172,6 @@ int realizarHandshake(void) {
 }
 
 
-//TODO: FUNCION A ELIMINAR >>> USADA PARA TEST
-
-void memoriaConUnSegmentoYUnaPagina(void) { //TODO: se podrian usar las de manejo de memoria...
-
-	//Crear un segmento
-	segmento_t* segmentoEjemplo = malloc(sizeof(segmento_t));
-
-	//Asignar path determinado
-	asignarPathASegmento(segmentoEjemplo, "tablaEjemplo");
-
-	//Crear su tabla de paginas
-	segmentoEjemplo->tablaPaginas = malloc(sizeof(tabla_de_paginas_t));
-	segmentoEjemplo->tablaPaginas->registrosPag = list_create();
-
-	//Insertar pagina Ejemplo en Memoria Principal
-	int indiceMarcoEjemplo = colocarPaginaEnMemoria(getCurrentTime(), 1, "Car");
-
-	//Crear registro de pagina en la tabla
-
-	crearRegistroEnTabla(segmentoEjemplo->tablaPaginas, indiceMarcoEjemplo, false);
-
-	//Agregar segmento Ejemplo a tabla de segmentos
-	list_add(tablaSegmentos.listaSegmentos, (segmento_t*) segmentoEjemplo);
-
-}
 
 int inicializar_memoriaPrincipal() {
 	//Obtengo tamanio de memoria desde el .config
@@ -315,6 +277,24 @@ t_log* iniciar_logger(char* fileName, bool visibilidad, t_log_level level) {
 	return log_create(fileName, "Memoria", visibilidad, level);
 }
 
+void loggearRetorno(Operacion retorno, t_log * logger) {
+	switch (retorno.TipoDeMensaje) {
+	case REGISTRO:
+		log_info(logger,"Timestamp: %llu  Key:%d  Value: %s\n",
+				retorno.Argumentos.REGISTRO.timestamp,
+				retorno.Argumentos.REGISTRO.key,
+				retorno.Argumentos.REGISTRO.value);
+		return;
+	case TEXTO_PLANO:
+		log_info(logger,"Resultado: %s\n",retorno.Argumentos.TEXTO_PLANO.texto);
+		return;
+	case ERROR:
+		log_error(logger,"%s \n",retorno.Argumentos.ERROR.mensajeError);
+		return;
+	case COMANDO:
+		return;
+	}
+}
 
 void extraer_data_fija_config() {
 	fconfig.ip = config_get_string_value(configFile, "IP");
@@ -370,3 +350,30 @@ void mostrar_por_pantalla_config() {
 			vconfig.retardoGossiping());
 	log_info(logger_visible, "MEMORY_NUMBER=%s", fconfig.numero_memoria);
 }
+
+//TODO: FUNCION A ELIMINAR >>> USADA PARA TEST
+
+void memoriaConUnSegmentoYUnaPagina(void) { //TODO: se podrian usar las de manejo de memoria...
+
+	//Crear un segmento
+	segmento_t* segmentoEjemplo = malloc(sizeof(segmento_t));
+
+	//Asignar path determinado
+	asignarPathASegmento(segmentoEjemplo, "tablaEjemplo");
+
+	//Crear su tabla de paginas
+	segmentoEjemplo->tablaPaginas = malloc(sizeof(tabla_de_paginas_t));
+	segmentoEjemplo->tablaPaginas->registrosPag = list_create();
+
+	//Insertar pagina Ejemplo en Memoria Principal
+	int indiceMarcoEjemplo = colocarPaginaEnMemoria(getCurrentTime(), 1, "Car");
+
+	//Crear registro de pagina en la tabla
+
+	crearRegistroEnTabla(segmentoEjemplo->tablaPaginas, indiceMarcoEjemplo, false);
+
+	//Agregar segmento Ejemplo a tabla de segmentos
+	list_add(tablaSegmentos.listaSegmentos, (segmento_t*) segmentoEjemplo);
+
+}
+

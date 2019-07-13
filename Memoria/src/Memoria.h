@@ -78,6 +78,7 @@ int realizarHandshake(void);
 void *connection_handler(void *);
 
 t_log* iniciar_logger(char* fileName, bool visibilidad, t_log_level level);
+void loggearRetorno(Operacion, t_log*);
 int inicializar_configs();
 
 
