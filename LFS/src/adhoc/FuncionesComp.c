@@ -8,8 +8,8 @@
 #include "FuncionesComp.h"
 
 void cambiarNombreFilesTemp(char* pathTabla){
-	char* pathFileViejo = malloc(1000 * sizeof(char));
-	char* pathFileNuevo = malloc(1000 * sizeof(char));
+	char* pathFileViejo = string_new();
+	char* pathFileNuevo = string_new();
 	DIR *dir;
 	struct dirent *entry;
 	char* nombreArchivo;
@@ -20,19 +20,15 @@ void cambiarNombreFilesTemp(char* pathTabla){
 		while((entry = readdir (dir)) != NULL){
 			nombreArchivo = string_from_format(entry->d_name);
 			if(string_contains(nombreArchivo, ".tmp")){
-				strcpy(pathFileViejo, pathTabla);
-				strcat(pathFileViejo, "/");
-				strcat(pathFileViejo, nombreArchivo);
-				strcpy(pathFileNuevo, pathFileViejo);
-				strcat(pathFileNuevo, "c");
+				pathFileViejo = string_from_format("%s/%s", pathTabla, nombreArchivo);
+				pathFileNuevo = string_duplicate(pathFileViejo);
+				string_append(&pathFileNuevo,"c");
 
 				rename(pathFileViejo, pathFileNuevo);
 			}
 		}
 		closedir (dir);
 	}
-	free(pathFileViejo);
-	free(pathFileNuevo);
 }
 
 void leerTemporal(char* pathTemp, int particiones, char* nombreTabla){

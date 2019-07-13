@@ -212,10 +212,7 @@ void crearArchivo(char* path, char* nombre){
 void escribirArchivoMetadata(char* path, Comando comando){
 	FILE* fmetadata;
 
-	char* pathArchivo = malloc(110 * sizeof(char));
-
-	strcpy(pathArchivo,path);
-	strcat(pathArchivo, "Metadata");
+	char* pathArchivo = string_from_format("%sMetadata", path);
 
 	fmetadata = fopen(pathArchivo,"a");
 
@@ -224,7 +221,6 @@ void escribirArchivoMetadata(char* path, Comando comando){
 	fprintf (fmetadata, "PARTITIONS=%d\n",atoi(comando.argumentos.CREATE.numeroParticiones));
 
 	fclose(fmetadata);
-	free(pathArchivo);
 }
 
 void crearArchivosBinarios(char* path, int particiones){
