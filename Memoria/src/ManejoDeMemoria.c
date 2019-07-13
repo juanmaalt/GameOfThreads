@@ -107,7 +107,7 @@ int realizarLRU(char* value, uint16_t key, timestamp_t ts, segmento_t * segmento
 	list_iterate(tablaSegmentos.listaSegmentos, buscarSegmentoDeNuevaVictima);
 
 	if(registroVictima != NULL){
-		log_info(logger_invisible,"liberando registro y creando uno nuevo\n");
+		log_info(logger_invisible,"MANEJODEMEMORIA.C: realizarLRU: liberando registro y creando uno nuevo\n");
 		//Elimino el registro
 
 		bool esRegistroVictima(void * registro){
@@ -131,11 +131,11 @@ int insertarPaginaDeSegmento(char* value, uint16_t key, timestamp_t ts, segmento
 
 	if(hayMarcoDisponible()) {
 		crearRegistroEnTabla(segmento->tablaPaginas,colocarPaginaEnMemoria(ts, key, value), esInsert);
-		log_info(logger_invisible,"Se ingreso el registro\n");
+		log_info(logger_invisible,"MANEJODEMEMORIA.C: insertarPaginaDeSegmento: Se ingreso el registro\n");
 		return EXIT_SUCCESS;
 
 	} else {//aplicar el algoritmo de reemplazo (LRU) y en caso de que la memoria se encuentre full iniciar el proceso Journal.
-		log_info(logger_invisible,"INICIO LRU \n");
+		log_info(logger_invisible,"MANEJODEMEMORIA.C: insertarPaginaDeSegmento: INICIO LRU \n");
 		return realizarLRU(value, key, ts, segmento, esInsert);   //ERROR_MEMORIA_FULL;
 	}
 }

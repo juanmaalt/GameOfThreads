@@ -30,7 +30,7 @@ void *recibir_comandos(void *null) {
 	Operacion retorno;
 	for (;;) {
 		char *userInput = readline("> ");
-		log_info(logger_invisible,"Request recibida por CONSOLA: %s",userInput);
+		log_info(logger_invisible,"CONSOLA.C: recibir_comandos: Request recibida por CONSOLA: %s",userInput);
 		retorno = ejecutarOperacion(userInput, true); //libera el userInput en la funcion
 		mostrarRetorno(retorno);
 		destruir_operacion(retorno);

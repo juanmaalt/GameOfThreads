@@ -97,7 +97,7 @@ void *realizarJournal(void* null){
 	while(1){
 		usleep(vconfig.retardoJOURNAL() * 1000);
 
-		log_info(logger_invisible,"Inicio Journal automatico");
+		log_info(logger_invisible,"Memoria.c: realizarJournal: Inicio Journal automatico");
 		journalAPI();
 	}
 }
@@ -121,7 +121,7 @@ int iniciar_serverMemoria(void) {
 	if (miSocket == EXIT_FAILURE)
 		return EXIT_FAILURE;
 
-	log_info(logger_invisible, "Servidor encendido, esperando conexiones");
+	log_info(logger_invisible, "Memoria.c: iniciar_serverMemoria: Servidor encendido, esperando conexiones");
 
 	threadConnection(miSocket, connection_handler);
 

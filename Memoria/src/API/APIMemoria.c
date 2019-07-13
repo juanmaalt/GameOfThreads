@@ -199,7 +199,7 @@ Operacion insertAPI(char* input, Comando comando) {
 
 			actualizarValueDeKey(comando.argumentos.INSERT.value, registroBuscado);
 
-			log_info(logger_invisible,"Se realizo el INSERT, estaba en memoria\n");
+			log_info(logger_invisible,"APIMemoria.c: insertAPI: Se realizo el INSERT, estaba en memoria\n");
 
 			resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
 			resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format(
@@ -216,7 +216,7 @@ Operacion insertAPI(char* input, Comando comando) {
 				resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format(
 									"INSERT REALIZADO CON EXITO");
 
-				log_info(logger_invisible,"Se realizo el INSERT, se pide pidio pagina\n");
+				log_info(logger_invisible,"APIMemoria.c: insertAPI: Se realizo el INSERT, se pide pidio pagina\n");
 				return resultadoInsert;
 			}
 
@@ -426,7 +426,7 @@ Operacion journalAPI(){
 				//INSERT <NombreTabla> <KEY> “<VALUE>” <TIMESTAMP>
 				input=string_from_format("INSERT %s %d \"%s\" %llu",nombreTabla,registroAEnviar.Argumentos.REGISTRO.key,registroAEnviar.Argumentos.REGISTRO.value, registroAEnviar.Argumentos.REGISTRO.timestamp);
 
-				log_info(logger_invisible,"Request mandada: %s \n", input);
+				log_info(logger_invisible,"APIMemoria.c: recorrerSegmento: Request mandada: %s \n", input);
 
 				//enviarRequestFS(input);
 

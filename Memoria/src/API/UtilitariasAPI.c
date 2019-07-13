@@ -37,7 +37,7 @@ bool verificarExistenciaSegmento(char* nombreTabla,
 
 	if (list_is_empty(listaConSegmentoBuscado)) {
 		list_destroy(listaConSegmentoBuscado);
-		log_info(logger_invisible,"no se encontro el segmento, se procede a crear segmento de tabla");
+		log_info(logger_invisible,"UtilitariasAPI: verificarExistenciaSegmento: no se encontro el segmento, se procede a crear segmento de tabla");
 		return false;
 	}
 	//Tomo de la lista filtrada el segmento con el path coincidente
