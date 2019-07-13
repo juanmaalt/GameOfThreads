@@ -296,7 +296,7 @@ void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombr
 					//printf("nombreTabla: %s\n", nombreCarpeta);
 
 					metadata = config_create(string_from_format("%s%s/Metadata", pathMetadata, nombreCarpeta));
-					string_from_format(char* consistencia = config_get_string_value(metadata, "CONSISTENCY"));
+					char* consistencia = string_from_format(config_get_string_value(metadata, "CONSISTENCY"));
 					int compactionTime=config_get_int_value(metadata, "COMPACTION_TIME");
 					int particiones =config_get_int_value(metadata, "PARTITIONS");
 
@@ -323,7 +323,7 @@ void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombr
 			//printf("nombreTabla: %s\n", nombreTabla);
 
 			metadata = config_create(string_from_format("%s%s/Metadata", pathMetadata, nombreTabla));
-			char* consistencia = config_get_string_value(metadata, "CONSISTENCY");
+			char* consistencia = string_from_format(config_get_string_value(metadata, "CONSISTENCY"));
 			int compactionTime=config_get_int_value(metadata, "COMPACTION_TIME");
 			int particiones =config_get_int_value(metadata, "PARTITIONS");
 
