@@ -9,6 +9,10 @@
 #include "APIMemoria.h"
 
 Operacion ejecutarOperacion(char* input, bool esDeConsola) {
+	int valueSem;
+	sem_getvalue(&journal, &valueSem);
+	while(!valueSem);
+
 	Comando *parsed = malloc(sizeof(Comando));
 	Operacion retorno;
 	*parsed = parsear_comando(input);
@@ -408,11 +412,13 @@ void getNombreTabla(char * nombreSegmento, char **nombreTabla){
 Operacion journalAPI(){
 	Operacion resultadoJournal;
 	Operacion registroAEnviar;
-
 	char * input;
 	//	1.1. Si tiene modificado, armo un insert con todos sus datos (viendo de que tabla es) y lo mando al FS
 
 	//  1.2. Si no esta modificado avanzo
+
+	sem_wait(&journal);
+
 	void recorrerSegmento(void * segmento){
 
 		void enviarRegistroModificado(void* registro){
