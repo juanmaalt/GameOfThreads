@@ -166,7 +166,7 @@ void checkDirectorios(){
 	char* pathBloques = string_from_format("%sBloques",config.punto_montaje);
 	checkExistenciaDirectorio(pathBloques, "Bloques");
 
-	/*Checkeo la existencia del directorio de Bloques*/
+	/*Checkeo la existencia del directorio de Metadata*/
 	char* pathMetadata = string_from_format("%sMetadata",config.punto_montaje);
 	checkExistenciaDirectorio(pathMetadata, "Metadata");
 
@@ -186,6 +186,7 @@ void levantarTablasExistentes(){
 				crearTablaEnMemtable(nombreCarpeta);
 				log_info(logger_invisible, "FileSystem.c: levantarTablasEnMemtable() - Tabla levantada: %s", nombreCarpeta);
 				agregarBloqueEnBitarray(nombreCarpeta);
+				iniciarCompactacion(nombreCarpeta);
 			}
 		}
 		closedir (dir);

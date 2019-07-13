@@ -419,7 +419,7 @@ void limpiarBloquesEnBitarray(char* nombreTabla){
 int iniciarCompactacion(char* nombreTabla){
 	pthread_t idCompactacion;
 	if (pthread_create(&idCompactacion, NULL, compactar, nombreTabla)) {
-		log_error(logger_error, "FuncionesAPI.c: <CREATE> Falló al iniciar el hilo de compactación");
+		log_error(logger_error, "FuncionesAPI.c: iniciarCompactacion(): Falló al iniciar el hilo de compactación");
 		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;

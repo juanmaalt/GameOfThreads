@@ -10,7 +10,6 @@
 void* compactar(void* nombreTabla){
 	pthread_detach(pthread_self());
 
-
 	char* pathTabla = string_from_format("%sTables/%s", config.punto_montaje, (char*)nombreTabla);
 	DIR *dir;
 	struct dirent *entry;
