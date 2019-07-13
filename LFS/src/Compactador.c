@@ -46,9 +46,9 @@ void* compactar(void* nombreTabla){
 				}
 			}
 			/*Busca en el diccionario por el hash nombreTabla hace un pop de cada peticion y la manda a ejecutarOperacion*/
-			procesarPeticionesPendientes(nombreTabla);
+			procesarPeticionesPendientes((char*)nombreTabla);
 
-			sacarTablaDeDiccCompactacion(nombreTabla);
+			sacarTablaDeDiccCompactacion((char*)nombreTabla);
 			closedir (dir);
 			log_info(logger_invisible, "Compactador.c: compactar() - Fin compactación");
 		}

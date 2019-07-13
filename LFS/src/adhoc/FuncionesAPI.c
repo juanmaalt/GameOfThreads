@@ -234,50 +234,36 @@ void escribirArchivoMetadata(char* path, Comando comando){
 }
 
 void crearArchivosBinarios(char* path, int particiones){
-	char* pathArchivo = malloc(2000 * sizeof(char));
-	char filename[10];
+	char* pathArchivo = string_from_format(path);
+	char* filename=string_new();
 	FILE* binario;
 
 	for(int i=0;i<particiones;i++){
-		sprintf(filename, "%d.bin", i);
+		filename=string_from_format("%d.bin", i);
 		crearArchivo(path, filename);
-		strcpy(pathArchivo, path);
-		strcat(pathArchivo, filename);
+		string_append(&pathArchivo, filename);
 
 		int bloque = getBloqueLibre();
 		binario = txt_open_for_append(pathArchivo);
 		txt_write_in_file(binario, string_from_format("SIZE=0\nBLOCKS=[%d]\n",bloque));
 	}
-	free(pathArchivo);
-	free(binario);
+	fclose(binario);
 }
 
 void insertInFile(char* path, int particionNbr, char* key, char* value){
 	FILE* fParticion;
 
-	char* pathArchivo = malloc(2000 * sizeof(char));
-	char filename[6];
-	sprintf(filename, "%d.bin", particionNbr);
-
-	strcpy(pathArchivo,path);
-	strcat(pathArchivo, "/");
-	strcat(pathArchivo, filename);
+	char* filename=string_from_format("%d.bin", particionNbr);
+	char* pathArchivo = string_from_format("%s/%s", path, filename);
 
 	fParticion = fopen(pathArchivo,"a");
 
-	char* keyValue = malloc(1000 * sizeof(char));
-	strcpy(keyValue, key);
-	strcat(keyValue, ";");
-	strcat(keyValue, value);
-
-
+	char* keyValue = string_from_format("%s;%s", key, value);
 
 	fprintf (fParticion, "%s",keyValue);
 
 	free(keyValue);
 	fclose(fParticion);
-	free(pathArchivo);
-
 }
 
 void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombreTabla, Operacion *resultadoDescribe){
