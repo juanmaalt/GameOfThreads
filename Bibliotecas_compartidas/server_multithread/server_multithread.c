@@ -8,10 +8,10 @@ int threadConnection(int socket, void *funcionThread){
 
 	listen(socket , 5); //TODO: establecer cantidad en funcion de cantidad de ips que tengo en config +1 el kernel
 
-	printf("server_multithread.c: in threadConnection\n");
+	//printf("server_multithread.c: in threadConnection\n");
 
 	while((client_sock = accept(socket, (struct sockaddr *)&direccionCliente, &clienteLen)) != -1){
-        printf("server_multithread.c: connection accepted\n");
+        //printf("server_multithread.c: connection accepted\n");
 
         pthread_t sniffer_thread;
 	    new_sock = malloc(sizeof(int));
