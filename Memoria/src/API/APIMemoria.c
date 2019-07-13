@@ -122,7 +122,7 @@ Operacion selectAPI(char* input, Comando comando) {
 
 		}else{
 			//printf(YEL"APIMemoria.c: select: no encontro la key. Enviar a LFS la request"STD"\n");
-			log_error(logger_error,"APIMemoria.c: select: no encontro la key. Enviar a LFS la request");
+			log_info(logger_invisible,"APIMemoria.c: select: no encontro la key. Enviando a LFS la request");
 			enviarRequestFS(input);
 
 			resultadoSelect=recibirRequestFS();
@@ -145,7 +145,7 @@ Operacion selectAPI(char* input, Comando comando) {
 		}
 
 	}else{ //NO EXISTE EL SEGMENTO
-		log_error(logger_error,"APIMemoria.c: select: no se encontro el path. Enviando a LFS la request");
+		log_info(logger_invisible,"APIMemoria.c: select: no se encontro el path. Enviando a LFS la request");
 
 		enviarRequestFS(input);
 
@@ -445,7 +445,7 @@ Operacion journalAPI(){
 				//INSERT <NombreTabla> <KEY> “<VALUE>” <TIMESTAMP>
 				input=string_from_format("INSERT %s %d \"%s\" %llu",nombreTabla,registroAEnviar.Argumentos.REGISTRO.key,registroAEnviar.Argumentos.REGISTRO.value, registroAEnviar.Argumentos.REGISTRO.timestamp);
 
-				log_info(logger_invisible,"APIMemoria.c: recorrerSegmento: Request mandada: %s \n", input);
+				log_info(logger_invisible,"APIMemoria.c: recorrerSegmento: Request mandada: %s", input);
 
 				enviarRequestFS(input);
 
