@@ -12,6 +12,13 @@
 #include "APILissandra.h"
 
 void cambiarNombreFilesTemp(char* pathTabla);
+void leerTemporal(char* pathTemp, int particiones, char* nombreTabla);
+char* obtenerListaDeBloques(int particion, char* nombreTabla);
+char* firstBloqueDisponible(char* listaDeBloques);
+int caracteresEnBloque(char* bloque);
+void escribirLinea(char* bloque, char* linea, char* nombreTabla, int particion);
+void escribirEnBloque(char* bloque, char* linea);
+
 void agregarTablaEnDiccCompactacion(char* nombreTabla);
 void sacarTablaDeDiccCompactacion(char* nombreTabla);
 

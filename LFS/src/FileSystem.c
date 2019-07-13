@@ -172,7 +172,7 @@ void checkDirectorios(){
 
 }
 
-void levantarTablasEnMemtable(){
+void levantarTablasExistentes(){
 	char* path = string_from_format("%sTables",config.punto_montaje);
 	DIR *dir;
 	struct dirent *entry;
@@ -185,6 +185,7 @@ void levantarTablasEnMemtable(){
 			}else{
 				crearTablaEnMemtable(nombreCarpeta);
 				log_info(logger_invisible, "FileSystem.c: levantarTablasEnMemtable() - Tabla levantada: %s", nombreCarpeta);
+				agregarBloqueEnBitarray(nombreCarpeta);
 			}
 		}
 		closedir (dir);
@@ -200,10 +201,10 @@ void agregarBloqueEnParticion(char* bloque, char* nombreTabla, int particion){
 
 	char* nuevosBloques = string_from_format("%s,%s]", string_substring_until(bloques, (strlen(bloques)-1)), bloque);
 
-	printf("size inicial: %d\n", size);
-	size += caracteresEnBloque(bloque);
-	printf("size inicial: %d\n", caracteresEnBloque(bloque));
-	printf("size final: %d\n", size);
+	//printf("size inicial: %d\n", size);
+	size = size+caracteresEnBloque(bloque);
+	//printf("size inicial: %d\n", caracteresEnBloque(bloque));
+	//printf("size final: %d\n", size);
 
 	config_set_value(particionData, "SIZE", string_from_format("%d",size));
 	config_set_value(particionData, "BLOCKS", nuevosBloques);
@@ -212,4 +213,31 @@ void agregarBloqueEnParticion(char* bloque, char* nombreTabla, int particion){
 	config_destroy(particionData);
 }
 
+void agregarBloqueEnBitarray(char* nombreCarpeta){
+	char* pathTablas = string_from_format("%sTables/%s/", config.punto_montaje, nombreCarpeta);
+
+	DIR *dir;
+	struct dirent *entry;
+	char* nombreArchivo;
+
+	if((dir = opendir(pathTablas)) != NULL){
+		while((entry = readdir (dir)) != NULL){
+			nombreArchivo = string_from_format(entry->d_name);
+			if(string_contains(nombreArchivo, ".bin")){
+				char* particionNbr =string_substring_until(nombreArchivo, (strlen(nombreArchivo)-4));
+				char* listaDeBloques= obtenerListaDeBloques(atoi(particionNbr), nombreCarpeta);
+				char** bloques = string_get_string_as_array(listaDeBloques);
+
+				int i=0;
+
+				while(bloques[i]!=NULL){
+					int pos = atoi(bloques[i]);
+					bitarray_set_bit(bitarray, (pos-1));
+					i++;
+				}
+			}
+		}
+	}
+
+}
 /*FIN FUNCIONES DIRECTORIO*/

@@ -10,9 +10,7 @@
 void leerBitmap(){
 	log_info(logger_invisible, "Inicio levantarBitmap");
 	int size = ((metadataFS.blocks/8)+1);
-	char* path = malloc(1000 * sizeof(char));
-	strcpy(path, config.punto_montaje);
-	strcat(path, "Metadata/Bitmap.bin");
+	char* path = string_from_format("%sMetadata/Bitmap.bin", config.punto_montaje);
 
 	//printf("path: %s\n", path);
 
@@ -59,7 +57,6 @@ void leerBitmap(){
 	}
 	 */
 	close(fileDescriptor);
-	free(path);
 }
 
 int getBloqueLibre(){

@@ -30,13 +30,13 @@ int main(void) {
 	/*Inicio la Memtable*/
 	memtable = inicializarDiccionario();
 
-	//agregarDatos(memtable);//funcion para pruebas TODO:Borrar esto
-
-	/*Levantar Tablas*/
-	levantarTablasEnMemtable();
+	//agregarDatos(memtable);//TODO:funcion para pruebas
 
 	/*Levantar Bitmap*/
 	leerBitmap();
+
+	/*Levantar Tablas*/
+	levantarTablasExistentes();
 
 	/*Creo el diccionario para las tablas en compactación*/
 	diccCompactacion = inicializarDiccionario();
