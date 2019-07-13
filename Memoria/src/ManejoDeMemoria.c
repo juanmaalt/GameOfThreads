@@ -58,7 +58,8 @@ int colocarPaginaEnMemoria(timestamp_t timestamp, uint16_t key, char* value) { /
 	}
 	usleep(vconfig.retardoMemoria() * 1000); //TODO: es correcto?
 
-	//TODO: wSEMAFORO
+	pthread_mutex_lock(&mutexMemoria);
+
 	MCB_t * marcoObjetivo = (MCB_t *) queue_pop(memoriaPrincipal.marcosLibres); //No se elimina porque el MCB tambien esta en listaAdministrativaMarcos
 
 	void * direccionMarco = memoriaPrincipal.memoria + memoriaPrincipal.tamanioMarco * marcoObjetivo->nroMarco;
@@ -69,7 +70,9 @@ int colocarPaginaEnMemoria(timestamp_t timestamp, uint16_t key, char* value) { /
 
 	memcpy(direccionMarco + sizeof(timestamp_t) + sizeof(uint16_t), value,
 			(sizeof(char) * tamanioValue));
-	//sSEMAFORO
+
+	pthread_mutex_unlock(&mutexMemoria);
+
 	return marcoObjetivo->nroMarco;
 }
 
@@ -83,6 +86,8 @@ int realizarLRU(char* value, uint16_t key, timestamp_t ts, segmento_t * segmento
 	registroTablaPag_t* registroVictima = NULL;
 	segmento_t* segmentoDeVictima = NULL;
 	bool primerMacheo = true;
+
+	pthread_mutex_lock(&mutexTablaSegmentos);
 
 	void buscarSegmentoDeNuevaVictima(void * segmento){
 
@@ -106,6 +111,8 @@ int realizarLRU(char* value, uint16_t key, timestamp_t ts, segmento_t * segmento
 	}
 
 	list_iterate(tablaSegmentos.listaSegmentos, buscarSegmentoDeNuevaVictima);
+
+	pthread_mutex_unlock(&mutexTablaSegmentos);
 
 	if(registroVictima != NULL){
 		log_info(logger_invisible,"MANEJODEMEMORIA.C: realizarLRU: liberando registro y creando uno nuevo\n");
@@ -148,6 +155,8 @@ Operacion tomarContenidoPagina(registroTablaPag_t registro) {
 
 	resultadoRetorno.TipoDeMensaje=REGISTRO;
 
+	pthread_mutex_lock(&mutexMemoria);
+
 	void * direccionMarco = memoriaPrincipal.memoria
 			+ memoriaPrincipal.tamanioMarco * registro.nroMarco;
 	/*timestamp_t timestamp;
@@ -167,11 +176,17 @@ Operacion tomarContenidoPagina(registroTablaPag_t registro) {
 
 	//printf("Timestamp: %llu\nKey:%d\nValue: %s\n",timestamp,key,value);
 
+	pthread_mutex_unlock(&mutexMemoria);
+
 	return resultadoRetorno;
 
 }
 
 void actualizarValueDeKey(char *value, registroTablaPag_t *registro){
+	usleep(vconfig.retardoMemoria() * 1000); //TODO: es correcto?
+
+	pthread_mutex_lock(&mutexMemoria);
+
 	void * direccionMarco = memoriaPrincipal.memoria + memoriaPrincipal.tamanioMarco * registro->nroMarco;
 
 	//Seteo el flag de Modificado y actualizo uso
@@ -181,11 +196,11 @@ void actualizarValueDeKey(char *value, registroTablaPag_t *registro){
 
 	timestamp_t tsActualizado = getCurrentTime();
 
-	usleep(vconfig.retardoMemoria() * 1000); //TODO: es correcto?
-
 	memcpy(direccionMarco, &tsActualizado, sizeof(timestamp_t));
 
 	strcpy(direccionMarco + sizeof(timestamp_t) + sizeof(uint16_t),value);
+
+	pthread_mutex_unlock(&mutexMemoria);
 
 }
 
@@ -203,7 +218,11 @@ int crearSegmentoInsertandoRegistro(char * nombreTabla, char* value, timestamp_t
 		insertarPaginaDeSegmento(value, key, ts, segmentoNuevo, esInsert);
 
 		//Agregar segmento Nuevo a tabla de segmentos
+		pthread_mutex_lock(&mutexTablaSegmentos);
+
 		list_add(tablaSegmentos.listaSegmentos, (segmento_t*) segmentoNuevo);
+
+		pthread_mutex_unlock(&mutexTablaSegmentos);
 
 		return EXIT_SUCCESS;
 	}

@@ -58,11 +58,16 @@ void liberarRecursos(void) {
 	if (memoriaPrincipal.memoria != NULL)
 		free(memoriaPrincipal.memoria);
 
+	pthread_mutex_lock(&mutexTablaSegmentos);
+
 	if(list_is_empty(tablaSegmentos.listaSegmentos)){
 		list_destroy(tablaSegmentos.listaSegmentos);
 	}else{
 		list_destroy_and_destroy_elements(tablaSegmentos.listaSegmentos, liberarSegmento);
 	}
+
+	pthread_mutex_unlock(&mutexTablaSegmentos);
+
 	liberarIPs(IPs);
 	liberarIPs(IPsPorts);
 	queue_clean(memoriaPrincipal.marcosLibres);
@@ -73,6 +78,9 @@ void liberarRecursos(void) {
 
 	if (pathLFS != NULL)
 		free(pathLFS);
+
+	pthread_mutex_destroy(&mutexMemoria);
+	pthread_mutex_destroy(&mutexTablaSegmentos);
 
 	config_destroy(configFile);
 	log_destroy(logger_invisible);
@@ -88,7 +96,10 @@ void removerSegmentoDeTabla(segmento_t* segmentoSeleccionado) {
 		}
 		return true;
 	}
+	pthread_mutex_lock(&mutexTablaSegmentos);
+
 	list_remove_by_condition(tablaSegmentos.listaSegmentos,
 			segmentoCoincidePath);
 
+	pthread_mutex_unlock(&mutexTablaSegmentos);
 }
