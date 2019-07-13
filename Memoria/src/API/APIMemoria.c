@@ -12,7 +12,7 @@ Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 	Comando *parsed = malloc(sizeof(Comando));
 	Operacion retorno;
 	*parsed = parsear_comando(input);
-	usleep(vconfig.retardoMemoria() * 1000);
+
 	if (parsed->valido) {
 		switch (parsed->keyword) {
 		case SELECT:
@@ -29,7 +29,6 @@ Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 			} else {
 				retorno = insertAPI(input, *parsed);
 			}
-
 			break;
 		case CREATE:
 			retorno = createAPI(input, *parsed);
@@ -214,7 +213,7 @@ Operacion insertAPI(char* input, Comando comando) {
 			if(insertarPaginaDeSegmento(comando.argumentos.INSERT.value, keyBuscada,getCurrentTime(), segmentoSeleccionado, true)== EXIT_SUCCESS){
 				resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
 				resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format(
-									"INSERT REALIZADO CON EXITO");
+									"Insert realizado con exito");
 
 				log_info(logger_invisible,"APIMemoria.c: insertAPI: Se realizo el INSERT, se pide pidio pagina\n");
 				return resultadoInsert;
