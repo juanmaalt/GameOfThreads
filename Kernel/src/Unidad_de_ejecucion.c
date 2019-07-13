@@ -264,8 +264,8 @@ static ResultadoEjecucionInterno procesar_retorno_operacion(Operacion op, PCB* p
 		return INSTRUCCION_ERROR;
 	case DESCRIBE_REQUEST:
 		if(procesar_describe(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido) == EXIT_FAILURE){
-			log_error(logger_error,"CPU: %d | Abortando: Fallo Describe", process_get_thread_id());
-			log_error(logger_invisible,"CPU: %d | Abortando: Fallo Describe", process_get_thread_id());
+			log_error(logger_error,"CPU: %d | Abortando: Fallo la descompresion del Describe", process_get_thread_id());
+			log_error(logger_invisible,"CPU: %d | Abortando: Fallo la descompresion del Describe", process_get_thread_id());
 			return INSTRUCCION_ERROR;
 		}
 		mostrar_describe(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
@@ -307,19 +307,19 @@ static void generar_estadisticas(DynamicAddressingRequest *link){
 			return;
 		}
 		break;
-	case HSC:
+	case SHC:
 		if(link->tipoOperacion == LECTURA){
 			++metricas.At.HashStrongConsistency.reads;
 			metricas.At.HashStrongConsistency.acumuladorTiemposRead += link->finOperacion - link->inicioOperacion;
 			metricas.At.HashStrongConsistency.readLatency = metricas.At.HashStrongConsistency.acumuladorTiemposRead / metricas.At.HashStrongConsistency.reads;
-			link->memoria->Metrics.HSC.cantidadSelect += 1;
+			link->memoria->Metrics.SHC.cantidadSelect += 1;
 			return;
 		}
 		if(link->tipoOperacion == ESCRITURA){
 			++metricas.At.HashStrongConsistency.writes;
 			metricas.At.HashStrongConsistency.acumuladorTiemposWrite += link->finOperacion - link->inicioOperacion;
 			metricas.At.HashStrongConsistency.writeLatency = metricas.At.HashStrongConsistency.acumuladorTiemposWrite / metricas.At.HashStrongConsistency.writes;
-			link->memoria->Metrics.HSC.cantidadInsert += 1;
+			link->memoria->Metrics.SHC.cantidadInsert += 1;
 			return;
 		}
 		break;
