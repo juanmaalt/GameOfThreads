@@ -288,7 +288,6 @@ void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombr
 
 	if(nombreTabla==NULL){
 		if((dir = opendir(path)) != NULL){
-			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = NULL;
 			while((entry = readdir (dir)) != NULL){
 				nombreCarpeta = string_from_format(entry->d_name);
 				if(!strcmp(nombreCarpeta, ".") || !strcmp(nombreCarpeta, "..")){
@@ -309,8 +308,12 @@ void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombr
 				}
 		  }
 			closedir (dir);
-			resultadoDescribe->TipoDeMensaje= DESCRIBE_REQUEST;
-			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = string_from_format(string);
+			if((entry = readdir (dir)) == NULL){
+				resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = NULL;
+			}else{
+				resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = string_from_format(string);
+				resultadoDescribe->TipoDeMensaje= DESCRIBE_REQUEST;
+			}
 		}else{
 			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = NULL;
 		}
