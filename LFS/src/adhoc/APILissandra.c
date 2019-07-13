@@ -46,7 +46,6 @@ Operacion selectAPI(Comando comando){
 	t_list* listaDeValues = list_create();
 
 	buscarValue(data, listaDeValues, comando.argumentos.SELECT.key, particionNbr);
-
 	listaDeValues=buscarValueEnLista(data, comando.argumentos.SELECT.key);
 
 	/*Recorro la tabla y obtengo el valor más reciente*/
@@ -193,7 +192,7 @@ Operacion dropAPI(Comando comando){
 		/*Borro la entrada de la memtable*/
 		dictionary_remove(memtable, comando.argumentos.DROP.nombreTabla);
 	}
-		//TODO: borrar en bloques
+		limpiarBloquesEnBitarray(comando.argumentos.DROP.nombreTabla);
 
 		/*Reservo espacio para los paths*/
 		char* pathFolder = string_from_format("%sTables/%s", config.punto_montaje, comando.argumentos.DROP.nombreTabla);

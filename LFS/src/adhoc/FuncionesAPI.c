@@ -95,14 +95,15 @@ Operacion getValueMasReciente(t_list* lista){
 	Operacion op;
 
 	if(list_size(lista)>0){
+		if(list_size(lista)>1){
 			bool compararFechas(void* item1, void* item2){
-			if (obtenerTimestamp((Registro*) item1) < obtenerTimestamp((Registro*) item2)) {
+				if (obtenerTimestamp((Registro*) item1) < obtenerTimestamp((Registro*) item2)){
 				return false;
-			}
+				}
 			return true;
+			}
+			list_sort(lista, compararFechas);
 		}
-
-		list_sort(lista, compararFechas);
 
 		Registro* reg = list_get(lista, 0);
 
@@ -335,5 +336,32 @@ int removerDirectorio(char *path){
    return r;
 }
 
+void limpiarBloquesEnBitarray(char* nombreTabla){
+	char* pathTablas = string_from_format("%sTables/%s/", config.punto_montaje, nombreTabla);
+
+	DIR *dir;
+	struct dirent *entry;
+	char* nombreArchivo;
+
+	if((dir = opendir(pathTablas)) != NULL){
+		while((entry = readdir (dir)) != NULL){
+			nombreArchivo = string_from_format(entry->d_name);
+			if(string_contains(nombreArchivo, ".bin")){
+				char* particionNbr =string_substring_until(nombreArchivo, (strlen(nombreArchivo)-4));
+				char* listaDeBloques= obtenerListaDeBloques(atoi(particionNbr), nombreTabla);
+				char** bloques = string_get_string_as_array(listaDeBloques);
+
+				int i=0;
+
+				while(bloques[i]!=NULL){
+					int pos = atoi(bloques[i]);
+					bitarray_clean_bit(bitarray, (pos-1));
+					i++;
+				}
+			}
+		}
+	}
+
+}
 
 /*FIN FUNCIONES COMPLEMENTARIAS*/
