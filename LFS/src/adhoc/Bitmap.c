@@ -154,7 +154,7 @@ void actualizarBitarray(){
 			nombreBloque = string_from_format(entry->d_name);
 			if(string_contains(nombreBloque, ".bin")){
 				char* bloque = string_substring_until(nombreBloque, (strlen(nombreBloque)-4));
-				if(caracteresEnBloque(string_from_format("%s/", pathBloques), bloque)>0){
+				if(caracteresEnBloque(bloque)>0){
 					bitarray_set_bit(bitarray, (atoi(bloque)-1));
 					log_info(logger_invisible, "Bloque con data: %s.bin", nombreBloque);
 				}

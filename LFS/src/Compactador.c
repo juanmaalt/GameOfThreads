@@ -76,7 +76,7 @@ void leerTemporal(char* pathTemp, int particiones, char* nombreTabla){
 	/*Leo el file linea a linea*/
 	while(fscanf(temp, "%d;%d;%[^\n]s", &timestamp, &key, value)!= EOF){
 		log_info(logger_visible, "Compactador.c: leerTemporal() - Linea leída: %d;%d;%s\n", timestamp, key ,value);
-		char* linea = string_from_format("%d;%d;%s",timestamp, key, value);
+		char* linea = string_from_format("%d;%d;%s\n",timestamp, key, value);
 
 		int particionNbr = calcularParticionNbr(string_from_format("%d", key), particiones);
 		log_info(logger_visible, "Compactador.c: leerTemporal() - Partición Nro: %d\n", particionNbr);
@@ -87,7 +87,9 @@ void leerTemporal(char* pathTemp, int particiones, char* nombreTabla){
 		char* bloque = firstBloqueDisponible(listaDeBloques);
 		log_info(logger_visible, "Compactador.c: leerTemporal() - Primer bloque con espacio disponible: %s\n", bloque);
 
-		escribirEnBloque(bloque, linea);
+		escribirLinea(bloque, linea, nombreTabla, particionNbr);
+
+
 	}
 	fclose(temp);
 }
@@ -106,17 +108,18 @@ char* obtenerListaDeBloques(int particion, char* nombreTabla){
 }
 
 char* firstBloqueDisponible(char* listaDeBloques){
-	char* pathBloques = string_from_format("%sBloques/", config.punto_montaje);
 	char** bloques = string_get_string_as_array(listaDeBloques);
 
 	char* firstBloque=0;
 	int i=0;
 
 	while(bloques[i]!=NULL){
-		int charsInFile = caracteresEnBloque(pathBloques,bloques[i]);
+		int charsInFile = caracteresEnBloque(bloques[i]);
+		printf("Bloque %s con %d caracteres disponibles\n", bloques[i], (metadataFS.blockSize - charsInFile));
 		if(charsInFile < metadataFS.blockSize){
 			log_info(logger_visible, "Compactador.c: firstBloqueDisponible() - Bloque %s con %d caracteres disponibles\n", bloques[i], (metadataFS.blockSize - charsInFile));
 			firstBloque=bloques[i];
+			return firstBloque;
 		}
 		else{
 			log_info(logger_visible, "Compactador.c: firstBloqueDisponible() - Bloque %s sin caracteres disponibles\n", bloques[i]);
@@ -127,8 +130,8 @@ char* firstBloqueDisponible(char* listaDeBloques){
 	return firstBloque;
 }
 
-int caracteresEnBloque(char* pathBloques, char* bloque){
-	char* pathBloque = string_from_format("%s%s.bin", pathBloques, bloque);
+int caracteresEnBloque(char* bloque){
+	char* pathBloque = string_from_format("%sBloques/%s.bin", config.punto_montaje, bloque);
 	//printf("path: %s\n", pathBloque);
 
 	FILE* fBloque = fopen(pathBloque, "r+");
@@ -146,9 +149,6 @@ int caracteresEnBloque(char* pathBloques, char* bloque){
 
 
 void escribirEnBloque(char* bloque, char* linea){
-	if(string_equals_ignore_case(bloque, "0")){
-		bloque = string_from_format("%d",getBloqueLibre());
-	}
 	char* pathBloque = string_from_format("%sBloques/%s.bin", config.punto_montaje, bloque);
 
 	log_info(logger_visible, "Compactador.c: escribirEnBloque() - Path del Bloque a escribir: %s", pathBloque);
@@ -161,3 +161,68 @@ void escribirEnBloque(char* bloque, char* linea){
 
 	fclose(fBloque);
 }
+
+
+void escribirLinea(char* bloque, char* linea, char* nombreTabla, int particion){
+	printf("bloque recibido: %s\n", bloque);
+	if(string_equals_ignore_case(bloque, "0")){
+		bloque = string_from_format("%d",getBloqueLibre());
+	}
+	printf("bloque elegido: %s\n", bloque);
+
+	int charsDisponibles = metadataFS.blockSize-caracteresEnBloque(bloque);
+	int nuevoBloque;
+	char* subLinea=NULL;
+
+	printf("espacio en Bloque: %d\n", charsDisponibles);
+
+	if(charsDisponibles>0){
+		if(charsDisponibles>=strlen(linea)){
+			escribirEnBloque(bloque, linea);
+			agregarBloqueEnParticion(bloque, nombreTabla, particion);
+			//printf("A> hay espacio en bloque y linea menor al espacio: linea escrita: %s\n", linea);
+			//printf("A> bloque para la linea: %s\n", bloque);
+		}else{
+			while(strlen(linea)!=0){
+				subLinea = string_substring_until(linea, charsDisponibles);
+				//printf("B> hay espacio en bloque y linea mayor al espacio: linea escrita: %s\n", subLinea);
+				//printf("B> nuevo bloque para la sublinea: %s\n", bloque);
+				escribirEnBloque(bloque, subLinea);
+				if(strlen(linea)>charsDisponibles){
+					linea = string_substring_from(linea, charsDisponibles);
+					//printf("B> hay espacio en bloque y linea mayor al espacio: resto: %s\n", linea);
+					nuevoBloque = getBloqueLibre();
+					bloque = string_from_format("%d", nuevoBloque);
+					agregarBloqueEnParticion(bloque, nombreTabla, particion);
+					//printf("B> nuevo bloque para la sublinea: %s\n", bloque);
+				}else{linea="";}
+				charsDisponibles = metadataFS.blockSize-caracteresEnBloque(bloque);
+				//printf("B> actualizo char disponibles: %d\n", charsDisponibles);
+			}
+			//printf("B> salió\n");
+		}
+	}else{
+		if(strlen(linea)<metadataFS.blockSize){
+			nuevoBloque = getBloqueLibre();
+			bloque = string_from_format("%d", nuevoBloque);
+			escribirEnBloque(bloque, linea);
+			agregarBloqueEnParticion(bloque, nombreTabla, particion);
+			//printf("C> No hay espacio en bloque y linea menor al espacio: linea escrita: %s\n", linea);
+			//printf("C> nuevo bloque para la linea: %s\n", bloque);
+		}else{
+			while(strlen(linea)!=0){
+				nuevoBloque = getBloqueLibre();
+				bloque = string_from_format("%d", nuevoBloque);
+				subLinea = string_substring_until(linea, metadataFS.blockSize);
+				//printf("D> No hay espacio en bloque y linea menor al espacio: linea escrita: %s\n", subLinea);
+				//printf("D> nuevo bloque para la linea: %s\n", bloque);
+				escribirEnBloque(bloque, subLinea);
+				agregarBloqueEnParticion(bloque, nombreTabla, particion);
+				linea = string_substring_from(linea, metadataFS.blockSize);
+				//printf("D> No queda espacio en bloque y pido nuevo bloque: resto: %s\n", linea);
+			}
+		}
+	}
+}
+
+

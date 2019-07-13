@@ -35,6 +35,7 @@ void crearMetadata(char* path ,int blockSize, int blocks, char* magicNumber);
 void checkExistenciaDirectorio(char* path, char* carpeta);
 void checkDirectorios();
 void levantarTablasEnMemtable();
+void agregarBloqueEnParticion(char* bloque, char* nombreTabla, int particion);
 
 
 int levantarMetadata();
