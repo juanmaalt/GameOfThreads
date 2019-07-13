@@ -18,8 +18,10 @@ char* firstBloqueDisponible(char* listaDeBloques);
 int caracteresEnBloque(char* bloque);
 void escribirLinea(char* bloque, char* linea, char* nombreTabla, int particion);
 void escribirEnBloque(char* bloque, char* linea);
+bool registroMasReciente();
 
 void agregarTablaEnDiccCompactacion(char* nombreTabla);
 void sacarTablaDeDiccCompactacion(char* nombreTabla);
+
 
 #endif /* ADHOC_FUNCIONESCOMP_H_ */

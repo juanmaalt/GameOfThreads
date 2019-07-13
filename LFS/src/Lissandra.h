@@ -104,6 +104,7 @@ void agregarDatos(t_dictionary* memtable);
 uint16_t obtenerKey(Registro* registro);
 timestamp_t obtenerTimestamp(Registro* registro);
 
+void rutinas_de_finalizacion();
 
 /*FUNCIONES DUMP*/
 void setPathTabla(char* path, char* nombreTabla);

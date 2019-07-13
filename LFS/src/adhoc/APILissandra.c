@@ -153,7 +153,8 @@ Operacion createAPI(Comando comando){
 	/*Creo la Tabla en la Memtable*/
 	crearTablaEnMemtable(comando.argumentos.CREATE.nombreTabla);
 
-	if(iniciarCompactacion(comando.argumentos.CREATE.nombreTabla) == EXIT_FAILURE){
+	char* nombreTabla = string_from_format(comando.argumentos.CREATE.nombreTabla);
+	if(iniciarCompactacion(nombreTabla) == EXIT_FAILURE){
 		log_error(logger_error,"APILissandra.c: <CREATE> No se pudo iniciar el hilo de compactación");
 		return resultadoCreate;
 	}

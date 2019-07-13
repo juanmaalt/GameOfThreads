@@ -53,12 +53,12 @@ void leerTemporal(char* pathTemp, int particiones, char* nombreTabla){
 		char* listaDeBloques= obtenerListaDeBloques(particionNbr, nombreTabla);
 		log_info(logger_visible, "Compactador.c: leerTemporal() - Bloques asignados: %s\n",listaDeBloques);
 
-		char* bloque = firstBloqueDisponible(listaDeBloques);
-		log_info(logger_visible, "Compactador.c: leerTemporal() - Primer bloque con espacio disponible: %s\n", bloque);
+		if(registroMasReciente()){
+			char* bloque = firstBloqueDisponible(listaDeBloques);
+			log_info(logger_visible, "Compactador.c: leerTemporal() - Primer bloque con espacio disponible: %s\n", bloque);
 
-		escribirLinea(bloque, linea, nombreTabla, particionNbr);
-
-
+			escribirLinea(bloque, linea, nombreTabla, particionNbr);
+		}
 	}
 	fclose(temp);
 }

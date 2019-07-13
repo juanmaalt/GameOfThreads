@@ -46,11 +46,6 @@ int main(void) {
 		RETURN_ERROR("Lissandra.c: main() - No se pudo levantar la consola");
 	}
 
-	/*Habilita al File System como server y queda en modo en listen*/
-	int miSocket = enable_server(config.ip, config.puerto_escucha);
-	log_info(logger_invisible, "Lissandra.c: main() - Servidor encendido, esperando conexiones");
-	threadConnection(miSocket, connection_handler);
-
 	/*Inicio el hilo del Dump*/
 	pthread_t idDump;
 	if (pthread_create(&idDump, NULL, dump, NULL)) {
@@ -58,11 +53,19 @@ int main(void) {
 		return EXIT_FAILURE;
 	}
 
+	/*Habilita al File System como server y queda en modo en listen*/
+	int miSocket = enable_server(config.ip, config.puerto_escucha);
+	log_info(logger_invisible, "Lissandra.c: main() - Servidor encendido, esperando conexiones");
+	threadConnection(miSocket, connection_handler);
+
 	/*Libero recursos*/
 	config_destroy(configFile);
 	dictionary_destroy(memtable);
 	dictionary_destroy(diccCompactacion);
 	bitarray_destroy(bitarray);
+
+	//Rutinas de finalizacion
+	rutinas_de_finalizacion();
 
 	return EXIT_SUCCESS;
 }
@@ -329,7 +332,6 @@ void* dump(){
 
 	for(;;){
 		usleep(atoi(config.tiempo_dump) * 1000);
-		printf("inicio dump\n");
 		dictionary_iterator(memtable, (void*) dumpTabla);
 	}
 	return NULL;
@@ -362,7 +364,6 @@ void dumpTabla(char* nombreTable, t_list* list){
 	//t_list * list = dictionary_get(memtable, nombreTable);//obtengo la data, en el insert debera checkear que este dato no sea null
 
 	if (list == NULL || list_size(list) == 0) {
-		printf("lista vacía\n");
 		return;
 	}
 
@@ -402,3 +403,12 @@ void dumpRegistro(FILE* file, Registro* registro) {
 	fprintf(file, "%llu;%d;%s\n", registro->timestamp, registro->key, registro->value);
 }
 /*FIN FUNCIONES DUMP*/
+
+void rutinas_de_finalizacion(){
+	printf(BLU"\n█▀▀▀ █▀▀█ █▀▄▀█ █▀▀ 　 █▀▀█ █▀▀ 　 ▀▀█▀▀ █░░█ █▀▀█ █▀▀ █▀▀█ █▀▀▄ █▀▀ \n█░▀█ █▄▄█ █░▀░█ █▀▀ 　 █░░█ █▀▀ 　 ░░█░░ █▀▀█ █▄▄▀ █▀▀ █▄▄█ █░░█ ▀▀█ \n▀▀▀▀ ▀░░▀ ▀░░░▀ ▀▀▀ 　 ▀▀▀▀ ▀░░ 　 ░░▀░░ ▀░░▀ ▀░▀▀ ▀▀▀ ▀░░▀ ▀▀▀░ ▀▀▀ \n\n"STD);
+	log_info(logger_invisible, "=============Finalizando LFS=============");
+	fflush(stdout);
+	log_destroy(logger_visible);
+	log_destroy(logger_invisible);
+	log_destroy(logger_error);
+}
