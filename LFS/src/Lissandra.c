@@ -244,7 +244,7 @@ Operacion ejecutarOperacion(char* input) {
 
 	log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - Mensaje recibido %s", input);
 
-	usleep(atoi(vconfig.retardo)*1000);
+	//usleep((vconfig.retardo)*1000);
 
 	if (parsed->valido) {
 		switch (parsed->keyword){
@@ -438,7 +438,7 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 	reg->value = NULL;
 	reg->timestamp=0;
 	char** bloques = string_get_string_as_array(listaDeBloques);
-/*
+
 	FILE* fBloque;
 	int i=0;
 
@@ -448,9 +448,9 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 	while(bloques[i]!=NULL){
 		char* pathBloque = string_from_format("%sBloques/%s.bin", config.punto_montaje, bloques[i]);
 		fBloque = fopen(pathBloque, "r");
-		while(fBloque!= EOF){
+		while((ch = getc(fBloque)) != EOF){
 			while((ch = getc(fBloque)) !='\n'){
-				string_append(ch, linea);
+				string_append(&linea, string_from_format("%c",ch));
 			}
 			if(string_ends_with(linea, "\n")){
 				char** lineaParseada = string_split(linea,";");
@@ -463,7 +463,6 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 		}
 
 	}
-*/
 	return reg;
 }
 /*FIN FSEEK*/
