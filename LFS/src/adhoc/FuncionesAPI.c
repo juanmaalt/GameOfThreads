@@ -308,11 +308,11 @@ void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombr
 				}
 		  }
 			closedir (dir);
-			if((entry = readdir (dir)) == NULL){
-				resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = NULL;
-			}else{
+			if(string!=NULL){
 				resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = string_from_format(string);
 				resultadoDescribe->TipoDeMensaje= DESCRIBE_REQUEST;
+			}else{
+				resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = NULL;
 			}
 		}else{
 			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = NULL;
