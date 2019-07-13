@@ -81,9 +81,7 @@ void liberarBloque(int pos){
 }
 
 void escribirBitmap(){
-	char* pathBitmap = malloc(1000 * sizeof(char));
-	strcpy(pathBitmap,config.punto_montaje);
-	strcat(pathBitmap, "Metadata/Bitmap.bin");
+	char* pathBitmap = string_from_format("%sMetadata/Bitmap.bin",config.punto_montaje);
 
 	FILE* bitmap;
 
@@ -113,7 +111,6 @@ void escribirBitmap(){
 	}
 
 	fclose(bitmap);
-	free(pathBitmap);
 }
 
 

@@ -10,13 +10,13 @@
 void* compactar(void* nombreTabla){
 	pthread_detach(pthread_self());
 
-	char* pathTabla = string_from_format("%sTables/%s", config.punto_montaje, (char*)nombreTabla);
+	char* pathTabla = string_from_format("%sTables/%s", config.punto_montaje, nombreTabla);
 	DIR *dir;
 	struct dirent *entry;
 	char* nombreArchivo;
 
-	t_config* metadataFile = leerMetadata((char*)nombreTabla);
-	getMetadata((char*)nombreTabla, metadataFile);
+	t_config* metadataFile = leerMetadata(nombreTabla);
+	getMetadata(nombreTabla, metadataFile);
 
 	for(;;){
 		usleep(config_get_int_value(metadataFile, "COMPACTION_TIME") * 1000);

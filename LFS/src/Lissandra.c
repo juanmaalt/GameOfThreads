@@ -392,21 +392,11 @@ void dumpTabla(char* nombreTable, t_list* list){
 		return;
 	}
 
-	char* path = malloc(100 * sizeof(char));
-	setPathTabla(path, nombreTable);
+	char* path = string_from_format("%sTables/%s", config.punto_montaje, nombreTable);
 
-	char* pathArchivo = malloc(110 * sizeof(char));
-
-	strcpy(pathArchivo,path);
-	strcat(pathArchivo, "/dump_");
-	char str[12];
-
-	//numeroDump++;
 	int numeroDump = cuentaArchivos(path);
 
-	sprintf(str, "%d", numeroDump);
-	strcat(pathArchivo, str);
-	strcat(pathArchivo, ".tmp");
+	char* pathArchivo = string_from_format("%s/dump_%d.tmp", path, numeroDump);
 
 	FILE* file = fopen(pathArchivo,"w");
 
@@ -421,7 +411,6 @@ void dumpTabla(char* nombreTable, t_list* list){
 	}
 	list_clean(list);
 	fclose(file);
-	free(pathArchivo);
 }
 
 void dumpRegistro(FILE* file, Registro* registro) {

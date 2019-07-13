@@ -201,7 +201,7 @@ void crearDirectorioTabla(char* path){
 void crearArchivo(char* path, char* nombre){
 	char* pathArchivo = string_from_format("%s%s", path, nombre);
 
-	//printf("archivo creado en: %s\n", pathArchivo);
+	printf("archivo creado en: %s\n", pathArchivo);
 
 	FILE* file=NULL;
 	file = fopen(pathArchivo,"w");
@@ -224,17 +224,18 @@ void escribirArchivoMetadata(char* path, Comando comando){
 }
 
 void crearArchivosBinarios(char* path, int particiones){
-	char* pathArchivo = string_from_format(path);
-	char* filename=string_new();
 	FILE* binario;
 
 	for(int i=0;i<particiones;i++){
-		filename=string_from_format("%d.bin", i);
+		char* filename=string_from_format("%d.bin", i);
+		printf("path: %s\n", path);
+		printf("filename: %s\n", filename);
 		crearArchivo(path, filename);
-		string_append(&pathArchivo, filename);
+
+		printf("pathArchivo: %s\n", string_from_format("%s%s", path,filename));
 
 		int bloque = getBloqueLibre();
-		binario = txt_open_for_append(pathArchivo);
+		binario = txt_open_for_append(string_from_format("%s%s", path,filename));
 		txt_write_in_file(binario, string_from_format("SIZE=0\nBLOCKS=[%d]\n",bloque));
 	}
 	fclose(binario);
@@ -252,7 +253,6 @@ void insertInFile(char* path, int particionNbr, char* key, char* value){
 
 	fprintf (fParticion, "%s",keyValue);
 
-	free(keyValue);
 	fclose(fParticion);
 }
 

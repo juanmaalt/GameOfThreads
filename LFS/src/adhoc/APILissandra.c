@@ -213,8 +213,6 @@ Operacion dropAPI(Comando comando){
 		int removido=removerDirectorio(pathFolder);
 		printf("resultadoDrop= %d\n", removido);
 
-		free(pathFolder);
-
 		resultadoDrop.TipoDeMensaje = TEXTO_PLANO;
 		resultadoDrop.Argumentos.TEXTO_PLANO.texto = string_from_format("DROP realizado con exito.");
 
