@@ -40,6 +40,7 @@ int main(void) {
 
 	/*Creo el diccionario para las tablas en compactación*/
 	diccCompactacion = inicializarDiccionario();
+	listaInputs = list_create();//TODO: checkear
 
 	/*Inicio la consola*/
 	if(iniciar_consola() == EXIT_FAILURE){
@@ -256,10 +257,13 @@ Operacion ejecutarOperacion(char* input) {
 			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <SELECT> Mensaje de retorno \"%llu;%d;%s\"", retorno.Argumentos.REGISTRO.timestamp, retorno.Argumentos.REGISTRO.key, retorno.Argumentos.REGISTRO.value);
 			break;
 		case INSERT:
-			if(!dictionary_has_key(diccCompactacion, parsed->argumentos.INSERT.nombreTabla)){
-				t_list* listaInputs=dictionary_get(diccCompactacion, parsed->argumentos.INSERT.nombreTabla);
+			if(dictionary_has_key(diccCompactacion, parsed->argumentos.INSERT.nombreTabla)){
+				printf("En compactación\n");
+				listaInputs=dictionary_get(diccCompactacion, parsed->argumentos.INSERT.nombreTabla);
 				list_add(listaInputs, string_from_format(input));
-			}else{retorno = insertAPI(*parsed);}
+			}else{
+				printf("No en compactación\n");
+				retorno = insertAPI(*parsed);}
 			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <INSERT> Mensaje de retorno \"%s\"", retorno.Argumentos.TEXTO_PLANO.texto);
 			break;
 		case CREATE:
