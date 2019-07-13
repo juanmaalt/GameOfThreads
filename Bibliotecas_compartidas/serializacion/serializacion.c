@@ -5,7 +5,6 @@ int send_msg(int socket, Operacion operacion) {
 	void* content=NULL;
 	int longCadena = 0;
 	Comando comando; //solo se usa para un chequeo en case COMANDO
-
 	switch (operacion.TipoDeMensaje) {
 
 	case TEXTO_PLANO:
@@ -82,14 +81,14 @@ int send_msg(int socket, Operacion operacion) {
 			memcpy(content+sizeof(int), &(operacion.Argumentos.DESCRIBE_REQUEST.esGlobal), sizeof(int));
 			memcpy(content+2*sizeof(int), &longCadena, sizeof(int));
 			memcpy(content+3*sizeof(int), operacion.Argumentos.DESCRIBE_REQUEST.resultado_comprimido, sizeof(char)*longCadena);
-			memcpy(content+4*sizeof(int)+sizeof(char)*longCadena, &(operacion.opCode), sizeof(id));
+			memcpy(content+3*sizeof(int)+sizeof(char)*longCadena, &(operacion.opCode), sizeof(id));
 		}else{
 			longCadena = -1;
 			total = sizeof(int) + sizeof(int) + sizeof(int) + sizeof(id);
 			content = malloc(total);
 			memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
-			memcpy(content+sizeof(int), &longCadena, sizeof(int));
-			memcpy(content+2*sizeof(int), &(operacion.Argumentos.DESCRIBE_REQUEST.esGlobal), sizeof(int));
+			memcpy(content+sizeof(int), &(operacion.Argumentos.DESCRIBE_REQUEST.esGlobal), sizeof(int));
+			memcpy(content+2*sizeof(int), &longCadena, sizeof(int));
 			memcpy(content+3*sizeof(int), &(operacion.opCode), sizeof(id));
 		}
 		break;
