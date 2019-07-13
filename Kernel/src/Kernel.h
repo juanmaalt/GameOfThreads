@@ -18,6 +18,12 @@
 								return EXIT_FAILURE; \
 							   }
 
+#define MOSTRAR_ERROR(mensaje) { }
+
+#define MOSTRAR_INFO(mensaje) { }
+
+#define MOSTRAR_ESTADO(mensaje) { }
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <commons/log.h>

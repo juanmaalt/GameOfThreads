@@ -18,7 +18,7 @@ void *recibir_comandos(void *null){
 	sem_wait(&disponibilidadPlanificador);
 	for(;;){
 		Comando *parsed = malloc(sizeof(Comando));
-		char *userImput = readline("");
+		char *userImput = readline(NULL);
 		*parsed = parsear_comando(userImput);
 	    if(parsed->valido){
 	        switch(parsed->keyword){
