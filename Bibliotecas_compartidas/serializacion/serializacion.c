@@ -76,19 +76,21 @@ int send_msg(int socket, Operacion operacion) {
 	case DESCRIBE_REQUEST:
 		if(operacion.Argumentos.DESCRIBE_REQUEST.resultado_comprimido != NULL){
 			longCadena = strlen(operacion.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
-			total = sizeof(int) + sizeof(int) + sizeof(char) * longCadena + sizeof(id);
+			total = sizeof(int) + sizeof(int) + sizeof(int) + sizeof(char) * longCadena + sizeof(id);
 			content = malloc(total);
 			memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
-			memcpy(content+sizeof(int), &longCadena, sizeof(int));
-			memcpy(content+2*sizeof(int), operacion.Argumentos.DESCRIBE_REQUEST.resultado_comprimido, sizeof(char)*longCadena);
-			memcpy(content+2*sizeof(int)+sizeof(char)*longCadena, &(operacion.opCode), sizeof(id));
+			memcpy(content+sizeof(int), &(operacion.Argumentos.DESCRIBE_REQUEST.esGlobal), sizeof(int));
+			memcpy(content+2*sizeof(int), &longCadena, sizeof(int));
+			memcpy(content+3*sizeof(int), operacion.Argumentos.DESCRIBE_REQUEST.resultado_comprimido, sizeof(char)*longCadena);
+			memcpy(content+4*sizeof(int)+sizeof(char)*longCadena, &(operacion.opCode), sizeof(id));
 		}else{
 			longCadena = -1;
-			total = sizeof(int) + sizeof(int) + sizeof(id);
+			total = sizeof(int) + sizeof(int) + sizeof(int) + sizeof(id);
 			content = malloc(total);
 			memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
 			memcpy(content+sizeof(int), &longCadena, sizeof(int));
-			memcpy(content+2*sizeof(int), &(operacion.opCode), sizeof(id));
+			memcpy(content+2*sizeof(int), &(operacion.Argumentos.DESCRIBE_REQUEST.esGlobal), sizeof(int));
+			memcpy(content+3*sizeof(int), &(operacion.opCode), sizeof(id));
 		}
 		break;
 	default:
@@ -148,6 +150,7 @@ Operacion recv_msg(int socket) {
 	case GOSSIPING_REQUEST_KERNEL:
 		break;
 	case DESCRIBE_REQUEST:
+		recv(socket, &retorno.Argumentos.DESCRIBE_REQUEST.esGlobal, sizeof(int), 0);
 		recv(socket, &longitud, sizeof(int), 0);
 		if(longitud == -1){
 			retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido = NULL;

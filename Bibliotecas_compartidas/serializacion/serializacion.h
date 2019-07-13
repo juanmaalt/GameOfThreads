@@ -31,7 +31,7 @@ typedef struct{
 		ERROR,
 		GOSSIPING_REQUEST,
 		GOSSIPING_REQUEST_KERNEL,
-		DESCRIBE_REQUEST
+		DESCRIBE_REQUEST,
 	}TipoDeMensaje;
 	id opCode; //Nota: para que funcione, el envio y recepcion de mensajes tiene que reutilizar la variable Operacion, o copiar en memoria el codigo para enviarlo en la operacion resultante
 	union{
@@ -55,6 +55,7 @@ typedef struct{
 		struct{
 		}GOSSIPING_REQUEST_KERNEL;
 		struct{
+			bool esGlobal;
 			char *resultado_comprimido;
 		}DESCRIBE_REQUEST;
 	}Argumentos;

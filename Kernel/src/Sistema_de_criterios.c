@@ -128,16 +128,19 @@ int asociar_memoria(char *numeroMemoria, char *consistencia){
 
 
 
-int procesar_describe(char *cadenaResultadoDescribe){
+int procesar_describe_global(char *cadenaResultadoDescribe){
+	void destruir_tabla_encontrada(void *tabla){
+		free(((MetadataTabla*)tabla)->nombre);
+		free((MetadataTabla*)tabla);
+	}
 	if(cadenaResultadoDescribe == NULL){
-		list_destroy(tablasExistentes); //TODO
+		list_destroy_and_destroy_elements(tablasExistentes, destruir_tabla_encontrada);
 		tablasExistentes = list_create();
 		return EXIT_SUCCESS;
 	}
 	if(tablasExistentes == NULL)
 		return EXIT_FAILURE;
-	//TODO: comportamiento indefinodo en describe tabla
-	//TODO: bug encontrado: las tablas que se dan de bajas quedan purulando en la memoria. Este codigo solo las remueve, no libera
+
 	MetadataTabla *tabla;
 	t_list *listaAuxiliar = list_create(); //Creo una lista vacia sobre la cual voy a trabajar
 
@@ -153,14 +156,23 @@ int procesar_describe(char *cadenaResultadoDescribe){
 		}
 	}
 	destruir_split_tablas(descompresion);
-	void destruir_tabla_encontrada(void *tabla){
-		free(((MetadataTabla*)tabla)->nombre);
-		free((MetadataTabla*)tabla);
-	}
 	list_destroy_and_destroy_elements(tablasExistentes, destruir_tabla_encontrada); //Libero las referencias de la lista que quedaron, que fueron los que se dieron de baja (indirectamente)
 	tablasExistentes = list_duplicate(listaAuxiliar); //Duplico la lista auxiliar con todos los elementos del nuevo describe, manteniendo los del anterior describe (son sus respecrtivos atributos de criterios), y eliminando los viejos (ya que nunca se agregaron a la listaAuxiliar)
 	list_destroy(listaAuxiliar);
 	return EXIT_SUCCESS;
+}
+
+
+
+
+
+int procesar_describe_simple(char *cadenaResultadoDescribe, char *instruccionActual){
+	Comando comando = parsear_comando(instruccionActual);
+	if(cadenaResultadoDescribe == NULL){
+		remover_metadata_tabla(machearTabla(comando.argumentos.DESCRIBE.nombreTabla));
+		return EXIT_SUCCESS;
+	}
+	return EXIT_SUCCESS; //todo
 }
 
 
@@ -249,6 +261,21 @@ void remover_memoria(Memoria *memoria_a_remover){
 	list_remove_by_condition(memoriasHSC, remover_por_numero);
 	list_remove_by_condition(memoriasSC, remover_por_numero);
 	list_remove_and_destroy_by_condition(memoriasExistentes, remover_por_numero, destruir_memoria_encontrada); //Y el ultimo que remueva el nodo tambien deberia liberarlo
+}
+
+
+
+
+
+void remover_metadata_tabla(MetadataTabla *tabla){
+	bool remover_por_nombre(void *elemento){
+		return !strcpy(((MetadataTabla*)elemento)->nombre, tabla->nombre);
+	}
+	void destruir_tabla_encontrada(void *tabla){
+		free(((MetadataTabla*)tabla)->nombre);
+		free((MetadataTabla*)tabla);
+	}
+	list_remove_and_destroy_by_condition(tablasExistentes, remover_por_nombre, destruir_tabla_encontrada);
 }
 
 

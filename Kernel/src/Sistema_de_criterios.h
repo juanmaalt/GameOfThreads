@@ -109,12 +109,18 @@ t_list *tablasExistentes;
 
 
 	/**
-	* @NAME: procesar_describe
+	* @NAME: procesar_describe_global
 	* @DESC: una request describe devuelve como resultado una cadena con todas las metadatas de las tablas comprimidas en un
 	* 		 char*. Asique esta funcion la descomprime y las va a agregando a la lista de metadatas de tablas, actualizando
 	* 		 las viejas, removiendo las que ya no estan, y dando de alta las nuevas
 	*/
-	int procesar_describe(char *cadenaResultadoDescribe);
+	int procesar_describe_global(char *cadenaResultadoDescribe);
+
+	/**
+	* @NAME: procesar_describe_simple
+	* @DESC: todo
+	*/
+	int procesar_describe_simple(char *cadenaResultadoDescribe, char *instruccionActual);
 
 
 	/**
@@ -143,6 +149,12 @@ t_list *tablasExistentes;
 	*        podemos removerla usando esta funcion
 	*/
 	void remover_memoria(Memoria *memoria);
+
+	/**
+	* @NAME: remover_metadata_tabla
+	* @DESC: remueve de todos lados una tabla.
+	*/
+	void remover_metadata_tabla(MetadataTabla *tabla);
 
 	/**
 	* @NAME: agregar_sin_repetidos

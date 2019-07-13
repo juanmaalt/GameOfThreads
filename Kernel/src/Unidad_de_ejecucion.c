@@ -265,10 +265,18 @@ static ResultadoEjecucionInterno procesar_retorno_operacion(Operacion op, PCB* p
 		free(instruccionActualTemp);
 		return INSTRUCCION_ERROR;
 	case DESCRIBE_REQUEST:
-		if(procesar_describe(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido) == EXIT_FAILURE){
-			log_error(logger_error,"CPU: %d | Abortando: Fallo la descompresion del Describe", process_get_thread_id());
-			log_error(logger_invisible,"CPU: %d | Abortando: Fallo la descompresion del Describe", process_get_thread_id());
-			return INSTRUCCION_ERROR;
+		if(op.Argumentos.DESCRIBE_REQUEST.esGlobal){
+			if(procesar_describe_global(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido) == EXIT_FAILURE){
+				log_error(logger_error,"CPU: %d | Abortando: Fallo la descompresion del Describe", process_get_thread_id());
+				log_error(logger_invisible,"CPU: %d | Abortando: Fallo la descompresion del Describe", process_get_thread_id());
+				return INSTRUCCION_ERROR;
+			}
+		}else{
+			if(procesar_describe_simple(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido, instruccionActual) == EXIT_FAILURE){
+				log_error(logger_error,"CPU: %d | Abortando: Fallo la descompresion del Describe", process_get_thread_id());
+				log_error(logger_invisible,"CPU: %d | Abortando: Fallo la descompresion del Describe", process_get_thread_id());
+				return INSTRUCCION_ERROR;
+			}
 		}
 		mostrar_describe(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
 		log_info(logger_invisible, "Resultado describe: %s", op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
