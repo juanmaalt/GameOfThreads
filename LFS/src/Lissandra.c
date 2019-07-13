@@ -251,7 +251,7 @@ Operacion ejecutarOperacion(char* input) {
 		switch (parsed->keyword){
 		case SELECT:
 			if(!dictionary_has_key(diccCompactacion, parsed->argumentos.SELECT.nombreTabla)){
-				t_list* listaInputs=dictionary_get(diccCompactacion, parsed->argumentos.SELECT.nombreTabla);
+				listaInputs=dictionary_get(diccCompactacion, parsed->argumentos.SELECT.nombreTabla);
 				list_add(listaInputs, string_from_format(input));
 			}else{retorno = selectAPI(*parsed);}
 			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <SELECT> Mensaje de retorno \"%llu;%d;%s\"", retorno.Argumentos.REGISTRO.timestamp, retorno.Argumentos.REGISTRO.key, retorno.Argumentos.REGISTRO.value);
@@ -276,7 +276,7 @@ Operacion ejecutarOperacion(char* input) {
 			break;
 		case DROP:
 			if(!dictionary_has_key(diccCompactacion, parsed->argumentos.DROP.nombreTabla)){
-				t_list* listaInputs=dictionary_get(diccCompactacion, parsed->argumentos.DROP.nombreTabla);
+				listaInputs=dictionary_get(diccCompactacion, parsed->argumentos.DROP.nombreTabla);
 				list_add(listaInputs, string_from_format(input));
 			}else{retorno = dropAPI(*parsed);}
 			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <DROP> Mensaje de retorno \"%s\"", retorno.Argumentos.TEXTO_PLANO.texto);
