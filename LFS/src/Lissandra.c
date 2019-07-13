@@ -51,6 +51,13 @@ int main(void) {
 	log_info(logger_invisible, "Lissandra.c: main() - Servidor encendido, esperando conexiones");
 	threadConnection(miSocket, connection_handler);
 
+	/*Inicio el hilo del Dump*/
+	pthread_t idDump;
+	if (pthread_create(&idDump, NULL, dump, NULL)) {
+		log_error(logger_error, "Lissandra.c: main() Falló al iniciar el hilo de Dump");
+		return EXIT_FAILURE;
+	}
+
 	/*Libero recursos*/
 	config_destroy(configFile);
 	dictionary_destroy(memtable);
@@ -241,7 +248,7 @@ Operacion ejecutarOperacion(char* input) {
 			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <DROP> Mensaje de retorno \"%s\"", retorno.Argumentos.TEXTO_PLANO.texto);
 			break;
 		case RUN:
-			dumpTabla(parsed->argumentos.RUN.path);
+			dump();
 			compactar(parsed->argumentos.RUN.path);
 			break;
 		default:
@@ -277,6 +284,7 @@ timestamp_t obtenerTimestamp(Registro* registro) {
 /*FIN FUNCIONES COMPLEMENTARIAS*/
 
 /*INICIO FUNCIONES TEST*/
+/*
 void agregarDatos(t_dictionary* memtable) {
 	Registro* reg1 = malloc(sizeof(Registro));
 	Registro* reg2 = malloc(sizeof(Registro));
@@ -312,10 +320,21 @@ void agregarDatos(t_dictionary* memtable) {
 
 	//lista = dictionary_get(memtable, tabla);//obtengo la data, en el insert debera checkear que este dato no sea null
 }
-
+*/
 /*FIN FUNCIONES TEST*/
 
 /*INICIO FUNCIONES DUMP*/
+void* dump(){
+	pthread_detach(pthread_self());
+
+	for(;;){
+		usleep(atoi(config.tiempo_dump) * 1000);
+		printf("inicio dump\n");
+		dictionary_iterator(memtable, (void*) dumpTabla);
+	}
+	return NULL;
+}
+
 int esTemp(char* nombre) {
 	char* extension = strrchr(nombre, '.');
 	if(!extension || extension == nombre) return 0;
@@ -338,14 +357,14 @@ int cuentaArchivos(char* path) {
 	return cuenta;
 }
 
-void dumpTabla(char* nombreTable){
+void dumpTabla(char* nombreTable, t_list* list){
 
-	t_list * list = dictionary_get(memtable, nombreTable);//obtengo la data, en el insert debera checkear que este dato no sea null
+	//t_list * list = dictionary_get(memtable, nombreTable);//obtengo la data, en el insert debera checkear que este dato no sea null
 
 	if (list == NULL || list_size(list) == 0) {
-			return;
+		printf("lista vacía\n");
+		return;
 	}
-
 
 	char* path = malloc(100 * sizeof(char));
 	setPathTabla(path, nombreTable);
