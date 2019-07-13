@@ -170,7 +170,7 @@ Operacion createAPI(Comando comando){
 Operacion describeAPI(Comando comando){
 	/*Creo variable resultado del tipo Operacion para devolver el mensaje*/
 	Operacion resultadoDescribe;
-	resultadoDescribe.TipoDeMensaje = ERROR;
+	resultadoDescribe.TipoDeMensaje = DESCRIBE_REQUEST;
 
 	/*Reservo espacio para los paths*/
 	char* path = string_from_format("%sTables/", config.punto_montaje);

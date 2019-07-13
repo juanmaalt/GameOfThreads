@@ -292,8 +292,8 @@ void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombr
 				nombreCarpeta = string_from_format(entry->d_name);
 				if(!strcmp(nombreCarpeta, ".") || !strcmp(nombreCarpeta, "..")){
 				}else{
-					printf("path: %s\n", pathMetadata);
-					printf("nombreTabla: %s\n", nombreCarpeta);
+					//printf("path: %s\n", pathMetadata);
+					//printf("nombreTabla: %s\n", nombreCarpeta);
 
 					metadata = config_create(string_from_format("%s%s/Metadata", pathMetadata, nombreCarpeta));
 					char* consistencia = config_get_string_value(metadata, "CONSISTENCY");
@@ -301,7 +301,7 @@ void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombr
 					int particiones =config_get_int_value(metadata, "PARTITIONS");
 
 					concatenar_tabla(&string, nombreCarpeta, consistencia, particiones, compactionTime);
-					printf("string: %s\n", string);
+					//printf("string: %s\n", string);
 
 					strcpy(pathMetadata,path);
 					config_destroy(metadata);
@@ -311,7 +311,7 @@ void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombr
 			resultadoDescribe->TipoDeMensaje= DESCRIBE_REQUEST;
 			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = string_from_format(string);
 		}else{
-			resultadoDescribe->Argumentos.ERROR.mensajeError = string_from_format("No hay carpetas creadas en el sistema");
+			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = NULL;
 		}
 	}else{
 		if((dir = opendir (path)) != NULL){
@@ -330,7 +330,7 @@ void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombr
 			config_destroy(metadata);
 		}
 		else{
-			resultadoDescribe->Argumentos.ERROR.mensajeError = string_from_format("No existe la carpeta solicitada");
+			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = NULL;
 		}
 	}
 
