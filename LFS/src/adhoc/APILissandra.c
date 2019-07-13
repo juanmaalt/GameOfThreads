@@ -45,8 +45,9 @@ Operacion selectAPI(Comando comando){
 	/*Creo la lista de valores que condicen con dicha key*/
 	t_list* listaDeValues = list_create();
 
-	buscarValue(data, listaDeValues, comando.argumentos.SELECT.key, particionNbr);
 	listaDeValues=buscarValueEnLista(data, comando.argumentos.SELECT.key);
+	//buscarValueEnFiles(comando.argumentos.SELECT.nombreTabla, particionNbr, comando.argumentos.SELECT.key, &listaDeValues);
+	leerTemps(comando.argumentos.SELECT.nombreTabla, comando.argumentos.SELECT.key, listaDeValues);
 
 	/*Recorro la tabla y obtengo el valor más reciente*/
 	//recorrerTabla(listaDeValues);//Función ad-hoc para testing
@@ -151,6 +152,11 @@ Operacion createAPI(Comando comando){
 
 	/*Creo la Tabla en la Memtable*/
 	crearTablaEnMemtable(comando.argumentos.CREATE.nombreTabla);
+
+	if(iniciarCompactacion(comando.argumentos.CREATE.nombreTabla) == EXIT_FAILURE){
+		log_error(logger_error,"APILissandra.c: <CREATE> No se pudo iniciar el hilo de compactación");
+		return resultadoCreate;
+	}
 
 	/*Loggeo el CREATE exitoso y le aviso a la Memoria*/
 	log_info(logger_invisible, "CREATE realizado con éxito.");

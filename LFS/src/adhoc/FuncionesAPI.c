@@ -70,10 +70,63 @@ t_list* buscarValueEnLista(t_list* data, char* key){
 
 	return list_filter(data, compararConItem);
 }
+/*
+void buscarValueEnFiles(char* nombreTabla, char* key, int particionNbr, t_list* listaDeValues){
+	char* path = string_from_format("%sTables/%s", config.punto_montaje, nombreTabla);
+	char* listaDeBloques= obtenerListaDeBloques(particionNbr, nombreTabla);
+	char** bloques = string_get_string_as_array(listaDeBloques);
 
-void buscarValue(t_list* data, t_list* listaDeValues, char* key, int particionNbr){
-	listaDeValues=buscarValueEnLista(data, key);
+	FILE* fBloque;
+    int timestamp, fkey;
+    char value[atoi(config.tamanio_value)];
+	int i=0;
+
+	while(bloques[i]!=NULL){
+		char* pathBloque = string_from_format("%sBloques/%s.bin", config.punto_montaje, bloques[i]);
+		fBloque = fopen(pathBloque, "r");
+		while(fBloque!= EOF){
+			fscanf(fBloque, "%d;%d;%[^\n]s", &timestamp, &fkey, value);
+			if(fkey==atoi(key)){
+				printf("key: %d\n");
+			}
+		}
+	}
+
 }
+*/
+
+void leerTemps(char* nombreTabla, char* key, t_list* listaDeValues){
+	char* pathTabla = string_from_format("%sTables/%s", config.punto_montaje, nombreTabla);
+
+	DIR *dir;
+	struct dirent *entry;
+	char* nombreTemp;
+
+	FILE* temp;
+    int fkey;
+    timestamp_t timestamp;
+    char value[atoi(config.tamanio_value)];
+    if((dir = opendir(pathTabla)) != NULL){
+		while((entry = readdir (dir)) != NULL){
+			nombreTemp = string_from_format(entry->d_name);
+			if(string_contains(nombreTemp, ".tmp")){
+				char* pathTemp = string_from_format("%s/%s", pathTabla, nombreTemp);
+				temp = fopen(pathTemp, "r");
+				while(fscanf(temp, "%llu;%d;%[^\n]s", &timestamp, &fkey, value)!= EOF){
+					if(fkey==atoi(key)){
+						Registro* reg = malloc(sizeof(Registro));
+						reg->key = fkey;
+						reg->value = string_from_format(value);
+						reg->timestamp= timestamp;
+
+						list_add(listaDeValues, reg);
+					}
+				}
+			}
+		}
+	}
+}
+
 
 void recorrerTabla(t_list* lista){
 	Registro* reg= NULL;
@@ -239,8 +292,8 @@ void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombr
 				nombreCarpeta = string_from_format(entry->d_name);
 				if(!strcmp(nombreCarpeta, ".") || !strcmp(nombreCarpeta, "..")){
 				}else{
-					//printf("path: %s\n", pathMetadata);
-					//printf("nombreTabla: %s\n", nombreCarpeta);
+					printf("path: %s\n", pathMetadata);
+					printf("nombreTabla: %s\n", nombreCarpeta);
 
 					metadata = config_create(string_from_format("%s%s/Metadata", pathMetadata, nombreCarpeta));
 					char* consistencia = config_get_string_value(metadata, "CONSISTENCY");
@@ -248,9 +301,10 @@ void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombr
 					int particiones =config_get_int_value(metadata, "PARTITIONS");
 
 					concatenar_tabla(&string, nombreCarpeta, consistencia, particiones, compactionTime);
-					//printf("string: %s\n", string);
+					printf("string: %s\n", string);
 
 					strcpy(pathMetadata,path);
+					config_destroy(metadata);
 				}
 		  }
 			closedir (dir);
@@ -273,13 +327,12 @@ void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombr
 			//printf("string: %s\n", string);
 			resultadoDescribe->TipoDeMensaje= DESCRIBE_REQUEST;
 			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = string_from_format(string);
+			config_destroy(metadata);
 		}
 		else{
 			resultadoDescribe->Argumentos.ERROR.mensajeError = string_from_format("No existe la carpeta solicitada");
 		}
 	}
-
-	config_destroy(metadata);
 
 	//printf("string final: %s\n", string);
 }
@@ -358,5 +411,15 @@ void limpiarBloquesEnBitarray(char* nombreTabla){
 	}
 
 }
+
+int iniciarCompactacion(char* nombreTabla){
+	pthread_t idCompactacion;
+	if (pthread_create(&idCompactacion, NULL, compactar, nombreTabla)) {
+		log_error(logger_error, "FuncionesAPI.c: <CREATE> Falló al iniciar el hilo de compactación");
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
+}
+
 
 /*FIN FUNCIONES COMPLEMENTARIAS*/

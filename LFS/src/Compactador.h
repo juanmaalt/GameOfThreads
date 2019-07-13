@@ -14,6 +14,6 @@
 /*GLOBALES*/
 
 /*FUNCIONES*/
-void compactar(char* nombreTabla);
+void* compactar(void* nombreTabla);
 
 #endif /* COMPACTADOR_H_ */

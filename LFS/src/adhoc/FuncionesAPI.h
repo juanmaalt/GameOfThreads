@@ -22,7 +22,8 @@ t_config* leerMetadata(char* nombreTabla);
 void extraerMetadata(t_config* metadataFile);
 t_list* getData(char* nombreTabla);
 int calcularParticionNbr(char* key, int particiones);
-void buscarValue(t_list* data, t_list* listaDeValues, char* key, int particionNbr);
+void buscarValueEnFiles(char* nombreTabla, char* key, int particionNbr, t_list* listaDeValues);
+void leerTemps(char* nombreTabla, char* key, t_list* listaDeValues);
 t_list* buscarValueEnLista(t_list* data, char* key);
 void getValueMasReciente(t_list* lista, Operacion* resultadoSelect);
 timestamp_t checkTimestamp(char* timestamp);
@@ -34,6 +35,7 @@ void crearArchivosBinarios(char* path, int particiones);
 void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombreTabla, Operacion *resultadoDescribe);
 int removerDirectorio(char *path);
 void limpiarBloquesEnBitarray(char* nombreTabla);
+int iniciarCompactacion(char* nombreTabla);
 
 //AD-HOC
 void mostrarMetadata();
