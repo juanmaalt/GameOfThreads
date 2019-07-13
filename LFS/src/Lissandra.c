@@ -244,7 +244,7 @@ Operacion ejecutarOperacion(char* input) {
 
 	log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - Mensaje recibido %s", input);
 
-	//usleep((vconfig.retardo)*1000);
+	usleep(vconfig.retardo()*1000);
 
 	if (parsed->valido) {
 		switch (parsed->keyword){
@@ -358,7 +358,7 @@ void* dump(){
 	pthread_detach(pthread_self());
 
 	for(;;){
-		usleep((int)vconfig.tiempoDump * 1000);
+		usleep(vconfig.tiempoDump() * 1000);
 		dictionary_iterator(memtable, (void*) dumpTabla);
 	}
 	return NULL;

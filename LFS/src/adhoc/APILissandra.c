@@ -48,10 +48,10 @@ Operacion selectAPI(Comando comando){
 	/*Busco en Memtable*/
 	listaDeValues=buscarValueEnLista(data, comando.argumentos.SELECT.key);
 	/*Busco en Temporales*/
-	leerTemps(comando.argumentos.SELECT.nombreTabla, comando.argumentos.SELECT.key, listaDeValues);
+	//leerTemps(comando.argumentos.SELECT.nombreTabla, comando.argumentos.SELECT.key, listaDeValues);
 	/*Busco en Bloques*/
-	char* listaDeBloques= obtenerListaDeBloques(particionNbr, comando.argumentos.SELECT.nombreTabla);
-	list_add(listaDeValues, (void*)(fseekBloque(atoi(comando.argumentos.SELECT.key), listaDeBloques)));
+	//char* listaDeBloques= obtenerListaDeBloques(particionNbr, comando.argumentos.SELECT.nombreTabla);
+	//list_add(listaDeValues, (void*)(fseekBloque(atoi(comando.argumentos.SELECT.key), listaDeBloques)));
 
 	/*Recorro la tabla y obtengo el valor más reciente*/
 	//recorrerTabla(listaDeValues);//Función ad-hoc para testing
