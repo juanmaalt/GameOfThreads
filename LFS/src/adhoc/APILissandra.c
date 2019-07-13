@@ -50,7 +50,7 @@ Operacion selectAPI(Comando comando){
 
 	/*Recorro la tabla y obtengo el valor más reciente*/
 	//recorrerTabla(listaDeValues);//Función ad-hoc para testing
-	resultadoSelect = getValueMasReciente(listaDeValues);
+	getValueMasReciente(listaDeValues, &resultadoSelect);
 
 	/*Libero recursos en memoria*/
 	list_destroy(listaDeValues);

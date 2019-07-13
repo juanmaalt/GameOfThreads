@@ -222,26 +222,26 @@ Operacion ejecutarOperacion(char* input) {
 		switch (parsed->keyword){
 		case SELECT:
 			retorno = selectAPI(*parsed);
-			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <SELECT> Mensaje de retorno \"%s\"", retorno.Argumentos);
+			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <SELECT> Mensaje de retorno \"%llu;%d;%s\"", retorno.Argumentos.REGISTRO.timestamp, retorno.Argumentos.REGISTRO.key, retorno.Argumentos.REGISTRO.value);
 			break;
 		case INSERT:
 			retorno = insertAPI(*parsed);
-			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <INSERT> Mensaje de retorno \"%s\"", retorno.Argumentos);
+			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <INSERT> Mensaje de retorno \"%s\"", retorno.Argumentos.TEXTO_PLANO.texto);
 			break;
 		case CREATE:
 			retorno = createAPI(*parsed);
-			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <CREATE> Mensaje de retorno \"%s\"", retorno.Argumentos);
+			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <CREATE> Mensaje de retorno \"%s\"", retorno.Argumentos.TEXTO_PLANO.texto);
 			break;
 		case DESCRIBE:
 			retorno = describeAPI(*parsed);
-			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <DESCRIBE> Mensaje de retorno \"%s\"", retorno.Argumentos);
+			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <DESCRIBE> Mensaje de retorno \"%s\"", retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
 			break;
 		case DROP:
 			retorno = dropAPI(*parsed);
-			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <DROP> Mensaje de retorno \"%s\"", retorno.Argumentos);
+			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <DROP> Mensaje de retorno \"%s\"", retorno.Argumentos.TEXTO_PLANO.texto);
 			break;
 		case RUN:
-			//agregarDatos(memtable);
+			dumpTabla(parsed->argumentos.RUN.path);
 			compactar(parsed->argumentos.RUN.path);
 			break;
 		default:
@@ -278,7 +278,7 @@ timestamp_t obtenerTimestamp(Registro* registro) {
 
 /*INICIO FUNCIONES TEST*/
 void agregarDatos(t_dictionary* memtable) {
-	/*Registro* reg1 = malloc(sizeof(Registro));
+	Registro* reg1 = malloc(sizeof(Registro));
 	Registro* reg2 = malloc(sizeof(Registro));
 	Registro* reg3 = malloc(sizeof(Registro));
 	Registro* reg4 = malloc(sizeof(Registro));
@@ -311,24 +311,11 @@ void agregarDatos(t_dictionary* memtable) {
 	dictionary_put(memtable, tabla, lista);//Agrego una tabla y su data;
 
 	//lista = dictionary_get(memtable, tabla);//obtengo la data, en el insert debera checkear que este dato no sea null
-*/
-	dumpTabla("test");
-
-
-
 }
 
 /*FIN FUNCIONES TEST*/
 
 /*INICIO FUNCIONES DUMP*/
-/*void dump(t_dictionary* memtable) {
-	//TODO: wait semaforo
-
-	dictionary_iterator(memtable, (void*) dumpTabla);//TODO:Arreglar
-	dictionary_clean(memtable);
-}
-*/
-
 int esTemp(char* nombre) {
 	char* extension = strrchr(nombre, '.');
 	if(!extension || extension == nombre) return 0;

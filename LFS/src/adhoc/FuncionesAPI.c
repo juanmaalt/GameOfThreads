@@ -91,9 +91,7 @@ void recorrerTabla(t_list* lista){
 }
 
 
-Operacion getValueMasReciente(t_list* lista){
-	Operacion op;
-
+void getValueMasReciente(t_list* lista, Operacion* resultadoSelect){
 	if(list_size(lista)>0){
 		if(list_size(lista)>1){
 			bool compararFechas(void* item1, void* item2){
@@ -107,18 +105,15 @@ Operacion getValueMasReciente(t_list* lista){
 
 		Registro* reg = list_get(lista, 0);
 
-		op.TipoDeMensaje = REGISTRO;
-		op.Argumentos.REGISTRO.timestamp=reg->timestamp;
-		op.Argumentos.REGISTRO.key=reg->key;
-		op.Argumentos.REGISTRO.value=string_from_format(reg->value);
+		resultadoSelect->TipoDeMensaje = REGISTRO;
+		resultadoSelect->Argumentos.REGISTRO.timestamp=reg->timestamp;
+		resultadoSelect->Argumentos.REGISTRO.key=reg->key;
+		resultadoSelect->Argumentos.REGISTRO.value=string_from_format("%s",reg->value);
 
 	}else{
-		op.TipoDeMensaje = ERROR;
-		op.Argumentos.ERROR.mensajeError = string_from_format("No existen registros relacionados con la key solicitada");
+		resultadoSelect->TipoDeMensaje = ERROR;
+		resultadoSelect->Argumentos.ERROR.mensajeError = string_from_format("No existen registros relacionados con la key solicitada");
 	}
-
-
-	return op;
 }
 
 
