@@ -34,7 +34,9 @@ void crearBloques(char* path, int blocks);
 void crearMetadata(char* path ,int blockSize, int blocks, char* magicNumber);
 void checkExistenciaDirectorio(char* path, char* carpeta);
 void checkDirectorios();
-void levantarTablasEnMemtable();
+void levantarTablasExistentes();
+void agregarBloqueEnParticion(char* bloque, char* nombreTabla, int particion);
+void agregarBloqueEnBitarray(char* nombreCarpeta);
 
 
 int levantarMetadata();

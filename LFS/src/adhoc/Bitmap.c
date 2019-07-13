@@ -10,9 +10,7 @@
 void leerBitmap(){
 	log_info(logger_invisible, "Inicio levantarBitmap");
 	int size = ((metadataFS.blocks/8)+1);
-	char* path = malloc(1000 * sizeof(char));
-	strcpy(path, config.punto_montaje);
-	strcat(path, "Metadata/Bitmap.bin");
+	char* path = string_from_format("%sMetadata/Bitmap.bin", config.punto_montaje);
 
 	//printf("path: %s\n", path);
 
@@ -46,9 +44,12 @@ void leerBitmap(){
 	msync(bitarray, size, MS_SYNC);
 
 	//log_info(logger_visible, "El tamanio del bitmap es de %lu bits", tamanio);
-
+	/*Libero el file que está en memoria*/
 	munmap(bitarray,size);
-/*Función para imprimir*/
+	/*Leo los bloques con información y actualizo el Bitarray*/
+	actualizarBitarray();
+
+	/*Función para imprimir*/
 	/*
 	for(int i=0;i<metadataFS.blocks;i++){
 		bool valor = bitarray_test_bit(bitarray, i);
@@ -56,7 +57,6 @@ void leerBitmap(){
 	}
 	 */
 	close(fileDescriptor);
-	free(path);
 }
 
 int getBloqueLibre(){
@@ -140,3 +140,23 @@ unsigned long binarioADecimal(char* binario, int length){
 	return decimal;
 }
 
+void actualizarBitarray(){
+	char* pathBloques = string_from_format("%sBloques", config.punto_montaje);
+	DIR *dir;
+	struct dirent *entry;
+	char* nombreBloque;
+
+	if((dir = opendir(pathBloques)) != NULL){
+		while((entry = readdir (dir)) != NULL){
+			nombreBloque = string_from_format(entry->d_name);
+			if(string_contains(nombreBloque, ".bin")){
+				char* bloque = string_substring_until(nombreBloque, (strlen(nombreBloque)-4));
+				if(caracteresEnBloque(bloque)>0){
+					bitarray_set_bit(bitarray, (atoi(bloque)-1));
+					log_info(logger_invisible, "Bloque con data: %s.bin", nombreBloque);
+				}
+			}
+		}
+		closedir (dir);
+	}
+}
