@@ -19,17 +19,17 @@ int main(void) {
 		return EXIT_FAILURE;
 	}
 	mostrar_por_pantalla_config();
-/*
+
 	 if(realizarHandshake()==EXIT_FAILURE){
-		 printf(RED"Memoria.c: main: no se pudo inicializar la memoria principal"STD"\n");
+		 log_error(logger_error,"Memoria.c: main: no se pudo inicializar la memoria principal");
 		 return EXIT_FAILURE;
 	 }
-*/
-	tamanioValue = 4;
+
+	/*tamanioValue = 4;
 
 	pathLFS = malloc(strlen("/puntoDeMontajeQueMeDaJuanEnElHandshake/") * sizeof(char)+ 1);
 	strcpy(pathLFS, "/puntoDeMontajeQueMeDaJuanEnElHandshake/");
-
+*/
 	// Inicializar la memoria principal
 	if (inicializar_memoriaPrincipal() == EXIT_FAILURE) {
 		log_error(logger_error,

@@ -11,6 +11,17 @@
 Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 	int valueSem;
 	while(!sem_getvalue(&journal, &valueSem) && valueSem<1);
+	/*printf(YEL"EVALUO SI HAGO ALGO\n"STD);
+	sem_getvalue(&journal, &valueSem);
+	if(valueSem < 1){
+		Operacion retorno;
+		printf(YEL"NO HACER NADA JOURNAL\n"STD);
+		retorno.TipoDeMensaje = ERROR;
+			retorno.Argumentos.ERROR.mensajeError = string_from_format(
+					"Se recibio consulta, no fue ejecutada. Realizando journal");
+			return retorno;
+	}/*/
+	//TODO CHEQUEAR SINCRO TODO TODO
 
 	Comando *parsed = malloc(sizeof(Comando));
 	Operacion retorno;
@@ -417,7 +428,8 @@ Operacion journalAPI(){
 	//  1.2. Si no esta modificado avanzo
 
 	sem_wait(&journal);
-
+//	usleep(500000000);
+	//printf("TERMINO SLEEP JOURNAL\n");
 	void recorrerSegmento(void * segmento){
 
 		void enviarRegistroModificado(void* registro){
