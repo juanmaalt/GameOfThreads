@@ -15,7 +15,6 @@ Operacion selectAPI(Comando comando){
 	/*Creo variable resultado del tipo Operacion para devolver el mensaje*/
 	Operacion resultadoSelect;
 	resultadoSelect.TipoDeMensaje = ERROR;
-
 	/*Checkea existencia de la Memtable*/
 	if (!memtable) {
 		log_error(logger_invisible, "No existe una memtable creada, no se puede realizar la operación.");
@@ -47,11 +46,13 @@ Operacion selectAPI(Comando comando){
 
 	/*Busco en Memtable*/
 	listaDeValues=buscarValueEnLista(data, comando.argumentos.SELECT.key);
+
 	/*Busco en Temporales*/
 	leerTemps(comando.argumentos.SELECT.nombreTabla, comando.argumentos.SELECT.key, listaDeValues);
+
 	/*Busco en Bloques*/
 	char* listaDeBloques= obtenerListaDeBloques(particionNbr, comando.argumentos.SELECT.nombreTabla);
-	list_add(listaDeValues, (void*)(fseekBloque(atoi(comando.argumentos.SELECT.key), listaDeBloques)));
+	list_add(listaDeValues, fseekBloque(atoi(comando.argumentos.SELECT.key), listaDeBloques));
 
 	/*Recorro la tabla y obtengo el valor más reciente*/
 	//recorrerTabla(listaDeValues);//Función ad-hoc para testing

@@ -45,11 +45,10 @@ void* compactar(void* nombreTabla){
 					log_info(logger_invisible, "Compactador.c: compactar(%s): [%s] no es un archivo temporal, no se compactará", (char*)nombreTabla, nombreArchivo);
 				}
 			}
-
 			/*Busca en el diccionario por el hash nombreTabla hace un pop de cada peticion y la manda a ejecutarOperacion*/
 			procesarPeticionesPendientes(nombreTabla);
 
-			sacarTablaDeDiccCompactacion((char*)nombreTabla);
+			sacarTablaDeDiccCompactacion(nombreTabla);
 			closedir (dir);
 			log_info(logger_invisible, "Compactador.c: compactar() - Fin compactación");
 		}

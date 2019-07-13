@@ -86,12 +86,12 @@ char* firstBloqueDisponible(char* listaDeBloques){
 		int charsInFile = caracteresEnBloque(bloques[i]);
 		printf("Bloque %s con %d caracteres disponibles\n", bloques[i], (metadataFS.blockSize - charsInFile));
 		if(charsInFile < metadataFS.blockSize){
-			log_info(logger_visible, "Compactador.c: firstBloqueDisponible() - Bloque %s con %d caracteres disponibles\n", bloques[i], (metadataFS.blockSize - charsInFile));
+			log_info(logger_invisible, "Compactador.c: firstBloqueDisponible() - Bloque %s con %d caracteres disponibles\n", bloques[i], (metadataFS.blockSize - charsInFile));
 			firstBloque=bloques[i];
 			return firstBloque;
 		}
 		else{
-			log_info(logger_visible, "Compactador.c: firstBloqueDisponible() - Bloque %s sin caracteres disponibles\n", bloques[i]);
+			log_info(logger_invisible, "Compactador.c: firstBloqueDisponible() - Bloque %s sin caracteres disponibles\n", bloques[i]);
 			firstBloque="0";
 		}
 		i++;
@@ -120,13 +120,13 @@ int caracteresEnBloque(char* bloque){
 void escribirEnBloque(char* bloque, char* linea){
 	char* pathBloque = string_from_format("%sBloques/%s.bin", config.punto_montaje, bloque);
 
-	log_info(logger_visible, "Compactador.c: escribirEnBloque() - Path del Bloque a escribir: %s", pathBloque);
+	log_info(logger_invisible, "Compactador.c: escribirEnBloque() - Path del Bloque a escribir: %s", pathBloque);
 
 	FILE* fBloque = fopen(pathBloque, "a");
 
 	fprintf (fBloque, "%s",linea);
 
-	log_info(logger_visible, "Compactador.c: escribirEnBloque() - Línea a escribir: %s", linea);
+	log_info(logger_invisible, "Compactador.c: escribirEnBloque() - Línea a escribir: %s", linea);
 
 	fclose(fBloque);
 }
@@ -207,13 +207,23 @@ void procesarPeticionesPendientes(char *nombreTabla){
 	t_list* inputsEnDiccionario = dictionary_get(diccCompactacion, nombreTabla);
 	listaInputsPendientes = list_take_and_remove(inputsEnDiccionario, list_size(inputsEnDiccionario));
 
-	list_iterate(listaInputsPendientes, (void*)ejecutarOperacion);
+	if(list_size(listaInputsPendientes)>0){
+		list_iterate(listaInputsPendientes, (void*)ejecutarOperacion);
+	}
 
 	list_destroy(listaInputsPendientes);
 }
 
 void sacarTablaDeDiccCompactacion(char* nombreTabla){
-	dictionary_remove(diccCompactacion, nombreTabla);
+	//dictionary_remove(diccCompactacion, nombreTabla);
+	void destructorValueDicc(void * value){
+		void destruirElemDeLista(void * elem){
+			free((char*)elem);
+		}
+		list_destroy_and_destroy_elements((t_list*) value, destruirElemDeLista);
+
+	}
+	dictionary_remove_and_destroy(diccCompactacion, nombreTabla, destructorValueDicc);
 }
 
 bool esRegistroMasReciente(int timestamp, int key, char* listaDeBloques){

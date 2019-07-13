@@ -16,16 +16,12 @@ int main(void) {
 		RETURN_ERROR("Lissandra.c: main() - No se pudo generar la configuracion inicial");
 	}
 	ver_config();
-	//TODO:Meter funcion para levantar las variables de tiempo retardo y tiempo_dump
 
 	/*Inicio el File System*/
 	checkEstructuraFS();
 
 	/*Levanto la Metadata del File System*/
 	levantarMetadata();
-
-	/*Dump*/
-	//numeroDump = 0;//TODO: Checkear
 
 	/*Inicio la Memtable*/
 	memtable = inicializarDiccionario();
@@ -253,17 +249,15 @@ Operacion ejecutarOperacion(char* input) {
 			if(dictionary_has_key(diccCompactacion, parsed->argumentos.SELECT.nombreTabla)){
 				listaInputs=dictionary_get(diccCompactacion, parsed->argumentos.SELECT.nombreTabla);
 				list_add(listaInputs, string_from_format(input));
-			}else{retorno = selectAPI(*parsed);}
+			}else{
+				retorno = selectAPI(*parsed);}
 			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <SELECT> Mensaje de retorno \"%llu;%d;%s\"", retorno.Argumentos.REGISTRO.timestamp, retorno.Argumentos.REGISTRO.key, retorno.Argumentos.REGISTRO.value);
 			break;
 		case INSERT:
 			if(dictionary_has_key(diccCompactacion, parsed->argumentos.INSERT.nombreTabla)){
-				printf("En compactación\n");
 				listaInputs=dictionary_get(diccCompactacion, parsed->argumentos.INSERT.nombreTabla);
 				list_add(listaInputs, string_from_format(input));
-			}else{
-				printf("No en compactación\n");
-				retorno = insertAPI(*parsed);}
+			}else{retorno = insertAPI(*parsed);}
 			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <INSERT> Mensaje de retorno \"%s\"", retorno.Argumentos.TEXTO_PLANO.texto);
 			break;
 		case CREATE:
@@ -457,8 +451,9 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 		//printf("antes de fopen: %s\n", pathBloque);
 		fBloque = fopen(pathBloque, "r");
 		while((ch = getc(fBloque)) != EOF){
-			//printf("leyendo chars\n");
-			while(ch !='\n'){
+			if(ch !='\n'){
+				string_append(&linea, string_from_format("%c",ch));
+			}else if(ch =='\n'){
 				string_append(&linea, string_from_format("%c",ch));
 			}
 			if(string_ends_with(linea, "\n")){
