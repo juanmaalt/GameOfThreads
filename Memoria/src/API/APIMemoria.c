@@ -477,7 +477,9 @@ Operacion journalAPI(){
 
 	resultadoJournal.TipoDeMensaje = TEXTO_PLANO;
 	resultadoJournal.Argumentos.TEXTO_PLANO.texto = string_from_format(
-						"JOURNAL REALIZADO CON EXITO");
+						"Journal realizado con exito");
+
+	sem_post(&journal);
 	return resultadoJournal;
 
 	//mostrarRegistrosConFlagDeModificado();
