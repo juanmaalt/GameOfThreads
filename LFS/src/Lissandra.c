@@ -249,11 +249,17 @@ Operacion ejecutarOperacion(char* input) {
 	if (parsed->valido) {
 		switch (parsed->keyword){
 		case SELECT:
-			retorno = selectAPI(*parsed);
+			if(dictionary_has_key(diccCompactacion, parsed->argumentos.SELECT.nombreTabla)){
+				t_list* listaInputs=dictionary_get(diccCompactacion, parsed->argumentos.SELECT.nombreTabla);
+				list_add(listaInputs, string_from_format(input));
+			}else{retorno = selectAPI(*parsed);}
 			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <SELECT> Mensaje de retorno \"%llu;%d;%s\"", retorno.Argumentos.REGISTRO.timestamp, retorno.Argumentos.REGISTRO.key, retorno.Argumentos.REGISTRO.value);
 			break;
 		case INSERT:
-			retorno = insertAPI(*parsed);
+			if(dictionary_has_key(diccCompactacion, parsed->argumentos.INSERT.nombreTabla)){
+				t_list* listaInputs=dictionary_get(diccCompactacion, parsed->argumentos.INSERT.nombreTabla);
+				list_add(listaInputs, string_from_format(input));
+			}else{retorno = insertAPI(*parsed);}
 			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <INSERT> Mensaje de retorno \"%s\"", retorno.Argumentos.TEXTO_PLANO.texto);
 			break;
 		case CREATE:
@@ -265,7 +271,10 @@ Operacion ejecutarOperacion(char* input) {
 			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <DESCRIBE> Mensaje de retorno \"%s\"", retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
 			break;
 		case DROP:
-			retorno = dropAPI(*parsed);
+			if(dictionary_has_key(diccCompactacion, parsed->argumentos.DROP.nombreTabla)){
+				t_list* listaInputs=dictionary_get(diccCompactacion, parsed->argumentos.DROP.nombreTabla);
+				list_add(listaInputs, string_from_format(input));
+			}else{retorno = dropAPI(*parsed);}
 			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <DROP> Mensaje de retorno \"%s\"", retorno.Argumentos.TEXTO_PLANO.texto);
 			break;
 		case RUN:
