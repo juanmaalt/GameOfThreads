@@ -219,7 +219,8 @@ int iniciar_consola() {
 }
 
 int configuracion_inicial() {
-	//INICIALIZAR SEMAFOROS ACA
+	//INICIALIZAR SEMAFOROS
+	sem_init(&journal, 0, 1);
 
 	mkdir("Logs", 0777); //Crea la carpeta Logs junto al ejecutable (si ya existe no toca nada de lo que haya adentro)
 

@@ -319,7 +319,7 @@ Operacion recibir_gossiping (Operacion resultado){
 	resultado.TipoDeMensaje = GOSSIPING_REQUEST;
 	resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido = envio;
 
-	log_info(logger_visible,"GOSSIPING.C:recibir_gossiping: Envio mensaje gossiping %s",envio);
+	log_info(logger_invisible,"GOSSIPING.C:recibir_gossiping: Envio mensaje gossiping %s",envio);
 
 
 
