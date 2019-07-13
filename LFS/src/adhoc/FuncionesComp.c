@@ -44,18 +44,18 @@ void leerTemporal(char* pathTemp, int particiones, char* nombreTabla){
 	temp = fopen(pathTemp, "r");
 	/*Leo el file linea a linea*/
 	while(fscanf(temp, "%d;%d;%[^\n]s", &timestamp, &key, value)!= EOF){
-		log_info(logger_visible, "Compactador.c: leerTemporal() - Linea leída: %d;%d;%s\n", timestamp, key ,value);
+		log_info(logger_invisible, "Compactador.c: leerTemporal() - Linea leída: %d;%d;%s\n", timestamp, key ,value);
 		char* linea = string_from_format("%d;%d;%s\n",timestamp, key, value);
 
 		int particionNbr = calcularParticionNbr(string_from_format("%d", key), particiones);
-		log_info(logger_visible, "Compactador.c: leerTemporal() - Partición Nro: %d\n", particionNbr);
+		log_info(logger_invisible, "Compactador.c: leerTemporal() - Partición Nro: %d\n", particionNbr);
 
 		char* listaDeBloques= obtenerListaDeBloques(particionNbr, nombreTabla);
-		log_info(logger_visible, "Compactador.c: leerTemporal() - Bloques asignados: %s\n",listaDeBloques);
+		log_info(logger_invisible, "Compactador.c: leerTemporal() - Bloques asignados: %s\n",listaDeBloques);
 
 		if(esRegistroMasReciente(timestamp, key, listaDeBloques)){
 			char* bloque = firstBloqueDisponible(listaDeBloques);
-			log_info(logger_visible, "Compactador.c: leerTemporal() - Primer bloque con espacio disponible: %s\n", bloque);
+			log_info(logger_invisible, "Compactador.c: leerTemporal() - Primer bloque con espacio disponible: %s\n", bloque);
 
 			escribirLinea(bloque, linea, nombreTabla, particionNbr);
 		}
