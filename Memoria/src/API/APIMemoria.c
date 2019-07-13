@@ -444,9 +444,9 @@ Operacion journalAPI(){
 
 				log_info(logger_invisible,"APIMemoria.c: recorrerSegmento: Request mandada: %s \n", input);
 
-				//enviarRequestFS(input);
+				enviarRequestFS(input);
 
-				//resultadoJournal=recibirRequestFS();
+				resultadoJournal=recibirRequestFS();
 
 				//TODO: loggear resultado
 

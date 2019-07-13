@@ -59,12 +59,12 @@ int main(void) {
 	}
 
 	//TODO: hilo de JOURNAL
-	if(iniciar_Journal() == EXIT_FAILURE){
+	/*if(iniciar_Journal() == EXIT_FAILURE){
 		log_error(logger_error,
 						"Memoria.c: main: no se pudo iniciar el hilo journal");
 
 				return EXIT_FAILURE;
-	}
+	}*/
 
 	//Habilita el server y queda en modo en listen
 	if (iniciar_serverMemoria() == EXIT_FAILURE) {
@@ -164,7 +164,7 @@ int realizarHandshake(void) {
 	if(handshakeLFS(lfsSocket)==EXIT_FAILURE){
 		return EXIT_FAILURE;
 	}
-	printf("TAMAÑO_VALUE= %d\n", tamanioValue);
+	//printf("TAMAÑO_VALUE= %d\n", tamanioValue);
 	log_info(logger_visible, "Handshake realizado correctamente");
 	return EXIT_SUCCESS;
 }

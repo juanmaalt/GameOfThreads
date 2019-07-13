@@ -83,7 +83,7 @@ static DynamicAddressingRequest direccionar_request(char *request){
 	case DROP:
 		memoria = determinar_memoria_para_tabla(comando.argumentos.DROP.nombreTabla, NULL);
 		retorno.criterioQueSeUso = consistencia_de_tabla(comando.argumentos.DROP.nombreTabla);
-		retorno.tipoOperacion = ESCRITURA;
+		retorno.tipoOperacion = ESCRITURA; //TODO: sacar memoria de mi lista
 		break;
 	default:
 		log_info(logger_invisible, "Instruccion ilegal");
@@ -265,11 +265,6 @@ static ResultadoEjecucionInterno procesar_retorno_operacion(Operacion op, PCB* p
 		free(instruccionActualTemp);
 		return INSTRUCCION_ERROR;
 	case DESCRIBE_REQUEST:
-		if(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido == NULL){
-			log_info(logger_visible, "CPU: %d | No se obtuvieron datos en el ultimo describe", process_get_thread_id());
-			log_info(logger_invisible, "CPU: %d | No se obtuvieron datos en el ultimo describe", process_get_thread_id());
-			return CONTINUAR;
-		}
 		if(procesar_describe(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido) == EXIT_FAILURE){
 			log_error(logger_error,"CPU: %d | Abortando: Fallo la descompresion del Describe", process_get_thread_id());
 			log_error(logger_invisible,"CPU: %d | Abortando: Fallo la descompresion del Describe", process_get_thread_id());

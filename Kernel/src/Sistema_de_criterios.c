@@ -22,7 +22,7 @@ static Memoria *ec_determinar_memoria(MetadataTabla *tabla);
 //FUNCIONES: Privadas: gestion de nuevas tablas
 static MetadataTabla *crear_tabla(char* nombre, char *consistencia, char *particiones, char *tiempoEntreCompactacion);
 static Memoria *crear_memoria(int numero, char *ip, char *puerto);
-
+static void remover_referencia_tabla(MetadataTabla *tabla);
 
 
 
@@ -129,8 +129,14 @@ int asociar_memoria(char *numeroMemoria, char *consistencia){
 
 
 int procesar_describe(char *cadenaResultadoDescribe){
+	if(cadenaResultadoDescribe == NULL){
+		list_destroy(tablasExistentes); //TODO
+		tablasExistentes = list_create();
+		return EXIT_SUCCESS;
+	}
 	if(tablasExistentes == NULL)
 		return EXIT_FAILURE;
+	//TODO: comportamiento indefinodo en describe tabla
 	//TODO: bug encontrado: las tablas que se dan de bajas quedan purulando en la memoria. Este codigo solo las remueve, no libera
 	MetadataTabla *tabla;
 	t_list *listaAuxiliar = list_create(); //Creo una lista vacia sobre la cual voy a trabajar
@@ -142,11 +148,16 @@ int procesar_describe(char *cadenaResultadoDescribe){
 			if(tabla == NULL) return EXIT_FAILURE; //El crear tabla puede fallar
 			list_add(listaAuxiliar, tabla); //La agrego a mi lista auxiliar
 		}else{
+			remover_referencia_tabla(tabla);
 			list_add(listaAuxiliar, tabla); //Si se encuentra, agrego esa referencia de tablasExistentes a mi listaAuxiliar. Esto lo hago asi por que hay ciertos atributos que se asignan en momentos distintos, por ejemplo, a una tabla SC se le asigna una memoria, y necesito que siga siendo siempre la misma, por eso quiero usar la misma referencia a esa tabla.
 		}
 	}
 	destruir_split_tablas(descompresion);
-	list_destroy(tablasExistentes); //Libero las referencias de la lista, sin liberar cada uno de sus elementos. Es decir, libero solo los nodos
+	void destruir_tabla_encontrada(void *tabla){
+		free(((MetadataTabla*)tabla)->nombre);
+		free((MetadataTabla*)tabla);
+	}
+	list_destroy_and_destroy_elements(tablasExistentes, destruir_tabla_encontrada); //Libero las referencias de la lista que quedaron, que fueron los que se dieron de baja (indirectamente)
 	tablasExistentes = list_duplicate(listaAuxiliar); //Duplico la lista auxiliar con todos los elementos del nuevo describe, manteniendo los del anterior describe (son sus respecrtivos atributos de criterios), y eliminando los viejos (ya que nunca se agregaron a la listaAuxiliar)
 	list_destroy(listaAuxiliar);
 	return EXIT_SUCCESS;
@@ -313,7 +324,7 @@ static MetadataTabla *machearTabla(char *tabla){
 		return NULL;
 	}
 	bool buscar(void *elemento){
-		return !strcmp(tabla, ((MetadataTabla*)elemento)->nombre); //Devuelve 0 (falso) si son iguales
+		return !(strcmp(tabla, ((MetadataTabla*)elemento)->nombre) * strcmp(tabla, ((MetadataTabla*)elemento)->nombre)); //Devuelve 0 (falso) si son iguales. Si es negativo lo multiplica por sis mismo para ser posiitiivoooollk
 	}
 	return (MetadataTabla*)list_find(tablasExistentes, buscar);
 }
@@ -402,6 +413,17 @@ static MetadataTabla *crear_tabla(char* nombre, char *consistencia, char *partic
 	retorno->particiones = atoi(particiones);
 	retorno->tiempoEntreCompactaciones = atoi(tiempoEntreCompactacion);
 	return retorno;
+}
+
+
+
+
+
+static void remover_referencia_tabla(MetadataTabla *tabla){
+	bool remover_por_nombre(void *elemento){
+		return !strcmp(((MetadataTabla *)elemento)->nombre, tabla->nombre);
+	}
+	list_remove_by_condition(tablasExistentes, remover_por_nombre);
 }
 
 
