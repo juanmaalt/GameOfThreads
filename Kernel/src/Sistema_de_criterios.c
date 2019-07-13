@@ -56,7 +56,7 @@ Memoria *determinar_memoria_para_tabla(char *nombreTabla, char *keyDeSerNecesari
 	switch(tabla->consistencia){
 	case SC:
 		return sc_determinar_memoria(tabla);
-	case HSC:
+	case SHC:
 		return hsc_determinar_memoria(tabla, keyDeSerNecesaria);
 	case EC:
 		return ec_determinar_memoria(tabla);
@@ -98,9 +98,9 @@ int asociar_memoria(char *numeroMemoria, char *consistencia){
 			return EXIT_SUCCESS;
 		}
 	}
-	else if(string_equals_ignore_case(consistencia, "HSC")){
+	else if(string_equals_ignore_case(consistencia, "SHC")){
 		if(!memoria_esta_en_la_lista(memoriasHSC, memoria->numero)){
-			memoria->Metrics.HSC.estaAsociada = true;
+			memoria->Metrics.SHC.estaAsociada = true;
 			list_add(memoriasHSC, memoria);
 		}else{
 			log_info(logger_visible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");
@@ -117,7 +117,7 @@ int asociar_memoria(char *numeroMemoria, char *consistencia){
 			log_info(logger_invisible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");
 			return EXIT_SUCCESS;
 		}
-	}else RETURN_ERROR("Sistema_de_criterios.c: add_memory: el tipo de consistencia es invalido. Solo se admite SC, HSC o EC");
+	}else RETURN_ERROR("Sistema_de_criterios.c: add_memory: el tipo de consistencia es invalido. Solo se admite SC, SHC o EC");
 	memoria->fueAsociada = true;
 	log_info(logger_visible, "Sistema_de_criterios.c: add_memory: la memoria fue correctamente asignada");
 	log_info(logger_invisible, "Sistema_de_criterios.c: add_memory: la memoria fue correctamente asignada");
@@ -129,6 +129,10 @@ int asociar_memoria(char *numeroMemoria, char *consistencia){
 
 
 int procesar_describe(char *cadenaResultadoDescribe){
+	if(cadenaResultadoDescribe == NULL){ //TODO: es inestable
+		printf("No existen tablas\n");
+		return EXIT_SUCCESS;
+	}
 	if(tablasExistentes == NULL)
 		return EXIT_FAILURE;
 	//TODO: bug encontrado: las tablas que se dan de bajas quedan purulando en la memoria. Este codigo solo las remueve, no libera
@@ -182,7 +186,7 @@ void mostrar_describe(char *cadenaResultadoDescribe){
 		printf("Numero de particiones: %d | ", ((MetadataTabla*)elemento)->particiones);
 		printf("Tiempo entre compactacion: %d\n", ((MetadataTabla*)elemento)->tiempoEntreCompactaciones);
 	}
-	printf(BLU"0: SC | 1: HSC | 2: EC\n"STD);
+	printf(BLU"0: SC | 1: SHC | 2: EC\n"STD);
 	list_iterate(tablasExistentes, mostrar);
 	return ;
 }
@@ -394,8 +398,8 @@ static MetadataTabla *crear_tabla(char* nombre, char *consistencia, char *partic
 	if(string_equals_ignore_case(consistencia, "SC")){
 		retorno->consistencia = SC;
 		retorno->Atributos.SC.memoriaAsignada = NULL;
-	}else if(string_equals_ignore_case(consistencia, "HSC")){
-		retorno->consistencia = HSC;
+	}else if(string_equals_ignore_case(consistencia, "SHC")){
+		retorno->consistencia = SHC;
 	}else if(string_equals_ignore_case(consistencia, "EC")){
 		retorno->consistencia = EC;
 	}else return NULL;
@@ -420,9 +424,9 @@ static Memoria *crear_memoria(int numero, char *ip, char *puerto){
 	memoria->Metrics.SC.estaAsociada = false;
 	memoria->Metrics.SC.cantidadInsert = 0;
 	memoria->Metrics.SC.cantidadSelect = 0;
-	memoria->Metrics.HSC.estaAsociada = false;
-	memoria->Metrics.HSC.cantidadInsert = 0;
-	memoria->Metrics.HSC.cantidadSelect = 0;
+	memoria->Metrics.SHC.estaAsociada = false;
+	memoria->Metrics.SHC.cantidadInsert = 0;
+	memoria->Metrics.SHC.cantidadSelect = 0;
 	return memoria;
 }
 

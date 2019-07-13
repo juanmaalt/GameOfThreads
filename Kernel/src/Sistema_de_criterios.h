@@ -35,7 +35,7 @@ typedef struct memoria{
 			bool estaAsociada;
 			int cantidadInsert;
 			int cantidadSelect;
-		}HSC;
+		}SHC;
 		struct{
 			bool estaAsociada;
 			int cantidadInsert;
@@ -56,7 +56,7 @@ typedef struct {
 			Memoria *memoriaAsignada;
 		}SC;
 		struct{
-		}HSC;
+		}SHC;
 		struct{
 		}EC;
 	}Atributos;

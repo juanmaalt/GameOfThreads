@@ -78,8 +78,8 @@ static int mostrar_metricas_por_pantalla(){
 				log_info(logger_visible, "Memoria %d %s: %s", ((Memoria*)memoria)->numero, ((Memoria*)memoria)->ip, ((Memoria*)memoria)->puerto);
 				if(((Memoria*)memoria)->Metrics.SC.estaAsociada)
 					log_info(logger_visible, "Asignada al criterio SC | INSERTS: %d | SELECTS: %d", ((Memoria*)memoria)->Metrics.SC.cantidadInsert, ((Memoria*)memoria)->Metrics.SC.cantidadSelect);
-				if(((Memoria*)memoria)->Metrics.HSC.estaAsociada)
-					log_info(logger_visible, "Asignada al criterio HSC | INSERTS: %d | SELECTS: %d", ((Memoria*)memoria)->Metrics.HSC.cantidadInsert, ((Memoria*)memoria)->Metrics.HSC.cantidadSelect);
+				if(((Memoria*)memoria)->Metrics.SHC.estaAsociada)
+					log_info(logger_visible, "Asignada al criterio HSC | INSERTS: %d | SELECTS: %d", ((Memoria*)memoria)->Metrics.SHC.cantidadInsert, ((Memoria*)memoria)->Metrics.SHC.cantidadSelect);
 				if(((Memoria*)memoria)->Metrics.EC.estaAsociada)
 					log_info(logger_visible, "Asignada al criterio EC | INSERTS: %d | SELECTS: %d", ((Memoria*)memoria)->Metrics.EC.cantidadInsert, ((Memoria*)memoria)->Metrics.EC.cantidadSelect);
 			}else{
@@ -140,8 +140,8 @@ static void refrescar_valores(){
 		((Memoria*)memoria)->Metrics.EC.cantidadSelect = 0;
 		((Memoria*)memoria)->Metrics.SC.cantidadInsert = 0;
 		((Memoria*)memoria)->Metrics.SC.cantidadSelect = 0;
-		((Memoria*)memoria)->Metrics.HSC.cantidadInsert = 0;
-		((Memoria*)memoria)->Metrics.HSC.cantidadSelect = 0;
+		((Memoria*)memoria)->Metrics.SHC.cantidadInsert = 0;
+		((Memoria*)memoria)->Metrics.SHC.cantidadSelect = 0;
 	}
 	list_iterate(memoriasExistentes, refrescar_memoria);
 

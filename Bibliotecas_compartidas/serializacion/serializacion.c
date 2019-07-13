@@ -74,13 +74,22 @@ int send_msg(int socket, Operacion operacion) {
 		memcpy(content+sizeof(int), &(operacion.opCode), sizeof(int));
 		break;
 	case DESCRIBE_REQUEST:
-		longCadena = strlen(operacion.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
-		total = sizeof(int) + sizeof(int) + sizeof(char) * longCadena + sizeof(id);
-		content = malloc(total);
-		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
-		memcpy(content+sizeof(int), &longCadena, sizeof(int));
-		memcpy(content+2*sizeof(int), operacion.Argumentos.DESCRIBE_REQUEST.resultado_comprimido, sizeof(char)*longCadena);
-		memcpy(content+2*sizeof(int)+sizeof(char)*longCadena, &(operacion.opCode), sizeof(id));
+		if(operacion.Argumentos.DESCRIBE_REQUEST.resultado_comprimido != NULL){
+			longCadena = strlen(operacion.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
+			total = sizeof(int) + sizeof(int) + sizeof(char) * longCadena + sizeof(id);
+			content = malloc(total);
+			memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
+			memcpy(content+sizeof(int), &longCadena, sizeof(int));
+			memcpy(content+2*sizeof(int), operacion.Argumentos.DESCRIBE_REQUEST.resultado_comprimido, sizeof(char)*longCadena);
+			memcpy(content+2*sizeof(int)+sizeof(char)*longCadena, &(operacion.opCode), sizeof(id));
+		}else{
+			longCadena = -1;
+			total = sizeof(int) + sizeof(int) + sizeof(id);
+			content = malloc(total);
+			memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
+			memcpy(content+sizeof(int), &longCadena, sizeof(int));
+			memcpy(content+2*sizeof(int), &(operacion.opCode), sizeof(id));
+		}
 		break;
 	default:
 		return EXIT_FAILURE;
@@ -140,9 +149,13 @@ Operacion recv_msg(int socket) {
 		break;
 	case DESCRIBE_REQUEST:
 		recv(socket, &longitud, sizeof(int), 0);
-		retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido = calloc(longitud+1, sizeof(char));
-		recv(socket, retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido, sizeof(char)*longitud, 0);
-		retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido[longitud] = '\0';
+		if(longitud == -1){
+			retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido = NULL;
+		}else{
+			retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido = calloc(longitud+1, sizeof(char));
+			recv(socket, retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido, sizeof(char)*longitud, 0);
+			retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido[longitud] = '\0';
+		}
 		break;
 	default:
 		RECV_FAIL("(Serializacion.c: recv_msg) Error en la recepcion del resultado. Tipo de operacion desconocido");
