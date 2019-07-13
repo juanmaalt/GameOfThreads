@@ -27,9 +27,12 @@ bool verificarExistenciaSegmento(char* nombreTabla,
 		return true;
 	}
 
+	pthread_mutex_lock(&mutexTablaSegmentos);
+
 	t_list* listaConSegmentoBuscado = list_filter(tablaSegmentos.listaSegmentos,
 			segmentoCoincidePath);
 
+	pthread_mutex_unlock(&mutexTablaSegmentos);
 	//Para ver que el path es el correcto
 
 	//printf("El path del segmento buscado es: %s\n", pathSegmentoBuscado);
