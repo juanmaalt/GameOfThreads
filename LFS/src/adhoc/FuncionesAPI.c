@@ -288,6 +288,7 @@ void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombr
 
 	if(nombreTabla==NULL){
 		if((dir = opendir(path)) != NULL){
+			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = NULL;
 			while((entry = readdir (dir)) != NULL){
 				nombreCarpeta = string_from_format(entry->d_name);
 				if(!strcmp(nombreCarpeta, ".") || !strcmp(nombreCarpeta, "..")){
