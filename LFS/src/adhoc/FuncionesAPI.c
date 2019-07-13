@@ -10,8 +10,6 @@
 /*INICIO FUNCIONES COMPLEMENTARIAS*/
 bool existeTabla(char* nombreTabla){
 	return dictionary_has_key(memtable, nombreTabla);
-
-	//TODO:Checkear en disco, no en la memtable?
 }
 
 
@@ -30,13 +28,7 @@ int getMetadata(char* nombreTabla, t_config* metadataFile){
 
 
 t_config* leerMetadata(char* nombreTabla){
-	char* path = malloc(100 * sizeof(char));
-
-	strcpy(path,config.punto_montaje);
-	strcat(path, "Tables/");
-	strcat(path, nombreTabla);
-	strcat(path, "/");
-	strcat(path, "Metadata");
+	char* path = string_from_format("%sTables/%s/Metadata", config.punto_montaje, nombreTabla);
 
 	return config_create(path);
 }
@@ -81,8 +73,6 @@ t_list* buscarValueEnLista(t_list* data, char* key){
 
 void buscarValue(t_list* data, t_list* listaDeValues, char* key, int particionNbr){
 	listaDeValues=buscarValueEnLista(data, key);
-
-
 }
 
 void recorrerTabla(t_list* lista){
@@ -253,12 +243,10 @@ void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombr
 				nombreCarpeta = string_from_format(entry->d_name);
 				if(!strcmp(nombreCarpeta, ".") || !strcmp(nombreCarpeta, "..")){
 				}else{
-					strcat(pathMetadata, nombreCarpeta);
-					strcat(pathMetadata, "/Metadata");
 					//printf("path: %s\n", pathMetadata);
 					//printf("nombreTabla: %s\n", nombreCarpeta);
 
-					metadata = config_create(pathMetadata);
+					metadata = config_create(string_from_format("%s%s/Metadata", pathMetadata, nombreCarpeta));
 					char* consistencia = config_get_string_value(metadata, "CONSISTENCY");
 					int compactionTime=config_get_int_value(metadata, "COMPACTION_TIME");
 					int particiones =config_get_int_value(metadata, "PARTITIONS");
@@ -276,13 +264,11 @@ void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombr
 			resultadoDescribe->Argumentos.ERROR.mensajeError = string_from_format("No hay carpetas creadas en el sistema");
 		}
 	}else{
-		strcat(pathMetadata, nombreTabla);
 		if((dir = opendir (path)) != NULL){
-			strcat(pathMetadata, "/Metadata");
 			//printf("path: %s\n", pathMetadata);
 			//printf("nombreTabla: %s\n", nombreTabla);
 
-			metadata = config_create(pathMetadata);
+			metadata = config_create(string_from_format("%s%s/Metadata", pathMetadata, nombreTabla));
 			char* consistencia = config_get_string_value(metadata, "CONSISTENCY");
 			int compactionTime=config_get_int_value(metadata, "COMPACTION_TIME");
 			int particiones =config_get_int_value(metadata, "PARTITIONS");

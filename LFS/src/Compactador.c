@@ -36,7 +36,7 @@ void compactar(char* nombreTabla){
 			    log_info(logger_invisible, "Compactador.c: compactar(%s): [%s] es un archivo temporal, inciando su compactación.", nombreTabla, nombreArchivo);
 			    /*Leo el archivo temporal e inicio su compactación*/
 			    leerTemporal(pathTemp, metadata.partitions, nombreTabla);
-
+			    /*Borro el archivo temporal*/
 				remove(pathTemp);
 			}
 			else{

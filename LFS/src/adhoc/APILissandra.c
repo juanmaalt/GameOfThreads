@@ -45,7 +45,7 @@ Operacion selectAPI(Comando comando){
 	/*Creo la lista de valores que condicen con dicha key*/
 	t_list* listaDeValues = list_create();
 
-	//buscarValue(data, listaDeValues, comando.argumentos.SELECT.key, particionNbr);
+	buscarValue(data, listaDeValues, comando.argumentos.SELECT.key, particionNbr);
 
 	listaDeValues=buscarValueEnLista(data, comando.argumentos.SELECT.key);
 
@@ -54,7 +54,7 @@ Operacion selectAPI(Comando comando){
 	resultadoSelect = getValueMasReciente(listaDeValues);
 
 	/*Libero recursos en memoria*/
-	//list_destroy(listaDeValues);
+	list_destroy(listaDeValues);
 	config_destroy(metadataFile);
 
 	return resultadoSelect;
@@ -79,6 +79,13 @@ Operacion insertAPI(Comando comando){
 		return resultadoInsert;
 	}
 
+	/*Levanta la metadata de la tabla*/
+	t_config* metadataFile = leerMetadata(comando.argumentos.INSERT.nombreTabla);
+	if(getMetadata(comando.argumentos.SELECT.nombreTabla, metadataFile)==EXIT_FAILURE){
+		resultadoInsert.Argumentos.ERROR.mensajeError = string_from_format("No existe el archivo Metadata de la tabla solicitada.");
+		return resultadoInsert;
+	}
+
 	//checkExisteMemoria(); //Verificar si existe en memoria una lista de datos a dumpear. De no existir, alocar dicha memoria.
 
 	/*Reservo espacio y aloco los datos a insertar*/
@@ -94,22 +101,12 @@ Operacion insertAPI(Comando comando){
 	list_add(data, reg);
 
 	//INICIO AD-HOC//
-	/*Levanta la metadata de la tabla*/
-	t_config* metadataFile = leerMetadata(comando.argumentos.INSERT.nombreTabla);
-	if(getMetadata(comando.argumentos.SELECT.nombreTabla, metadataFile)==EXIT_FAILURE){
-		resultadoInsert.Argumentos.ERROR.mensajeError = string_from_format("No existe el archivo Metadata de la tabla solicitada.");
-		return resultadoInsert;
-	}
-	//int particionNbr = calcularParticionNbr(comando.argumentos.INSERT.key, metadata.partitions); //TODO: Borrar?
-
-
+	/*
 	char* path = malloc(100 * sizeof(char));
 	setPathTabla(path, comando.argumentos.INSERT.nombreTabla);
-
-	//insertInFile(path, particionNbr, comando.argumentos.INSERT.key, comando.argumentos.INSERT.value); //TODO: Borrar?
-
-	config_destroy(metadataFile);
+	insertInFile(path, particionNbr, comando.argumentos.INSERT.key, comando.argumentos.INSERT.value); //TODO: Borrar?
 	//FIN AD-HOC//
+	*/
 
 	//printf("Registro->Timestamp= %llu\n", reg->timestamp);
 	//printf("Registro->Key= %d\n", reg->key);
@@ -119,6 +116,8 @@ Operacion insertAPI(Comando comando){
 	log_info(logger_invisible, "INSERT realizado con éxito.");
 	resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
 	resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format("INSERT realizado con éxito.");
+	/*Libero recursos*/
+	config_destroy(metadataFile);
 
 	return resultadoInsert;
 }
@@ -137,8 +136,7 @@ Operacion createAPI(Comando comando){
 	}
 
 	/*Obtengo la ruta del directorio donde van a estar los archivos de la tabla*/
-	char* path = malloc(100 * sizeof(char));
-	setPathTabla(path, comando.argumentos.CREATE.nombreTabla);
+	char* path = string_from_format("%sTables/%s", config.punto_montaje, comando.argumentos.CREATE.nombreTabla);
 
 	/*Creo directorio para la tabla solicitada*/
 	crearDirectorioTabla(path);
@@ -155,9 +153,6 @@ Operacion createAPI(Comando comando){
 	/*Creo la Tabla en la Memtable*/
 	crearTablaEnMemtable(comando.argumentos.CREATE.nombreTabla);
 
-	/*Libero recursos*/
-	free(path);
-
 	/*Loggeo el CREATE exitoso y le aviso a la Memoria*/
 	log_info(logger_invisible, "CREATE realizado con éxito.");
 	resultadoCreate.TipoDeMensaje = TEXTO_PLANO;
@@ -173,24 +168,17 @@ Operacion describeAPI(Comando comando){
 	resultadoDescribe.TipoDeMensaje = ERROR;
 
 	/*Reservo espacio para los paths*/
-	char* path = malloc(1000 * sizeof(char));
-	char* pathMetadata = malloc(1000 * sizeof(char));
-
-	strcpy(path,config.punto_montaje);
-	strcat(path, "Tables/");
-	strcpy(pathMetadata,path);
+	char* path = string_from_format("%sTables/", config.punto_montaje);
+	//char* pathMetadata = malloc(1000 * sizeof(char));
 
 	char* string=NULL;
 
-	getStringDescribe(path, pathMetadata, string, comando.argumentos.DESCRIBE.nombreTabla, &resultadoDescribe);
+	getStringDescribe(path, path, string, comando.argumentos.DESCRIBE.nombreTabla, &resultadoDescribe);
 	//printf("Describe_string: %s\n", resultadoDescribe.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
 
 	/*Loggeo el CREATE exitoso y le aviso a la Memoria*/
 	log_info(logger_invisible, "DESCRIBE realizado con éxito.");
 	log_info(logger_invisible, "DESCRIBE: %s", resultadoDescribe.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
-
-	free(path);
-	free(pathMetadata);
 
 	return resultadoDescribe;
 }
@@ -208,11 +196,7 @@ Operacion dropAPI(Comando comando){
 		//TODO: borrar en bloques
 
 		/*Reservo espacio para los paths*/
-		char* pathFolder = malloc(10000 * sizeof(char));
-
-		strcpy(pathFolder,config.punto_montaje);
-		strcat(pathFolder, "Tables/");
-		strcat(pathFolder, comando.argumentos.DROP.nombreTabla);
+		char* pathFolder = string_from_format("%sTables/%s", config.punto_montaje, comando.argumentos.DROP.nombreTabla);
 
 		int removido=removerDirectorio(pathFolder);
 		printf("resultadoDrop= %d\n", removido);
