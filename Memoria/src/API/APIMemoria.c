@@ -10,8 +10,7 @@
 
 Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 	int valueSem;
-	sem_getvalue(&journal, &valueSem);
-	while(!valueSem);
+	while(!sem_getvalue(&journal, &valueSem) && valueSem<1);
 
 	Comando *parsed = malloc(sizeof(Comando));
 	Operacion retorno;
@@ -206,7 +205,7 @@ Operacion insertAPI(char* input, Comando comando) {
 
 			resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
 			resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format(
-					"INSERT REALIZADO CON EXITO");
+					"Insert realizado con exito");
 
 			//mostrarContenidoPagina(*registroBuscado); //Para ver lo que se inserto
 
