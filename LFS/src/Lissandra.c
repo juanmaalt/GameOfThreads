@@ -135,6 +135,7 @@ int configuracion_inicial(){
 		RETURN_ERROR("Lissandra.c: configuracion_inicial() - Error en leer_config();");
 	}
 	extraer_data_config();
+	extraer_data_vConfig();
 	log_info(logger_invisible, "Lissandra.c: configuracion_inicial() - Se extrajo la data del config;");
 
 	return EXIT_SUCCESS;
@@ -152,18 +153,35 @@ void extraer_data_config() {
 	config.ip = config_get_string_value(configFile, "IP");
 	config.puerto_escucha = config_get_string_value(configFile, "PUERTO_ESCUCHA");
 	config.punto_montaje = config_get_string_value(configFile, "PUNTO_MONTAJE");
-	config.retardo = config_get_string_value(configFile, "RETARDO");
 	config.tamanio_value = config_get_string_value(configFile, "TAMANIO_VALUE");
-	config.tiempo_dump = config_get_string_value(configFile, "TIEMPO_DUMP");
+}
+
+void extraer_data_vConfig(){
+	vconfig.retardo = extraer_retardo;
+	vconfig.tiempoDump = extraer_tiempoDump;
+}
+
+int extraer_retardo(){
+	t_config *tmpConfigFile = config_create(STANDARD_PATH_LFS_CONFIG);
+	int res = config_get_int_value(tmpConfigFile, "RETARDO");
+	config_destroy(tmpConfigFile);
+	return res;
+}
+
+int extraer_tiempoDump(){
+	t_config *tmpConfigFile = config_create(STANDARD_PATH_LFS_CONFIG);
+	int res = config_get_int_value(tmpConfigFile, "TIEMPO_DUMP");
+	config_destroy(tmpConfigFile);
+	return res;
 }
 
 void ver_config(){
 	log_info(logger_visible, BLU "IP=%s" STD, config.ip);
 	log_info(logger_visible, BLU "PUERTO_ESCUCHA=%s" STD, config.puerto_escucha);
 	log_info(logger_visible, BLU "PUNTO_MONTAJE=%s" STD, config.punto_montaje);
-	log_info(logger_visible, BLU "RETARDO=%s" STD, config.retardo);
+	//log_info(logger_visible, BLU "RETARDO=%s" STD, config.retardo);
 	log_info(logger_visible, BLU "TAMANIO_VALUE=%s" STD, config.tamanio_value);
-	log_info(logger_visible, BLU "TIEMPO_DUMP=%s" STD, config.tiempo_dump);
+	//log_info(logger_visible, BLU "TIEMPO_DUMP=%s" STD, config.tiempo_dump);
 }
 /*FIN FUNCIONES CONFIG*/
 
@@ -226,7 +244,7 @@ Operacion ejecutarOperacion(char* input) {
 
 	log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - Mensaje recibido %s", input);
 
-	usleep(atoi(config.retardo)*1000);
+	usleep(atoi(vconfig.retardo)*1000);
 
 	if (parsed->valido) {
 		switch (parsed->keyword){
@@ -331,7 +349,7 @@ void* dump(){
 	pthread_detach(pthread_self());
 
 	for(;;){
-		usleep(atoi(config.tiempo_dump) * 1000);
+		usleep((int)vconfig.tiempoDump * 1000);
 		dictionary_iterator(memtable, (void*) dumpTabla);
 	}
 	return NULL;
