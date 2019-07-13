@@ -221,6 +221,8 @@ int iniciar_consola() {
 int configuracion_inicial() {
 	//INICIALIZAR SEMAFOROS
 	sem_init(&journal, 0, 1);
+	pthread_mutex_init(&mutexMemoria, NULL);
+	pthread_mutex_init(&mutexTablaSegmentos, NULL);
 
 	mkdir("Logs", 0777); //Crea la carpeta Logs junto al ejecutable (si ya existe no toca nada de lo que haya adentro)
 
@@ -372,6 +374,8 @@ void memoriaConUnSegmentoYUnaPagina(void) { //TODO: se podrian usar las de manej
 	crearRegistroEnTabla(segmentoEjemplo->tablaPaginas, indiceMarcoEjemplo, false);
 
 	//Agregar segmento Ejemplo a tabla de segmentos
+	//pthread_mutex_lock(&mutexTablaSegmentos);
+	//pthread_mutex_unlock(&mutexTablaSegmentos);
 	list_add(tablaSegmentos.listaSegmentos, (segmento_t*) segmentoEjemplo);
 
 }

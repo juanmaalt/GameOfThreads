@@ -190,21 +190,16 @@ void crearTablaEnMemtable(char* nombreTabla){
 
 
 void setPathTabla(char* path, char* nombreTabla){
-	strcpy(path,config.punto_montaje);
-	strcat(path, "Tables/");
-	strcat(path, nombreTabla);
+	string_from_format("%sTables/%s", config.punto_montaje, nombreTabla);
 }
 
 void crearDirectorioTabla(char* path){
 	crearDirectorio(path);
-	strcat(path,"/");
 }
 
 
 void crearArchivo(char* path, char* nombre){
-	char* pathArchivo = malloc(110 * sizeof(char));
-	strcpy(pathArchivo,path);
-	strcat(pathArchivo, nombre);
+	char* pathArchivo = string_from_format("%s%s", path, nombre);
 
 	//printf("archivo creado en: %s\n", pathArchivo);
 
@@ -212,7 +207,6 @@ void crearArchivo(char* path, char* nombre){
 	file = fopen(pathArchivo,"w");
 
 	fclose(file);
-	free(pathArchivo);
 }
 
 void escribirArchivoMetadata(char* path, Comando comando){
@@ -234,50 +228,36 @@ void escribirArchivoMetadata(char* path, Comando comando){
 }
 
 void crearArchivosBinarios(char* path, int particiones){
-	char* pathArchivo = malloc(2000 * sizeof(char));
-	char filename[10];
+	char* pathArchivo = string_from_format(path);
+	char* filename=string_new();
 	FILE* binario;
 
 	for(int i=0;i<particiones;i++){
-		sprintf(filename, "%d.bin", i);
+		filename=string_from_format("%d.bin", i);
 		crearArchivo(path, filename);
-		strcpy(pathArchivo, path);
-		strcat(pathArchivo, filename);
+		string_append(&pathArchivo, filename);
 
 		int bloque = getBloqueLibre();
 		binario = txt_open_for_append(pathArchivo);
 		txt_write_in_file(binario, string_from_format("SIZE=0\nBLOCKS=[%d]\n",bloque));
 	}
-	free(pathArchivo);
-	free(binario);
+	fclose(binario);
 }
 
 void insertInFile(char* path, int particionNbr, char* key, char* value){
 	FILE* fParticion;
 
-	char* pathArchivo = malloc(2000 * sizeof(char));
-	char filename[6];
-	sprintf(filename, "%d.bin", particionNbr);
-
-	strcpy(pathArchivo,path);
-	strcat(pathArchivo, "/");
-	strcat(pathArchivo, filename);
+	char* filename=string_from_format("%d.bin", particionNbr);
+	char* pathArchivo = string_from_format("%s/%s", path, filename);
 
 	fParticion = fopen(pathArchivo,"a");
 
-	char* keyValue = malloc(1000 * sizeof(char));
-	strcpy(keyValue, key);
-	strcat(keyValue, ";");
-	strcat(keyValue, value);
-
-
+	char* keyValue = string_from_format("%s;%s", key, value);
 
 	fprintf (fParticion, "%s",keyValue);
 
 	free(keyValue);
 	fclose(fParticion);
-	free(pathArchivo);
-
 }
 
 void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombreTabla, Operacion *resultadoDescribe){

@@ -430,6 +430,9 @@ Operacion journalAPI(){
 	sem_wait(&journal);
 //	usleep(500000000);
 	//printf("TERMINO SLEEP JOURNAL\n");
+
+	pthread_mutex_lock(&mutexTablaSegmentos);
+
 	void recorrerSegmento(void * segmento){
 
 		void enviarRegistroModificado(void* registro){
@@ -461,11 +464,15 @@ Operacion journalAPI(){
 	list_iterate(tablaSegmentos.listaSegmentos, recorrerSegmento);
 
 
+
 	void dropearTablas(void * segmento){
 		removerSegmentoDeTabla(((segmento_t *) segmento));
 		liberarSegmento(((segmento_t *) segmento));
 	}
 	list_iterate(tablaSegmentos.listaSegmentos, dropearTablas);
+
+	pthread_mutex_unlock(&mutexTablaSegmentos);
+
 	//
 	/* CODIGO EJEMPLO
 	 *
@@ -490,6 +497,7 @@ Operacion journalAPI(){
 	resultadoJournal.TipoDeMensaje = TEXTO_PLANO;
 	resultadoJournal.Argumentos.TEXTO_PLANO.texto = string_from_format(
 						"Journal realizado con exito");
+
 
 	sem_post(&journal);
 	return resultadoJournal;
