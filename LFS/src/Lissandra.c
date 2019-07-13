@@ -250,7 +250,7 @@ Operacion ejecutarOperacion(char* input) {
 	if (parsed->valido) {
 		switch (parsed->keyword){
 		case SELECT:
-			if(!dictionary_has_key(diccCompactacion, parsed->argumentos.SELECT.nombreTabla)){
+			if(dictionary_has_key(diccCompactacion, parsed->argumentos.SELECT.nombreTabla)){
 				listaInputs=dictionary_get(diccCompactacion, parsed->argumentos.SELECT.nombreTabla);
 				list_add(listaInputs, string_from_format(input));
 			}else{retorno = selectAPI(*parsed);}
@@ -275,7 +275,7 @@ Operacion ejecutarOperacion(char* input) {
 			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <DESCRIBE> Mensaje de retorno \"%s\"", retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
 			break;
 		case DROP:
-			if(!dictionary_has_key(diccCompactacion, parsed->argumentos.DROP.nombreTabla)){
+			if(dictionary_has_key(diccCompactacion, parsed->argumentos.DROP.nombreTabla)){
 				listaInputs=dictionary_get(diccCompactacion, parsed->argumentos.DROP.nombreTabla);
 				list_add(listaInputs, string_from_format(input));
 			}else{retorno = dropAPI(*parsed);}
