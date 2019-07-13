@@ -207,7 +207,7 @@ void handshakeMemoria(int socketMemoria) {
 
 	switch (handshake.TipoDeMensaje) {
 		case TEXTO_PLANO:
-			if (string_equals_ignore_case(handshake.Argumentos.TEXTO_PLANO.texto, "handshake pathLFS") == 0) {
+			if (string_equals_ignore_case(handshake.Argumentos.TEXTO_PLANO.texto, "handshake pathLFS")) {
 				destruir_operacion(handshake);
 				handshake.TipoDeMensaje = TEXTO_PLANO;
 				handshake.Argumentos.TEXTO_PLANO.texto=string_from_format(config.punto_montaje);
@@ -249,14 +249,14 @@ Operacion ejecutarOperacion(char* input) {
 	if (parsed->valido) {
 		switch (parsed->keyword){
 		case SELECT:
-			if(dictionary_has_key(diccCompactacion, parsed->argumentos.SELECT.nombreTabla)){
+			if(!dictionary_has_key(diccCompactacion, parsed->argumentos.SELECT.nombreTabla)){
 				t_list* listaInputs=dictionary_get(diccCompactacion, parsed->argumentos.SELECT.nombreTabla);
 				list_add(listaInputs, string_from_format(input));
 			}else{retorno = selectAPI(*parsed);}
 			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <SELECT> Mensaje de retorno \"%llu;%d;%s\"", retorno.Argumentos.REGISTRO.timestamp, retorno.Argumentos.REGISTRO.key, retorno.Argumentos.REGISTRO.value);
 			break;
 		case INSERT:
-			if(dictionary_has_key(diccCompactacion, parsed->argumentos.INSERT.nombreTabla)){
+			if(!dictionary_has_key(diccCompactacion, parsed->argumentos.INSERT.nombreTabla)){
 				t_list* listaInputs=dictionary_get(diccCompactacion, parsed->argumentos.INSERT.nombreTabla);
 				list_add(listaInputs, string_from_format(input));
 			}else{retorno = insertAPI(*parsed);}
@@ -271,7 +271,7 @@ Operacion ejecutarOperacion(char* input) {
 			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <DESCRIBE> Mensaje de retorno \"%s\"", retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
 			break;
 		case DROP:
-			if(dictionary_has_key(diccCompactacion, parsed->argumentos.DROP.nombreTabla)){
+			if(!dictionary_has_key(diccCompactacion, parsed->argumentos.DROP.nombreTabla)){
 				t_list* listaInputs=dictionary_get(diccCompactacion, parsed->argumentos.DROP.nombreTabla);
 				list_add(listaInputs, string_from_format(input));
 			}else{retorno = dropAPI(*parsed);}
