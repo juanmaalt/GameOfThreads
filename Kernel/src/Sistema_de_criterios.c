@@ -129,10 +129,6 @@ int asociar_memoria(char *numeroMemoria, char *consistencia){
 
 
 int procesar_describe(char *cadenaResultadoDescribe){
-	if(cadenaResultadoDescribe == NULL){ //TODO: es inestable
-		printf("No existen tablas\n");
-		return EXIT_SUCCESS;
-	}
 	if(tablasExistentes == NULL)
 		return EXIT_FAILURE;
 	//TODO: bug encontrado: las tablas que se dan de bajas quedan purulando en la memoria. Este codigo solo las remueve, no libera
