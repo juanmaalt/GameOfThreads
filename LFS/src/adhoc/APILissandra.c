@@ -45,9 +45,13 @@ Operacion selectAPI(Comando comando){
 	/*Creo la lista de valores que condicen con dicha key*/
 	t_list* listaDeValues = list_create();
 
+	/*Busco en Memtable*/
 	listaDeValues=buscarValueEnLista(data, comando.argumentos.SELECT.key);
-	//buscarValueEnFiles(comando.argumentos.SELECT.nombreTabla, particionNbr, comando.argumentos.SELECT.key, &listaDeValues);
+	/*Busco en Temporales*/
 	leerTemps(comando.argumentos.SELECT.nombreTabla, comando.argumentos.SELECT.key, listaDeValues);
+	/*Busco en Bloques*/
+	char* listaDeBloques= obtenerListaDeBloques(particionNbr, comando.argumentos.SELECT.nombreTabla);
+	list_add(listaDeValues, (void*)(fseekBloque(atoi(comando.argumentos.SELECT.key), listaDeBloques)));
 
 	/*Recorro la tabla y obtengo el valor más reciente*/
 	//recorrerTabla(listaDeValues);//Función ad-hoc para testing

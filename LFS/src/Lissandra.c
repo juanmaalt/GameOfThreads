@@ -431,6 +431,44 @@ void dumpRegistro(FILE* file, Registro* registro) {
 }
 /*FIN FUNCIONES DUMP*/
 
+/*INICIO FSEEK*/
+Registro* fseekBloque(int key, char* listaDeBloques){
+	Registro* reg = malloc(sizeof(Registro));
+	reg->key = key;
+	reg->value = NULL;
+	reg->timestamp=0;
+	char** bloques = string_get_string_as_array(listaDeBloques);
+/*
+	FILE* fBloque;
+	int i=0;
+
+	char* linea = string_new();
+	char ch;
+
+	while(bloques[i]!=NULL){
+		char* pathBloque = string_from_format("%sBloques/%s.bin", config.punto_montaje, bloques[i]);
+		fBloque = fopen(pathBloque, "r");
+		while(fBloque!= EOF){
+			while((ch = getc(fBloque)) !='\n'){
+				string_append(ch, linea);
+			}
+			if(string_ends_with(linea, "\n")){
+				char** lineaParseada = string_split(linea,";");
+				if(atoi(lineaParseada[1])==key){
+					reg->value = lineaParseada[2];
+					reg->timestamp=atoll(lineaParseada[0]);
+					return reg;
+				}else{linea="";}
+			}
+		}
+
+	}
+*/
+	return reg;
+}
+/*FIN FSEEK*/
+
+
 void rutinas_de_finalizacion(){
 	printf(BLU"\n█▀▀▀ █▀▀█ █▀▄▀█ █▀▀ 　 █▀▀█ █▀▀ 　 ▀▀█▀▀ █░░█ █▀▀█ █▀▀ █▀▀█ █▀▀▄ █▀▀ \n█░▀█ █▄▄█ █░▀░█ █▀▀ 　 █░░█ █▀▀ 　 ░░█░░ █▀▀█ █▄▄▀ █▀▀ █▄▄█ █░░█ ▀▀█ \n▀▀▀▀ ▀░░▀ ▀░░░▀ ▀▀▀ 　 ▀▀▀▀ ▀░░ 　 ░░▀░░ ▀░░▀ ▀░▀▀ ▀▀▀ ▀░░▀ ▀▀▀░ ▀▀▀ \n\n"STD);
 	log_info(logger_invisible, "=============Finalizando LFS=============");
