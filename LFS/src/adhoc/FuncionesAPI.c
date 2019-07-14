@@ -70,30 +70,6 @@ t_list* buscarValueEnLista(t_list* data, char* key){
 
 	return list_filter(data, compararConItem);
 }
-/*
-void buscarValueEnFiles(char* nombreTabla, char* key, int particionNbr, t_list* listaDeValues){
-	char* path = string_from_format("%sTables/%s", config.punto_montaje, nombreTabla);
-	char* listaDeBloques= obtenerListaDeBloques(particionNbr, nombreTabla);
-	char** bloques = string_get_string_as_array(listaDeBloques);
-
-	FILE* fBloque;
-    int timestamp, fkey;
-    char value[atoi(config.tamanio_value)];
-	int i=0;
-
-	while(bloques[i]!=NULL){
-		char* pathBloque = string_from_format("%sBloques/%s.bin", config.punto_montaje, bloques[i]);
-		fBloque = fopen(pathBloque, "r");
-		while(fBloque!= EOF){
-			fscanf(fBloque, "%d;%d;%[^\n]s", &timestamp, &fkey, value);
-			if(fkey==atoi(key)){
-				printf("key: %d\n");
-			}
-		}
-	}
-
-}
-*/
 
 void leerTemps(char* nombreTabla, char* key, t_list* listaDeValues){
 	char* pathTabla = string_from_format("%sTables/%s", config.punto_montaje, nombreTabla);
@@ -201,7 +177,7 @@ void crearDirectorioTabla(char* path){
 void crearArchivo(char* path, char* nombre){
 	char* pathArchivo = string_from_format("%s%s", path, nombre);
 
-	printf("archivo creado en: %s\n", pathArchivo);
+	//printf("archivo creado en: %s\n", pathArchivo);
 
 	FILE* file=NULL;
 	file = fopen(pathArchivo,"w");

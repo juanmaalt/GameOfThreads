@@ -159,11 +159,14 @@ Operacion createAPI(Comando comando){
 	/*Creo la Tabla en la Memtable*/
 	crearTablaEnMemtable(comando.argumentos.CREATE.nombreTabla);
 
+	/*Inicio el proceso de compactación*/
+	/*TODO:arreglar
 	char* nombreTabla = string_from_format(comando.argumentos.CREATE.nombreTabla);
 	if(iniciarCompactacion(nombreTabla) == EXIT_FAILURE){
 		log_error(logger_error,"APILissandra.c: <CREATE> No se pudo iniciar el hilo de compactación");
 		return resultadoCreate;
 	}
+	*/
 
 	/*Loggeo el CREATE exitoso y le aviso a la Memoria*/
 	log_info(logger_invisible, "CREATE realizado con éxito.");
@@ -183,7 +186,7 @@ Operacion describeAPI(Comando comando){
 	char* path = string_from_format("%sTables/", config.punto_montaje);
 	//char* pathMetadata = malloc(1000 * sizeof(char));
 
-	char* string=NULL;
+	char* string=NULL;//TODO: esto podría traer condición de carrera
 
 	getStringDescribe(path, path, string, comando.argumentos.DESCRIBE.nombreTabla, &resultadoDescribe);
 	//printf("Describe_string: %s\n", resultadoDescribe.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
