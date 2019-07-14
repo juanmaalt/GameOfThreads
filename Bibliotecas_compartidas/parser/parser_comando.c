@@ -40,36 +40,60 @@ Comando parsear_comando(char* line){
 
 	if(string_equals_ignore_case(keyword, "SELECT")){
 		if(split[1] == NULL || split[2] == NULL){
-			fprintf(stderr, RED"Error sintactico, SELECT [NOMBRE_TABLA] [KEY]"STD"\n");
+			fprintf(stderr, RED"Error sintactico, SELECT [NOMBRE_TABLA(char*)] [KEY(int)]"STD"\n");
 			RETURN_ERROR;
+		}else{
+			if(!esAlfaNumerica(split[1]) || !esNumerica(split[2])){
+				fprintf(stderr, RED"Error sintactico, SELECT [NOMBRE_TABLA(char*)] [KEY(int)]"STD"\n");
+				RETURN_ERROR;
+			}
 		}
 	}
 
 	if(string_equals_ignore_case(keyword, "INSERT")){
 		if(split[1] == NULL || split[2] == NULL || split[3] == NULL){ //El insert puede no tener timestamp, es decir, split[4]
-			fprintf(stderr, RED"Error sintactico, INSERT [NOMBRE_TABLA] [KEY] “[VALUE]” [TIMESTAMP(opcional)]"STD"\n");
+			fprintf(stderr, RED"Error sintactico, INSERT [NOMBRE_TABLA(cadena)] [KEY(numerico)] “[VALUE(cadena)]” [TIMESTAMP(numerico, opcional)]"STD"\n");
 			RETURN_ERROR;
+		}else{
+			if(!esAlfaNumerica(split[1]) || !esNumerica(split[2]) || !esAlfaNumerica(split[3])){
+				fprintf(stderr, RED"Error sintactico, INSERT [NOMBRE_TABLA(cadena)] [KEY(numerico)] “[VALUE(cadena)]” [TIMESTAMP(numerico, opcional)]"STD"\n");
+				RETURN_ERROR;
+			}
+			if(split[4] != NULL && !esNumerica(split[4])){
+				fprintf(stderr, RED"Error sintactico, INSERT [NOMBRE_TABLA(char*)] [KEY(int)] “[VALUE(char*)]” [TIMESTAMP(int, opcional)]"STD"\n");
+				RETURN_ERROR;
+			}
 		}
 	}
 
 	if(string_equals_ignore_case(keyword, "CREATE")){
 		if(split[1] == NULL || split[2] == NULL || split[3] == NULL || split[4] == NULL){
-			fprintf(stderr, RED"Error sintactico, CREATE [NOMBRE_TABLA] [TIPO_CONSISTENCIA] [NUMERO_PARTICIONES] [COMPACTION_TIME]"STD"\n");
+			fprintf(stderr, RED"Error sintactico, CREATE [NOMBRE_TABLA(cadena)] [TIPO_CONSISTENCIA(SC|SHC|EC)] [NUMERO_PARTICIONES(numerico)] [COMPACTION_TIME(numerico)]"STD"\n");
+			RETURN_ERROR;
+		}else{
+			if(!esAlfaNumerica(split[1]) || !esConsistenciaValida(split[2]) || !esNumerica(split[3]) || !esNumerica(split[4])){
+				fprintf(stderr, RED"Error sintactico, CREATE [NOMBRE_TABLA(cadena)] [TIPO_CONSISTENCIA(SC|SHC|EC)] [NUMERO_PARTICIONES(numerico)] [COMPACTION_TIME(numerico)]"STD"\n");
+				RETURN_ERROR;
+			}
+		}
+	}
+
+	if(string_equals_ignore_case(keyword, "DESCRIBE")){
+		if(split[1] != NULL && !esAlfaNumerica(split[1])){
+			fprintf(stderr, RED"Error sintactico, DESCRIBE [NOMBRE_TABLA(cadena, opcional)]"STD"\n");
 			RETURN_ERROR;
 		}
 	}
 
-	/*if(string_equals_ignore_case(keyword, "DESCRIBE")){
-		if(split[1] == NULL){
-			fprintf(stderr, RED"Error sintactico, DESCRIBE [NOMBRE_TABLA(opcional)]"STD"\n");
-			RETURN_ERROR;
-		}
-	}*/
-
 	if(string_equals_ignore_case(keyword, "DROP")){
 		if(split[1] == NULL){
-			fprintf(stderr, RED"Error sintactico, DROP [NOMBRE_TABLA]"STD"\n");
+			fprintf(stderr, RED"Error sintactico, DROP [NOMBRE_TABLA(cadena)]"STD"\n");
 			RETURN_ERROR;
+		}else{
+			if(!esAlfaNumerica(split[1])){
+				fprintf(stderr, RED"Error sintactico, DROP [NOMBRE_TABLA(cadena)]"STD"\n");
+				RETURN_ERROR;
+			}
 		}
 	}
 
@@ -82,16 +106,21 @@ Comando parsear_comando(char* line){
 
 	if(string_equals_ignore_case(keyword, "ADD")){
 		if(split[1] == NULL || split[2] == NULL || split[3] == NULL || split[4] == NULL){
-			fprintf(stderr, RED"Error sintactico, ADD MEMORY [NÚMERO] TO [CRITERIO]"STD"\n");
+			fprintf(stderr, RED"Error sintactico, ADD MEMORY [NÚMERO(int)] TO [CRITERIO(SC|SHC|EC)]"STD"\n");
 			RETURN_ERROR;
-		}
-		if(!string_equals_ignore_case(split[1], "MEMORY")){
-			fprintf(stderr, RED"Error sintactico, ADD MEMORY [NÚMERO] TO [CRITERIO]"STD"\n");
-			RETURN_ERROR;
-		}
-		if(!string_equals_ignore_case(split[3], "TO")){
-			fprintf(stderr, RED"Error sintactico, ADD MEMORY [NÚMERO] TO [CRITERIO]"STD"\n");
-			RETURN_ERROR;
+		}else{
+			if(!string_equals_ignore_case(split[1], "MEMORY")){
+				fprintf(stderr, RED"Error sintactico, ADD MEMORY [NÚMERO(int)] TO [CRITERIO(SC|SHC|EC)]"STD"\n");
+				RETURN_ERROR;
+			}
+			if(!string_equals_ignore_case(split[3], "TO")){
+				fprintf(stderr, RED"Error sintactico, ADD MEMORY [NÚMERO(int)] TO [CRITERIO(SC|SHC|EC)]"STD"\n");
+				RETURN_ERROR;
+			}
+			if(!esNumerica(split[2]) || !esConsistenciaValida(split[4])){
+				fprintf(stderr, RED"Error sintactico, ADD MEMORY [NÚMERO(int)] TO [CRITERIO(SC|SHC|EC)]"STD"\n");
+				RETURN_ERROR;
+			}
 		}
 	}
 
@@ -247,7 +276,6 @@ int comando_validar(Comando parsed){
             default:
                 return EXIT_FAILURE;
         }
-        //destruir_operacion(parsed);
     } else {
         return EXIT_FAILURE;
     }
@@ -272,4 +300,28 @@ char *remover_new_line(char* cadena){
 	retorno = realloc(retorno, sizeof(char)*(strlen(retorno)+1));
 	retorno[strlen(retorno)]='\0';
 	return retorno;
+}
+
+bool esAlfaNumerica(char* cadena){
+	for(int i=0; cadena[i]!='\n' && cadena[i]!='\0' && cadena[i]!=' '; ++i)
+		if(!isalnum((int)cadena[i]))
+			return false;
+	return true;
+}
+
+bool esNumerica(char* cadena){
+	for(int i=0; cadena[i]!='\n' && cadena[i]!='\0' && cadena[i]!=' '; ++i)
+		if(!isdigit((int)cadena[i]))
+			return false;
+	return true;
+}
+
+bool esConsistenciaValida(char* cadena){
+	if(string_equals_ignore_case(cadena, "SC") || string_equals_ignore_case(cadena, "EC") || string_equals_ignore_case(cadena, "SHC"))
+		return true;
+	return false;
+}
+
+bool esValue(char* cadena){
+	return true;
 }

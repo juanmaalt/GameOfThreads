@@ -27,6 +27,7 @@
 	#include <stdbool.h>
 	#include <commons/string.h>
 	#include <string.h>
+	#include <ctype.h>
 
 	typedef struct {
 		bool valido;
@@ -141,8 +142,29 @@
 	*/
 	char *remover_new_line(char* cadena);
 
+	/**
+	* @NAME: esAlfaNumerica
+	* @DESC: esAlfaNumerica
+	*/
+	bool esAlfaNumerica(char* cadena);
 
+	/**
+	* @NAME: esNumerica
+	* @DESC: esNumerica
+	*/
+	bool esNumerica(char* cadena);
 
+	/**
+	* @NAME: esConsistenciaValida
+	* @DESC: esConsistenciaValida
+	*/
+	bool esConsistenciaValida(char* cadena);
+
+	/**
+	* @NAME: esValue
+	* @DESC: esValue
+	*/
+	bool esValue(char* cadena);
 
 
 #endif /* PARSER_H_ */
