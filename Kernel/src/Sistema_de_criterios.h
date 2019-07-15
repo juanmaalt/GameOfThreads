@@ -160,7 +160,9 @@ t_list *tablasExistentes;
 	* @NAME: agregar_sin_repetidos
 	* @DESC: agrega los elementos de la lista fuente a la lista destino omitiendo los repetidos. La forma de saber si hay
 	* 		 repetidos es un particular del lugar donde se usa. Como se usa con memorias, se usa el numero de memoria
-	* 		 para comparar. No es una funcion muy reutilizable si no le pasamos por argumento alguna closure de comparacion
+	* 		 para comparar. Ademas, remueve de la lista fuente el elemento que que pudo agregar, para que al final de la
+	* 		 operacion se pueda hacer un destroy de la lista y sus nodos restantes. No es una funcion muy reutilizable
+	* 		 si no le pasamos por argumento alguna closure de comparacion
 	*/
 	void agregar_sin_repetidos(t_list *destino, t_list *fuente);
 
@@ -178,5 +180,17 @@ t_list *tablasExistentes;
 	* 		 si un determinado objeto tabla esta en la lista. Yo pregunto si el nombre de una tabla esta en la lista.
 	*/
 	bool tabla_esta_en_la_lista(char *tabla);
+
+	/**
+	* @NAME: eliminar_todas_las_tablas
+	* @DESC: eliminar_todas_las_tablas de la lista de tablasExistentes borrando lista y nodos
+	*/
+	void eliminar_todas_las_tablas();
+
+	/**
+	* @NAME: eliminar_todas_las_memorias
+	* @DESC: eliminar_todas_las_memorias de la lista pasada por arguento eliminando lista y nodos
+	*/
+	void eliminar_todas_las_memorias(t_list *lista);
 
 #endif /* SISTEMA_DE_CRITERIOS_H_ */

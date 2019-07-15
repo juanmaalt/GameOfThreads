@@ -234,9 +234,9 @@ static ResultadoEjecucionInterno exec_file_lql(PCB *pcb){
 		target.operacionExitosa = true;
 		target.finOperacion = getCurrentTime();
 		generar_estadisticas(&target);
+		destruir_operacion(request);
 		close(target.socket);
 	}
-	destruir_operacion(request);
 	printf("\n");
 	sem_wait(&meterEnReadyDeAUno);
 	desalojar(pcb);

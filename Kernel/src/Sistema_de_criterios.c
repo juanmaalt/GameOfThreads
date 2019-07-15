@@ -184,7 +184,7 @@ int procesar_describe_simple(char *cadenaResultadoDescribe, char *instruccionAct
 		}
 		//En este caso si la tabla se encuentra no hago nada. Para mejorar la robustez podria hacer que el machear tabla busque coincidencias por mas atributos de la tabla y no solo por el nombre
 	}
-
+	destruir_split_tablas(descompresion);
 	return EXIT_SUCCESS;
 }
 
@@ -306,6 +306,7 @@ void agregar_sin_repetidos(t_list *destino, t_list *fuente){
 		}
 		if(!list_any_satisfy(destino, buscar)){
 			list_add(destino, elementoFuente);
+			list_remove_by_condition(fuente, buscar);
 		}
 	}
 	list_iterate(fuente, agregar_distinct);
@@ -339,6 +340,27 @@ bool tabla_esta_en_la_lista(char *tabla){
 		return !strcmp(tabla, ((MetadataTabla*)elemento)->nombre); //Devuelve 0 (falso) si son iguales
 	}
 	return list_any_satisfy(tablasExistentes, buscar);
+}
+
+
+
+
+
+void eliminar_todas_las_tablas(){
+	procesar_describe_global(NULL);
+}
+
+
+
+
+
+void eliminar_todas_las_memorias(t_list *lista){
+	void borrar_memoria(void *memoria){
+		free(((Memoria*)memoria)->ip);
+		free(((Memoria*)memoria)->puerto);
+		free((Memoria*)memoria);
+	}
+	list_destroy_and_destroy_elements(lista, borrar_memoria);
 }
 
 

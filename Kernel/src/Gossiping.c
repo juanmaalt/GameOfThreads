@@ -10,7 +10,6 @@
 static void *main_gossiping(void *null);
 static void hacer_gossiping(void *memoria);
 static void modo_de_recuperacion(void);
-static void reiniciar_metadatas_tablas();
 
 
 
@@ -59,7 +58,7 @@ static void hacer_gossiping(void *memoria){
 			seedsDeLaMemoria = procesar_gossiping(op.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 	destruir_operacion(op);
 	agregar_sin_repetidos(memoriasExistentes, seedsDeLaMemoria);
-	list_destroy(seedsDeLaMemoria);
+	eliminar_todas_las_memorias(seedsDeLaMemoria);
 	close(socketMem);
 }
 
@@ -71,7 +70,7 @@ static void modo_de_recuperacion(){
 	int memoriaPrincipal = connect_to_server(fconfig.ip_memoria_principal, fconfig.puerto_memoria_principal);
 
 	if(memoriaPrincipal == EXIT_FAILURE)
-		reiniciar_metadatas_tablas();
+		eliminar_todas_las_tablas();
 
 	for(;memoriaPrincipal == EXIT_FAILURE; memoriaPrincipal = connect_to_server(fconfig.ip_memoria_principal, fconfig.puerto_memoria_principal)){
 		log_info(logger_visible, YEL"Modo de recuperacion: todas las memorias estan caidas. Esperando a la memoria principal %s:%s"STD, fconfig.ip_memoria_principal, fconfig.puerto_memoria_principal);
@@ -89,7 +88,7 @@ static void modo_de_recuperacion(){
 	listaConLaMemoriaPrincipal = procesar_gossiping(ping.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 	destruir_operacion(ping);
 	agregar_sin_repetidos(memoriasExistentes, listaConLaMemoriaPrincipal);
-	list_destroy(listaConLaMemoriaPrincipal);
+	eliminar_todas_las_memorias(listaConLaMemoriaPrincipal);
 	close(memoriaPrincipal);
 	return;
 }
