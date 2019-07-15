@@ -166,5 +166,20 @@
 	*/
 	bool esValue(char* cadena);
 
+	/**
+	* @NAME: string_double_split
+	* @DESC: separa una cadena en partes dado firstSeparator. Si encuentra secondSepartor, crea un nuevo token hasta la
+	* 		 aparicion de otro secondSeparator y luego sigue usando firstSeparator. Por ejemplo, si firstSeparator es
+	* 		 un espacio y secondSeparator es una comilla:
+	* 		 input: INSERT ANIMALES 532 "PEPA PIG" 43151
+	* 		 output: -INSERT
+	* 		 		 -ANIMALES
+	* 		 		 -532
+	* 		 		 -"PEPA PIG"
+	* 		 		 -43151
+	* 		Nota: la funcion no esta muy pulida, y por algunas optimizaciones solo funciona bien en este parser.
+	*/
+	char **string_double_split(char *cadena, char *firstSeprator, char *secondSeparator);
+
 
 #endif /* PARSER_H_ */

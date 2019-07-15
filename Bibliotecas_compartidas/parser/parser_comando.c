@@ -10,7 +10,7 @@
 
 void destruir_comando(Comando op){
 	if(op._raw){
-		string_iterate_lines(op._raw, (void*) free);
+		string_iterate_lines(op._raw, (void*)free);
 		free(op._raw);
 	}
 }
@@ -27,7 +27,8 @@ Comando parsear_comando(char* line){
 
 	char* auxLine = string_duplicate(line);
 	string_trim(&auxLine);
-	char** split = string_n_split(auxLine, 5, " ");
+	char** split = string_double_split(auxLine, " ", "\"");
+	//char** split = string_n_split(auxLine, 5, " ");
 
 	char* keyword = split[0];
 	//char* clave = split[1];
@@ -53,15 +54,15 @@ Comando parsear_comando(char* line){
 	if(string_equals_ignore_case(keyword, "INSERT")){
 		if(split[1] == NULL || split[2] == NULL || split[3] == NULL){ //El insert puede no tener timestamp, es decir, split[4]
 			fprintf(stderr, RED"Error sintactico, INSERT [NOMBRE_TABLA(cadena)] [KEY(numerico)] “[VALUE(cadena)]” [TIMESTAMP(numerico, opcional)]"STD"\n");
-			RETURN_ERROR;
+			printf("1\n");RETURN_ERROR;
 		}else{
-			if(!esAlfaNumerica(split[1]) || !esNumerica(split[2]) || !esAlfaNumerica(split[3])){
+			if(!esAlfaNumerica(split[1]) || !esNumerica(split[2]) || !esValue(split[3])){
 				fprintf(stderr, RED"Error sintactico, INSERT [NOMBRE_TABLA(cadena)] [KEY(numerico)] “[VALUE(cadena)]” [TIMESTAMP(numerico, opcional)]"STD"\n");
-				RETURN_ERROR;
+				printf("2\n");RETURN_ERROR;
 			}
-			if(split[4] != NULL && !esNumerica(split[4])){
+			else if(split[4] != NULL && !esNumerica(split[4])){
 				fprintf(stderr, RED"Error sintactico, INSERT [NOMBRE_TABLA(char*)] [KEY(int)] “[VALUE(char*)]” [TIMESTAMP(int, opcional)]"STD"\n");
-				RETURN_ERROR;
+				printf("3\n");RETURN_ERROR;
 			}
 		}
 	}
@@ -113,11 +114,11 @@ Comando parsear_comando(char* line){
 				fprintf(stderr, RED"Error sintactico, ADD MEMORY [NÚMERO(int)] TO [CRITERIO(SC|SHC|EC)]"STD"\n");
 				RETURN_ERROR;
 			}
-			if(!string_equals_ignore_case(split[3], "TO")){
+			else if(!string_equals_ignore_case(split[3], "TO")){
 				fprintf(stderr, RED"Error sintactico, ADD MEMORY [NÚMERO(int)] TO [CRITERIO(SC|SHC|EC)]"STD"\n");
 				RETURN_ERROR;
 			}
-			if(!esNumerica(split[2]) || !esConsistenciaValida(split[4])){
+			else if(!esNumerica(split[2]) || !esConsistenciaValida(split[4])){
 				fprintf(stderr, RED"Error sintactico, ADD MEMORY [NÚMERO(int)] TO [CRITERIO(SC|SHC|EC)]"STD"\n");
 				RETURN_ERROR;
 			}
@@ -283,8 +284,13 @@ int comando_validar(Comando parsed){
 }
 
 void remover_comillas(char** cadena){
-	if(string_starts_with(*cadena, "\"") && string_ends_with(*cadena, "\"")){
-		char *temp = string_substring(*cadena, 1, strlen(*cadena)-2);
+	if(string_starts_with(*cadena, "\"")){
+		char *temp = string_substring(*cadena, 1, strlen(*cadena));
+		free(*cadena);
+		*cadena = temp;
+	}
+	if(string_ends_with(*cadena, "\"")){
+		char *temp = string_substring(*cadena, 0, strlen(*cadena)-1);
 		free(*cadena);
 		*cadena = temp;
 	}
@@ -323,5 +329,58 @@ bool esConsistenciaValida(char* cadena){
 }
 
 bool esValue(char* cadena){
+	for(int i=1; cadena[i]!='\n' && cadena[i]!='\0' && cadena[i]!='"'; ++i)
+		if(cadena[i] != ' ')
+			if(!isalnum((int)cadena[i]))
+				return false;
 	return true;
 }
+
+char **string_double_split(char *cadena, char *firstSeprator, char *secondSeparator){
+	char **substrings = NULL;
+	int size = 0;
+
+	char *text_to_iterate = string_duplicate(cadena);
+
+	char *next = text_to_iterate;
+	char *str = text_to_iterate;
+
+	while(next != NULL) {
+		char* token = strtok_r(str, firstSeprator, &next);
+		if(token == NULL) {
+			break;
+		}
+
+		str = NULL;
+		size++;
+		substrings = realloc(substrings, sizeof(char*) * size);
+		substrings[size - 1] = string_duplicate(token);
+
+		if(string_starts_with(token, secondSeparator)){
+			if(next != NULL){
+				token = strtok_r(NULL, secondSeparator, &next);
+				if(token == NULL)
+					break;
+				string_append(&substrings[size-1], string_from_format(" %s", token));
+			}
+		}
+	};
+
+	if (next[0] != '\0') {
+		size++;
+		substrings = realloc(substrings, sizeof(char*) * size);
+		substrings[size - 1] = string_duplicate(next);
+	}
+
+	size++;
+	substrings = realloc(substrings, sizeof(char*) * size);
+	substrings[size - 1] = NULL;
+
+	free(text_to_iterate);
+	return substrings;
+}
+
+
+
+
+
