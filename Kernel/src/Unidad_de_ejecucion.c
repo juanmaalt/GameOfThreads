@@ -155,6 +155,7 @@ static ResultadoEjecucionInterno exec_string_comando(PCB *pcb){
 	}while(target.socket == EXIT_FAILURE);
 	if(target.socket == NULL_MEMORY){
 		free(pcb->data);
+		free(pcb->nombreArchivoLQL);
 		free(pcb);
 		log_error(logger_error, "Unidad_de_ejecucion.c: exec_string_comando: finalizando operacion.");
 		log_error(logger_invisible, "Unidad_de_ejecucion.c: exec_string_comando: finalizando operacion.");

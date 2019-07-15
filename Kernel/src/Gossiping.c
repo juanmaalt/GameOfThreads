@@ -45,6 +45,7 @@ static void *main_gossiping(void *null){
 static void hacer_gossiping(void *memoria){
 	int socket = connect_to_server(((Memoria*)memoria)->ip, ((Memoria*)memoria)->puerto);
 	if(socket == EXIT_FAILURE){
+		printf("REMOVER MEM IP:%s PUERTO:%s\n", ((Memoria*)memoria)->ip, ((Memoria*)memoria)->puerto);
 		remover_memoria((Memoria*)memoria);
 		return;
 	}
@@ -58,15 +59,11 @@ static void hacer_gossiping(void *memoria){
 	if(op.TipoDeMensaje == GOSSIPING_REQUEST)
 		if(op.Argumentos.GOSSIPING_REQUEST.resultado_comprimido != NULL)
 			seedsDeLaMemoria = procesar_gossiping(op.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
+	destruir_operacion(op);
 	agregar_sin_repetidos(memoriasExistentes, seedsDeLaMemoria);
 	list_destroy(seedsDeLaMemoria);
 
-	/*void mostarLista(void * memoria){
-		printf("%s %s %d \n",((Memoria*)memoria)->ip,((Memoria*)memoria)->puerto,((Memoria*)memoria)->numero);
-	}
-	printf(GRN"Estado de la lista despues de gossiping con una memoria del pool\n"STD);
-	list_iterate(memoriasExistentes,mostarLista);
-	printf(GRN"Fin g\n"STD);*/
+	//TODO: destruir operacion
 }
 
 
@@ -89,6 +86,7 @@ static void modo_de_recuperacion(){
 			send_msg(memoriaPrincipal, ping);
 			ping = recv_msg(memoriaPrincipal);
 			listaConLaMemoriaPrincipal = procesar_gossiping(ping.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
+			destruir_operacion(ping);
 			agregar_sin_repetidos(memoriasExistentes, listaConLaMemoriaPrincipal);
 			list_destroy(listaConLaMemoriaPrincipal);
 			close(memoriaPrincipal);

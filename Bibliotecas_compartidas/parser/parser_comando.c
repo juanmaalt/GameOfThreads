@@ -301,7 +301,9 @@ char *remover_new_line(char* cadena){
 	for(int i=1; i<strlen(cadena); ++i){
 		if(cadena[i]=='\n')
 			continue;
-		string_append(&retorno, string_from_format("%c", cadena[i]));
+		char* tmp = string_from_format("%c", cadena[i]);
+		string_append(&retorno, tmp);
+		free(tmp);
 	}
 	retorno = realloc(retorno, sizeof(char)*(strlen(retorno)+1));
 	retorno[strlen(retorno)]='\0';

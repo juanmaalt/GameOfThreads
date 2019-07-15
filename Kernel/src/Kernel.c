@@ -181,6 +181,7 @@ void mostrar_por_pantalla_config(){
 static void finalizar_todos_los_hilos(){
 	pthread_cancel(idConsola);
 	pthread_cancel(servicioMetricas);
+	pthread_cancel(gossiping);
 	void cancelar(void *hilo){
 		pthread_cancel(*(pthread_t*)hilo);
 	}
