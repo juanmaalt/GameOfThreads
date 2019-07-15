@@ -76,7 +76,7 @@ static DynamicAddressingRequest direccionar_request(char *request){
 			retorno.criterioQueSeUso = EC;
 		}else{
 			memoria = determinar_memoria_para_tabla(comando.argumentos.DESCRIBE.nombreTabla, NULL);
-			retorno.tipoOperacion = consistencia_de_tabla(comando.argumentos.DESCRIBE.nombreTabla);
+			retorno.criterioQueSeUso = consistencia_de_tabla(comando.argumentos.DESCRIBE.nombreTabla);
 		}
 		retorno.tipoOperacion = LECTURA;
 		break;
