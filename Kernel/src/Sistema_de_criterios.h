@@ -125,7 +125,7 @@ t_list *tablasExistentes;
 
 	/**
 	* @NAME: procesar_gossiping
-	* @DESC: procesa una cadena de gossiping y devuelve una lista de todas las memorias activas (levantadas)s
+	* @DESC: procesa una cadena de gossiping y devuelve una lista de todas las memorias activas (levantadas)
 	*/
 	t_list *procesar_gossiping(char *cadenaResultadoGossiping);
 

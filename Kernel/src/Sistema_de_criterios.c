@@ -19,7 +19,7 @@ static Memoria *sc_determinar_memoria(MetadataTabla *tabla); //Dada una tabla co
 static Memoria *hsc_determinar_memoria(MetadataTabla *tabla, char *key);
 static Memoria *ec_determinar_memoria(MetadataTabla *tabla);
 
-//FUNCIONES: Privadas: gestion de nuevas tablas
+//FUNCIONES: Privadas: gestion de tablas
 static MetadataTabla *crear_tabla(char* nombre, char *consistencia, char *particiones, char *tiempoEntreCompactacion);
 static Memoria *crear_memoria(int numero, char *ip, char *puerto);
 static void remover_referencia_tabla(MetadataTabla *tabla);
@@ -151,12 +151,12 @@ int procesar_describe_global(char *cadenaResultadoDescribe){
 			if(tabla == NULL) return EXIT_FAILURE; //El crear tabla puede fallar
 			list_add(listaAuxiliar, tabla); //La agrego a mi lista auxiliar
 		}else{
-			remover_referencia_tabla(tabla);
+			remover_referencia_tabla(tabla); //Remuevo la referencia de la lista de tablasExistentes para que me quede solo con las tablas que NO estaban en la cadena de describe que se proceso
 			list_add(listaAuxiliar, tabla); //Si se encuentra, agrego esa referencia de tablasExistentes a mi listaAuxiliar. Esto lo hago asi por que hay ciertos atributos que se asignan en momentos distintos, por ejemplo, a una tabla SC se le asigna una memoria, y necesito que siga siendo siempre la misma, por eso quiero usar la misma referencia a esa tabla.
 		}
 	}
 	destruir_split_tablas(descompresion);
-	list_destroy_and_destroy_elements(tablasExistentes, destruir_tabla_encontrada); //Libero las referencias de la lista que quedaron, que fueron los que se dieron de baja (indirectamente)
+	list_destroy_and_destroy_elements(tablasExistentes, destruir_tabla_encontrada); //Libero las referencias de la lista que quedaron, que fueron los que se dieron de baja (indirectamente, gracias al remover referencia que removio las que si estaban)
 	tablasExistentes = list_duplicate(listaAuxiliar); //Duplico la lista auxiliar con todos los elementos del nuevo describe, manteniendo los del anterior describe (son sus respecrtivos atributos de criterios), y eliminando los viejos (ya que nunca se agregaron a la listaAuxiliar)
 	list_destroy(listaAuxiliar);
 	return EXIT_SUCCESS;
@@ -167,12 +167,25 @@ int procesar_describe_global(char *cadenaResultadoDescribe){
 
 
 int procesar_describe_simple(char *cadenaResultadoDescribe, char *instruccionActual){
-	Comando comando = parsear_comando(instruccionActual);
 	if(cadenaResultadoDescribe == NULL){
+		Comando comando = parsear_comando(instruccionActual);
 		remover_metadata_tabla(machearTabla(comando.argumentos.DESCRIBE.nombreTabla));
+		destruir_comando(comando);
 		return EXIT_SUCCESS;
 	}
-	return EXIT_SUCCESS; //todo
+
+	MetadataTabla *tabla;
+
+	char **descompresion = descomprimir_describe(cadenaResultadoDescribe);
+	for(int i=0; descompresion[i]!= NULL; i+=4){
+		if((tabla = machearTabla(descompresion[i])) == NULL){
+			tabla = crear_tabla(descompresion[i], descompresion[i+1], descompresion[i+2], descompresion[i+2]);
+			if(tabla == NULL) return EXIT_FAILURE;
+		}
+		//En este caso si la tabla se encuentra no hago nada. Para mejorar la robustez podria hacer que el machear tabla busque coincidencias por mas atributos de la tabla y no solo por el nombre
+	}
+
+	return EXIT_SUCCESS;
 }
 
 
@@ -199,6 +212,10 @@ void mostrar_describe(char *cadenaResultadoDescribe){
 	return ;
 
 	LIST: ;
+	if(list_is_empty(tablasExistentes)){
+		printf(BLU"No se encontraron metadatas\n"STD);
+		return;
+	}
 	void mostrar(void *elemento){
 		printf(GRN"Tabla: %s | "STD, ((MetadataTabla*)elemento)->nombre);
 		printf("Consistencia: %d | ", ((MetadataTabla*)elemento)->consistencia);

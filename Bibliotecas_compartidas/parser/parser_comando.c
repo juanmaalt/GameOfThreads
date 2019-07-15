@@ -54,15 +54,15 @@ Comando parsear_comando(char* line){
 	if(string_equals_ignore_case(keyword, "INSERT")){
 		if(split[1] == NULL || split[2] == NULL || split[3] == NULL){ //El insert puede no tener timestamp, es decir, split[4]
 			fprintf(stderr, RED"Error sintactico, INSERT [NOMBRE_TABLA(cadena)] [KEY(numerico)] “[VALUE(cadena)]” [TIMESTAMP(numerico, opcional)]"STD"\n");
-			printf("1\n");RETURN_ERROR;
+			RETURN_ERROR;
 		}else{
 			if(!esAlfaNumerica(split[1]) || !esNumerica(split[2]) || !esValue(split[3])){
 				fprintf(stderr, RED"Error sintactico, INSERT [NOMBRE_TABLA(cadena)] [KEY(numerico)] “[VALUE(cadena)]” [TIMESTAMP(numerico, opcional)]"STD"\n");
-				printf("2\n");RETURN_ERROR;
+				RETURN_ERROR;
 			}
 			else if(split[4] != NULL && !esNumerica(split[4])){
 				fprintf(stderr, RED"Error sintactico, INSERT [NOMBRE_TABLA(char*)] [KEY(int)] “[VALUE(char*)]” [TIMESTAMP(int, opcional)]"STD"\n");
-				printf("3\n");RETURN_ERROR;
+				RETURN_ERROR;
 			}
 		}
 	}

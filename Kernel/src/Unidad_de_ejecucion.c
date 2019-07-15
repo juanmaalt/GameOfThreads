@@ -244,7 +244,7 @@ static ResultadoEjecucionInterno exec_file_lql(PCB *pcb){
 }
 
 
-
+//TODO: destruir operacion (los char*) y el dynamic addressing request
 
 
 static ResultadoEjecucionInterno procesar_retorno_operacion(Operacion op, PCB* pcb, char* instruccionActual){
@@ -278,8 +278,10 @@ static ResultadoEjecucionInterno procesar_retorno_operacion(Operacion op, PCB* p
 				return INSTRUCCION_ERROR;
 			}
 		}
+		instruccionActualTemp = remover_new_line(instruccionActual);
 		mostrar_describe(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
-		log_info(logger_invisible, "Resultado describe: %s", op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
+		log_info(logger_invisible, "Resultado %s: %s", instruccionActualTemp, op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
+		free(instruccionActualTemp);
 		return CONTINUAR;
 	default:
 		instruccionActualTemp = remover_new_line(instruccionActual);
