@@ -32,7 +32,7 @@ void crearDirectorioTabla(char* nombreTabla);
 void crearArchivo(char* path, char* nombre);
 void escribirArchivoMetadata(char* path, Comando comando);
 void crearArchivosBinarios(char* path, int particiones);
-void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombreTabla, Operacion *resultadoDescribe);
+void getStringDescribe(char* path, char* string, char* nombreTabla, Operacion *resultadoDescribe);
 int removerDirectorio(char *path);
 void limpiarBloquesEnBitarray(char* nombreTabla);
 int iniciarCompactacion(char* nombreTabla);

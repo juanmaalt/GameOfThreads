@@ -232,7 +232,7 @@ void insertInFile(char* path, int particionNbr, char* key, char* value){
 	fclose(fParticion);
 }
 
-void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombreTabla, Operacion *resultadoDescribe){
+void getStringDescribe(char* path, char* string, char* nombreTabla, Operacion *resultadoDescribe){
 	DIR *dir;
 	struct dirent *entry;
 	char* nombreCarpeta;
@@ -247,7 +247,7 @@ void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombr
 					//printf("path: %s\n", pathMetadata);
 					//printf("nombreTabla: %s\n", nombreCarpeta);
 
-					metadata = config_create(string_from_format("%s%s/Metadata", pathMetadata, nombreCarpeta));
+					metadata = config_create(string_from_format("%s%s/Metadata", path, nombreCarpeta));
 					char* consistencia = string_from_format(config_get_string_value(metadata, "CONSISTENCY"));
 					int compactionTime=config_get_int_value(metadata, "COMPACTION_TIME");
 					int particiones =config_get_int_value(metadata, "PARTITIONS");
@@ -255,7 +255,6 @@ void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombr
 					concatenar_tabla(&string, nombreCarpeta, consistencia, particiones, compactionTime);
 					//printf("string: %s\n", string);
 
-					strcpy(pathMetadata,path);
 					config_destroy(metadata);
 				}
 		  }
@@ -275,8 +274,12 @@ void getStringDescribe(char* path, char* pathMetadata, char* string, char* nombr
 		if((dir = opendir (path)) != NULL){
 			//printf("path: %s\n", pathMetadata);
 			//printf("nombreTabla: %s\n", nombreTabla);
+			if((metadata = config_create(string_from_format("%s%s/Metadata", path, nombreTabla)))==NULL){
+				resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = NULL;
+				resultadoDescribe->Argumentos.DESCRIBE_REQUEST.esGlobal=false;
+				return;
+			}
 
-			metadata = config_create(string_from_format("%s%s/Metadata", pathMetadata, nombreTabla));
 			char* consistencia = string_from_format(config_get_string_value(metadata, "CONSISTENCY"));
 			int compactionTime=config_get_int_value(metadata, "COMPACTION_TIME");
 			int particiones =config_get_int_value(metadata, "PARTITIONS");

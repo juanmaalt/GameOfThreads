@@ -186,9 +186,9 @@ Operacion describeAPI(Comando comando){
 	char* path = string_from_format("%sTables/", config.punto_montaje);
 	//char* pathMetadata = malloc(1000 * sizeof(char));
 
-	char* string=NULL;//TODO: esto podría traer condición de carrera
+	char* string=string_new();//TODO: esto podría traer condición de carrera
 
-	getStringDescribe(path, path, string, comando.argumentos.DESCRIBE.nombreTabla, &resultadoDescribe);
+	getStringDescribe(path, string, comando.argumentos.DESCRIBE.nombreTabla, &resultadoDescribe);
 	//printf("Describe_string: %s\n", resultadoDescribe.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
 
 	/*Loggeo el CREATE exitoso y le aviso a la Memoria*/
