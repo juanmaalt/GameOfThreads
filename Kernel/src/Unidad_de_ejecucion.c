@@ -165,7 +165,7 @@ static ResultadoEjecucionInterno exec_string_comando(PCB *pcb){
 	request.TipoDeMensaje = COMANDO;
 	request.Argumentos.COMANDO.comandoParseable = (char*)pcb->data;
 	send_msg(target.socket, request);
-
+	destruir_operacion(request);
 	request = recv_msg(target.socket);
 	if(procesar_retorno_operacion(request, pcb, (char*)pcb->data) != INSTRUCCION_ERROR){
 		target.operacionExitosa = true;
@@ -220,7 +220,7 @@ static ResultadoEjecucionInterno exec_file_lql(PCB *pcb){
 		request.TipoDeMensaje = COMANDO;
 		request.Argumentos.COMANDO.comandoParseable = line;
 		send_msg(target.socket, request);
-
+		destruir_operacion(request);
 		request = recv_msg(target.socket);
 		if(procesar_retorno_operacion(request, pcb, line) == INSTRUCCION_ERROR){
 			fclose(lql);
@@ -234,6 +234,7 @@ static ResultadoEjecucionInterno exec_file_lql(PCB *pcb){
 		generar_estadisticas(&target);
 		close(target.socket);
 	}
+	destruir_operacion(request);
 	printf("\n");
 	sem_wait(&meterEnReadyDeAUno);
 	desalojar(pcb);
@@ -244,7 +245,7 @@ static ResultadoEjecucionInterno exec_file_lql(PCB *pcb){
 }
 
 
-//TODO: destruir operacion (los char*) y el dynamic addressing request
+
 
 
 static ResultadoEjecucionInterno procesar_retorno_operacion(Operacion op, PCB* pcb, char* instruccionActual){

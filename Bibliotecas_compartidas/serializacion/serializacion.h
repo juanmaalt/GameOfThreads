@@ -3,7 +3,6 @@
 
 #define RECV_FAIL(msg) {retorno.Argumentos.ERROR.mensajeError = string_from_format(msg);\
 						retorno.TipoDeMensaje = ERROR;\
-						retorno.opCode = 00000000;\
 						return retorno;}
 
 //INCLUDES
@@ -33,7 +32,6 @@ typedef struct{
 		GOSSIPING_REQUEST_KERNEL,
 		DESCRIBE_REQUEST,
 	}TipoDeMensaje;
-	id opCode; //Nota: para que funcione, el envio y recepcion de mensajes tiene que reutilizar la variable Operacion, o copiar en memoria el codigo para enviarlo en la operacion resultante
 	union{
 		struct{
 			char *texto;
