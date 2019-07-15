@@ -224,6 +224,7 @@ static ResultadoEjecucionInterno exec_file_lql(PCB *pcb){
 		destruir_operacion(request);
 		request = recv_msg(target.socket);
 		if(procesar_retorno_operacion(request, pcb, line) == INSTRUCCION_ERROR){
+			destruir_operacion(request);
 			fclose(lql);
 			free(pcb->nombreArchivoLQL);
 			free(pcb);

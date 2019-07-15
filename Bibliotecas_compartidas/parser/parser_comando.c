@@ -363,7 +363,9 @@ char **string_double_split(char *cadena, char *firstSeprator, char *secondSepara
 				token = strtok_r(NULL, secondSeparator, &next);
 				if(token == NULL)
 					break;
-				string_append(&substrings[size-1], string_from_format(" %s", token));
+				char *tmp = string_from_format(" %s", token);
+				string_append(&substrings[size-1], tmp);
+				free(tmp);
 			}
 		}
 	};
