@@ -265,6 +265,7 @@ void getStringDescribe(char* path, char* string, char* nombreTabla, Operacion *r
 				resultadoDescribe->Argumentos.DESCRIBE_REQUEST.esGlobal=true;
 			}else{
 				resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = NULL;
+				resultadoDescribe->Argumentos.DESCRIBE_REQUEST.esGlobal=true;
 			}
 		}else{
 			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = NULL;
