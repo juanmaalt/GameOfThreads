@@ -163,7 +163,7 @@ static ResultadoEjecucionInterno exec_string_comando(PCB *pcb){
 	target.inicioOperacion = getCurrentTime();
 	Operacion request;
 	request.TipoDeMensaje = COMANDO;
-	request.Argumentos.COMANDO.comandoParseable = (char*)pcb->data;
+	request.Argumentos.COMANDO.comandoParseable = string_from_format((char*)pcb->data);
 	send_msg(target.socket, request);
 	destruir_operacion(request);
 	request = recv_msg(target.socket);
@@ -218,7 +218,7 @@ static ResultadoEjecucionInterno exec_file_lql(PCB *pcb){
 		}
 		target.inicioOperacion = getCurrentTime();
 		request.TipoDeMensaje = COMANDO;
-		request.Argumentos.COMANDO.comandoParseable = line;
+		request.Argumentos.COMANDO.comandoParseable = string_from_format(line);
 		send_msg(target.socket, request);
 		destruir_operacion(request);
 		request = recv_msg(target.socket);

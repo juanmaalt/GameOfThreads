@@ -69,19 +69,19 @@ int send_msg(int socket, Operacion operacion) {
 	case DESCRIBE_REQUEST:
 		if(operacion.Argumentos.DESCRIBE_REQUEST.resultado_comprimido != NULL){
 			longCadena = strlen(operacion.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
-			total = sizeof(int) + sizeof(int) + sizeof(int) + sizeof(char) * longCadena;
+			total = sizeof(int) + sizeof(bool) + sizeof(int) + sizeof(char) * longCadena;
 			content = malloc(total);
 			memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
-			memcpy(content+sizeof(int), &(operacion.Argumentos.DESCRIBE_REQUEST.esGlobal), sizeof(int));
-			memcpy(content+2*sizeof(int), &longCadena, sizeof(int));
-			memcpy(content+3*sizeof(int), operacion.Argumentos.DESCRIBE_REQUEST.resultado_comprimido, sizeof(char)*longCadena);
+			memcpy(content+sizeof(int), &(operacion.Argumentos.DESCRIBE_REQUEST.esGlobal), sizeof(bool));
+			memcpy(content+sizeof(int)+sizeof(bool), &longCadena, sizeof(int));
+			memcpy(content+2*sizeof(int)+sizeof(bool), operacion.Argumentos.DESCRIBE_REQUEST.resultado_comprimido, sizeof(char)*longCadena);
 		}else{
 			longCadena = -1;
-			total = sizeof(int) + sizeof(int) + sizeof(int);
+			total = sizeof(int) + sizeof(bool) + sizeof(int);
 			content = malloc(total);
 			memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
-			memcpy(content+sizeof(int), &(operacion.Argumentos.DESCRIBE_REQUEST.esGlobal), sizeof(int));
-			memcpy(content+2*sizeof(int), &longCadena, sizeof(int));
+			memcpy(content+sizeof(int), &(operacion.Argumentos.DESCRIBE_REQUEST.esGlobal), sizeof(bool));
+			memcpy(content+sizeof(int)+sizeof(bool), &longCadena, sizeof(int));
 		}
 		break;
 	default:
@@ -141,7 +141,7 @@ Operacion recv_msg(int socket) {
 	case GOSSIPING_REQUEST_KERNEL:
 		break;
 	case DESCRIBE_REQUEST:
-		recv(socket, &retorno.Argumentos.DESCRIBE_REQUEST.esGlobal, sizeof(int), 0);
+		recv(socket, &retorno.Argumentos.DESCRIBE_REQUEST.esGlobal, sizeof(bool), 0);
 		recv(socket, &longitud, sizeof(int), 0);
 		if(longitud == -1){
 			retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido = NULL;
