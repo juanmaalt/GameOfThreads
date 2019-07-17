@@ -28,6 +28,7 @@ t_list* listaMemoriasConocidas;
 pthread_t idGossipSend;
 pthread_t idGossipReciv;
 
+pthread_mutex_t mutexGossiping;
 
 char **IPs;
 char **IPsPorts;
