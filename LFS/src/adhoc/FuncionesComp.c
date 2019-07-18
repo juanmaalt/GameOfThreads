@@ -14,8 +14,6 @@ void cambiarNombreFilesTemp(char* pathTabla){
 	struct dirent *entry;
 	char* nombreArchivo;
 
-
-
 	if((dir = opendir(pathTabla)) != NULL){
 		while((entry = readdir (dir)) != NULL){
 			nombreArchivo = string_from_format(entry->d_name);
@@ -26,9 +24,13 @@ void cambiarNombreFilesTemp(char* pathTabla){
 
 				rename(pathFileViejo, pathFileNuevo);
 			}
+
 		}
 		closedir (dir);
 	}
+	free(pathFileViejo);
+	free(pathFileNuevo);
+	free(nombreArchivo);
 }
 
 void leerTemporal(char* pathTemp, int particiones, char* nombreTabla){
@@ -55,6 +57,7 @@ void leerTemporal(char* pathTemp, int particiones, char* nombreTabla){
 
 			escribirLinea(bloque, linea, nombreTabla, particionNbr);
 		}
+		free(linea);
 	}
 	fclose(temp);
 }
@@ -68,6 +71,7 @@ char* obtenerListaDeBloques(int particion, char* nombreTabla){
 	char* listaDeBloques = string_from_format(resultado);
 
 	config_destroy(particionFile);
+	free(pathFile);
 
 	return listaDeBloques;
 }
@@ -109,6 +113,7 @@ int caracteresEnBloque(char* bloque){
 	//printf("la cantidad de caracteres en %s.bin es %d\n", bloque, count);
 
 	fclose(fBloque);
+	free(pathBloque);
 	return count;
 }
 
@@ -125,6 +130,7 @@ void escribirEnBloque(char* bloque, char* linea){
 	log_info(logger_invisible, "Compactador.c: escribirEnBloque() - Línea a escribir: %s", linea);
 
 	fclose(fBloque);
+	free(pathBloque);
 }
 
 
@@ -188,6 +194,7 @@ void escribirLinea(char* bloque, char* linea, char* nombreTabla, int particion){
 			}
 		}
 	}
+	free(subLinea);
 }
 
 void agregarTablaEnDiccCompactacion(char* nombreTabla){

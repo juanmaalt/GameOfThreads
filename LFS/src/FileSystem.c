@@ -40,6 +40,7 @@ void crearEstructuraFS(int blockSize, int blocks, char* magicNumber){
 	char* pathTables = string_from_format("%sTables",config.punto_montaje);
 	crearDirectorio(pathTables);
 	log_info(logger_invisible, "FileSystem.c: crearEstructuraFS() - Se creó el directorio \"Tables\"");
+	free(pathTables);
 
 	/*Creo el directorio de Bloques*/
 	char* pathBloques = string_from_format("%sBloques",config.punto_montaje);
@@ -50,6 +51,7 @@ void crearEstructuraFS(int blockSize, int blocks, char* magicNumber){
 	pathBloques = string_from_format("%sBloques/",config.punto_montaje);
 	crearBloques(pathBloques, blocks);
 	log_info(logger_invisible, "FileSystem.c: crearEstructuraFS() - Se crearon los bloques vacíos en el directorio \"Bloques\"");
+	free(pathBloques);
 
 	/*Creo el directorio de Metadata*/
 	char* pathMetadata = string_from_format("%sMetadata",config.punto_montaje);
@@ -63,7 +65,7 @@ void crearEstructuraFS(int blockSize, int blocks, char* magicNumber){
 	/*Creo el bitmap para controlar los Bloques*/
 	crearArchivo(pathMetadata, "/Bitmap.bin");
 	log_info(logger_invisible, "FileSystem.c: crearEstructuraFS() - Se creó el archivo \"Bitmap.bin\"");
-
+	free(pathMetadata);
 }
 
 /*INICIO FUNCIONES*/
@@ -79,10 +81,9 @@ int levantarMetadata(){
 }
 
 t_config* leer_MetadataFS(){
-	char* pathMetadata = string_from_format("%sMetadata/Metadata.bin",config.punto_montaje);
 	//printf("pathMetadata= %s\n",pathMetadata);
 
-	return config_create(pathMetadata);
+	return config_create(string_from_format("%sMetadata/Metadata.bin",config.punto_montaje));
 }
 
 void extraer_MetadataFS(){
@@ -139,6 +140,7 @@ void crearMetadata(char* path ,int blockSize, int blocks, char* magicNumber){
 	fprintf (fsMetadata, "MAGIC_NUMBER=%s\n",magicNumber);
 
 	fclose(fsMetadata);
+	free(pathArchivo);
 }
 
 void checkExistenciaDirectorio(char* path, char* carpeta){
@@ -161,15 +163,17 @@ void checkDirectorios(){
 	/*Checkeo la existencia del directorio de Tables*/
 	char* pathTables = string_from_format("%sTables",config.punto_montaje);
 	checkExistenciaDirectorio(pathTables, "Tables");
+	free(pathTables);
 
 	/*Checkeo la existencia del directorio de Bloques*/
 	char* pathBloques = string_from_format("%sBloques",config.punto_montaje);
 	checkExistenciaDirectorio(pathBloques, "Bloques");
+	free(pathBloques);
 
 	/*Checkeo la existencia del directorio de Metadata*/
 	char* pathMetadata = string_from_format("%sMetadata",config.punto_montaje);
 	checkExistenciaDirectorio(pathMetadata, "Metadata");
-
+	free(pathMetadata);
 }
 
 void levantarTablasExistentes(){
@@ -191,11 +195,18 @@ void levantarTablasExistentes(){
 		}
 		closedir (dir);
 	}
+	free(path);
 }
 
 void agregarBloqueEnParticion(char* bloque, char* nombreTabla, int particion){
 	char* pathParticion = string_from_format("%sTables/%s/%d.bin", config.punto_montaje, nombreTabla, particion);
 	t_config* particionData = config_create(pathParticion);
+
+	if(particionData==NULL){
+		log_info(logger_invisible, "FileSystem.c: agregarBloqueEnParticion() - No se pudo agregar el bloque %s en la particion %d de la tabla %s", bloque, particion, nombreTabla);
+		log_error(logger_invisible, "FileSystem.c: agregarBloqueEnParticion() - No se pudo agregar el bloque %s en la particion %d de la tabla %s", bloque, particion, nombreTabla);
+		return;
+	}
 
 	char* bloques = config_get_string_value(particionData, "BLOCKS");
 	int size = config_get_int_value(particionData, "SIZE");
@@ -212,6 +223,8 @@ void agregarBloqueEnParticion(char* bloque, char* nombreTabla, int particion){
 
 	config_save(particionData);
 	config_destroy(particionData);
+	free(pathParticion);
+	free(nuevosBloques);
 }
 
 void agregarBloqueEnBitarray(char* nombreCarpeta){
@@ -238,9 +251,10 @@ void agregarBloqueEnBitarray(char* nombreCarpeta){
 					bitarray_set_bit(bitarray, (pos-1));
 					i++;
 				}
+				free(particionNbr);
 			}
 		}
 	}
-
+	free(pathTablas);
 }
 /*FIN FUNCIONES DIRECTORIO*/

@@ -28,9 +28,7 @@ int getMetadata(char* nombreTabla, t_config* metadataFile){
 
 
 t_config* leerMetadata(char* nombreTabla){
-	char* path = string_from_format("%sTables/%s/Metadata", config.punto_montaje, nombreTabla);
-
-	return config_create(path);
+	return config_create(string_from_format("%sTables/%s/Metadata", config.punto_montaje, nombreTabla));
 }
 
 
@@ -98,9 +96,11 @@ void leerTemps(char* nombreTabla, char* key, t_list* listaDeValues){
 						list_add(listaDeValues, reg);
 					}
 				}
+				free(pathTemp);
 			}
 		}
 	}
+    free(pathTabla);
 }
 
 
@@ -183,6 +183,7 @@ void crearArchivo(char* path, char* nombre){
 	file = fopen(pathArchivo,"w");
 
 	fclose(file);
+	free(pathArchivo);
 }
 
 void escribirArchivoMetadata(char* path, Comando comando){
@@ -197,6 +198,7 @@ void escribirArchivoMetadata(char* path, Comando comando){
 	fprintf (fmetadata, "PARTITIONS=%d\n",atoi(comando.argumentos.CREATE.numeroParticiones));
 
 	fclose(fmetadata);
+	free(pathArchivo);
 }
 
 void crearArchivosBinarios(char* path, int particiones){
@@ -213,6 +215,7 @@ void crearArchivosBinarios(char* path, int particiones){
 		int bloque = getBloqueLibre();
 		binario = txt_open_for_append(string_from_format("%s%s", path,filename));
 		txt_write_in_file(binario, string_from_format("SIZE=0\nBLOCKS=[%d]\n",bloque));
+		free(filename);
 	}
 	fclose(binario);
 }
@@ -230,6 +233,9 @@ void insertInFile(char* path, int particionNbr, char* key, char* value){
 	fprintf (fParticion, "%s",keyValue);
 
 	fclose(fParticion);
+	free(keyValue);
+	free(filename);
+	free(pathArchivo);
 }
 
 void getStringDescribe(char* path, char* string, char* nombreTabla, Operacion *resultadoDescribe){
@@ -248,15 +254,21 @@ void getStringDescribe(char* path, char* string, char* nombreTabla, Operacion *r
 					//printf("nombreTabla: %s\n", nombreCarpeta);
 
 					metadata = config_create(string_from_format("%s%s/Metadata", path, nombreCarpeta));
-					char* consistencia = string_from_format(config_get_string_value(metadata, "CONSISTENCY"));
-					int compactionTime=config_get_int_value(metadata, "COMPACTION_TIME");
-					int particiones =config_get_int_value(metadata, "PARTITIONS");
+					if(metadata==NULL){
+						log_info(logger_invisible, "No se puede acceder al archivo Metadata de la tabla %s", nombreCarpeta);
+						log_error(logger_invisible, "No se puede acceder al archivo Metadata de la tabla %s", nombreCarpeta);
+					}else{
+						char* consistencia = string_from_format(config_get_string_value(metadata, "CONSISTENCY"));
+						int compactionTime=config_get_int_value(metadata, "COMPACTION_TIME");
+						int particiones =config_get_int_value(metadata, "PARTITIONS");
 
-					concatenar_tabla(&string, nombreCarpeta, consistencia, particiones, compactionTime);
-					//printf("string: %s\n", string);
+						concatenar_tabla(&string, nombreCarpeta, consistencia, particiones, compactionTime);
+						//printf("string: %s\n", string);
 
-					config_destroy(metadata);
+						config_destroy(metadata);
+					}
 				}
+				free(nombreCarpeta);
 		  }
 			closedir (dir);
 			if(string!=NULL){
@@ -291,6 +303,7 @@ void getStringDescribe(char* path, char* string, char* nombreTabla, Operacion *r
 			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = string_from_format(string);
 			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.esGlobal=false;
 			config_destroy(metadata);
+			free(consistencia);
 		}
 		else{
 			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = NULL;
@@ -373,7 +386,7 @@ void limpiarBloquesEnBitarray(char* nombreTabla){
 			}
 		}
 	}
-
+	free(pathTablas);
 }
 
 int iniciarCompactacion(char* nombreTabla){

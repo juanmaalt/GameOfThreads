@@ -40,6 +40,7 @@ void* compactar(void* nombreTabla){
 					leerTemporal(pathTemp, metadata.partitions, (char*)nombreTabla);
 					/*Borro el archivo temporal*/
 					remove(pathTemp);
+					free(pathTemp);
 				}
 				else{
 					log_info(logger_invisible, "Compactador.c: compactar(%s): [%s] no es un archivo temporal, no se compactará", (char*)nombreTabla, nombreArchivo);
@@ -53,6 +54,8 @@ void* compactar(void* nombreTabla){
 			log_info(logger_invisible, "Compactador.c: compactar() - Fin compactación");
 		}
 	}
+	free(nombreArchivo);
+	free(pathTabla);
 	return NULL;
 }
 

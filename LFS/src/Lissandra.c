@@ -60,6 +60,7 @@ int main(void) {
 	dictionary_destroy(memtable);
 	dictionary_destroy(diccCompactacion);
 	bitarray_destroy(bitarray);
+	close(miSocket);
 
 	//Rutinas de finalizacion
 	rutinas_de_finalizacion();
@@ -411,6 +412,7 @@ void dumpTabla(char* nombreTable, t_list* list){
 	}
 	list_clean(list);
 	fclose(file);
+	free(pathArchivo);
 }
 
 void dumpRegistro(FILE* file, Registro* registro) {
@@ -450,12 +452,17 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 				if(atoi(lineaParseada[1])==key){
 					reg->value = lineaParseada[2];
 					reg->timestamp=atoll(lineaParseada[0]);
+
+					free(pathBloque);
+					free(linea);
 					return reg;
 				}else{linea="";}
 			}
 		}
+		free(pathBloque);
 		i++;
 	}
+	free(linea);
 	return reg;
 }
 /*FIN FSEEK*/

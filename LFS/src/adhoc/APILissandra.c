@@ -173,6 +173,8 @@ Operacion createAPI(Comando comando){
 	resultadoCreate.TipoDeMensaje = TEXTO_PLANO;
 	resultadoCreate.Argumentos.TEXTO_PLANO.texto = string_from_format("CREATE realizado con éxito.");
 
+	free(path);
+
 	return resultadoCreate;
 }
 
@@ -195,6 +197,8 @@ Operacion describeAPI(Comando comando){
 	log_info(logger_invisible, "DESCRIBE realizado con éxito.");
 	log_info(logger_invisible, "DESCRIBE: %s", resultadoDescribe.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
 
+
+	free(path);
 	return resultadoDescribe;
 }
 
@@ -223,6 +227,7 @@ Operacion dropAPI(Comando comando){
 		resultadoDrop.Argumentos.ERROR.mensajeError = string_from_format("No existe la tabla que intenta Borrar");
 	}
 
+	free(pathFolder);
 	return resultadoDrop;
 }
 /*FIN FUNCIONES API*/

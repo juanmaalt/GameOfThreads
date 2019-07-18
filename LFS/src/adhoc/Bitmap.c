@@ -57,6 +57,7 @@ void leerBitmap(){
 	}
 	 */
 	close(fileDescriptor);
+	free(path);
 }
 
 int getBloqueLibre(){
@@ -109,8 +110,9 @@ void escribirBitmap(){
 		fprintf (bitmap, "%c",texto[i]);
 		//printf("El texto que se guardaría en el bitmap.bin es: %c\n", texto[i]);
 	}
-
 	fclose(bitmap);
+	free(texto);
+	free(pathBitmap);
 }
 
 
@@ -156,4 +158,5 @@ void actualizarBitarray(){
 		}
 		closedir (dir);
 	}
+	free(pathBloques);
 }
