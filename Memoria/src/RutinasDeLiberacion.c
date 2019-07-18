@@ -85,6 +85,8 @@ void liberarRecursos(void) {
 	config_destroy(configFile);
 	log_destroy(logger_invisible);
 	log_destroy(logger_visible);
+
+	close(memorySocket);
 }
 
 void removerSegmentoDeTabla(segmento_t* segmentoSeleccionado) {

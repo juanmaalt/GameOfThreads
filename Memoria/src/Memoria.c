@@ -102,13 +102,13 @@ int iniciar_Journal(void){
 int iniciar_serverMemoria(void) {
 
 	//TODO: separar en enable y escuchar
-	int miSocket = enable_server(fconfig.ip, fconfig.puerto);
-	if (miSocket == EXIT_FAILURE)
+	memorySocket = enable_server(fconfig.ip, fconfig.puerto);
+	if (memorySocket == EXIT_FAILURE)
 		return EXIT_FAILURE;
 
 	log_info(logger_invisible, "Memoria.c: iniciar_serverMemoria: Servidor encendido, esperando conexiones");
 
-	threadConnection(miSocket, connection_handler);
+	threadConnection(memorySocket, connection_handler);
 
 	return EXIT_SUCCESS;
 }

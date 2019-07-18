@@ -177,6 +177,9 @@ pthread_t idJournal;
 //socket de FILE SYSTEM TODO: A ELIMINAR
 int lfsSocket;
 
+//socket de la Memoria
+int memorySocket;
+
 //FUNCIONES
 
 int threadConnection(int serverSocket, void *funcionThread);
