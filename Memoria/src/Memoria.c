@@ -38,7 +38,7 @@ int main(void) {
 		return EXIT_FAILURE;
 	}
 
-	log_info(logger_visible,"Memoria Inicializada correctamente\n");
+	log_info(logger_visible,"Memoria Inicializada correctamente");
 
 	//TODO:GOSSIPING
 	iniciar_gossiping();
@@ -122,7 +122,7 @@ void *connection_handler(void *nSocket) {
 
 	switch (resultado.TipoDeMensaje) {
 	case COMANDO:
-		log_info(logger_visible,"Request recibido por SOCKET: %s\n",resultado.Argumentos.COMANDO.comandoParseable);
+		log_info(logger_visible,"Request recibido por SOCKET: %s",resultado.Argumentos.COMANDO.comandoParseable);
 		resultado = ejecutarOperacion(resultado.Argumentos.COMANDO.comandoParseable,false);
 
 		loggearRetorno(resultado, logger_invisible);
@@ -290,9 +290,12 @@ void loggearRetorno(Operacion retorno, t_log * logger) {
 		log_info(logger,"Resultado: %s\n",retorno.Argumentos.TEXTO_PLANO.texto);
 		return;
 	case ERROR:
-		log_error(logger,"%s \n",retorno.Argumentos.ERROR.mensajeError);
+		log_error(logger_error,"%s \n",retorno.Argumentos.ERROR.mensajeError);
 		return;
 	case COMANDO:
+		return;
+	default:
+		log_error(logger,"No cumple con el tipo de mensaje esperado");
 		return;
 	}
 }
@@ -337,19 +340,33 @@ int extraer_retardo_Gossiping() {
 }
 
 void mostrar_por_pantalla_config() {
-	log_info(logger_visible, "IP=%s", fconfig.ip);
-	log_info(logger_visible, "PUERTO=%s", fconfig.puerto);
-	log_info(logger_visible, "IP_FS=%s", fconfig.ip_fileSystem);
-	log_info(logger_visible, "PUERTO_FS=%s", fconfig.puerto_fileSystem);
-	log_info(logger_visible, "IP_SEEDS=%s", fconfig.ip_seeds);
-	log_info(logger_visible, "PUERTO_SEEDS=%s", fconfig.puerto_seeds);
-	log_info(logger_visible, "RETARDO_MEM=%d", vconfig.retardoMemoria());
-	log_info(logger_visible, "RETARDO_FS=%d", vconfig.retardoFS());
-	log_info(logger_visible, "TAM_MEM=%s", fconfig.tamanio_memoria);
-	log_info(logger_visible, "RETARDO_JOURNAL=%d", vconfig.retardoJOURNAL());
-	log_info(logger_visible, "RETARDO_GOSSIPING=%d",
+	log_info(logger_visible, BLU"IP=%s", fconfig.ip);
+	log_info(logger_visible, BLU"PUERTO=%s", fconfig.puerto);
+	log_info(logger_visible, BLU"IP_FS=%s", fconfig.ip_fileSystem);
+	log_info(logger_visible, BLU"PUERTO_FS=%s", fconfig.puerto_fileSystem);
+	log_info(logger_visible, BLU"IP_SEEDS=%s", fconfig.ip_seeds);
+	log_info(logger_visible, BLU"PUERTO_SEEDS=%s", fconfig.puerto_seeds);
+	log_info(logger_visible, BLU"RETARDO_MEM=%d", vconfig.retardoMemoria());
+	log_info(logger_visible, BLU"RETARDO_FS=%d", vconfig.retardoFS());
+	log_info(logger_visible, BLU"TAM_MEM=%s", fconfig.tamanio_memoria);
+	log_info(logger_visible, BLU"RETARDO_JOURNAL=%d", vconfig.retardoJOURNAL());
+	log_info(logger_visible, BLU"RETARDO_GOSSIPING=%d",
 			vconfig.retardoGossiping());
-	log_info(logger_visible, "MEMORY_NUMBER=%s", fconfig.numero_memoria);
+	log_info(logger_visible, BLU"MEMORY_NUMBER=%s", fconfig.numero_memoria);
+
+	log_info(logger_invisible, "IP=%s", fconfig.ip);
+	log_info(logger_invisible, "PUERTO=%s", fconfig.puerto);
+	log_info(logger_invisible, "IP_FS=%s", fconfig.ip_fileSystem);
+	log_info(logger_invisible, "PUERTO_FS=%s", fconfig.puerto_fileSystem);
+	log_info(logger_invisible, "IP_SEEDS=%s", fconfig.ip_seeds);
+	log_info(logger_invisible, "PUERTO_SEEDS=%s", fconfig.puerto_seeds);
+	log_info(logger_invisible, "RETARDO_MEM=%d", vconfig.retardoMemoria());
+	log_info(logger_invisible, "RETARDO_FS=%d", vconfig.retardoFS());
+	log_info(logger_invisible, "TAM_MEM=%s", fconfig.tamanio_memoria);
+	log_info(logger_invisible, "RETARDO_JOURNAL=%d", vconfig.retardoJOURNAL());
+	log_info(logger_invisible, "RETARDO_GOSSIPING=%d",
+			vconfig.retardoGossiping());
+	log_info(logger_invisible, "MEMORY_NUMBER=%s", fconfig.numero_memoria);
 }
 
 //TODO: FUNCION A ELIMINAR >>> USADA PARA TEST

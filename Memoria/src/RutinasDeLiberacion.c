@@ -98,10 +98,10 @@ void removerSegmentoDeTabla(segmento_t* segmentoSeleccionado) {
 		}
 		return true;
 	}
-	pthread_mutex_lock(&mutexTablaSegmentos);
+
+	//TODO: CONDICION DE CARRERA?
 
 	list_remove_by_condition(tablaSegmentos.listaSegmentos,
 			segmentoCoincidePath);
 
-	pthread_mutex_unlock(&mutexTablaSegmentos);
 }

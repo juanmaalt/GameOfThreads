@@ -212,7 +212,7 @@ Operacion insertAPI(char* input, Comando comando) {
 
 			actualizarValueDeKey(comando.argumentos.INSERT.value, registroBuscado);
 
-			log_info(logger_invisible,"APIMemoria.c: insertAPI: Se realizo el INSERT, estaba en memoria\n");
+			log_info(logger_invisible,"APIMemoria.c: insertAPI: Se realizo el Insert, estaba en memoria la key");
 
 			resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
 			resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format(
@@ -229,7 +229,7 @@ Operacion insertAPI(char* input, Comando comando) {
 				resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format(
 									"Insert realizado con exito");
 
-				log_info(logger_invisible,"APIMemoria.c: insertAPI: Se realizo el INSERT, se pide pidio pagina\n");
+				log_info(logger_invisible,"APIMemoria.c: insertAPI: Se realizo el Insert, se pide pidio pagina");
 				return resultadoInsert;
 			}
 
@@ -342,7 +342,7 @@ Operacion dropAPI(char* input, Comando comando) {
 
 		liberarSegmento(segmentoSeleccionado);
 
-		log_info(logger_visible,"Drop realizado\n");
+		log_info(logger_visible,"Drop realizado");
 		/*
 		resultadoDrop.TipoDeMensaje = TEXTO_PLANO;
 		resultadoDrop.Argumentos.TEXTO_PLANO.texto = string_from_format(
@@ -436,9 +436,11 @@ Operacion journalAPI(){
 	void recorrerSegmento(void * segmento){
 
 		void enviarRegistroModificado(void* registro){
+			char *nombreTabla=NULL;
+
 			if(((registroTablaPag_t *) registro)->flagModificado){
+
 				registroAEnviar=tomarContenidoPagina(*((registroTablaPag_t *) registro));
-				char *nombreTabla=NULL;
 
 				getNombreTabla(((segmento_t *) segmento)->pathTabla, &nombreTabla);
 
@@ -459,15 +461,20 @@ Operacion journalAPI(){
 					 log_error(logger_error,"APIMemoria.c: Resultado Journal: %s", resultadoJournal.Argumentos.ERROR.mensajeError);
 					 break;
 				 default:
-					 log_info(logger_visible,"APIMemoria.c: Resultado Journal: No cumple con el tipo de mensaje esperado");
+					 log_error(logger_error,"APIMemoria.c: Resultado Journal: No cumple con el tipo de mensaje esperado");
 					 break;
 				}
-				free(nombreTabla);
+				if(nombreTabla!=NULL)
+					free(nombreTabla);
 				free(input);
+
+				return;
 			}
 		}
 
 		list_iterate(((segmento_t *) segmento)->tablaPaginas->registrosPag, enviarRegistroModificado);
+
+		return;
 	}
 
 	list_iterate(tablaSegmentos.listaSegmentos, recorrerSegmento);
@@ -477,7 +484,9 @@ Operacion journalAPI(){
 	void dropearTablas(void * segmento){
 		removerSegmentoDeTabla(((segmento_t *) segmento));
 		liberarSegmento(((segmento_t *) segmento));
+		return;
 	}
+
 	list_iterate(tablaSegmentos.listaSegmentos, dropearTablas);
 
 	pthread_mutex_unlock(&mutexTablaSegmentos);

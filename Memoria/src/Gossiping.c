@@ -34,7 +34,7 @@ int iniciar_gossiping() {
 			list_add(listaMemoriasConocidas, (knownMemory_t *) mem);
 			pthread_mutex_unlock(&mutexGossiping);
 	for (int i = 0; IPs[i] != NULL; ++i)	//Muestro por pantalla las IP seeds
-		log_info(logger_invisible,"GOSSIPING.C: iniciar_gossiping: IP SEED %d: %s:%s:\n", i, IPs[i], IPsPorts[i]);
+		log_info(logger_invisible,"GOSSIPING.C: iniciar_gossiping: IP SEED %d: %s:%s:", i, IPs[i], IPsPorts[i]);
 
 	if (pthread_create(&idGossipSend, NULL, conectar_seeds, NULL)) {
 
@@ -183,12 +183,12 @@ void conectarConSeed() {
 		request.TipoDeMensaje = GOSSIPING_REQUEST;
 		//printf("Paquete armado\n");
 	 request.Argumentos.GOSSIPING_REQUEST.resultado_comprimido = envio;
-	 log_info(logger_invisible, "GOSSIPING.C:ConsultoPorMemoriasConocidas: Envio gossiping %d\n",request.TipoDeMensaje);
+	 log_info(logger_invisible, "GOSSIPING.C:ConsultoPorMemoriasConocidas: Envio gossiping %d",request.TipoDeMensaje);
 	 send_msg(socketSEEDS,request);
 	 pthread_mutex_unlock(&mutexGossiping);
 	 //printf("Envio %d\n",request.TipoDeMensaje);
 	 request = recv_msg(socketSEEDS);
-	 log_info(logger_invisible, "GOSSIPING.C:ConsultoPorMemoriasConocidas: Respuesta gossiping %d\n",request.TipoDeMensaje);
+	 log_info(logger_invisible, "GOSSIPING.C:ConsultoPorMemoriasConocidas: Respuesta gossiping %d",request.TipoDeMensaje);
 	 //printf("Respuesta\n");
 
 	 t_list *aux = list_create();
@@ -238,7 +238,7 @@ void conectarConSeed() {
 	 	pthread_mutex_unlock(&mutexGossiping);
 	 	list_destroy(aux);
 
-	 	log_info(logger_invisible,"GOSSIPING.C:ConsultoPorMemoriasConocidas:Fin GOSSIP\n");
+	 	log_info(logger_invisible,"GOSSIPING.C:ConsultoPorMemoriasConocidas:Fin GOSSIP");
 	 	close(socketSEEDS);
 
  }
@@ -247,7 +247,7 @@ void conectarConSeed() {
 Operacion recibir_gossiping (Operacion resultado){
 	knownMemory_t * recupero;
 	char * envio = NULL;
-	log_info(logger_invisible,"GOSSIPING.C:recibir_gossiping: ENTRO FUNCION RECIBIR GOSSIPING\n");
+	log_info(logger_invisible,"GOSSIPING.C:recibir_gossiping: ENTRO FUNCION RECIBIR GOSSIPING");
 
 
 	if(resultado.TipoDeMensaje == GOSSIPING_REQUEST){	// si es gossping request, proceso las memorias que me envian
@@ -315,7 +315,7 @@ Operacion recibir_gossiping (Operacion resultado){
 		list_destroy(aux);
 		// Ya agregue las memorias que me llegaron
 		// Logica para enviar mi lista
-			log_info(logger_invisible,"GOSSIPING.C:recibir_gossiping: Lista de memorias actualizada\n");
+			log_info(logger_invisible,"GOSSIPING.C:recibir_gossiping: Lista de memorias actualizada");
 	}
 
 	// Preparo mensaje para enviar mis memorias conocidas
