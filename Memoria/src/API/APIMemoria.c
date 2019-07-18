@@ -445,14 +445,23 @@ Operacion journalAPI(){
 				//INSERT <NombreTabla> <KEY> “<VALUE>” <TIMESTAMP>
 				input=string_from_format("INSERT %s %d \"%s\" %llu",nombreTabla,registroAEnviar.Argumentos.REGISTRO.key,registroAEnviar.Argumentos.REGISTRO.value, registroAEnviar.Argumentos.REGISTRO.timestamp);
 
-				log_info(logger_invisible,"APIMemoria.c: recorrerSegmento: Request mandada: %s", input);
+				log_info(logger_invisible,"APIMemoria.c: Journaling->Request enviada: %s", input);
 
 				enviarRequestFS(input);
 
 				resultadoJournal=recibirRequestFS();
 
-				//TODO: loggear resultado
-
+				switch(resultadoJournal.TipoDeMensaje){
+				 case TEXTO_PLANO:
+					 log_info(logger_invisible,"APIMemoria.c: Resultado Journal: %s", resultadoJournal.Argumentos.TEXTO_PLANO.texto);
+					 break;
+				 case ERROR:
+					 log_error(logger_error,"APIMemoria.c: Resultado Journal: %s", resultadoJournal.Argumentos.ERROR.mensajeError);
+					 break;
+				 default:
+					 log_info(logger_visible,"APIMemoria.c: Resultado Journal: No cumple con el tipo de mensaje esperado");
+					 break;
+				}
 				free(nombreTabla);
 				free(input);
 			}
@@ -473,30 +482,9 @@ Operacion journalAPI(){
 
 	pthread_mutex_unlock(&mutexTablaSegmentos);
 
-	//
-	/* CODIGO EJEMPLO
-	 *
-	 * for(int i=0; i< JournalTestNumber; i++){
-
-
-		//Enviar al FS la operacion
-
-		resultadoJournal.TipoDeMensaje = COMANDO;
-		//resultadoJournal.Argumentos.COMANDO.comandoParseable= string_from_format(input);
-		input=string_from_format("INSERT tabla%d %d \"JOHN WILLY\" %llu",i,i*100, getCurrentTime());
-
-		enviarRequestFS(input);
-
-
-
-		resultadoJournal=recibirRequestFS();
-
-
-	}*/
-
 	resultadoJournal.TipoDeMensaje = TEXTO_PLANO;
 	resultadoJournal.Argumentos.TEXTO_PLANO.texto = string_from_format(
-						"Journal realizado con exito");
+						"Journal finalizado");
 
 
 	sem_post(&journal);
