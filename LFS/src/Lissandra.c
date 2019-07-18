@@ -436,10 +436,10 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 
 	//printf("antes de while bloque\n");
 
-	if(bloques[i]!=NULL){
+	while(bloques[i]!=NULL){
 		char* pathBloque = string_from_format("%sBloques/%s.bin", config.punto_montaje, bloques[i]);
-		//printf("bloque[i]: %s\n", bloques[i]);
-		//printf("antes de fopen: %s\n", pathBloque);
+		printf("bloque[i]: %s\n", bloques[i]);
+		printf("antes de fopen: %s\n", pathBloque);
 		fBloque = fopen(pathBloque, "r");
 		while((ch = getc(fBloque)) != EOF){
 			if(ch !='\n'){
@@ -456,9 +456,11 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 					free(pathBloque);
 					free(linea);
 					return reg;
-				}else{linea="";}
+				}
 			}
+			printf("linea: %s\n", linea);
 		}
+		fclose(fBloque);
 		free(pathBloque);
 		i++;
 	}
