@@ -213,12 +213,11 @@ void agregarTablaEnDiccCompactacion(char* nombreTabla){
 void procesarPeticionesPendientes(char *nombreTabla){
 	t_list* listaInputsPendientes = list_create();
 
-	t_list* inputsEnDiccionario = dictionary_get(diccCompactacion, nombreTabla);
+	t_list* inputsEnDiccionario =list_create();
+	inputsEnDiccionario = dictionary_get(diccCompactacion, nombreTabla);
 	listaInputsPendientes = list_take_and_remove(inputsEnDiccionario, list_size(inputsEnDiccionario));
 
-	if(list_size(listaInputsPendientes)>0){
-		list_iterate(listaInputsPendientes, (void*)ejecutarOperacion);
-	}
+	list_iterate(listaInputsPendientes, (void*)ejecutarOperacion);
 
 	list_destroy(listaInputsPendientes);
 }

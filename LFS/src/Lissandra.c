@@ -24,9 +24,9 @@ int main(void) {
 	levantarMetadata();
 
 	/*Inicio la Memtable*/
-	memtable = inicializarDiccionario();
+	memtable = dictionary_create();
 
-	//agregarDatos(memtable);//TODO:funcion para pruebas
+	//agregarDatos(memtable);//Funcion para pruebas
 
 	/*Levantar Bitmap*/
 	leerBitmap();
@@ -35,7 +35,7 @@ int main(void) {
 	levantarTablasExistentes();
 
 	/*Creo el diccionario para las tablas en compactación*/
-	diccCompactacion = inicializarDiccionario();
+	diccCompactacion = dictionary_create();
 	listaInputs = list_create();//TODO: checkear
 
 	/*Inicio la consola*/
@@ -177,11 +177,6 @@ void ver_config(){
 /*FIN FUNCIONES CONFIG*/
 
 /*INICIO FUNCIONES COMPLEMENTARIAS*/
-
-t_dictionary* inicializarDiccionario() {
-	return dictionary_create();
-}
-
 void handshakeMemoria(int socketMemoria) {
 	log_info(logger_invisible, "Lissandra.c: handshakeMemoria() - Se conectó la memoria");
 
@@ -437,7 +432,7 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 		fBloque = fopen(pathBloque, "r");
 		while((ch = getc(fBloque)) != EOF){
 			char* nchar = string_from_format("%c", ch);
-			string_append(&linea, nchar);//TODO: cambiar esto por un char* aux
+			string_append(&linea, nchar);
 
 			if(string_ends_with(linea, "\n")){
 				char** lineaParseada = string_split(linea,";");
@@ -465,6 +460,59 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 	return reg;
 }
 /*FIN FSEEK*/
+
+/*INICIO FSEEKANDREPLACE*///TODO:Hacer
+/*
+void fseekAndReplaceBloque(int key, char* listaDeBloques){
+	Registro* reg = malloc(sizeof(Registro));
+	reg->key = key;
+	reg->value = NULL;
+	reg->timestamp=0;
+	char** bloques = string_get_string_as_array(listaDeBloques);
+
+	FILE* fBloque;
+	int i=0;
+
+	char* linea = string_new();
+	char ch;
+
+	//printf("antes de while bloque\n");
+
+	while(bloques[i]!=NULL){
+		char* pathBloque = string_from_format("%sBloques/%s.bin", config.punto_montaje, bloques[i]);
+		//printf("bloque[i]: %s\n", bloques[i]);
+		//printf("antes de fopen: %s\n", pathBloque);
+		fBloque = fopen(pathBloque, "r");
+		while((ch = getc(fBloque)) != EOF){
+			char* nchar = string_from_format("%c", ch);
+			string_append(&linea, nchar);
+
+			if(string_ends_with(linea, "\n")){
+				char** lineaParseada = string_split(linea,";");
+				if(atoi(lineaParseada[1])==key){
+					reg->value = string_from_format(lineaParseada[2]);
+					reg->timestamp=atoll(lineaParseada[0]);
+
+					free(pathBloque);
+					free(linea);
+					free(nchar);
+					fclose(fBloque);
+				}
+				string_iterate_lines(lineaParseada, (void* )free);
+				free(lineaParseada);
+			}
+			free(nchar);
+			//printf("linea: %s\n", linea);
+		}
+		fclose(fBloque);
+		free(pathBloque);
+		i++;
+	}
+	free(linea);
+}
+*/
+/*FIN FSEEKANDREPLACE*/
+
 
 
 void rutinas_de_finalizacion(){
