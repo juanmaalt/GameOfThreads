@@ -88,7 +88,7 @@ void escribirBitmap(){
 
 	char binario[metadataFS.blocks+1];
 	int cantSimbolos=((metadataFS.blocks/8)+1);
-	char* texto = malloc(cantSimbolos * sizeof(char));
+	char* texto = calloc(cantSimbolos, sizeof(char));
 
 	for(int i=0;i<metadataFS.blocks;i++){
 		if(bitarray_test_bit(bitarray, i)){
@@ -98,7 +98,7 @@ void escribirBitmap(){
 		}
 		//printf("El char a transformar es: %c\n", binario[i]);
 	}
-	binario[metadataFS.blocks+1]='\0';
+	binario[metadataFS.blocks]='\0';
 
 	//printf("El texto a transformar es: %s\n", binario);
 
