@@ -109,6 +109,7 @@ vConfig vconfig; //Contiene solo los datos variables del config
 t_log* logger_visible;
 t_log* logger_invisible;
 t_log* logger_error;
+t_log* logger_gossiping;
 
 //Estructuras de memoria
 

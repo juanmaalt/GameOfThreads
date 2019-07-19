@@ -10,17 +10,8 @@
 
 Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 	int valueSem;
-	while(!sem_getvalue(&journal, &valueSem) && valueSem<1);
-	/*printf(YEL"EVALUO SI HAGO ALGO\n"STD);
-	sem_getvalue(&journal, &valueSem);
-	if(valueSem < 1){
-		Operacion retorno;
-		printf(YEL"NO HACER NADA JOURNAL\n"STD);
-		retorno.TipoDeMensaje = ERROR;
-			retorno.Argumentos.ERROR.mensajeError = string_from_format(
-					"Se recibio consulta, no fue ejecutada. Realizando journal");
-			return retorno;
-	}/*/
+	//while(!sem_getvalue(&journal, &valueSem) && valueSem<1);
+
 	//TODO CHEQUEAR SINCRO TODO TODO
 
 	Comando *parsed = malloc(sizeof(Comando));
@@ -30,19 +21,30 @@ Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 	if (parsed->valido) {
 		switch (parsed->keyword) {
 		case SELECT:
-			retorno = selectAPI(input, *parsed);
+			sem_getvalue(&journal, &valueSem);
+			if(valueSem < 1){
+				retorno.TipoDeMensaje = ERROR;
+				retorno.Argumentos.ERROR.mensajeError = string_from_format(
+				"Se recibio consulta, no fue ejecutada. Realizando journal");
+			}else
+				retorno = selectAPI(input, *parsed);
 			break;
 		case INSERT:
-			if ((strlen(parsed->argumentos.INSERT.value) + 1) > tamanioValue) {
-				/*log_error(logger_error,"TamValue teorico: %d\nTamValue real: %d\n",
-						tamanioValue,
-						(strlen(parsed->argumentos.INSERT.value) + 1));*/
-				retorno.Argumentos.ERROR.mensajeError = string_from_format(
-						"Error en el tamanio del value. Segmentation Fault");
+			sem_getvalue(&journal, &valueSem);
+			if(valueSem < 1){
 				retorno.TipoDeMensaje = ERROR;
-			} else {
-				retorno = insertAPI(input, *parsed);
+				retorno.Argumentos.ERROR.mensajeError = string_from_format(
+				"Se recibio consulta, no fue ejecutada. Realizando journal");
+			}else{
+				if ((strlen(parsed->argumentos.INSERT.value) + 1) > tamanioValue) {
+					retorno.Argumentos.ERROR.mensajeError = string_from_format(
+						"Error en el tamanio del value. Segmentation Fault");
+					retorno.TipoDeMensaje = ERROR;
+				} else {
+					retorno = insertAPI(input, *parsed);
+				}
 			}
+
 			break;
 		case CREATE:
 			retorno = createAPI(input, *parsed);
@@ -51,7 +53,13 @@ Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 			retorno = describeAPI(input, *parsed);
 			break;
 		case DROP:
-			retorno = dropAPI(input, *parsed);
+			sem_getvalue(&journal, &valueSem);
+			if(valueSem < 1){
+				retorno.TipoDeMensaje = ERROR;
+				retorno.Argumentos.ERROR.mensajeError = string_from_format(
+						"Se recibio consulta, no fue ejecutada. Realizando journal");
+			}else
+				retorno =dropAPI(input, *parsed);
 			break;
 		case JOURNAL:
 			retorno = journalAPI();
@@ -428,7 +436,8 @@ Operacion journalAPI(){
 	//  1.2. Si no esta modificado avanzo
 
 	sem_wait(&journal);
-//	usleep(500000000);
+
+	usleep(500000000);
 	//printf("TERMINO SLEEP JOURNAL\n");
 
 	pthread_mutex_lock(&mutexTablaSegmentos);

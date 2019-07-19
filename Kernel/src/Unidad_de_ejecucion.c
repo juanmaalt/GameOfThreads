@@ -49,7 +49,7 @@ static DynamicAddressingRequest direccionar_request(char *request){
 		return retorno;
 	}
 	Comando comando = parsear_comando(request);
-	Memoria *memoria;
+	Memoria *memoria=NULL;
 	switch(comando.keyword){//A esta altura ya nos aseguramos de que el comando habia sido valido
 	case SELECT:
 		memoria = determinar_memoria_para_tabla(comando.argumentos.SELECT.nombreTabla, comando.argumentos.SELECT.key);
@@ -265,7 +265,8 @@ static ResultadoEjecucionInterno exec_file_lql(PCB *pcb){
 static void ejecutar_journal(void *memoria){
 	Memoria *mem = (Memoria*)memoria;
 	Operacion op;
-	op.TipoDeMensaje = JOURNAL;
+	op.TipoDeMensaje = COMANDO;
+	op.Argumentos.COMANDO.comandoParseable=string_from_format("JOURNAL");
 	int socket = comunicarse_con_memoria(mem);
 	send_msg(socket, op);
 	destruir_operacion(op);
