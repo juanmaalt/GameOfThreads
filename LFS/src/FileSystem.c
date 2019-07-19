@@ -188,9 +188,22 @@ void levantarTablasExistentes(){
 			if(!strcmp(nombreCarpeta, ".") || !strcmp(nombreCarpeta, "..")){
 			}else{
 				crearTablaEnMemtable(nombreCarpeta);
-				log_info(logger_invisible, "FileSystem.c: levantarTablasEnMemtable() - Tabla levantada: %s", nombreCarpeta);
-				agregarBloqueEnBitarray(nombreCarpeta);
-				iniciarCompactacion(nombreCarpeta);//TODO:Arreglar
+				log_info(logger_invisible, "FileSystem.c: levantarTablasExistentes() - Tabla levantada: %s", nombreCarpeta);
+				if(agregarBloqueEnBitarray(nombreCarpeta)==0){
+					iniciarCompactacion(nombreCarpeta);//TODO:Arreglar
+				}else{
+					log_error(logger_visible, "FileSystem.c: levantarTablasExistentes() - Las particiones de la Tabla \"%s\" tiene un estado inconsistente. Tabla %s borrada. ", nombreCarpeta, nombreCarpeta);
+					log_error(logger_invisible, "FileSystem.c: levantarTablasExistentes() - Las particiones de la Tabla \"%s\" tiene un estado inconsistente. Tabla %s borrada. ", nombreCarpeta, nombreCarpeta);
+					log_error(logger_error, "FileSystem.c: levantarTablasExistentes() - Las particiones de la Tabla \"%s\" tiene un estado inconsistente. Tabla %s borrada. ", nombreCarpeta, nombreCarpeta);
+					string_append(&path, "/");
+					string_append(&path, nombreCarpeta);
+
+					int removido=removerDirectorio(path);
+					if(removido!=0){
+						log_error(logger_visible, "No se pudo borrar la tabla \"%s\"", nombreCarpeta);
+					}
+				}
+
 			}
 		}
 		closedir (dir);
@@ -229,7 +242,7 @@ void agregarBloqueEnParticion(char* bloque, char* nombreTabla, int particion){
 	free(nuevosBloques);
 }
 
-void agregarBloqueEnBitarray(char* nombreCarpeta){
+int agregarBloqueEnBitarray(char* nombreCarpeta){
 	char* pathTablas = string_from_format("%sTables/%s/", config.punto_montaje, nombreCarpeta);
 
 	DIR *dir;
@@ -243,6 +256,14 @@ void agregarBloqueEnBitarray(char* nombreCarpeta){
 				char* particionNbr = string_substring_until(nombreArchivo, (strlen(nombreArchivo)-4));
 				//printf("antes de lista de bloques\n");
 				char* listaDeBloques= obtenerListaDeBloques(atoi(particionNbr), nombreCarpeta);
+				if(listaDeBloques==NULL){
+					free(particionNbr);
+					free(nombreArchivo);
+					free(pathTablas);
+
+					return 1;
+				}
+
 				//printf("post de lista de bloques\n");
 				char** bloques = string_get_string_as_array(listaDeBloques);
 
@@ -259,5 +280,6 @@ void agregarBloqueEnBitarray(char* nombreCarpeta){
 		}
 	}
 	free(pathTablas);
+	return 0;
 }
 /*FIN FUNCIONES DIRECTORIO*/

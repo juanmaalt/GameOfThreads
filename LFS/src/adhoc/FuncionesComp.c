@@ -70,8 +70,7 @@ char* obtenerListaDeBloques(int particion, char* nombreTabla){
 
 	t_config* particionFile;
 	particionFile = config_create(pathFile);
-	char* resultado = config_get_string_value(particionFile, "BLOCKS");
-	char* listaDeBloques = string_from_format(resultado);
+	char* listaDeBloques = string_from_format(config_get_string_value(particionFile, "BLOCKS"));
 
 	config_destroy(particionFile);
 	free(pathFile);
