@@ -214,14 +214,15 @@ void crearArchivosBinarios(char* path, int particiones){
 		//printf("pathArchivo: %s\n", string_from_format("%s%s", path,filename));
 
 		int bloque = getBloqueLibre();
-		char* path=string_from_format("%s%s", path,filename);
-		binario = txt_open_for_append(path);
+		char* pathFinal=string_from_format("%s%s", path,filename);
+		binario = txt_open_for_append(pathFinal);
 		char* text=string_from_format("SIZE=0\nBLOCKS=[%d]\n",bloque);
 		txt_write_in_file(binario, text);
 		free(text);
+		free(pathFinal);
 		free(filename);
+		fclose(binario);
 	}
-	fclose(binario);
 }
 
 void insertInFile(char* path, int particionNbr, char* key, char* value){
