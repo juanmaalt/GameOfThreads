@@ -190,7 +190,7 @@ void levantarTablasExistentes(){
 				crearTablaEnMemtable(nombreCarpeta);
 				log_info(logger_invisible, "FileSystem.c: levantarTablasExistentes() - Tabla levantada: %s", nombreCarpeta);
 				if(agregarBloqueEnBitarray(nombreCarpeta)==0){
-					iniciarCompactacion(nombreCarpeta);//TODO:Arreglar
+					iniciarCompactacion(nombreCarpeta);
 				}else{
 					log_error(logger_visible, "FileSystem.c: levantarTablasExistentes() - Las particiones de la Tabla \"%s\" tiene un estado inconsistente. Tabla %s borrada. ", nombreCarpeta, nombreCarpeta);
 					log_error(logger_invisible, "FileSystem.c: levantarTablasExistentes() - Las particiones de la Tabla \"%s\" tiene un estado inconsistente. Tabla %s borrada. ", nombreCarpeta, nombreCarpeta);
@@ -262,19 +262,19 @@ int agregarBloqueEnBitarray(char* nombreCarpeta){
 					free(pathTablas);
 
 					return 1;
+				}else{
+					//printf("post de lista de bloques\n");
+					char** bloques = string_get_string_as_array(listaDeBloques);
+
+					int i=0;
+
+					while(bloques[i]!=NULL){
+						int pos = atoi(bloques[i]);
+						bitarray_set_bit(bitarray, (pos-1));
+						i++;
+					}
+					free(particionNbr);
 				}
-
-				//printf("post de lista de bloques\n");
-				char** bloques = string_get_string_as_array(listaDeBloques);
-
-				int i=0;
-
-				while(bloques[i]!=NULL){
-					int pos = atoi(bloques[i]);
-					bitarray_set_bit(bitarray, (pos-1));
-					i++;
-				}
-				free(particionNbr);
 			}
 			free(nombreArchivo);
 		}
