@@ -190,7 +190,7 @@ void levantarTablasExistentes(){
 				crearTablaEnMemtable(nombreCarpeta);
 				log_info(logger_invisible, "FileSystem.c: levantarTablasEnMemtable() - Tabla levantada: %s", nombreCarpeta);
 				agregarBloqueEnBitarray(nombreCarpeta);
-				//iniciarCompactacion(nombreCarpeta);TODO:Arreglar
+				iniciarCompactacion(nombreCarpeta);//TODO:Arreglar
 			}
 		}
 		closedir (dir);

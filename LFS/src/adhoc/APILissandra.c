@@ -92,11 +92,19 @@ Operacion insertAPI(Comando comando){
 	}
 
 	//checkExisteMemoria(); //Verificar si existe en memoria una lista de datos a dumpear. De no existir, alocar dicha memoria.
+	char* value = string_from_format(comando.argumentos.INSERT.value);
+
+	if(strlen(value)>atoi(config.tamanio_value)){
+		log_error(logger_invisible, "El value recibido es mayor al tamaño value del sistema.");
+		log_error(logger_error, "El value recibido es mayor al tamaño value del sistema.");
+		resultadoInsert.Argumentos.ERROR.mensajeError = string_from_format("El value recibido es mayor al tamaño value del sistema.");
+		return resultadoInsert;
+	}
 
 	/*Reservo espacio y aloco los datos a insertar*/
 	Registro* reg = malloc(sizeof(Registro));
 	reg->key = atoi(comando.argumentos.INSERT.key);
-	reg->value = string_from_format(comando.argumentos.INSERT.value);
+	reg->value = value;
 	reg->timestamp=checkTimestamp(comando.argumentos.INSERT.timestamp);
 
 	/*Obtengo la lista de registros a partir de la tabla solicitada*/
@@ -160,13 +168,13 @@ Operacion createAPI(Comando comando){
 	crearTablaEnMemtable(comando.argumentos.CREATE.nombreTabla);
 
 	/*Inicio el proceso de compactación*/
-	/*TODO:arreglar
+	//TODO:arreglar
 	char* nombreTabla = string_from_format(comando.argumentos.CREATE.nombreTabla);
 	if(iniciarCompactacion(nombreTabla) == EXIT_FAILURE){
 		log_error(logger_error,"APILissandra.c: <CREATE> No se pudo iniciar el hilo de compactación");
 		return resultadoCreate;
 	}
-	*/
+
 
 	/*Loggeo el CREATE exitoso y le aviso a la Memoria*/
 	log_info(logger_invisible, "CREATE realizado con éxito.");
@@ -174,6 +182,7 @@ Operacion createAPI(Comando comando){
 	resultadoCreate.Argumentos.TEXTO_PLANO.texto = string_from_format("CREATE realizado con éxito.");
 
 	free(path);
+	free(nombreTabla);
 
 	return resultadoCreate;
 }

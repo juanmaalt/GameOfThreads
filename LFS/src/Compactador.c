@@ -10,16 +10,27 @@
 void* compactar(void* nombreTabla){
 	pthread_detach(pthread_self());
 
-	char* pathTabla = string_from_format("%sTables/%s", config.punto_montaje, nombreTabla);
+	char* pathTabla = string_from_format("%sTables/%s", config.punto_montaje, (char*)nombreTabla);
 	DIR *dir;
 	struct dirent *entry;
 	char* nombreArchivo;
 
+	//printf("path: %s\n", pathTabla);
+
 	t_config* metadataFile = leerMetadata(nombreTabla);
-	getMetadata(nombreTabla, metadataFile);
+	if(metadataFile == NULL){
+		log_error(logger_visible, "Compactador.c: compactar(%s) - Error en el archivo 'Metadata' de la tabla %s, la tablara no se compactará.", (char*)nombreTabla, (char*)nombreTabla);
+		log_error(logger_error, "Compactador.c: compactar(%s) - Error en el archivo 'Metadata' de la tabla %s, la tablara no se compactará.", (char*)nombreTabla, (char*)nombreTabla);
+		return 0;
+	}
+	if(getMetadata((char*)nombreTabla, metadataFile)==EXIT_FAILURE){
+		log_error(logger_visible, "Compactador.c: compactar(%s) - Error al leer el archivo 'Metadata' de la tabla %s, la tablara no se compactará.", (char*)nombreTabla, (char*)nombreTabla);
+		log_error(logger_error, "Compactador.c: compactar(%s) - Error al leer el archivo 'Metadata' de la tabla %s, la tablara no se compactará.", (char*)nombreTabla, (char*)nombreTabla);
+		return 0;
+	}
 
 	for(;;){
-		usleep(config_get_int_value(metadataFile, "COMPACTION_TIME") * 1000);
+		usleep(metadata.compaction_time * 1000);
 
 		log_info(logger_invisible, "Compactador.c: compactar() - Inicio compactación");
 		//printf("path: %s\n", pathTabla);
@@ -35,7 +46,7 @@ void* compactar(void* nombreTabla){
 				if(string_contains(nombreArchivo, ".tmpc")){
 					char* pathTemp = string_from_format("%s/%s", pathTabla, nombreArchivo);
 
-					log_info(logger_invisible, "Compactador.c: compactar(%s): [%s] es un archivo temporal, inciando su compactación.", (char*)nombreTabla, nombreArchivo);
+					log_info(logger_invisible, "Compactador.c: compactar(%s): [%s] es un archivo temporal, inciando su compactacion.", (char*)nombreTabla, nombreArchivo);
 					/*Leo el archivo temporal e inicio su compactación*/
 					leerTemporal(pathTemp, metadata.partitions, (char*)nombreTabla);
 					/*Borro el archivo temporal*/
@@ -43,7 +54,7 @@ void* compactar(void* nombreTabla){
 					free(pathTemp);
 				}
 				else{
-					log_info(logger_invisible, "Compactador.c: compactar(%s): [%s] no es un archivo temporal, no se compactará", (char*)nombreTabla, nombreArchivo);
+					log_info(logger_invisible, "Compactador.c: compactar(%s): [%s] no es un archivo temporal, no se compactara", (char*)nombreTabla, nombreArchivo);
 				}
 			}
 			/*Busca en el diccionario por el hash nombreTabla hace un pop de cada peticion y la manda a ejecutarOperacion*/
@@ -51,7 +62,7 @@ void* compactar(void* nombreTabla){
 
 			sacarTablaDeDiccCompactacion((char*)nombreTabla);
 			closedir (dir);
-			log_info(logger_invisible, "Compactador.c: compactar() - Fin compactación");
+			log_info(logger_invisible, "Compactador.c: compactar(%s) - Fin compactación", (char*)nombreTabla);
 		}
 	}
 	free(nombreArchivo);
