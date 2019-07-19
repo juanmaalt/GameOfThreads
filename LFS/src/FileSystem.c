@@ -263,7 +263,7 @@ int agregarBloqueEnBitarray(char* nombreCarpeta){
 
 					return 1;
 				}else{
-					//printf("post de lista de bloques\n");
+					printf("\n\n%s\n\n", listaDeBloques);
 					char** bloques = string_get_string_as_array(listaDeBloques);
 
 					int i=0;
