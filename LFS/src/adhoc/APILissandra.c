@@ -182,14 +182,12 @@ Operacion createAPI(Comando comando){
 		return resultadoCreate;
 	}
 
-
 	/*Loggeo el CREATE exitoso y le aviso a la Memoria*/
 	log_info(logger_invisible, "CREATE realizado con éxito.");
 	resultadoCreate.TipoDeMensaje = TEXTO_PLANO;
 	resultadoCreate.Argumentos.TEXTO_PLANO.texto = string_from_format("CREATE realizado con éxito.");
 
 	free(path);
-	free(nombreTabla);
 
 	return resultadoCreate;
 }

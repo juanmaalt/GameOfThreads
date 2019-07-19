@@ -36,7 +36,6 @@ int main(void) {
 
 	/*Creo el diccionario para las tablas en compactación*/
 	diccCompactacion = dictionary_create();
-	listaInputs = list_create();//TODO: checkear
 
 	/*Inicio la consola*/
 	if(iniciar_consola() == EXIT_FAILURE){
@@ -236,6 +235,7 @@ Operacion ejecutarOperacion(char* input) {
 		switch (parsed->keyword){
 		case SELECT:
 			if(dictionary_has_key(diccCompactacion, parsed->argumentos.SELECT.nombreTabla)){
+				t_list* listaInputs;
 				listaInputs=dictionary_get(diccCompactacion, parsed->argumentos.SELECT.nombreTabla);
 				list_add(listaInputs, string_from_format(input));
 			}else{
@@ -244,6 +244,7 @@ Operacion ejecutarOperacion(char* input) {
 			break;
 		case INSERT:
 			if(dictionary_has_key(diccCompactacion, parsed->argumentos.INSERT.nombreTabla)){
+				t_list* listaInputs;
 				listaInputs=dictionary_get(diccCompactacion, parsed->argumentos.INSERT.nombreTabla);
 				list_add(listaInputs, string_from_format(input));
 			}else{retorno = insertAPI(*parsed);}
@@ -259,6 +260,7 @@ Operacion ejecutarOperacion(char* input) {
 			break;
 		case DROP:
 			if(dictionary_has_key(diccCompactacion, parsed->argumentos.DROP.nombreTabla)){
+				t_list* listaInputs;
 				listaInputs=dictionary_get(diccCompactacion, parsed->argumentos.DROP.nombreTabla);
 				list_add(listaInputs, string_from_format(input));
 			}else{retorno = dropAPI(*parsed);}
@@ -523,7 +525,6 @@ void rutinas_de_finalizacion(){
 	/*Libero recursos*/
 	config_destroy(configFile);
 	dictionary_destroy(memtable);
-	list_destroy(listaInputs);
 	dictionary_destroy(diccCompactacion);
 	bitarray_destroy(bitarray);
 	close(miSocket);
