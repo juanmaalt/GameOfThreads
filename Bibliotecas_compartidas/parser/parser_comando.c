@@ -332,10 +332,10 @@ bool esConsistenciaValida(char* cadena){
 }
 
 bool esValue(char* cadena){
-	for(int i=1; cadena[i]!='\n' && cadena[i]!='\0' && cadena[i]!='"'; ++i)
+	/*for(int i=1; cadena[i]!='\n' && cadena[i]!='\0' && cadena[i]!='"'; ++i)
 		if(cadena[i] != ' ' && cadena[i] != '-')
 			if(!isalnum((int)cadena[i]))
-				return false;
+				return false;*/
 	return true;
 }
 
