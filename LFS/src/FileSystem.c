@@ -256,13 +256,7 @@ int agregarBloqueEnBitarray(char* nombreCarpeta){
 				char* particionNbr = string_substring_until(nombreArchivo, (strlen(nombreArchivo)-4));
 				//printf("antes de lista de bloques\n");
 				char* listaDeBloques= obtenerListaDeBloques(atoi(particionNbr), nombreCarpeta);
-				if(listaDeBloques==NULL){
-					free(particionNbr);
-					free(nombreArchivo);
-					free(pathTablas);
-
-					return 1;
-				}else{
+				if(string_starts_with(listaDeBloques, "[")&&string_ends_with(listaDeBloques, "]")){
 					printf("\n\n%s\n\n", listaDeBloques);
 					char** bloques = string_get_string_as_array(listaDeBloques);
 
@@ -274,6 +268,12 @@ int agregarBloqueEnBitarray(char* nombreCarpeta){
 						i++;
 					}
 					free(particionNbr);
+				}else{
+					free(particionNbr);
+					free(nombreArchivo);
+					free(pathTablas);
+
+					return 1;
 				}
 			}
 			free(nombreArchivo);
