@@ -23,11 +23,15 @@ void* compactar(void* nombreTabla){
 		log_error(logger_error, "Compactador.c: compactar(%s) - Error en el archivo 'Metadata' de la tabla %s, la tablara no se compactará.", (char*)nombreTabla, (char*)nombreTabla);
 		return 0;
 	}
-	if(getMetadata((char*)nombreTabla, metadataFile)==EXIT_FAILURE){
-		log_error(logger_visible, "Compactador.c: compactar(%s) - Error al leer el archivo 'Metadata' de la tabla %s, la tablara no se compactará.", (char*)nombreTabla, (char*)nombreTabla);
-		log_error(logger_error, "Compactador.c: compactar(%s) - Error al leer el archivo 'Metadata' de la tabla %s, la tablara no se compactará.", (char*)nombreTabla, (char*)nombreTabla);
-		return 0;
-	}
+
+	Metadata_tabla metadata;
+	metadata.compaction_time = config_get_int_value(metadataFile, "COMPACTION_TIME");
+	metadata.consistency = config_get_string_value(metadataFile, "CONSISTENCY");
+	metadata.partitions= config_get_int_value(metadataFile, "PARTITIONS");
+
+	//printf("Metadata->compaction_time= %d\n", metadata.compaction_time);
+	//printf("Metadata->consistency= %s\n", metadata.consistency);
+	//printf("Metadata->partitions= %d\n", metadata.partitions);
 
 	for(;;){
 		usleep(metadata.compaction_time * 1000);
@@ -67,6 +71,7 @@ void* compactar(void* nombreTabla){
 	}
 	free(nombreArchivo);
 	free(pathTabla);
+	//free(metadata);//TODO:Ver como liberarlo
 	return NULL;
 }
 
