@@ -41,19 +41,19 @@ void leerTemporal(char* pathTemp, int particiones, char* nombreTabla){
     /*Abro file .tmpc*/
 	temp = fopen(pathTemp, "r");
 	/*Leo el file linea a linea*/
-	while(fscanf(temp, "%d;%d;%[^\n]s", &timestamp, &key, value)!= EOF){
-		log_info(logger_invisible, "Compactador.c: leerTemporal() - Linea leída: %d;%d;%s\n", timestamp, key ,value);
+	while(fscanf(temp, "%d;%d;%s[^\n]", &timestamp, &key, value)!= EOF){
+		log_info(logger_invisible, "Compactador.c: leerTemporal() - Linea leída: %d;%d;%s", timestamp, key ,value);
 		char* linea = string_from_format("%d;%d;%s\n",timestamp, key, value);
 
+		//printf("key:%d\npartciones:%d\n", key, particiones);
 		int particionNbr = calcularParticionNbr(string_from_format("%d", key), particiones);
-		log_info(logger_invisible, "Compactador.c: leerTemporal() - Partición Nro: %d\n", particionNbr);
+		log_info(logger_invisible, "Compactador.c: leerTemporal() - Partición Nro: %d", particionNbr);
 
 		char* listaDeBloques= obtenerListaDeBloques(particionNbr, nombreTabla);
-		log_info(logger_invisible, "Compactador.c: leerTemporal() - Bloques asignados: %s\n",listaDeBloques);
+		log_info(logger_invisible, "Compactador.c: leerTemporal() - Bloques asignados: %s",listaDeBloques);
 
 		if(esRegistroMasReciente(timestamp, key, listaDeBloques)){
 			char* bloque = firstBloqueDisponible(listaDeBloques);
-			log_info(logger_invisible, "Compactador.c: leerTemporal() - Primer bloque con espacio disponible: %s\n", bloque);
 
 			escribirLinea(bloque, linea, nombreTabla, particionNbr);
 		}
@@ -84,7 +84,7 @@ char* firstBloqueDisponible(char* listaDeBloques){
 
 	while(bloques[i]!=NULL){
 		int charsInFile = caracteresEnBloque(bloques[i]);
-		printf("Bloque %s con %d caracteres disponibles\n", bloques[i], (metadataFS.blockSize - charsInFile));
+		//printf("Bloque %s con %d caracteres disponibles\n", bloques[i], (metadataFS.blockSize - charsInFile));
 		if(charsInFile < metadataFS.blockSize){
 			log_info(logger_invisible, "Compactador.c: firstBloqueDisponible() - Bloque %s con %d caracteres disponibles\n", bloques[i], (metadataFS.blockSize - charsInFile));
 			firstBloque=bloques[i];
@@ -139,6 +139,7 @@ void escribirLinea(char* bloque, char* linea, char* nombreTabla, int particion){
 	if(string_equals_ignore_case(bloque, "0")){
 		bloque = string_from_format("%d",getBloqueLibre());
 	}
+	log_info(logger_invisible, "Compactador.c: escribirLinea() - Bloque a escribir: %s", bloque);
 	//printf("bloque elegido: %s\n", bloque);
 
 	int charsDisponibles = metadataFS.blockSize-caracteresEnBloque(bloque);

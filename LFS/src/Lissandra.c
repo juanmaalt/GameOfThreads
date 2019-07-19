@@ -29,6 +29,7 @@ int main(void) {
 	//agregarDatos(memtable);//TODO:funcion para pruebas
 
 	/*Levantar Bitmap*/
+	bitarray=malloc(sizeof(t_bitarray));
 	leerBitmap();
 
 	/*Levantar Tablas*/
@@ -46,7 +47,7 @@ int main(void) {
 	/*Inicio el hilo del Dump*/
 	pthread_t idDump;
 	if (pthread_create(&idDump, NULL, dump, NULL)) {
-		log_error(logger_error, "Lissandra.c: main() Falló al iniciar el hilo de Dump");
+		log_error(logger_error, "Lissandra.c: main() Fallo al iniciar el hilo de Dump");
 		return EXIT_FAILURE;
 	}
 
@@ -118,15 +119,15 @@ int configuracion_inicial(){
 	if(logger_invisible == NULL){
 		RETURN_ERROR("Lissandra.c: configuracion_inicial() - Error al iniciar logger_invisible;");
 	}else{
-		log_info(logger_invisible, "Lissandra.c: configuracion_inicial() - Se inició logger_error;");
-		log_info(logger_invisible, "Lissandra.c: configuracion_inicial() - Se inició logger_invisible;");
+		log_info(logger_invisible, "Lissandra.c: configuracion_inicial() - Se inicio logger_error;");
+		log_info(logger_invisible, "Lissandra.c: configuracion_inicial() - Se inicio logger_invisible;");
 	}
 
 	/*Creo logger visible*/
 	logger_visible = iniciar_logger(true, "logs/LFS.log");
 	if(logger_visible == NULL){
 		RETURN_ERROR("Lissandra.c: configuracion_inicial() - Error al iniciar logger_visible;");
-	}else{log_info(logger_invisible, "Lissandra.c: configuracion_inicial() - Se inició logger_visible;");}
+	}else{log_info(logger_invisible, "Lissandra.c: configuracion_inicial() - Se inicio logger_visible;");}
 
 	configFile = leer_config();
 	if(configFile == NULL){
@@ -438,8 +439,8 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 
 	while(bloques[i]!=NULL){
 		char* pathBloque = string_from_format("%sBloques/%s.bin", config.punto_montaje, bloques[i]);
-		printf("bloque[i]: %s\n", bloques[i]);
-		printf("antes de fopen: %s\n", pathBloque);
+		//printf("bloque[i]: %s\n", bloques[i]);
+		//printf("antes de fopen: %s\n", pathBloque);
 		fBloque = fopen(pathBloque, "r");
 		while((ch = getc(fBloque)) != EOF){
 			if(ch !='\n'){
@@ -458,7 +459,7 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 					return reg;
 				}
 			}
-			printf("linea: %s\n", linea);
+			//printf("linea: %s\n", linea);
 		}
 		fclose(fBloque);
 		free(pathBloque);
