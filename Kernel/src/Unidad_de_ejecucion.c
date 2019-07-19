@@ -10,7 +10,7 @@
 //FUNCIONES: Privadas. No van en el header.
 static ResultadoEjecucionInterno exec_file_lql(PCB *pcb);
 static ResultadoEjecucionInterno exec_string_comando(PCB *pcb);
-static ResultadoEjecucionInterno procesar_retorno_operacion(Operacion op, PCB *pcb, char *instruccionActual);//Recibe el retorno de operacion (lo mas importante). El pcb es para mostrar datos extras como el nombre del archivo que fallo, al igual que la instruccion actual
+static ResultadoEjecucionInterno procesar_retorno_operacion(Operacion op, PCB *pcb, char *instruccionActual, DynamicAddressingRequest* link);//Recibe el retorno de operacion (lo mas importante). El pcb es para mostrar datos extras como el nombre del archivo que fallo, al igual que la instruccion actual
 static DynamicAddressingRequest direccionar_request(char *request);
 static socket_t comunicarse_con_memoria();
 static socket_t comunicarse_con_memoria_principal();
@@ -180,7 +180,7 @@ static ResultadoEjecucionInterno exec_string_comando(PCB *pcb){
 	send_msg(target.socket, request);
 	destruir_operacion(request);
 	request = recv_msg(target.socket);
-	if(procesar_retorno_operacion(request, pcb, (char*)pcb->data) != INSTRUCCION_ERROR){
+	if(procesar_retorno_operacion(request, pcb, (char*)pcb->data, &target) != INSTRUCCION_ERROR){
 		target.operacionExitosa = true;
 		target.finOperacion = getCurrentTime();
 		generar_estadisticas(&target);
@@ -238,7 +238,7 @@ static ResultadoEjecucionInterno exec_file_lql(PCB *pcb){
 		send_msg(target.socket, request);
 		destruir_operacion(request);
 		request = recv_msg(target.socket);
-		if(procesar_retorno_operacion(request, pcb, line) == INSTRUCCION_ERROR){
+		if(procesar_retorno_operacion(request, pcb, line, &target) == INSTRUCCION_ERROR){
 			destruir_operacion(request);
 			fclose(lql);
 			free(pcb->nombreArchivoLQL);
@@ -273,21 +273,25 @@ static void ejecutar_journal(void *memoria){
 }
 
 
-static ResultadoEjecucionInterno procesar_retorno_operacion(Operacion op, PCB* pcb, char* instruccionActual){
+static ResultadoEjecucionInterno procesar_retorno_operacion(Operacion op, PCB* pcb, char* instruccionActual, DynamicAddressingRequest* link){
 	char *instruccionActualTemp = NULL;
 	switch(op.TipoDeMensaje){
 	case TEXTO_PLANO:
-		log_info(logger_visible,"CPU: %d | %s", process_get_thread_id(), op.Argumentos.TEXTO_PLANO.texto);
-		log_info(logger_invisible,"CPU: %d | %s", process_get_thread_id(), op.Argumentos.TEXTO_PLANO.texto);
+		instruccionActualTemp = remover_new_line(instruccionActual);
+		log_info(logger_visible,"CPU: %d | Memoria: %d %s:%s | %s -> %s", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp, op.Argumentos.TEXTO_PLANO.texto);
+		log_info(logger_invisible,"CPU: %d | Memoria: %d %s:%s | %s -> %s", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp, op.Argumentos.TEXTO_PLANO.texto);
+		free(instruccionActualTemp);
 		return CONTINUAR;
 	case REGISTRO:
-		log_info(logger_visible,"CPU: %d | Timestamp: %llu, Key: %d, Value: %s", process_get_thread_id(), op.Argumentos.REGISTRO.timestamp, op.Argumentos.REGISTRO.key, op.Argumentos.REGISTRO.value);
-		log_info(logger_invisible,"CPU: %d | Timestamp: %llu, Key: %d, Value: %s", process_get_thread_id(), op.Argumentos.REGISTRO.timestamp, op.Argumentos.REGISTRO.key, op.Argumentos.REGISTRO.value);
+		instruccionActualTemp = remover_new_line(instruccionActual);
+		log_info(logger_visible,"CPU: %d | Memoria: %d %s:%s | %s -> [Timestamp: %llu, Key: %d, Value: %s]", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp, op.Argumentos.REGISTRO.timestamp, op.Argumentos.REGISTRO.key, op.Argumentos.REGISTRO.value);
+		log_info(logger_invisible,"CPU: %d | Memoria: %d %s:%s | %s -> [Timestamp: %llu, Key: %d, Value: %s]", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp, op.Argumentos.REGISTRO.timestamp, op.Argumentos.REGISTRO.key, op.Argumentos.REGISTRO.value);
+		free(instruccionActualTemp);
 		return CONTINUAR;
 	case ERROR:
 		instruccionActualTemp = remover_new_line(instruccionActual);
-		log_error(logger_error,"CPU: %d | Fallo en la instruccion '%s', Path: '%s'. Abortando: %s", process_get_thread_id(), instruccionActualTemp, pcb->nombreArchivoLQL, op.Argumentos.ERROR.mensajeError);
-		log_error(logger_invisible,"CPU: %d | Fallo en la instruccion '%s', Path: '%s'. Abortando: %s", process_get_thread_id(), instruccionActualTemp, pcb->nombreArchivoLQL, op.Argumentos.ERROR.mensajeError);
+		log_error(logger_error,"CPU: %d | Memoria: %d %s:%s | Fallo en la instruccion '%s', Path: '%s'. Abortando: %s", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto,  instruccionActualTemp, pcb->nombreArchivoLQL, op.Argumentos.ERROR.mensajeError);
+		log_error(logger_invisible,"CPU: %d | Memoria: %d %s:%s | Fallo en la instruccion '%s', Path: '%s'. Abortando: %s", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp, pcb->nombreArchivoLQL, op.Argumentos.ERROR.mensajeError);
 		free(instruccionActualTemp);
 		return INSTRUCCION_ERROR;
 	case DESCRIBE_REQUEST:
@@ -306,7 +310,7 @@ static ResultadoEjecucionInterno procesar_retorno_operacion(Operacion op, PCB* p
 		}
 		instruccionActualTemp = remover_new_line(instruccionActual);
 		mostrar_describe(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
-		log_info(logger_invisible, "Resultado %s: %s", instruccionActualTemp, op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
+		log_info(logger_invisible, "Resultado describe %s: %s", instruccionActualTemp, op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
 		free(instruccionActualTemp);
 		return CONTINUAR;
 	default:
