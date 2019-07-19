@@ -14,6 +14,7 @@ static ResultadoEjecucionInterno procesar_retorno_operacion(Operacion op, PCB *p
 static DynamicAddressingRequest direccionar_request(char *request);
 static socket_t comunicarse_con_memoria();
 static socket_t comunicarse_con_memoria_principal();
+static void ejecutar_journal(void *memoria);
 static void generar_estadisticas(DynamicAddressingRequest *link);
 
 
@@ -85,6 +86,9 @@ static DynamicAddressingRequest direccionar_request(char *request){
 		retorno.criterioQueSeUso = consistencia_de_tabla(comando.argumentos.DROP.nombreTabla);
 		retorno.tipoOperacion = ESCRITURA; //TODO: sacar memoria de mi lista
 		break;
+	case JOURNAL:
+		retorno.socket = JOURNAL_OP;
+		break;
 	default:
 		log_info(logger_invisible, "Instruccion ilegal");
 		log_info(logger_visible, "Instruccion ilegal");
@@ -99,7 +103,8 @@ static DynamicAddressingRequest direccionar_request(char *request){
 			retorno.socket = comunicarse_con_memoria_principal();
 			return retorno;
 		}
-		retorno.socket = NULL_MEMORY;
+		if(retorno.socket != JOURNAL_OP)
+			retorno.socket = NULL_MEMORY;
 		return retorno;
 	}
 	retorno.memoria = memoria;
@@ -161,6 +166,13 @@ static ResultadoEjecucionInterno exec_string_comando(PCB *pcb){
 		log_error(logger_invisible, "Unidad_de_ejecucion.c: exec_string_comando: finalizando operacion.");
 		return INSTRUCCION_ERROR;
 	}
+	if(target.socket == JOURNAL_OP){
+		list_iterate(memoriasExistentes, ejecutar_journal);
+		free(pcb->data);
+		free(pcb->nombreArchivoLQL);
+		free(pcb);
+		return FINALIZO;
+	}
 	target.inicioOperacion = getCurrentTime();
 	Operacion request;
 	request.TipoDeMensaje = COMANDO;
@@ -217,6 +229,9 @@ static ResultadoEjecucionInterno exec_file_lql(PCB *pcb){
 			free(pcb);
 			return INSTRUCCION_ERROR;
 		}
+		if(target.socket == JOURNAL_OP){
+			//TODO
+		}
 		target.inicioOperacion = getCurrentTime();
 		request.TipoDeMensaje = COMANDO;
 		request.Argumentos.COMANDO.comandoParseable = string_from_format(line);
@@ -247,7 +262,14 @@ static ResultadoEjecucionInterno exec_file_lql(PCB *pcb){
 }
 
 
-
+static void ejecutar_journal(void *memoria){
+	Memoria *mem = (Memoria*)memoria;
+	Operacion op;
+	op.TipoDeMensaje = JOURNAL;
+	int socket = comunicarse_con_memoria(mem);
+	send_msg(socket, op);
+	destruir_operacion(op);
+}
 
 
 static ResultadoEjecucionInterno procesar_retorno_operacion(Operacion op, PCB* pcb, char* instruccionActual){

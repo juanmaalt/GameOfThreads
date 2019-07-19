@@ -10,6 +10,7 @@
 #define TRUE 1
 #define FALSE 0
 #define NULL_MEMORY -1
+#define JOURNAL_OP -2
 
 	/*COMPORTAMIENTOS DE LA CPU*/
 	/**
