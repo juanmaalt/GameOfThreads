@@ -29,17 +29,24 @@ Operacion selectAPI(Comando comando){
 	}
 	/*Levanta la metadata de la tabla*/
 	t_config* metadataFile = leerMetadata(comando.argumentos.SELECT.nombreTabla);
-	if(getMetadata(comando.argumentos.SELECT.nombreTabla, metadataFile)==EXIT_FAILURE){
-		resultadoSelect.Argumentos.ERROR.mensajeError = string_from_format("No existe el archivo Metadata de la tabla solicitada.");
+	if(metadataFile==NULL){
+		resultadoSelect.Argumentos.ERROR.mensajeError = string_from_format("No existe el archivo Metadata de la tabla solicitada, no se puede realizar el SELECT.");
+		log_error(logger_invisible, "No existe el archivo Metadata de la tabla solicitada, no se puede realizar el SELECT.");
+		log_error(logger_error, "No existe el archivo Metadata de la tabla solicitada, no se puede realizar el SELECT.");
 		return resultadoSelect;
 	}
+	//TODO:Mejorar
+	Metadata_tabla metadata;
+	metadata.compaction_time = config_get_int_value(metadataFile, "COMPACTION_TIME");
+	metadata.consistency = config_get_string_value(metadataFile, "CONSISTENCY");
+	metadata.partitions= config_get_int_value(metadataFile, "PARTITIONS");
 
 	/*Levanta la lista de registros relacionados a la tabla*/
 	t_list* data = getData(comando.argumentos.SELECT.nombreTabla);
 
 	/*Calculo el nro de partición en la que se encuentra la key*/
 	int particionNbr = calcularParticionNbr(comando.argumentos.SELECT.key, metadata.partitions);
-	printf("Partición Nro: %d\n", particionNbr);
+	//printf("Partición Nro: %d\n", particionNbr);
 
 	/*Creo la lista de valores que condicen con dicha key*/
 	t_list* listaDeValues = list_create();
@@ -86,11 +93,12 @@ Operacion insertAPI(Comando comando){
 
 	/*Levanta la metadata de la tabla*/
 	t_config* metadataFile = leerMetadata(comando.argumentos.INSERT.nombreTabla);
-	if(getMetadata(comando.argumentos.SELECT.nombreTabla, metadataFile)==EXIT_FAILURE){
-		resultadoInsert.Argumentos.ERROR.mensajeError = string_from_format("No existe el archivo Metadata de la tabla solicitada.");
+	if(metadataFile==NULL){
+		resultadoInsert.Argumentos.ERROR.mensajeError = string_from_format("No existe el archivo Metadata de la tabla solicitada, no se puede realizar el SELECT.");
+		log_error(logger_invisible, "No existe el archivo Metadata de la tabla solicitada, no se puede realizar el INSERT.");
+		log_error(logger_error, "No existe el archivo Metadata de la tabla solicitada, no se puede realizar el INSERT.");
 		return resultadoInsert;
 	}
-
 	//checkExisteMemoria(); //Verificar si existe en memoria una lista de datos a dumpear. De no existir, alocar dicha memoria.
 	char* value = string_from_format(comando.argumentos.INSERT.value);
 
@@ -168,7 +176,6 @@ Operacion createAPI(Comando comando){
 	crearTablaEnMemtable(comando.argumentos.CREATE.nombreTabla);
 
 	/*Inicio el proceso de compactación*/
-	//TODO:arreglar
 	char* nombreTabla = string_from_format(comando.argumentos.CREATE.nombreTabla);
 	if(iniciarCompactacion(nombreTabla) == EXIT_FAILURE){
 		log_error(logger_error,"APILissandra.c: <CREATE> No se pudo iniciar el hilo de compactación");
@@ -197,7 +204,7 @@ Operacion describeAPI(Comando comando){
 	char* path = string_from_format("%sTables/", config.punto_montaje);
 	//char* pathMetadata = malloc(1000 * sizeof(char));
 
-	char* string=string_new();//TODO: esto podría traer condición de carrera
+	char* string=string_new();
 
 	getStringDescribe(path, string, comando.argumentos.DESCRIBE.nombreTabla, &resultadoDescribe);
 	//printf("Describe_string: %s\n", resultadoDescribe.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
@@ -221,16 +228,17 @@ Operacion dropAPI(Comando comando){
 		/*Borro la entrada de la memtable*/
 		dictionary_remove(memtable, comando.argumentos.DROP.nombreTabla);
 	}
-		limpiarBloquesEnBitarray(comando.argumentos.DROP.nombreTabla);
 
-		/*Reservo espacio para los paths*/
-		char* pathFolder = string_from_format("%sTables/%s", config.punto_montaje, comando.argumentos.DROP.nombreTabla);
+	limpiarBloquesEnBitarray(comando.argumentos.DROP.nombreTabla);
 
-		int removido=removerDirectorio(pathFolder);
-		//printf("resultadoDrop= %d\n", removido);
+	/*Reservo espacio para los paths*/
+	char* pathFolder = string_from_format("%sTables/%s", config.punto_montaje, comando.argumentos.DROP.nombreTabla);
 
-		resultadoDrop.TipoDeMensaje = TEXTO_PLANO;
-		resultadoDrop.Argumentos.TEXTO_PLANO.texto = string_from_format("DROP realizado con exito.");
+	int removido=removerDirectorio(pathFolder);
+	//printf("resultadoDrop= %d\n", removido);
+
+	resultadoDrop.TipoDeMensaje = TEXTO_PLANO;
+	resultadoDrop.Argumentos.TEXTO_PLANO.texto = string_from_format("DROP realizado con exito.");
 
 	if(removido!=0){
 		resultadoDrop.Argumentos.ERROR.mensajeError = string_from_format("No existe la tabla que intenta Borrar");

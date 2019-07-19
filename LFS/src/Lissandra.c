@@ -52,16 +52,9 @@ int main(void) {
 	}
 
 	/*Habilita al File System como server y queda en modo en listen*/
-	int miSocket = enable_server(config.ip, config.puerto_escucha);
+	miSocket = enable_server(config.ip, config.puerto_escucha);
 	log_info(logger_invisible, "Lissandra.c: main() - Servidor encendido, esperando conexiones");
 	threadConnection(miSocket, connection_handler);
-
-	/*Libero recursos*/
-	config_destroy(configFile);
-	dictionary_destroy(memtable);
-	dictionary_destroy(diccCompactacion);
-	bitarray_destroy(bitarray);
-	close(miSocket);
 
 	//Rutinas de finalizacion
 	rutinas_de_finalizacion();
@@ -398,7 +391,7 @@ void dumpTabla(char* nombreTable, t_list* list){
 
 	int numeroDump = cuentaArchivos(path);
 
-	char* pathArchivo = string_from_format("%s/dump_%d.tmp", path, numeroDump);
+	char* pathArchivo = string_from_format("%s/D%d.tmp", path, numeroDump);
 
 	FILE* file = fopen(pathArchivo,"w");
 
@@ -475,7 +468,16 @@ void rutinas_de_finalizacion(){
 	printf(BLU"\n█▀▀▀ █▀▀█ █▀▄▀█ █▀▀ 　 █▀▀█ █▀▀ 　 ▀▀█▀▀ █░░█ █▀▀█ █▀▀ █▀▀█ █▀▀▄ █▀▀ \n█░▀█ █▄▄█ █░▀░█ █▀▀ 　 █░░█ █▀▀ 　 ░░█░░ █▀▀█ █▄▄▀ █▀▀ █▄▄█ █░░█ ▀▀█ \n▀▀▀▀ ▀░░▀ ▀░░░▀ ▀▀▀ 　 ▀▀▀▀ ▀░░ 　 ░░▀░░ ▀░░▀ ▀░▀▀ ▀▀▀ ▀░░▀ ▀▀▀░ ▀▀▀ \n\n"STD);
 	log_info(logger_invisible, "=============Finalizando LFS=============");
 	fflush(stdout);
+
+	/*Libero recursos*/
+	config_destroy(configFile);
+	dictionary_destroy(memtable);
+	list_destroy(listaInputs);
+	dictionary_destroy(diccCompactacion);
+	bitarray_destroy(bitarray);
+	close(miSocket);
 	log_destroy(logger_visible);
 	log_destroy(logger_invisible);
 	log_destroy(logger_error);
+
 }

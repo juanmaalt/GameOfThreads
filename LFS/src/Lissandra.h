@@ -83,6 +83,7 @@ t_config* configFile;
 Config_final_data config;
 vConfig vconfig;
 t_list* listaInputs;
+int miSocket;
 
 int socketMemoria;
 

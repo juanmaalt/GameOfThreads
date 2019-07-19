@@ -13,7 +13,7 @@
 #include <parser/compresor_describe.h>
 
 //GLOBALES
-Metadata_tabla metadata;
+//Metadata_tabla metadata;
 
 //COMPLEMENTARIAS
 bool existeTabla(char* key);

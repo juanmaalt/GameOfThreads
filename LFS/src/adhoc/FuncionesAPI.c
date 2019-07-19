@@ -19,7 +19,7 @@ int getMetadata(char* nombreTabla, t_config* metadataFile){
 		return EXIT_FAILURE;
 	}
 
-	extraerMetadata(metadataFile);
+	//extraerMetadata(metadataFile);
 
 	//mostrarMetadata();//funcion adhoc para testing
 
@@ -31,7 +31,7 @@ t_config* leerMetadata(char* nombreTabla){
 	return config_create(string_from_format("%sTables/%s/Metadata", config.punto_montaje, nombreTabla));
 }
 
-
+/*
 void extraerMetadata(t_config* metadataFile) {
 	metadata.compaction_time = config_get_int_value(metadataFile, "COMPACTION_TIME");
 	metadata.consistency = config_get_string_value(metadataFile, "CONSISTENCY");
@@ -44,7 +44,7 @@ void mostrarMetadata(){
 	log_info(logger_visible, "Metadata->consistency= %s\n", metadata.consistency);
 	log_info(logger_visible, "Metadata->partitions= %d\n", metadata.partitions);
 }
-
+*/
 
 t_list*	getData(char* nombreTabla){
 	return dictionary_get(memtable, nombreTabla);
@@ -259,12 +259,13 @@ void getStringDescribe(char* path, char* string, char* nombreTabla, Operacion *r
 						log_error(logger_invisible, "No se puede acceder al archivo Metadata de la tabla %s", nombreCarpeta);
 					}else{
 						char* consistencia = string_from_format(config_get_string_value(metadata, "CONSISTENCY"));
-						int compactionTime=config_get_int_value(metadata, "COMPACTION_TIME");
-						int particiones =config_get_int_value(metadata, "PARTITIONS");
+						int compactionTime= config_get_int_value(metadata, "COMPACTION_TIME");
+						int particiones = config_get_int_value(metadata, "PARTITIONS");
 
 						concatenar_tabla(&string, nombreCarpeta, consistencia, particiones, compactionTime);
 						//printf("string: %s\n", string);
 
+						free(consistencia);
 						config_destroy(metadata);
 					}
 				}
