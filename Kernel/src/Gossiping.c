@@ -26,6 +26,7 @@ int iniciar_gossiping(){
 
 
 static void *main_gossiping(void *null){
+	pthread_detach(pthread_self());
 	for(;;){
 		if(list_is_empty(memoriasExistentes))
 			modo_de_recuperacion();

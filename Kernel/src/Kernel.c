@@ -65,6 +65,7 @@ static int configuracion_inicial(){
 	sem_init(&extraerDeReadyDeAUno, 0, 1);
 	sem_init(&meterEnReadyDeAUno, 0, 1);
 
+
 	mkdir("log", 0777); //Crea la carpeta log junto al ejecutable (si ya existe no toca nada de lo que haya adentro)
 
 	remove("log/KernelResumen.log"); //Esto define que cada ejecucion, el log se renueva

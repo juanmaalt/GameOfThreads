@@ -296,6 +296,7 @@ void remover_comillas(char** cadena){
 	}
 }
 
+
 char *remover_new_line(char* cadena){
 	char *retorno = string_from_format("%c", *cadena);
 	for(int i=1; i<strlen(cadena); ++i){
@@ -358,16 +359,16 @@ char **string_double_split(char *cadena, char *firstSeprator, char *secondSepara
 		substrings = realloc(substrings, sizeof(char*) * size);
 		substrings[size - 1] = string_duplicate(token);
 
-		if(string_starts_with(token, secondSeparator)){
+		if(string_starts_with(token, secondSeparator) && !string_ends_with(token, secondSeparator)){
 			if(next != NULL){
 				token = strtok_r(NULL, secondSeparator, &next);
-				if(token == NULL)
-					break;
-				char *tmp = string_from_format(" %s", token);
-				string_append(&substrings[size-1], tmp);
-				free(tmp);
+				if(token != NULL){
+					char *tmp = string_from_format(" %s", token);
+					string_append(&substrings[size-1], tmp);
+					free(tmp);
+				}
 			}
-		}
+		}//----
 	};
 
 	if (next[0] != '\0') {
