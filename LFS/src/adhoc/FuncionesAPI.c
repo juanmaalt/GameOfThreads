@@ -98,6 +98,7 @@ void leerTemps(char* nombreTabla, char* key, t_list* listaDeValues){
 				}
 				free(pathTemp);
 			}
+			free(nombreTemp);
 		}
 	}
     free(pathTabla);
@@ -213,8 +214,11 @@ void crearArchivosBinarios(char* path, int particiones){
 		//printf("pathArchivo: %s\n", string_from_format("%s%s", path,filename));
 
 		int bloque = getBloqueLibre();
-		binario = txt_open_for_append(string_from_format("%s%s", path,filename));
-		txt_write_in_file(binario, string_from_format("SIZE=0\nBLOCKS=[%d]\n",bloque));
+		char* path=string_from_format("%s%s", path,filename);
+		binario = txt_open_for_append(path);
+		char* text=string_from_format("SIZE=0\nBLOCKS=[%d]\n",bloque);
+		txt_write_in_file(binario, text);
+		free(text);
 		free(filename);
 	}
 	fclose(binario);
@@ -385,6 +389,7 @@ void limpiarBloquesEnBitarray(char* nombreTabla){
 					i++;
 				}
 			}
+			free(nombreArchivo);
 		}
 	}
 	free(pathTablas);

@@ -60,6 +60,7 @@ void* compactar(void* nombreTabla){
 				else{
 					log_info(logger_invisible, "Compactador.c: compactar(%s): [%s] no es un archivo temporal, no se compactara", (char*)nombreTabla, nombreArchivo);
 				}
+				free(nombreArchivo);
 			}
 			/*Busca en el diccionario por el hash nombreTabla hace un pop de cada peticion y la manda a ejecutarOperacion*/
 			procesarPeticionesPendientes((char*)nombreTabla);
@@ -69,9 +70,9 @@ void* compactar(void* nombreTabla){
 			log_info(logger_invisible, "Compactador.c: compactar(%s) - Fin compactación", (char*)nombreTabla);
 		}
 	}
-	free(nombreArchivo);
 	free(pathTabla);
-	//free(metadata);//TODO:Ver como liberarlo
+	config_destroy(metadataFile);
+	free(nombreTabla);
 	return NULL;
 }
 

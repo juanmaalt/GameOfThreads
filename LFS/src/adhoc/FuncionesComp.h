@@ -10,6 +10,7 @@
 
 #include "../Lissandra.h"
 #include "APILissandra.h"
+#include <stdlib.h>
 
 void cambiarNombreFilesTemp(char* pathTabla);
 void leerTemporal(char* pathTemp, int particiones, char* nombreTabla);

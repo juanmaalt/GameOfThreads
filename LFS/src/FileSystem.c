@@ -218,11 +218,13 @@ void agregarBloqueEnParticion(char* bloque, char* nombreTabla, int particion){
 	//printf("size inicial: %d\n", caracteresEnBloque(bloque));
 	//printf("size final: %d\n", size);
 
-	config_set_value(particionData, "SIZE", string_from_format("%d",size));
+	char* sizet= string_from_format("%d", size);
+	config_set_value(particionData, "SIZE", sizet);
 	config_set_value(particionData, "BLOCKS", nuevosBloques);
 
 	config_save(particionData);
 	config_destroy(particionData);
+	free(sizet);
 	free(pathParticion);
 	free(nuevosBloques);
 }
@@ -253,6 +255,7 @@ void agregarBloqueEnBitarray(char* nombreCarpeta){
 				}
 				free(particionNbr);
 			}
+			free(nombreArchivo);
 		}
 	}
 	free(pathTablas);

@@ -24,13 +24,12 @@ void cambiarNombreFilesTemp(char* pathTabla){
 
 				rename(pathFileViejo, pathFileNuevo);
 			}
-
+			free(nombreArchivo);
 		}
 		closedir (dir);
 	}
 	free(pathFileViejo);
 	free(pathFileNuevo);
-	free(nombreArchivo);
 }
 
 void leerTemporal(char* pathTemp, int particiones, char* nombreTabla){
@@ -46,8 +45,10 @@ void leerTemporal(char* pathTemp, int particiones, char* nombreTabla){
 		char* linea = string_from_format("%d;%d;%s\n",timestamp, key, value);
 
 		//printf("key:%d\npartciones:%d\n", key, particiones);
-		int particionNbr = calcularParticionNbr(string_from_format("%d", key), particiones);
+		char* tkey= string_from_format("%d", key);
+		int particionNbr = calcularParticionNbr(tkey, particiones);
 		log_info(logger_invisible, "Compactador.c: leerTemporal() - Partición Nro: %d", particionNbr);
+		free(tkey);
 
 		char* listaDeBloques= obtenerListaDeBloques(particionNbr, nombreTabla);
 		log_info(logger_invisible, "Compactador.c: leerTemporal() - Bloques asignados: %s",listaDeBloques);
@@ -56,8 +57,10 @@ void leerTemporal(char* pathTemp, int particiones, char* nombreTabla){
 			char* bloque = firstBloqueDisponible(listaDeBloques);
 
 			escribirLinea(bloque, linea, nombreTabla, particionNbr);
+			free(bloque);
 		}
 		free(linea);
+
 	}
 	fclose(temp);
 }
@@ -96,6 +99,8 @@ char* firstBloqueDisponible(char* listaDeBloques){
 		}
 		i++;
 	}
+	string_iterate_lines(bloques, (void* )free);
+	free(bloques);
 	return firstBloque;
 }
 

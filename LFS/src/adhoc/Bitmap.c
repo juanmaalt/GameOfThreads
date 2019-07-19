@@ -155,6 +155,7 @@ void actualizarBitarray(){
 					log_info(logger_invisible, "Bloque con data: %s.bin", nombreBloque);
 				}
 			}
+			free(nombreBloque);
 		}
 		closedir (dir);
 	}

@@ -29,7 +29,6 @@ int main(void) {
 	//agregarDatos(memtable);//TODO:funcion para pruebas
 
 	/*Levantar Bitmap*/
-	bitarray=malloc(sizeof(t_bitarray));
 	leerBitmap();
 
 	/*Levantar Tablas*/
@@ -407,6 +406,7 @@ void dumpTabla(char* nombreTable, t_list* list){
 	list_clean(list);
 	fclose(file);
 	free(pathArchivo);
+	free(path);
 }
 
 void dumpRegistro(FILE* file, Registro* registro) {
@@ -436,22 +436,25 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 		//printf("antes de fopen: %s\n", pathBloque);
 		fBloque = fopen(pathBloque, "r");
 		while((ch = getc(fBloque)) != EOF){
-			if(ch !='\n'){
-				string_append(&linea, string_from_format("%c",ch));
-			}else if(ch =='\n'){
-				string_append(&linea, string_from_format("%c",ch));
-			}
+			char* nchar = string_from_format("%c", ch);
+			string_append(&linea, nchar);//TODO: cambiar esto por un char* aux
+
 			if(string_ends_with(linea, "\n")){
 				char** lineaParseada = string_split(linea,";");
 				if(atoi(lineaParseada[1])==key){
-					reg->value = lineaParseada[2];
+					reg->value = string_from_format(lineaParseada[2]);
 					reg->timestamp=atoll(lineaParseada[0]);
 
 					free(pathBloque);
 					free(linea);
+					free(nchar);
+					fclose(fBloque);
 					return reg;
 				}
+				string_iterate_lines(lineaParseada, (void* )free);
+				free(lineaParseada);
 			}
+			free(nchar);
 			//printf("linea: %s\n", linea);
 		}
 		fclose(fBloque);
