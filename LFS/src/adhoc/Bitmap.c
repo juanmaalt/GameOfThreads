@@ -50,12 +50,12 @@ void leerBitmap(){
 	actualizarBitarray();
 
 	/*Función para imprimir*/
-
+/*
 	for(int i=0;i<metadataFS.blocks;i++){
 		bool valor = bitarray_test_bit(bitarray, i);
-		//printf("valor bit= %d\n", valor);
+		printf("valor bit= %d\n", valor);
 	}
-
+*/
 
 	sem_init(&leyendoBitarray, 0, 1);
 
@@ -83,7 +83,7 @@ char* getBloqueLibre(){
 	bitarray_set_bit(bitarray, pos);
 
 	escribirBitmap();
-	//posicion=string_from_format("%d", pos+1);
+	posicion=string_from_format("%d", pos+1);
 
 	//printf("posicion:%s\n", posicion);
 	sem_post(&leyendoBitarray);

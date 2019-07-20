@@ -95,8 +95,9 @@ t_bitarray* bitarray;
 
 
 /*FUNCIONES*/
+/*CONNECTION HANDLER*/
 void *connection_handler(void *nSocket);
-
+/*FUNCIONES VARIAS*/
 int configuracion_inicial();
 t_log* iniciar_logger(bool visible, char* path);
 t_config* leer_config();
@@ -110,24 +111,27 @@ void handshakeMemoria(int socket);
 int threadConnection(int serverSocket, void *funcionThread);
 int iniciar_consola();
 Operacion ejecutarOperacion(char*);
+void encolar_peticion(char *tabla, char* peticion);
 
-void agregarDatos(t_dictionary* memtable);
-
+/*FUNCIONES BOOL*/
 uint16_t obtenerKey(Registro* registro);
 timestamp_t obtenerTimestamp(Registro* registro);
 
+/*FUNCIONES SEEK*/
+Registro* fseekBloque(int key, char* listaDeBloques);
+void fseekAndEraseBloque(int key, char* listaDeBloques);
+
+/*FUNCIONES FINALIZACION*/
 void rutinas_de_finalizacion();
+
+/*FUNCIONES TEST*/
+void agregarDatos(t_dictionary* memtable);
 
 /*FUNCIONES DUMP*/
 void setPathTabla(char* path, char* nombreTabla);
 void* dump();
 void dumpRegistro(FILE* file, Registro* registro);
 void dumpTabla(char* nombreTable, t_list* value);
-
-Registro* fseekBloque(int key, char* listaDeBloques);
-void fseekAndEraseBloque(int key, char* listaDeBloques);
-
-void encolar_peticion(char *tabla, char* peticion);
 
 #endif /* LISSANDRA_H_ */
 
