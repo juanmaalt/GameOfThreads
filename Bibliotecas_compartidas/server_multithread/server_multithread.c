@@ -6,7 +6,7 @@ int threadConnection(int socket, void *funcionThread){
 	struct sockaddr_in direccionCliente;
 	socklen_t clienteLen = sizeof(direccionCliente);
 
-	listen(socket , 5); //TODO: establecer cantidad en funcion de cantidad de ips que tengo en config +1 el kernel
+	listen(socket , 100); //TODO: establecer cantidad en funcion de cantidad de ips que tengo en config +1 el kernel
 
 	//printf("server_multithread.c: in threadConnection\n");
 
