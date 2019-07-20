@@ -444,6 +444,7 @@ void *describe_automatico(void *null){
 	for(;;){
 		usleep(vconfig.refreshMetadata());
 		Memoria *memoria = elegir_cualquiera();
+		if(memoria == NULL) continue;
 		int socketMemoria = comunicarse_con_memoria(memoria);
 		Operacion operacion;
 		operacion.TipoDeMensaje = COMANDO;
