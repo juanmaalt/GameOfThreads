@@ -8,9 +8,9 @@
 #include "Unidad_de_ejecucion.h"
 
 //FUNCIONES: Privadas. No van en el header.
-static ResultadoEjecucionInterno exec_file_lql(PCB *pcb);
-static ResultadoEjecucionInterno exec_string_comando(PCB *pcb);
-static ResultadoEjecucionInterno procesar_retorno_operacion(Operacion op, PCB *pcb, char *instruccionActual, DynamicAddressingRequest* link);//Recibe el retorno de operacion (lo mas importante). El pcb es para mostrar datos extras como el nombre del archivo que fallo, al igual que la instruccion actual
+static INTERNAL_STATE exec_file_lql(PCB *pcb);
+static INTERNAL_STATE exec_string_comando(PCB *pcb);
+static INTERNAL_STATE procesar_retorno_operacion(Operacion op, PCB *pcb, char *instruccionActual, DynamicAddressingRequest* link);//Recibe el retorno de operacion (lo mas importante). El pcb es para mostrar datos extras como el nombre del archivo que fallo, al igual que la instruccion actual
 static DynamicAddressingRequest direccionar_request(char *request);
 static socket_t comunicarse_con_memoria();
 static socket_t comunicarse_con_memoria_principal();
@@ -87,7 +87,7 @@ static DynamicAddressingRequest direccionar_request(char *request){
 		retorno.tipoOperacion = ESCRITURA; //TODO: sacar memoria de mi lista
 		break;
 	case JOURNAL:
-		retorno.socket = JOURNAL_OP;
+		retorno.socket = JOURNAL_REQUEST;
 		break;
 	default:
 		log_info(logger_invisible, "Instruccion ilegal");
@@ -103,7 +103,7 @@ static DynamicAddressingRequest direccionar_request(char *request){
 			retorno.socket = comunicarse_con_memoria_principal();
 			return retorno;
 		}
-		if(retorno.socket != JOURNAL_OP)
+		if(retorno.socket != JOURNAL_REQUEST)
 			retorno.socket = NULL_MEMORY;
 		return retorno;
 	}
@@ -153,7 +153,7 @@ static socket_t comunicarse_con_memoria_principal(){
 
 
 
-static ResultadoEjecucionInterno exec_string_comando(PCB *pcb){
+static INTERNAL_STATE exec_string_comando(PCB *pcb){
 	DynamicAddressingRequest target;
 	do{
 		target = direccionar_request((char *)pcb->data);
@@ -166,12 +166,12 @@ static ResultadoEjecucionInterno exec_string_comando(PCB *pcb){
 		log_error(logger_invisible, "Unidad_de_ejecucion.c: exec_string_comando: finalizando operacion.");
 		return INSTRUCCION_ERROR;
 	}
-	if(target.socket == JOURNAL_OP){
+	if(target.socket == JOURNAL_REQUEST){
 		list_iterate(memoriasExistentes, ejecutar_journal);
 		free(pcb->data);
 		free(pcb->nombreArchivoLQL);
 		free(pcb);
-		return FINALIZO;
+		return FINISH;
 	}
 	target.inicioOperacion = getCurrentTime();
 	Operacion request;
@@ -191,14 +191,14 @@ static ResultadoEjecucionInterno exec_string_comando(PCB *pcb){
 	free(pcb->nombreArchivoLQL);
 	free(pcb);
 	close(target.socket);
-	return FINALIZO;
+	return FINISH;
 }
 
 
 
 
 
-static ResultadoEjecucionInterno exec_file_lql(PCB *pcb){
+static INTERNAL_STATE exec_file_lql(PCB *pcb){
 	Operacion request;
 	char buffer[MAX_BUFFER_SIZE_FOR_LQL_LINE];
 	char *line = NULL;
@@ -207,12 +207,13 @@ static ResultadoEjecucionInterno exec_file_lql(PCB *pcb){
 
 	for(int i=1; i<=quantumBuffer; ++i){
 		line = fgets(buffer, MAX_BUFFER_SIZE_FOR_LQL_LINE, lql);
+		++(pcb->instruccionPointer);
 		if(line == NULL || feof(lql)){
 			printf("\n");
 			fclose(lql);
 			free(pcb->nombreArchivoLQL);
 			free(pcb);
-			return FINALIZO;
+			return FINISH;
 		}
 		DynamicAddressingRequest target;
 		do{
@@ -229,7 +230,7 @@ static ResultadoEjecucionInterno exec_file_lql(PCB *pcb){
 			free(pcb);
 			return INSTRUCCION_ERROR;
 		}
-		if(target.socket == JOURNAL_OP){
+		if(target.socket == JOURNAL_REQUEST){
 			char *aux = remover_new_line(line);
 			log_error(logger_error, "Unidad_de_ejecucion.c: exec_file_lql: finalizando operacion '%s' debido a la instruccion '%s'. No se espera la instruccion JOURNAL en un LQL", pcb->nombreArchivoLQL, aux);
 			log_error(logger_invisible, "Unidad_de_ejecucion.c: exec_file_lql: finalizando operacion '%s' debido a la instruccion '%s'. No se espera la instruccion JOURNAL en un LQL", pcb->nombreArchivoLQL, aux);
@@ -246,7 +247,8 @@ static ResultadoEjecucionInterno exec_file_lql(PCB *pcb){
 		send_msg(target.socket, request);
 		destruir_operacion(request);
 		request = recv_msg(target.socket);
-		if(procesar_retorno_operacion(request, pcb, line, &target) == INSTRUCCION_ERROR){
+		int retorno = procesar_retorno_operacion(request, pcb, line, &target);
+		if(retorno == INSTRUCCION_ERROR){
 			destruir_operacion(request);
 			fclose(lql);
 			free(pcb->nombreArchivoLQL);
@@ -254,9 +256,11 @@ static ResultadoEjecucionInterno exec_file_lql(PCB *pcb){
 			close(target.socket);
 			return INSTRUCCION_ERROR;
 		}
-		target.operacionExitosa = true;
-		target.finOperacion = getCurrentTime();
-		generar_estadisticas(&target);
+		if(retorno != JOURNAL_MEMORY_INACCESSIBLE){
+			target.operacionExitosa = true;
+			target.finOperacion = getCurrentTime();
+			generar_estadisticas(&target);
+		}
 		destruir_operacion(request);
 		close(target.socket);
 	}
@@ -270,6 +274,9 @@ static ResultadoEjecucionInterno exec_file_lql(PCB *pcb){
 }
 
 
+
+
+
 static void ejecutar_journal(void *memoria){
 	Memoria *mem = (Memoria*)memoria;
 	Operacion op;
@@ -281,7 +288,10 @@ static void ejecutar_journal(void *memoria){
 }
 
 
-static ResultadoEjecucionInterno procesar_retorno_operacion(Operacion op, PCB* pcb, char* instruccionActual, DynamicAddressingRequest* link){
+
+
+
+static INTERNAL_STATE procesar_retorno_operacion(Operacion op, PCB* pcb, char* instruccionActual, DynamicAddressingRequest* link){
 	char *instruccionActualTemp = NULL;
 	switch(op.TipoDeMensaje){
 	case TEXTO_PLANO:
@@ -289,17 +299,33 @@ static ResultadoEjecucionInterno procesar_retorno_operacion(Operacion op, PCB* p
 		log_info(logger_visible,"CPU: %d | Memoria: %d %s:%s | %s -> %s", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp, op.Argumentos.TEXTO_PLANO.texto);
 		log_info(logger_invisible,"CPU: %d | Memoria: %d %s:%s | %s -> %s", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp, op.Argumentos.TEXTO_PLANO.texto);
 		free(instruccionActualTemp);
-		return CONTINUAR;
+		return CONTINUE;
 	case REGISTRO:
 		instruccionActualTemp = remover_new_line(instruccionActual);
 		log_info(logger_visible,"CPU: %d | Memoria: %d %s:%s | %s -> [Timestamp: %llu, Key: %d, Value: %s]", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp, op.Argumentos.REGISTRO.timestamp, op.Argumentos.REGISTRO.key, op.Argumentos.REGISTRO.value);
 		log_info(logger_invisible,"CPU: %d | Memoria: %d %s:%s | %s -> [Timestamp: %llu, Key: %d, Value: %s]", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp, op.Argumentos.REGISTRO.timestamp, op.Argumentos.REGISTRO.key, op.Argumentos.REGISTRO.value);
 		free(instruccionActualTemp);
-		return CONTINUAR;
+		return CONTINUE;
 	case ERROR:
 		instruccionActualTemp = remover_new_line(instruccionActual);
 		log_error(logger_error,"CPU: %d | Memoria: %d %s:%s | Fallo en la instruccion '%s', Path: '%s'. Abortando: %s", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto,  instruccionActualTemp, pcb->nombreArchivoLQL, op.Argumentos.ERROR.mensajeError);
 		log_error(logger_invisible,"CPU: %d | Memoria: %d %s:%s | Fallo en la instruccion '%s', Path: '%s'. Abortando: %s", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp, pcb->nombreArchivoLQL, op.Argumentos.ERROR.mensajeError);
+		free(instruccionActualTemp);
+		return INSTRUCCION_ERROR;
+	case ERROR_JOURNAL:
+		instruccionActualTemp = remover_new_line(instruccionActual);
+		if(link->criterioQueSeUso == EC && pcb->tipo == FILE_LQL){
+			if(pcb->instruccionPointer == 1)
+				fseek((FILE *)pcb->data, 0, SEEK_SET);
+			else
+				fseek((FILE *)pcb->data, --pcb->instruccionPointer, SEEK_CUR);
+			log_info(logger_visible,YEL"CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta realizando Journal. Se desalojara el LQL"STD, process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
+			log_info(logger_invisible,"CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta realizando Journal. Se desalojara el LQL", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
+			free(instruccionActualTemp);
+			return JOURNAL_MEMORY_INACCESSIBLE;
+		}
+		log_error(logger_visible, "CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta realizando Journal. Abortando LQL", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
+		log_error(logger_invisible, "CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta realizando Journal. Abortando LQL", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
 		free(instruccionActualTemp);
 		return INSTRUCCION_ERROR;
 	case DESCRIBE_REQUEST:
@@ -320,7 +346,7 @@ static ResultadoEjecucionInterno procesar_retorno_operacion(Operacion op, PCB* p
 		mostrar_describe(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
 		log_info(logger_invisible, "Resultado describe %s: %s", instruccionActualTemp, op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
 		free(instruccionActualTemp);
-		return CONTINUAR;
+		return CONTINUE;
 	default:
 		instruccionActualTemp = remover_new_line(instruccionActual);
 		log_error(logger_visible,"CPU: %d | Instruccion '%s' invalida o fuera de contexto", process_get_thread_id(), instruccionActualTemp);

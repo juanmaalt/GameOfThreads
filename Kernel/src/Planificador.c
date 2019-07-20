@@ -46,6 +46,7 @@ int new(PCB_DataType tipo, void *data, char *nombreArchivoLQL){
 	default:
 		RETURN_ERROR("Planificador.c: new: no se reconoce el tipo de dato a ejecutar");
 	}
+	pcb->instruccionPointer = 0;
 	queue_push(colaDeReady, pcb);
 	sem_post(&scriptEnReady); //Como esta funcion va a ser llamada por la consola, el semaforo tambien tiene que ser compartido por el proceso consola
 	return EXIT_SUCCESS;

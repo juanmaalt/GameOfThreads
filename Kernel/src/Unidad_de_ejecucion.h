@@ -9,8 +9,6 @@
 #define UNIDAD_DE_EJECUCION_H_
 #define TRUE 1
 #define FALSE 0
-#define NULL_MEMORY -1
-#define JOURNAL_OP -2
 
 	/*COMPORTAMIENTOS DE LA CPU*/
 	/**
@@ -39,12 +37,15 @@ typedef struct pcb_t PCB;
 typedef int socket_t;
 typedef struct memoria Memoria;
 
-typedef enum{
-	DESALOJO,
-	FINALIZO,
-	INSTRUCCION_ERROR,
-	CONTINUAR
-}ResultadoEjecucionInterno;
+//Internal states
+#define INTERNAL_STATE int
+#define CONTINUE -1
+#define FINISH -2
+#define INSTRUCCION_ERROR -3
+#define DESALOJO -4
+#define NULL_MEMORY -5
+#define JOURNAL_REQUEST -6
+#define JOURNAL_MEMORY_INACCESSIBLE -7
 
 typedef enum{
 	LECTURA,
