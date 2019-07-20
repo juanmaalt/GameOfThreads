@@ -235,6 +235,8 @@ t_list *procesar_gossiping(char *cadenaResultadoGossiping){
 	Memoria *memoria;
 	t_list *lista = list_create();
 
+	if(cadenaResultadoGossiping == NULL) return lista;
+
 	char **descompresion = descomprimir_memoria(cadenaResultadoGossiping);
 	for(int i=0; descompresion[i]!=NULL; i+=3){
 		int socket;

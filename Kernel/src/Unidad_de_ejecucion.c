@@ -44,6 +44,7 @@ void *exec(void *null){
 
 static DynamicAddressingRequest direccionar_request(char *request){
 	DynamicAddressingRequest retorno;
+	retorno.socket = 0;
 	if(USAR_SOLO_MEMORIA_PRINCIPAL){
 		retorno.socket = comunicarse_con_memoria_principal();
 		return retorno;
@@ -328,6 +329,22 @@ static INTERNAL_STATE procesar_retorno_operacion(Operacion op, PCB* pcb, char* i
 		}
 		log_error(logger_visible, "CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta realizando Journal. Abortando.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
 		log_error(logger_invisible, "CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta realizando Journal. Abortando.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
+		free(instruccionActualTemp);
+		return INSTRUCCION_ERROR;
+	case ERROR_MEMORIAFULL:
+		instruccionActualTemp = remover_new_line(instruccionActual);
+		if(pcb->tipo == FILE_LQL){
+			if(pcb->instruccionPointer == 1)
+				fseek((FILE *)pcb->data, 0, SEEK_SET);
+			else
+				fseek((FILE *)pcb->data, --pcb->instruccionPointer, SEEK_CUR);
+			log_info(logger_visible,YEL"CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta full. Reintentando."STD, process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
+			log_info(logger_invisible,"CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta full. Reintentando.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
+			free(instruccionActualTemp);
+			return JOURNAL_MEMORY_INACCESSIBLE;
+		}
+		log_error(logger_visible, "CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta full. Abortando.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
+		log_error(logger_invisible, "CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta full. Abortando.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
 		free(instruccionActualTemp);
 		return INSTRUCCION_ERROR;
 	case DESCRIBE_REQUEST:

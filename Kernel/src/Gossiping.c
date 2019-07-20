@@ -94,10 +94,3 @@ static void modo_de_recuperacion(){
 	return;
 }
 
-
-
-
-
-static void reiniciar_metadatas_tablas(){
-	procesar_describe_global(NULL);
-}
