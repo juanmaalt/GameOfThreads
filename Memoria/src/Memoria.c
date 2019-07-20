@@ -241,6 +241,10 @@ int configuracion_inicial() {
 	if(logger_error == NULL)
 		RETURN_ERROR("Memoria.c: configuracion_inicial: error en 'logger_error = iniciar_logger(true);'");
 
+	remove("Logs/MemoriaGossiping.log");
+		logger_gossiping = iniciar_logger("Logs/MemoriaGossiping.log", false, LOG_LEVEL_INFO);
+		if(logger_gossiping == NULL)
+			RETURN_ERROR("Memoria.c: configuracion_inicial: error en 'logger_gossiping = iniciar_logger(false);'");
 	if (inicializar_configs() == EXIT_FAILURE)
 		RETURN_ERROR("Memoria.c: configuracion_inicial: error en la extraccion de datos del archivo de configuracion");
 

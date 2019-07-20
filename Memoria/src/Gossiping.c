@@ -34,7 +34,7 @@ int iniciar_gossiping() {
 			list_add(listaMemoriasConocidas, (knownMemory_t *) mem);
 			pthread_mutex_unlock(&mutexGossiping);
 	for (int i = 0; IPs[i] != NULL; ++i)	//Muestro por pantalla las IP seeds
-		log_info(logger_invisible,"GOSSIPING.C: iniciar_gossiping: IP SEED %d: %s:%s:", i, IPs[i], IPsPorts[i]);
+		log_info(logger_gossiping,"GOSSIPING.C: iniciar_gossiping: IP SEED %d: %s:%s:", i, IPs[i], IPsPorts[i]);
 
 	if (pthread_create(&idGossipSend, NULL, conectar_seeds, NULL)) {
 
@@ -61,6 +61,7 @@ void *conectar_seeds(void *null) { // hilo envia a las seeds
 	//liberarIPs(IPs);
 	//liberarIPs(IPsPorts);
 	for (;;) {
+		log_info(logger_gossiping,"GOSSIPING.C: conectar_seeds: inicio gossiping");
 		log_info(logger_invisible,"GOSSIPING.C: conectar_seeds: inicio gossiping");
 		conectarConSeed();
 		usleep(vconfig.retardoGossiping() * 1000);
@@ -96,7 +97,7 @@ void conectarConSeed() {
 		//printf("FOR IPS\n");
 		int socket = connect_to_server(IPs[conteo_seeds],IPsPorts[conteo_seeds]);
 		if (socket == EXIT_FAILURE) {
-			log_info(logger_invisible, "GOSSIPING.C:conectarConSeed: La memoria seed no esta activa %s:%s",IPs[conteo_seeds],IPsPorts[conteo_seeds]);
+			log_info(logger_gossiping, "GOSSIPING.C:conectarConSeed: La memoria seed no esta activa %s:%s",IPs[conteo_seeds],IPsPorts[conteo_seeds]);
 
 			 bool buscarMemoria(void * buscoMemoria){
 				 //printf("Buscar Memoria %s %s\n",IPs[conteo_seeds],IPsPorts[conteo_seeds]);
@@ -153,7 +154,7 @@ void conectarConSeed() {
 			// Debo quitar del diccionario esta memoria ya que no esta
 		} else {
 		 //printf ("memoria activa\n");
-		 log_info(logger_invisible, "GOSSIPING.C:conectarConSeed: Memoria conocida. Enviar mensaje %s:%s ",IPs[conteo_seeds],IPsPorts[conteo_seeds]);
+		 log_info(logger_gossiping, "GOSSIPING.C:conectarConSeed: Memoria conocida. Enviar mensaje %s:%s ",IPs[conteo_seeds],IPsPorts[conteo_seeds]);
 
 		 ConsultoPorMemoriasConocidas(socket); //
 
@@ -183,12 +184,12 @@ void conectarConSeed() {
 		request.TipoDeMensaje = GOSSIPING_REQUEST;
 		//printf("Paquete armado\n");
 	 request.Argumentos.GOSSIPING_REQUEST.resultado_comprimido = envio;
-	 log_info(logger_invisible, "GOSSIPING.C:ConsultoPorMemoriasConocidas: Envio gossiping %d",request.TipoDeMensaje);
+	 log_info(logger_gossiping, "GOSSIPING.C:ConsultoPorMemoriasConocidas: Envio gossiping: %s",envio);
 	 send_msg(socketSEEDS,request);
 	 pthread_mutex_unlock(&mutexGossiping);
 	 //printf("Envio %d\n",request.TipoDeMensaje);
 	 request = recv_msg(socketSEEDS);
-	 log_info(logger_invisible, "GOSSIPING.C:ConsultoPorMemoriasConocidas: Respuesta gossiping %d",request.TipoDeMensaje);
+	 log_info(logger_gossiping, "GOSSIPING.C:ConsultoPorMemoriasConocidas: Respuesta gossiping: %s",envio);
 	 //printf("Respuesta\n");
 
 	 t_list *aux = list_create();
@@ -239,6 +240,7 @@ void conectarConSeed() {
 	 	list_destroy(aux);
 
 	 	log_info(logger_invisible,"GOSSIPING.C:ConsultoPorMemoriasConocidas:Fin GOSSIP");
+	 	log_info(logger_gossiping,"GOSSIPING.C:ConsultoPorMemoriasConocidas:Fin GOSSIP");
 	 	close(socketSEEDS);
 
  }
