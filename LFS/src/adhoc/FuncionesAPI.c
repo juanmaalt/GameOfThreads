@@ -149,9 +149,7 @@ void getValueMasReciente(t_list* lista, Operacion* resultadoSelect){
 
 timestamp_t checkTimestamp(char* timestamp){
 	if(timestamp==NULL){
-		timestamp_t ts = getCurrentTime();
-		printf("ts: %llu\n", ts);
-		return ts;
+		return getCurrentTime();
 	}
 	else{
 		//printf("time= %llu\n",atoll(timestamp));
@@ -285,7 +283,7 @@ void getStringDescribe(char* path, char* string, char* nombreTabla, Operacion *r
 				free(nombreCarpeta);
 		  }
 			closedir (dir);
-			if(string!=NULL){
+			if(strlen(string)>1){
 				resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = string_from_format(string);
 				resultadoDescribe->TipoDeMensaje= DESCRIBE_REQUEST;
 				resultadoDescribe->Argumentos.DESCRIBE_REQUEST.esGlobal=true;

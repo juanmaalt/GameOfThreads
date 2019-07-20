@@ -224,12 +224,16 @@ void agregarBloqueEnParticion(char* bloque, char* nombreTabla, int particion){
 	char* bloques = config_get_string_value(particionData, "BLOCKS");
 	int size = config_get_int_value(particionData, "SIZE");
 
-	char* nuevosBloques = string_from_format("%s,%s]", string_substring_until(bloques, (strlen(bloques)-1)), bloque);
+	char* subBloques = string_substring_until(bloques, (strlen(bloques)-1));
+	char* nuevosBloques=string_new();
 
-	//printf("size inicial: %d\n", size);
-	size = size+caracteresEnBloque(bloque);
-	//printf("size inicial: %d\n", caracteresEnBloque(bloque));
-	//printf("size final: %d\n", size);
+	if(string_ends_with(subBloques, bloque)){
+		nuevosBloques = string_from_format("%s]", subBloques);
+		size = caracteresEnBloque(bloque);
+	}else{
+		nuevosBloques = string_from_format("%s,%s]", subBloques , bloque);
+		size = size+caracteresEnBloque(bloque);
+	}
 
 	char* sizet= string_from_format("%d", size);
 	config_set_value(particionData, "SIZE", sizet);
@@ -237,9 +241,10 @@ void agregarBloqueEnParticion(char* bloque, char* nombreTabla, int particion){
 
 	config_save(particionData);
 	config_destroy(particionData);
+	free(subBloques);
 	free(sizet);
-	free(pathParticion);
 	free(nuevosBloques);
+	free(pathParticion);
 }
 
 int agregarBloqueEnBitarray(char* nombreCarpeta){

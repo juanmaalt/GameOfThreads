@@ -115,8 +115,6 @@ Operacion insertAPI(Comando comando){
 	reg->value = value;
 	reg->timestamp=checkTimestamp(comando.argumentos.INSERT.timestamp);
 
-	printf("en insert:%llu\n", reg->timestamp);
-
 	/*Obtengo la lista de registros a partir de la tabla solicitada*/
 	t_list* data = getData(comando.argumentos.INSERT.nombreTabla);
 
