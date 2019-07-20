@@ -97,7 +97,7 @@ t_list *tablasExistentes;
 	* @DESC: para aquellas situaciones donde no es importante el criterio. Por ejemplo, un describe general.
 	* 		 se eligira por default una memoria EC
 	*/
-	Memoria *elegir_cualquiera_ec();
+	Memoria *elegir_cualquiera();
 
 	/**
 	* @NAME: asociar_memoria

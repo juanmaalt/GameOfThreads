@@ -9,6 +9,7 @@
 
 //FUNCIONES: Privadas. No van en el header
 static int iniciar_unidades_de_ejecucion();
+static int iniciar_describe_automatico();
 
 int iniciar_planificador(){
 	if(iniciar_unidades_de_ejecucion() == EXIT_FAILURE)
@@ -19,6 +20,10 @@ int iniciar_planificador(){
 
 	if(iniciar_gossiping() == EXIT_FAILURE)
 		RETURN_ERROR("Planificador.c: iniciar_gossiping: no se pudo iniciar el sistema gossiping del kernel");
+
+	if(iniciar_describe_automatico() == EXIT_FAILURE){
+		RETURN_ERROR("Planificador.c: iniciar_describe_automatico: no se pudo iniciar el describe automatico")
+	}
 
 	colaDeReady = queue_create();
 	sem_post(&disponibilidadPlanificador); //No queremos que la consola agregue algo a la cola de news si todavia no existe la cola de news
@@ -70,7 +75,11 @@ static int iniciar_unidades_de_ejecucion(){
 }
 
 
-
+static int iniciar_describe_automatico(){
+	if((describeAutomatico = pthread_create(&describeAutomatico, NULL, describe_automatico, NULL)) != 0)
+		RETURN_ERROR("Error al crear hilo de describe automatico");
+	return EXIT_SUCCESS;
+}
 
 
 PCB *seleccionar_siguiente(){

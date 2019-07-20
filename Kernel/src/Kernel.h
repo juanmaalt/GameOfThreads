@@ -72,6 +72,7 @@ vConfig vconfig; //Contiene solo los datos variables del config
 pthread_t idConsola;
 pthread_t servicioMetricas;
 pthread_t gossiping;
+pthread_t describeAutomatico;
 t_list *idsExecInstances; //TODO: ver como liberar esto al final del programa, poca importancia
 sem_t disponibilidadPlanificador; //Para que la consola no pueda mandarle algo al planificador si no se inicio
 sem_t scriptEnReady; //Para saber si hay algo en ready o no, y no estar preguntando permanentemente

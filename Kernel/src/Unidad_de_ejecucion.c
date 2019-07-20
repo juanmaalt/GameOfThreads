@@ -59,7 +59,7 @@ static DynamicAddressingRequest direccionar_request(char *request){
 		break;
 	case INSERT:
 		if(!tabla_esta_en_la_lista(comando.argumentos.INSERT.nombreTabla))
-			memoria = elegir_cualquiera_ec(); //TODO: revisar que este bien esta idea
+			memoria = elegir_cualquiera(); //TODO: revisar que este bien esta idea
 		else
 			memoria = determinar_memoria_para_tabla(comando.argumentos.INSERT.nombreTabla, comando.argumentos.INSERT.key);
 		retorno.criterioQueSeUso = consistencia_de_tabla(comando.argumentos.INSERT.nombreTabla);
@@ -74,7 +74,7 @@ static DynamicAddressingRequest direccionar_request(char *request){
 		break;
 	case DESCRIBE:
 		if(comando.argumentos.DESCRIBE.nombreTabla == NULL){
-			memoria = elegir_cualquiera_ec();
+			memoria = elegir_cualquiera();
 			retorno.criterioQueSeUso = EC;
 		}else{
 			memoria = determinar_memoria_para_tabla(comando.argumentos.DESCRIBE.nombreTabla, NULL);
@@ -319,14 +319,14 @@ static INTERNAL_STATE procesar_retorno_operacion(Operacion op, PCB* pcb, char* i
 		instruccionActualTemp = remover_new_line(instruccionActual);
 		if(pcb->tipo == FILE_LQL){
 			fsetpos((FILE *)pcb->data, &(pcb->instruccionPointer));
-			log_info(logger_visible,YEL"CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta realizando Journal. Se desalojara el LQL"STD, process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
-			log_info(logger_invisible,"CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta realizando Journal. Se desalojara el LQL", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
+			log_info(logger_visible,YEL"CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta realizando Journal. Se eligira otra de manera aleatoria si el criterio lo permite"STD, process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
+			log_info(logger_invisible,"CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta realizando Journal. Se eligira otra de manera aleatoria si el criterio lo permite", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
 			free(instruccionActualTemp);
 			sleep(3);
 			return JOURNAL_MEMORY_INACCESSIBLE;
 		}
-		log_error(logger_visible, "CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta realizando Journal. Abortando.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
-		log_error(logger_invisible, "CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta realizando Journal. Abortando.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
+		log_error(logger_visible, "CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta realizando Journal. Se eligira otra de manera aleatoria si el criterio lo permite", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
+		log_error(logger_invisible, "CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta realizando Journal. Se eligira otra de manera aleatoria si el criterio lo permite", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
 		free(instruccionActualTemp);
 		return INSTRUCCION_ERROR;
 	case ERROR_MEMORIAFULL:
@@ -434,4 +434,24 @@ static void generar_estadisticas(DynamicAddressingRequest *link){
 	default:
 		return;
 	}
+}
+
+
+
+
+
+void *describe_automatico(void *null){
+	for(;;){
+		usleep(vconfig.refreshMetadata());
+		Memoria *memoria = elegir_cualquiera();
+		int socketMemoria = comunicarse_con_memoria(memoria);
+		Operacion operacion;
+		operacion.TipoDeMensaje = COMANDO;
+		operacion.Argumentos.COMANDO.comandoParseable = string_from_format("DESCRIBE");
+		send_msg(socketMemoria, operacion);
+		destruir_operacion(operacion);
+		operacion = recv_msg(socketMemoria);
+		destruir_operacion(operacion); //No hago nada
+	}
+	return NULL;
 }

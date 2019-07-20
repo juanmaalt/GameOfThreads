@@ -64,5 +64,6 @@ typedef struct{
 
 //FUNCIONES: Publicas
 void *exec(void *null);
+void *describe_automatico(void *null);
 
 #endif /* UNIDAD_DE_EJECUCION_H_ */

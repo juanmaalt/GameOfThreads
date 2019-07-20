@@ -70,11 +70,11 @@ Memoria *determinar_memoria_para_tabla(char *nombreTabla, char *keyDeSerNecesari
 
 
 
-Memoria *elegir_cualquiera_ec(){
-	Memoria *m = (Memoria*)list_get(memoriasEC, getNumberUntil(list_size(memoriasEC)));
+Memoria *elegir_cualquiera(){
+	Memoria *m = (Memoria*)list_get(memoriasExistentes, getNumberUntil(list_size(memoriasExistentes)));
 	if(m == NULL){
-		log_error(logger_error, "Sistema_de_criterios.c: elegir_cualquiera: no hay memorias EC para responder a la request casual");
-		log_info(logger_invisible, "Sistema_de_criterios.c: elegir_cualquiera: no hay memorias EC para responder a la request casual");
+		log_error(logger_error, "Sistema_de_criterios.c: elegir_cualquiera: no hay memorias para responder a la request casual");
+		log_info(logger_invisible, "Sistema_de_criterios.c: elegir_cualquiera: no hay memorias para responder a la request casual");
 	}
 	return m;
 }
