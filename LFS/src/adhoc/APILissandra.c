@@ -175,7 +175,11 @@ Operacion createAPI(Comando comando){
 	crearArchivosBinarios(path, atoi(comando.argumentos.CREATE.numeroParticiones));
 
 	/*Creo la Tabla en la Memtable*/
-	crearTablaEnMemtable(comando.argumentos.CREATE.nombreTabla);
+	crearTablaEnMemtable(comando.argumentos.CREATE.nombreTabla); //TODO
+
+	sem_t *semaforo = malloc(sizeof(sem_t));
+	sem_init(semaforo, 0, 1);
+	dictionary_put(dSemaforosPorTabla, string_from_format(comando.argumentos.CREATE.nombreTabla), semaforo);
 
 	/*Inicio el proceso de compactación*/
 	char* nombreTabla = string_from_format(comando.argumentos.CREATE.nombreTabla);

@@ -10,6 +10,7 @@
 
 #include "../Lissandra.h"
 #include "APILissandra.h"
+#include "Consola.h"
 #include <stdlib.h>
 
 void cambiarNombreFilesTemp(char* pathTabla);
@@ -22,7 +23,6 @@ void escribirEnBloque(char* bloque, char* linea);
 bool esRegistroMasReciente(timestamp_t timestamp, int key, char* listaDeBloques);
 void procesarPeticionesPendientes(char *nombreTabla);
 
-void agregarTablaEnDiccCompactacion(char* nombreTabla);
 void sacarTablaDeDiccCompactacion(char* nombreTabla);
 
 

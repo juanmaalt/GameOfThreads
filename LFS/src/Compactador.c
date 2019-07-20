@@ -43,7 +43,8 @@ void* compactar(void* nombreTabla){
 			/*Cambio el nombre de los archivos temporales de .tmp a .tmpc*/
 			cambiarNombreFilesTemp(pathTabla);
 			/*Agrego la tabla en el diccionario de compactación, para bloquear el acceso de las funciones que lleguen*/
-			//agregarTablaEnDiccCompactacion((char*)nombreTabla);
+	//agregarTablaEnDiccCompactacion((char*)nombreTabla);
+			wait_semaforo_tabla((char*)nombreTabla);
 			/*Compacto los archivos .tmpc hasta que no haya más*/
 			while((entry = readdir (dir)) != NULL){
 				nombreArchivo = string_from_format(entry->d_name);
@@ -66,18 +67,26 @@ void* compactar(void* nombreTabla){
 				}
 				free(nombreArchivo);
 			}
+			post_semaforo_tabla((char*)nombreTabla);
 			/*Busca en el diccionario por el hash nombreTabla hace un pop de cada peticion y la manda a ejecutarOperacion*/
-			/*
 			procesarPeticionesPendientes((char*)nombreTabla);
-
-			sacarTablaDeDiccCompactacion((char*)nombreTabla);
 			log_info(logger_invisible, "Compactador.c: compactar(%s) - Fin compactación", (char*)nombreTabla);
-			*/
+
 			closedir (dir);
 		}
 	}
 	config_destroy(metadataFile);
 	free(pathTabla);
 	return NULL;
+}
+
+void wait_semaforo_tabla(char *tabla){
+	void *semaforo = dictionary_get(dSemaforosPorTabla, tabla);
+	sem_wait((sem_t*)semaforo);
+}
+
+void post_semaforo_tabla(char *tabla){
+	void *semaforo = dictionary_get(dSemaforosPorTabla, tabla);
+	sem_post((sem_t*)semaforo);
 }
 

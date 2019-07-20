@@ -31,11 +31,12 @@ int main(void) {
 	/*Levantar Bitmap*/
 	leerBitmap();
 
+	/*Creo el diccionario para las tablas en compactación*/
+	dPeticionesPorTabla = dictionary_create();
+	dSemaforosPorTabla = dictionary_create();
+
 	/*Levantar Tablas*/
 	levantarTablasExistentes();
-
-	/*Creo el diccionario para las tablas en compactación*/
-	diccCompactacion = dictionary_create();
 
 	/*Inicio la consola*/
 	if(iniciar_consola() == EXIT_FAILURE){
@@ -71,7 +72,7 @@ void *connection_handler(void *nSocket){
 	log_info(logger_invisible,"Lissandra.c: connection_handler() - Nueva conexión");
 
 	switch (resultado.TipoDeMensaje){
-	case COMANDO:
+	case COMANDO://TODO destruir operacion
 		log_info(logger_invisible,"Lissandra.c: connection_handler() - Comando recibido: %s", resultado.Argumentos.COMANDO.comandoParseable);
 		resultado = ejecutarOperacion(resultado.Argumentos.COMANDO.comandoParseable);
 		send_msg(socket, resultado);
@@ -228,6 +229,7 @@ Operacion ejecutarOperacion(char* input) {
 	Comando *parsed = malloc(sizeof(Comando));
 	Operacion retorno;
 	*parsed = parsear_comando(input);
+	int valorSemaforo=0;
 
 	log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - Mensaje recibido %s", input);
 
@@ -236,26 +238,26 @@ Operacion ejecutarOperacion(char* input) {
 	if (parsed->valido) {
 		switch (parsed->keyword){
 		case SELECT:
-			/*//TODO:Meter semáforos
-			if(dictionary_has_key(diccCompactacion, parsed->argumentos.SELECT.nombreTabla)){
-				t_list* listaInputs;
-				listaInputs=dictionary_get(diccCompactacion, parsed->argumentos.SELECT.nombreTabla);
-				list_add(listaInputs, string_from_format(input));
-			}else{retorno = selectAPI(*parsed);}
-			*/
-			retorno = selectAPI(*parsed);
-			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <SELECT> Mensaje de retorno \"%llu;%d;%s\"", retorno.Argumentos.REGISTRO.timestamp, retorno.Argumentos.REGISTRO.key, retorno.Argumentos.REGISTRO.value);
+			sem_getvalue((sem_t*)dictionary_get(dSemaforosPorTabla, parsed->argumentos.SELECT.nombreTabla), &valorSemaforo);
+			if(valorSemaforo >= 1){
+				retorno = selectAPI(*parsed);
+				log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <SELECT> Mensaje de retorno \"%llu;%d;%s\"", retorno.Argumentos.REGISTRO.timestamp, retorno.Argumentos.REGISTRO.key, retorno.Argumentos.REGISTRO.value);
+			}else{
+				encolar_peticion(string_from_format(parsed->argumentos.SELECT.nombreTabla), string_from_format(input));
+				retorno.TipoDeMensaje = TEXTO_PLANO;
+				retorno.Argumentos.TEXTO_PLANO.texto = string_from_format("compactando");
+			}
 			break;
 		case INSERT:
-			/*//TODO:Meter semáforos
-			if(dictionary_has_key(diccCompactacion, parsed->argumentos.INSERT.nombreTabla)){
-				t_list* listaInputs;
-				listaInputs=dictionary_get(diccCompactacion, parsed->argumentos.INSERT.nombreTabla);
-				list_add(listaInputs, string_from_format(input));
-			}else{retorno = insertAPI(*parsed);}
-			*/
-			retorno = insertAPI(*parsed);
-			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <INSERT> Mensaje de retorno \"%s\"", retorno.Argumentos.TEXTO_PLANO.texto);
+			sem_getvalue((sem_t*)dictionary_get(dSemaforosPorTabla, parsed->argumentos.INSERT.nombreTabla), &valorSemaforo);
+			if(valorSemaforo >= 1){
+				retorno = insertAPI(*parsed);
+				log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <INSERT> Mensaje de retorno \"%s\"", retorno.Argumentos.TEXTO_PLANO.texto);
+			}else{
+				encolar_peticion(string_from_format(parsed->argumentos.INSERT.nombreTabla), string_from_format(input));
+				retorno.TipoDeMensaje = TEXTO_PLANO;
+				retorno.Argumentos.TEXTO_PLANO.texto = string_from_format("compactando");
+			}
 			break;
 		case CREATE:
 			retorno = createAPI(*parsed);
@@ -266,19 +268,19 @@ Operacion ejecutarOperacion(char* input) {
 			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <DESCRIBE> Mensaje de retorno \"%s\"", retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
 			break;
 		case DROP:
-			/*//TODO:Meter semáforos
-			if(dictionary_has_key(diccCompactacion, parsed->argumentos.DROP.nombreTabla)){
-				t_list* listaInputs;
-				listaInputs=dictionary_get(diccCompactacion, parsed->argumentos.DROP.nombreTabla);
-				list_add(listaInputs, string_from_format(input));
-			}else{retorno = dropAPI(*parsed);}
-			*/
-			retorno = dropAPI(*parsed);
-			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <DROP> Mensaje de retorno \"%s\"", retorno.Argumentos.TEXTO_PLANO.texto);
+			sem_getvalue((sem_t*)dictionary_get(dSemaforosPorTabla, parsed->argumentos.DROP.nombreTabla), &valorSemaforo);
+			if(valorSemaforo >= 1){
+				retorno = dropAPI(*parsed);
+				log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <DROP> Mensaje de retorno \"%s\"", retorno.Argumentos.TEXTO_PLANO.texto);
+			}else{
+				encolar_peticion(string_from_format(parsed->argumentos.DROP.nombreTabla), string_from_format(input));
+				retorno.TipoDeMensaje = TEXTO_PLANO;
+				retorno.Argumentos.TEXTO_PLANO.texto = string_from_format("compactando");
+			}
 			break;
 		case RUN:
-			dump();
-			compactar(parsed->argumentos.RUN.path);
+			//dump();
+			//compactar(parsed->argumentos.RUN.path);
 			break;
 		default:
 			fprintf(stderr, RED"No se pude interpretar el enum: %d"STD"\n",parsed->keyword);
@@ -300,6 +302,17 @@ Operacion ejecutarOperacion(char* input) {
 	log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <ERROR> Mensaje de retorno \"%s\"", retorno.Argumentos);
 
 	return retorno;
+}
+
+void encolar_peticion(char *tabla, char* peticion){
+	if(dictionary_has_key(dPeticionesPorTabla, tabla)){
+		t_list *encoladas = dictionary_get(dPeticionesPorTabla, tabla);
+		list_add(encoladas, peticion);
+	}else{
+		t_list *encoladas = list_create();
+		list_add(encoladas, peticion);
+		dictionary_put(dPeticionesPorTabla, tabla, encoladas);
+	}
 }
 
 uint16_t obtenerKey(Registro* registro) {
@@ -562,7 +575,8 @@ void rutinas_de_finalizacion(){
 	/*Libero recursos*/
 	config_destroy(configFile);
 	dictionary_destroy(memtable);
-	dictionary_destroy(diccCompactacion);
+	dictionary_destroy(dPeticionesPorTabla);
+	dictionary_destroy(dSemaforosPorTabla);
 	bitarray_destroy(bitarray);
 	close(miSocket);
 	log_destroy(logger_visible);

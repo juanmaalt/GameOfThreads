@@ -113,9 +113,13 @@ char* firstBloqueDisponible(char* listaDeBloques){
 
 int caracteresEnBloque(char* bloque){
 	char* pathBloque = string_from_format("%sBloques/%s.bin", config.punto_montaje, bloque);
-	//printf("path: %s\n", pathBloque);
+	printf("path: %s\n", pathBloque);
 
 	FILE* fBloque = fopen(pathBloque, "r+");
+	if(fBloque==NULL){
+		log_error(logger_visible, "Error a leer los caracteres del bloque '%s'", bloque);
+		return 0;
+	}
 	char ch;
 	int count=0;
 
@@ -123,10 +127,10 @@ int caracteresEnBloque(char* bloque){
 		count++;
 	}
 	//printf("la cantidad de caracteres en %s.bin es %d\n", bloque, count);
-
 	fclose(fBloque);
 	free(pathBloque);
 	return count;
+
 }
 
 
@@ -234,36 +238,21 @@ void escribirLinea(char* bloque, char* linea, char* nombreTabla, int particion){
 	free(subLinea);
 }
 
-void agregarTablaEnDiccCompactacion(char* nombreTabla){
-	t_list* lista = list_create();
-	char* tabla=nombreTabla;
-
-	dictionary_put(diccCompactacion, tabla, lista);
-}
-
 void procesarPeticionesPendientes(char *nombreTabla){
-	t_list* listaInputsPendientes = list_create();
-
-	t_list* inputsEnDiccionario =list_create();
-	inputsEnDiccionario = dictionary_get(diccCompactacion, nombreTabla);
-	listaInputsPendientes = list_take_and_remove(inputsEnDiccionario, list_size(inputsEnDiccionario));
-
-	list_iterate(listaInputsPendientes, (void*)ejecutarOperacion);
-
-	list_destroy(listaInputsPendientes);
-}
-
-void sacarTablaDeDiccCompactacion(char* nombreTabla){
-	//dictionary_remove(diccCompactacion, nombreTabla);
-	void destructorValueDicc(void * value){
-		void destruirElemDeLista(void * elem){
-			free((char*)elem);
-		}
-		list_destroy_and_destroy_elements((t_list*) value, destruirElemDeLista);
-
+	log_info(logger_visible, "Comenzando a procesar peticiones pendiente para la tabla %s", nombreTabla);
+	t_list *encoladas = dictionary_get(dPeticionesPorTabla, nombreTabla);
+	if(encoladas==NULL){
+		return;
 	}
-	dictionary_remove_and_destroy(diccCompactacion, nombreTabla, destructorValueDicc);
+	void procesar(void *peticion){
+		Operacion op = ejecutarOperacion((char*)peticion);
+		mostrarRetorno(op);
+	}
+	list_iterate(encoladas, procesar);
+	list_destroy_and_destroy_elements(encoladas, (void*)free);
+	dictionary_remove(dPeticionesPorTabla, nombreTabla);
 }
+
 
 bool esRegistroMasReciente(timestamp_t timestamp, int key, char* listaDeBloques){
 	Registro* reciente;

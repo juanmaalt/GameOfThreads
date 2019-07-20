@@ -89,7 +89,8 @@ int socketMemoria;
 pthread_t idConsola;
 
 t_dictionary* memtable;
-t_dictionary* diccCompactacion;
+t_dictionary* dPeticionesPorTabla;
+t_dictionary* dSemaforosPorTabla;
 t_bitarray* bitarray;
 
 
@@ -125,6 +126,8 @@ void dumpTabla(char* nombreTable, t_list* value);
 
 Registro* fseekBloque(int key, char* listaDeBloques);
 void fseekAndEraseBloque(int key, char* listaDeBloques);
+
+void encolar_peticion(char *tabla, char* peticion);
 
 #endif /* LISSANDRA_H_ */
 

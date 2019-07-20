@@ -7,7 +7,7 @@
 
 #include "Consola.h"
 
-void mostrarRetorno(Operacion retorno) {
+void mostrarRetorno(Operacion retorno){
 	switch (retorno.TipoDeMensaje) {
 	case REGISTRO:
 		printf("Timestamp: %llu\nKey:%d\nValue: %s\n",
@@ -29,6 +29,10 @@ void mostrarRetorno(Operacion retorno) {
 	case GOSSIPING_REQUEST:
 		return;
 	case GOSSIPING_REQUEST_KERNEL:
+		return;
+	case ERROR_JOURNAL:
+		return;
+	case ERROR_MEMORIAFULL:
 		return;
 	}
 }

@@ -15,6 +15,7 @@
 
 /*FUNCIONES*/
 void *recibir_comandos(void *);
+void mostrarRetorno(Operacion retorno);
 
 
 #endif /* CONSOLA_H_ */
