@@ -4,12 +4,18 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../parser/compresor_describe.c \
+../parser/compresor_direccion.c \
 ../parser/parser_comando.c 
 
 OBJS += \
+./parser/compresor_describe.o \
+./parser/compresor_direccion.o \
 ./parser/parser_comando.o 
 
 C_DEPS += \
+./parser/compresor_describe.d \
+./parser/compresor_direccion.d \
 ./parser/parser_comando.d 
 
 

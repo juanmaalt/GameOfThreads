@@ -15,7 +15,9 @@ C_DEPS :=
 SUBDIRS := \
 cliente \
 epoch \
+hash \
 parser \
+random \
 serializacion \
 server \
 server_multithread \
