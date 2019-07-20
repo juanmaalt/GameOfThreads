@@ -164,6 +164,10 @@ void actualizarBitarray(){
 						bitarray_set_bit(bitarray, (atoi(bloque)-1));
 						log_info(logger_invisible, "Bloque con data: %s.bin", nombreBloque);
 					}
+				}else{
+					char* pathBinx = string_from_format("%sBloques/%s", config.punto_montaje, nombreBloque);
+					remove(pathBinx);
+					free(pathBinx);
 				}
 			}
 			free(nombreBloque);
