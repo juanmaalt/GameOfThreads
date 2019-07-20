@@ -130,7 +130,7 @@ static socket_t comunicarse_con_memoria(Memoria *memoria){
 		return EXIT_FAILURE;
 	}
 	log_info(logger_invisible, "Request dirigida a la memoria numero: %d, %s:%s", memoria->numero, memoria->ip, memoria->puerto);
-	log_info(logger_visible, "Request dirigida a la memoria numero: %d, %s:%s", memoria->numero, memoria->ip, memoria->puerto);
+	//log_info(logger_visible, "Request dirigida a la memoria numero: %d, %s:%s", memoria->numero, memoria->ip, memoria->puerto);
 	return socketServer;
 }
 
@@ -230,6 +230,14 @@ static ResultadoEjecucionInterno exec_file_lql(PCB *pcb){
 			return INSTRUCCION_ERROR;
 		}
 		if(target.socket == JOURNAL_OP){
+			char *aux = remover_new_line(line);
+			log_error(logger_error, "Unidad_de_ejecucion.c: exec_file_lql: finalizando operacion '%s' debido a la instruccion '%s'. No se espera la instruccion JOURNAL en un LQL", pcb->nombreArchivoLQL, aux);
+			log_error(logger_invisible, "Unidad_de_ejecucion.c: exec_file_lql: finalizando operacion '%s' debido a la instruccion '%s'. No se espera la instruccion JOURNAL en un LQL", pcb->nombreArchivoLQL, aux);
+			fclose(lql);
+			free(pcb->nombreArchivoLQL);
+			free(pcb);
+			free(aux);
+			return INSTRUCCION_ERROR;
 			//TODO
 		}
 		target.inicioOperacion = getCurrentTime();
