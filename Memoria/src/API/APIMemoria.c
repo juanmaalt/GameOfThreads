@@ -374,24 +374,21 @@ void mostrarRegistrosConFlagDeModificado(void){
 		void muestroRegistro(void* registro){
 
 			void mostrarRetorno(Operacion retorno) {
-							printf("Timestamp: %llu\nKey:%d\nValue: %s\n\n",
-									retorno.Argumentos.REGISTRO.timestamp,
-									retorno.Argumentos.REGISTRO.key,
-									retorno.Argumentos.REGISTRO.value);
-							return;
+							log_info(logger_invisible,"Timestamp: %llu\nKey:%d\nValue: %s\n\n",
+												retorno.Argumentos.REGISTRO.timestamp,
+												retorno.Argumentos.REGISTRO.key,
+												retorno.Argumentos.REGISTRO.value);
+										return;
 
-			}
+						}
+							log_info(logger_invisible,"REGISTRO: %s\n",((registroTablaPag_t *) registro)->nroPagina);
+							log_info(logger_invisible,"Ultimo uso: %llu\n",((registroTablaPag_t *) registro)->ultimoUso);
+							log_info(logger_invisible,"Flag Modificado: %d\n",((registroTablaPag_t *) registro)->flagModificado);
+							mostrarRetorno(tomarContenidoPagina(*((registroTablaPag_t *) registro)));
 
-			if(/*((registroTablaPag_t *) registro)->flagModificado*/1){
-				printf("REGISTRO\n\n");
-				printf("Ultimo uso: %llu\n",((registroTablaPag_t *) registro)->ultimoUso);
-				printf("Flag Modificado: %d\n",((registroTablaPag_t *) registro)->flagModificado);
-				mostrarRetorno(tomarContenidoPagina(*((registroTablaPag_t *) registro)));
+					}
 
-			}
-		}
-
-
+					log_info(logger_invisible,"Segmento: %s",((segmento_t *) segmento)->pathTabla);
 		list_iterate(((segmento_t *) segmento)->tablaPaginas->registrosPag, muestroRegistro);
 
 	}
