@@ -502,7 +502,7 @@ void fseekAndEraseBloque(int key, char* listaDeBloques){
 				if(lineaParse[1]!=NULL){
 					if(atoi(lineaParse[1])!=key){
 						if(continua!=0){
-							printf("entró por continua 1 y key no es igual\n");
+							//printf("entró por continua 1 y key no es igual\n");
 							char* bloqueTemp = string_from_format("%sBloques/%s.binx", config.punto_montaje, bloques[i-1]);
 							remove(bloqueTemp);
 							continua=0;
@@ -535,7 +535,7 @@ void fseekAndEraseBloque(int key, char* listaDeBloques){
 		if(strlen(linea)>0){
 			continua=1;
 		}else{
-			printf("no continua remueve\n");
+			//printf("no continua remueve\n");
 			remove(pathBloqueTemp);
 		}
 		free(pathBloqueTemp);
