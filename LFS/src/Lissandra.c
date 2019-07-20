@@ -209,6 +209,8 @@ void handshakeMemoria(int socketMemoria) {
 		case DESCRIBE_REQUEST:
 		case GOSSIPING_REQUEST:
 		case GOSSIPING_REQUEST_KERNEL:
+		case ERROR_JOURNAL:
+		case ERROR_MEMORIAFULL:
 			break;
 	}
 	log_info(logger_invisible,"Lissandra.c: handshakeMemoria() - Memoria conectada exitosamente.");
@@ -536,6 +538,7 @@ void fseekAndEraseBloque(int key, char* listaDeBloques){
 		if(strlen(linea)>0){
 			continua=1;
 		}else{
+			//printf("entró en remover\n");
 			remove(pathBloqueTemp);
 		}
 		free(pathBloqueTemp);
