@@ -23,18 +23,14 @@ Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 		case SELECT:
 			sem_getvalue(&journal, &valueSem);
 			if(valueSem < 1){
-				retorno.TipoDeMensaje = ERROR;
-				retorno.Argumentos.ERROR.mensajeError = string_from_format(
-				"Se recibio consulta, no fue ejecutada. Realizando journal");
+				retorno.TipoDeMensaje = ERROR_JOURNAL;
 			}else
 				retorno = selectAPI(input, *parsed);
 			break;
 		case INSERT:
 			sem_getvalue(&journal, &valueSem);
 			if(valueSem < 1){
-				retorno.TipoDeMensaje = ERROR;
-				retorno.Argumentos.ERROR.mensajeError = string_from_format(
-				"Se recibio consulta, no fue ejecutada. Realizando journal");
+				retorno.TipoDeMensaje = ERROR_JOURNAL;
 			}else{
 				if ((strlen(parsed->argumentos.INSERT.value) + 1) > tamanioValue) {
 					retorno.Argumentos.ERROR.mensajeError = string_from_format(
@@ -55,9 +51,7 @@ Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 		case DROP:
 			sem_getvalue(&journal, &valueSem);
 			if(valueSem < 1){
-				retorno.TipoDeMensaje = ERROR;
-				retorno.Argumentos.ERROR.mensajeError = string_from_format(
-						"Se recibio consulta, no fue ejecutada. Realizando journal");
+				retorno.TipoDeMensaje = ERROR_JOURNAL;
 			}else
 				retorno =dropAPI(input, *parsed);
 			break;
