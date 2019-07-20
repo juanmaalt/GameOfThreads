@@ -127,8 +127,7 @@ void *connection_handler(void *nSocket) {
 
 		loggearRetorno(resultado, logger_invisible);
 
-		if(resultado.TipoDeMensaje == ERROR_JOURNAL)
-			printf("ES ERROR JOURNAL\n");
+
 		send_msg(socket, resultado);
 		break;
 	case TEXTO_PLANO:
