@@ -52,18 +52,23 @@ void leerTemporal(char* pathTemp, int particiones, char* nombreTabla){
 		free(tkey);
 
 		char* listaDeBloques= obtenerListaDeBloques(particionNbr, nombreTabla);
-		log_info(logger_invisible, "Compactador.c: leerTemporal() - Bloques asignados: %s",listaDeBloques);
+		if(string_starts_with(listaDeBloques, "[")&&string_ends_with(listaDeBloques, "]")){
+			log_info(logger_invisible, "Compactador.c: leerTemporal() - Bloques asignados: %s",listaDeBloques);
 
-		if(esRegistroMasReciente(timestamp, key, listaDeBloques)){
-			//printf("es más reciente\n");
-			fseekAndEraseBloque(key, listaDeBloques);
-			char* bloque = firstBloqueDisponible(listaDeBloques);
+			if(esRegistroMasReciente(timestamp, key, listaDeBloques)){
+				//printf("es más reciente\n");
+				fseekAndEraseBloque(key, listaDeBloques);
+				char* bloque = firstBloqueDisponible(listaDeBloques);
 
-			escribirLinea(bloque, linea, nombreTabla, particionNbr);
-			//free(bloque);
+				escribirLinea(bloque, linea, nombreTabla, particionNbr);
+				//free(bloque);
+			}
+		}else{
+			log_error(logger_visible, "FuncionesComp.c: leerTemporal() - Las particion '%d' de la Tabla \"%s\" tiene un estado inconsistente.", particionNbr, nombreTabla);
+			log_error(logger_invisible, "FuncionesComp.c: leerTemporal() - Las particion '%d' de la Tabla \"%s\" tiene un estado inconsistente.", particionNbr, nombreTabla);
+			log_error(logger_error, "FuncionesComp.c: leerTemporal() - Las particion '%d' de la Tabla \"%s\" tiene un estado inconsistente.", particionNbr, nombreTabla);
 		}
 		free(linea);
-
 	}
 	fclose(temp);
 }
