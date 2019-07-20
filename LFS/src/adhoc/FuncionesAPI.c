@@ -386,14 +386,20 @@ void limpiarBloquesEnBitarray(char* nombreTabla){
 			if(string_contains(nombreArchivo, ".bin")){
 				char* particionNbr =string_substring_until(nombreArchivo, (strlen(nombreArchivo)-4));
 				char* listaDeBloques= obtenerListaDeBloques(atoi(particionNbr), nombreTabla);
-				char** bloques = string_get_string_as_array(listaDeBloques);
+				if(string_starts_with(listaDeBloques, "[")&&string_ends_with(listaDeBloques, "]")){
+					char** bloques = string_get_string_as_array(listaDeBloques);
 
-				int i=0;
+					int i=0;
 
-				while(bloques[i]!=NULL){
-					int pos = atoi(bloques[i]);
-					bitarray_clean_bit(bitarray, (pos-1));
-					i++;
+					while(bloques[i]!=NULL){
+						int pos = atoi(bloques[i]);
+						bitarray_clean_bit(bitarray, (pos-1));
+						i++;
+					}
+				}else{
+					log_error(logger_visible, "FuncionesAPI.c: limpiarBloquesEnBitarray() - Las particion '%s' de la Tabla \"%s\" tiene un estado inconsistente.", particionNbr, nombreTabla);
+					log_error(logger_invisible, "FuncionesAPI.c: limpiarBloquesEnBitarray() - Las particion '%s' de la Tabla \"%s\" tiene un estado inconsistente.", particionNbr, nombreTabla);
+					log_error(logger_error, "FuncionesAPI.c: limpiarBloquesEnBitarray() - Las particion '%s' de la Tabla \"%s\" tiene un estado inconsistente.", particionNbr, nombreTabla);
 				}
 			}
 			free(nombreArchivo);

@@ -59,7 +59,9 @@ Operacion selectAPI(Comando comando){
 
 	/*Busco en Bloques*/
 	char* listaDeBloques= obtenerListaDeBloques(particionNbr, comando.argumentos.SELECT.nombreTabla);
-	list_add(listaDeValues, fseekBloque(atoi(comando.argumentos.SELECT.key), listaDeBloques));
+	if(string_starts_with(listaDeBloques, "[")&&string_ends_with(listaDeBloques, "]")){
+		list_add(listaDeValues, fseekBloque(atoi(comando.argumentos.SELECT.key), listaDeBloques));
+	}
 
 	/*Recorro la tabla y obtengo el valor más reciente*/
 	//recorrerTabla(listaDeValues);//Función ad-hoc para testing
