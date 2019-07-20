@@ -15,8 +15,8 @@
 
 /*FUNCIONES*/
 void* compactar(void* nombreTabla);
-void wait_semaforo_tabla(char *tabla);
-void post_semaforo_tabla(char *tabla);
+void waitSemaforoTabla(char *tabla);
+void postSemaforoTabla(char *tabla);
 
 
 #endif /* COMPACTADOR_H_ */

@@ -182,9 +182,12 @@ Operacion createAPI(Comando comando){
 	/*Creo la Tabla en la Memtable*/
 	crearTablaEnMemtable(comando.argumentos.CREATE.nombreTabla); //TODO
 
-	sem_t *semaforo = malloc(sizeof(sem_t));
-	sem_init(semaforo, 0, 1);
-	dictionary_put(dSemaforosPorTabla, string_from_format(comando.argumentos.CREATE.nombreTabla), semaforo);
+	SemaforoTabla *semt = malloc(sizeof(SemaforoTabla));
+	sem_init(&(semt->semaforo), 0, 1);
+	semt->tabla = string_from_format(comando.argumentos.CREATE.nombreTabla);
+	sem_wait(&mutexPeticionesPorTabla);
+	list_add(semaforosPorTabla, semt);
+	sem_post(&mutexPeticionesPorTabla);
 
 	/*Inicio el proceso de compactación*/
 	char* nombreTabla = string_from_format(comando.argumentos.CREATE.nombreTabla);

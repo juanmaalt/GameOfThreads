@@ -43,7 +43,7 @@ void* compactar(void* nombreTabla){
 			/*Cambio el nombre de los archivos temporales de .tmp a .tmpc*/
 			cambiarNombreFilesTemp(pathTabla);
 			/*Tomo el semáforo de la tabla*/
-			wait_semaforo_tabla((char*)nombreTabla);
+			waitSemaforoTabla((char*)nombreTabla);
 			/*Compacto los archivos .tmpc hasta que no haya más*/
 			while((entry = readdir (dir)) != NULL){
 				nombreArchivo = string_from_format(entry->d_name);
@@ -67,7 +67,7 @@ void* compactar(void* nombreTabla){
 				free(nombreArchivo);
 			}
 			/*Libero el semáforo de la tabla*/
-			post_semaforo_tabla((char*)nombreTabla);
+			postSemaforoTabla((char*)nombreTabla);
 			/*Lee todas las peticiones y las manda a ejecutarOperacion*/
 			procesarPeticionesPendientes((char*)nombreTabla);
 			log_info(logger_invisible, "Compactador.c: compactar(%s) - Fin compactación", (char*)nombreTabla);
@@ -80,13 +80,19 @@ void* compactar(void* nombreTabla){
 	return NULL;
 }
 
-void wait_semaforo_tabla(char *tabla){
-	void *semaforo = dictionary_get(dSemaforosPorTabla, tabla);
-	sem_wait((sem_t*)semaforo);
+void waitSemaforoTabla(char *tabla){
+	bool buscar(void *tablaSemaforo){
+		return !strcmp(tabla, ((SemaforoTabla*) tablaSemaforo)->tabla);
+	}
+	void *semt = list_find(semaforosPorTabla, buscar);
+	sem_wait(&(((SemaforoTabla*)semt)->semaforo));
 }
 
-void post_semaforo_tabla(char *tabla){
-	void *semaforo = dictionary_get(dSemaforosPorTabla, tabla);
-	sem_post((sem_t*)semaforo);
+void postSemaforoTabla(char *tabla){
+	bool buscar(void *tablaSemaforo){
+		return !strcmp(tabla, ((SemaforoTabla*) tablaSemaforo)->tabla);
+	}
+	void *semt = list_find(semaforosPorTabla, buscar);
+	sem_post(&(((SemaforoTabla*)semt)->semaforo));
 }
 

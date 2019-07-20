@@ -188,9 +188,14 @@ void levantarTablasExistentes(){
 			if(!strcmp(nombreCarpeta, ".") || !strcmp(nombreCarpeta, "..")){
 			}else{
 				crearTablaEnMemtable(nombreCarpeta);
-				sem_t *semaforo = malloc(sizeof(sem_t));
-				sem_init(semaforo, 0, 1);
-				dictionary_put(dSemaforosPorTabla, string_from_format(nombreCarpeta), semaforo);
+
+				SemaforoTabla *semt = malloc(sizeof(SemaforoTabla));
+				sem_init(&(semt->semaforo), 0, 1);
+				semt->tabla = string_from_format(nombreCarpeta);
+				sem_wait(&mutexPeticionesPorTabla);
+				list_add(semaforosPorTabla, semt);
+				sem_post(&mutexPeticionesPorTabla);
+
 				log_info(logger_invisible, "FileSystem.c: levantarTablasExistentes() - Tabla levantada: %s", nombreCarpeta);
 				if(agregarBloqueEnBitarray(nombreCarpeta)==0){
 					iniciarCompactacion(nombreCarpeta);

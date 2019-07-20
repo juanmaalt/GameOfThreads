@@ -74,6 +74,10 @@ typedef struct{
 	char* value;
 }Registro;
 
+typedef struct {
+	char* tabla;
+	sem_t semaforo;
+}SemaforoTabla;
 
 /*GLOBALES*/
 t_log* logger_visible;
@@ -90,9 +94,10 @@ pthread_t idConsola;
 
 t_dictionary* memtable;
 t_dictionary* dPeticionesPorTabla;
-t_dictionary* dSemaforosPorTabla;
+t_list* semaforosPorTabla;
 t_bitarray* bitarray;
 
+sem_t mutexPeticionesPorTabla;
 
 /*FUNCIONES*/
 /*CONNECTION HANDLER*/

@@ -33,7 +33,8 @@ int main(void) {
 
 	/*Creo el diccionario para las tablas en compactación*/
 	dPeticionesPorTabla = dictionary_create();
-	dSemaforosPorTabla = dictionary_create();
+	semaforosPorTabla =list_create();
+	sem_init(&mutexPeticionesPorTabla, 0, 1);
 
 	/*Levantar Tablas*/
 	levantarTablasExistentes();
@@ -231,6 +232,12 @@ Operacion ejecutarOperacion(char* input) {
 	*parsed = parsear_comando(input);
 	int valorSemaforo=0;
 
+	SemaforoTabla *semt=NULL;
+	char *bufferTabla=NULL;
+	bool buscar(void *tablaSemaforo){
+		return !strcmp(bufferTabla, ((SemaforoTabla*) tablaSemaforo)->tabla);
+	}
+
 	log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - Mensaje recibido %s", input);
 
 	usleep(vconfig.retardo()*1000);
@@ -238,7 +245,12 @@ Operacion ejecutarOperacion(char* input) {
 	if (parsed->valido) {
 		switch (parsed->keyword){
 		case SELECT:
-			sem_getvalue((sem_t*)dictionary_get(dSemaforosPorTabla, parsed->argumentos.SELECT.nombreTabla), &valorSemaforo);
+			sem_wait(&mutexPeticionesPorTabla);
+			bufferTabla=parsed->argumentos.SELECT.nombreTabla;
+			semt = list_find(semaforosPorTabla, buscar);
+			sem_getvalue(&semt->semaforo, &valorSemaforo);
+			sem_post(&mutexPeticionesPorTabla);
+
 			if(valorSemaforo >= 1){
 				retorno = selectAPI(*parsed);
 				log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <SELECT> Mensaje de retorno \"%llu;%d;%s\"", retorno.Argumentos.REGISTRO.timestamp, retorno.Argumentos.REGISTRO.key, retorno.Argumentos.REGISTRO.value);
@@ -249,7 +261,12 @@ Operacion ejecutarOperacion(char* input) {
 			}
 			break;
 		case INSERT:
-			sem_getvalue((sem_t*)dictionary_get(dSemaforosPorTabla, parsed->argumentos.INSERT.nombreTabla), &valorSemaforo);
+			sem_wait(&mutexPeticionesPorTabla);
+			bufferTabla=parsed->argumentos.INSERT.nombreTabla;
+			semt = list_find(semaforosPorTabla, buscar);
+			sem_getvalue(&semt->semaforo, &valorSemaforo);
+			sem_post(&mutexPeticionesPorTabla);
+
 			if(valorSemaforo >= 1){
 				retorno = insertAPI(*parsed);
 				log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <INSERT> Mensaje de retorno \"%s\"", retorno.Argumentos.TEXTO_PLANO.texto);
@@ -268,7 +285,12 @@ Operacion ejecutarOperacion(char* input) {
 			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <DESCRIBE> Mensaje de retorno \"%s\"", retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
 			break;
 		case DROP:
-			sem_getvalue((sem_t*)dictionary_get(dSemaforosPorTabla, parsed->argumentos.DROP.nombreTabla), &valorSemaforo);
+			sem_wait(&mutexPeticionesPorTabla);
+			bufferTabla=parsed->argumentos.DROP.nombreTabla;
+			semt = list_find(semaforosPorTabla, buscar);
+			sem_getvalue(&semt->semaforo, &valorSemaforo);
+			sem_post(&mutexPeticionesPorTabla);
+
 			if(valorSemaforo >= 1){
 				retorno = dropAPI(*parsed);
 				log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <DROP> Mensaje de retorno \"%s\"", retorno.Argumentos.TEXTO_PLANO.texto);
@@ -576,7 +598,6 @@ void rutinas_de_finalizacion(){
 	config_destroy(configFile);
 	dictionary_destroy(memtable);
 	dictionary_destroy(dPeticionesPorTabla);
-	dictionary_destroy(dSemaforosPorTabla);
 	bitarray_destroy(bitarray);
 	close(miSocket);
 	log_destroy(logger_visible);
