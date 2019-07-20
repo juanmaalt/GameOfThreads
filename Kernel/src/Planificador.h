@@ -29,7 +29,7 @@ typedef enum PCB_DataType_e{
 typedef struct pcb_t{
 	char *nombreArchivoLQL;
 	void *data;
-	int instruccionPointer;
+	fpos_t instruccionPointer;
 	PCB_DataType tipo;
 }PCB;
 

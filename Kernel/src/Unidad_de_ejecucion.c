@@ -209,8 +209,8 @@ static INTERNAL_STATE exec_file_lql(PCB *pcb){
 	int quantumBuffer = vconfig.quantum(); //Para hacer la llamada una sola vez por cada exec. No se actualiza el quantum en tiempo real, pero se actualiza cuando entra un nuevo script por que ya tiene el valor actualizado
 
 	for(int i=1; i<=quantumBuffer; ++i){
+		fgetpos(lql, &(pcb->instruccionPointer));
 		line = fgets(buffer, MAX_BUFFER_SIZE_FOR_LQL_LINE, lql);
-		++(pcb->instruccionPointer);
 		if(line == NULL || feof(lql)){
 			printf("\n");
 			fclose(lql);
@@ -318,13 +318,11 @@ static INTERNAL_STATE procesar_retorno_operacion(Operacion op, PCB* pcb, char* i
 	case ERROR_JOURNAL:
 		instruccionActualTemp = remover_new_line(instruccionActual);
 		if(pcb->tipo == FILE_LQL){
-			if(pcb->instruccionPointer == 1)
-				fseek((FILE *)pcb->data, 0, SEEK_SET);
-			else
-				fseek((FILE *)pcb->data, --pcb->instruccionPointer, SEEK_CUR);
+			fsetpos((FILE *)pcb->data, &(pcb->instruccionPointer));
 			log_info(logger_visible,YEL"CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta realizando Journal. Se desalojara el LQL"STD, process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
 			log_info(logger_invisible,"CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta realizando Journal. Se desalojara el LQL", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
 			free(instruccionActualTemp);
+			sleep(3);
 			return JOURNAL_MEMORY_INACCESSIBLE;
 		}
 		log_error(logger_visible, "CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta realizando Journal. Abortando.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
@@ -334,13 +332,11 @@ static INTERNAL_STATE procesar_retorno_operacion(Operacion op, PCB* pcb, char* i
 	case ERROR_MEMORIAFULL:
 		instruccionActualTemp = remover_new_line(instruccionActual);
 		if(pcb->tipo == FILE_LQL){
-			if(pcb->instruccionPointer == 1)
-				fseek((FILE *)pcb->data, 0, SEEK_SET);
-			else
-				fseek((FILE *)pcb->data, --pcb->instruccionPointer, SEEK_CUR);
+			fsetpos((FILE *)pcb->data, &(pcb->instruccionPointer));
 			log_info(logger_visible,YEL"CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta full. Reintentando."STD, process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
 			log_info(logger_invisible,"CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta full. Reintentando.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
 			free(instruccionActualTemp);
+			sleep(3);
 			return JOURNAL_MEMORY_INACCESSIBLE;
 		}
 		log_error(logger_visible, "CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta full. Abortando.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
