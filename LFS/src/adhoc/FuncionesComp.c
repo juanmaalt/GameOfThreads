@@ -192,7 +192,11 @@ void escribirLinea(char* bloque, char* linea, char* nombreTabla, int particion){
 			//printf("A> bloque para la linea: %s\n", bloque);
 		}else{
 			while(strlen(linea)!=0){
-				subLinea = string_substring_until(linea, charsDisponibles);
+				if(strlen(linea)>charsDisponibles){
+					subLinea = string_substring_until(linea, charsDisponibles);
+				}else{
+					subLinea = string_substring_until(linea, (strlen(linea)-1));
+				}
 				//printf("B> hay espacio en bloque y linea mayor al espacio: linea escrita: %s\n", subLinea);
 				//printf("B> nuevo bloque para la sublinea: %s\n", bloque);
 				escribirEnBloque(bloque, subLinea);
@@ -209,7 +213,7 @@ void escribirLinea(char* bloque, char* linea, char* nombreTabla, int particion){
 					agregarBloqueEnParticion(bloque, nombreTabla, particion);
 					//printf("B> nuevo bloque para la sublinea: %s\n", bloque);
 				}else{linea="";}
-				charsDisponibles = metadataFS.blockSize-caracteresEnBloque(bloque);
+			//charsDisponibles = getMin((metadataFS.blockSize-caracteresEnBloque(bloque)), strlen(linea));
 				//printf("B> actualizo char disponibles: %d\n", charsDisponibles);
 			}
 			//printf("B> salió\n");
@@ -273,4 +277,12 @@ bool esRegistroMasReciente(timestamp_t timestamp, int key, char* listaDeBloques)
 	//printf("timestamp recibido:%llu\ntimestamp encontrado:%llu\n", timestamp, reciente->timestamp);
 
 	return (timestamp > reciente->timestamp);
+}
+
+int getMin(int value1, int value2){
+	if(value1<value2){
+		return value1;
+	}else{
+		return value2;
+	}
 }

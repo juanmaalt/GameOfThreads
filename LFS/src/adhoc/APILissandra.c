@@ -67,6 +67,11 @@ Operacion selectAPI(Comando comando){
 	//recorrerTabla(listaDeValues);//Función ad-hoc para testing
 	getValueMasReciente(listaDeValues, &resultadoSelect);
 
+	if(resultadoSelect.Argumentos.REGISTRO.value==NULL){
+		resultadoSelect.TipoDeMensaje = ERROR;
+		resultadoSelect.Argumentos.ERROR.mensajeError = string_from_format("No existen registros relacionados con la key solicitada");
+	}
+
 	/*Libero recursos en memoria*/
 	list_destroy(listaDeValues);
 	config_destroy(metadataFile);
