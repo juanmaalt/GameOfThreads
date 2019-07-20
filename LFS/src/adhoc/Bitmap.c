@@ -158,10 +158,12 @@ void actualizarBitarray(){
 		while((entry = readdir (dir)) != NULL){
 			nombreBloque = string_from_format(entry->d_name);
 			if(string_contains(nombreBloque, ".bin")){
-				char* bloque = string_substring_until(nombreBloque, (strlen(nombreBloque)-4));
-				if(caracteresEnBloque(bloque)>0){
-					bitarray_set_bit(bitarray, (atoi(bloque)-1));
-					log_info(logger_invisible, "Bloque con data: %s.bin", nombreBloque);
+				if(!string_contains(nombreBloque, ".binx")){
+					char* bloque = string_substring_until(nombreBloque, (strlen(nombreBloque)-4));
+					if(caracteresEnBloque(bloque)>0){
+						bitarray_set_bit(bitarray, (atoi(bloque)-1));
+						log_info(logger_invisible, "Bloque con data: %s.bin", nombreBloque);
+					}
 				}
 			}
 			free(nombreBloque);
