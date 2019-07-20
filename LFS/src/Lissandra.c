@@ -486,8 +486,6 @@ void fseekAndEraseBloque(int key, char* listaDeBloques){
 	char* linea = string_new();
 	char ch;
 
-	//printf("antes de while bloque\n");
-
 	while(bloques[i]!=NULL){
 		char* pathBloque = string_from_format("%sBloques/%s.bin", config.punto_montaje, bloques[i]);
 		fBloque = fopen(pathBloque, "r");
@@ -499,8 +497,8 @@ void fseekAndEraseBloque(int key, char* listaDeBloques){
 
 			if(string_ends_with(linea, "\n")){
 				char** lineaParse = string_split(linea,";");
-				if(lineaParse[1]!=NULL){
-					if(atoi(lineaParse[1])!=key){
+				if(lineaParse[1]!=NULL){//Si la línea lee algo no null
+					if(atoi(lineaParse[1])!=key){//Si la key de la línea no es igual a la buscada
 						if(continua!=0){
 							char* bloqueTemp = string_from_format("%sBloques/%s.binx", config.punto_montaje, bloques[i-1]);
 							remove(bloqueTemp);
@@ -508,9 +506,8 @@ void fseekAndEraseBloque(int key, char* listaDeBloques){
 							free(bloqueTemp);
 						}
 						fprintf(fBloqueTemp, "%s", linea);
-					}else{
+					}else{//Si la key es la buscada
 						if(continua!=0){
-							//Path del bloque viejo
 							char* bloque = string_from_format("%sBloques/%s.bin", config.punto_montaje, bloques[i-1]);
 							remove(bloque);
 							char* bloqueTemp = string_from_format("%sBloques/%s.binx", config.punto_montaje, bloques[i-1]);
@@ -519,9 +516,17 @@ void fseekAndEraseBloque(int key, char* listaDeBloques){
 							continua=0;
 							free(bloque);
 							free(bloqueTemp);
+						}else{
+							char* bloque = string_from_format("%sBloques/%s.bin", config.punto_montaje, bloques[i]);
+							remove(bloque);
+							char* bloqueTemp = string_from_format("%sBloques/%s.binx", config.punto_montaje, bloques[i]);
+							rename(bloqueTemp, bloque);
+							remove(bloqueTemp);
+							continua=0;
+							free(bloque);
+							free(bloqueTemp);
 						}
 					}
-
 					string_iterate_lines(lineaParse, (void* )free);
 					free(lineaParse);
 				}
