@@ -127,6 +127,8 @@ void *connection_handler(void *nSocket) {
 
 		loggearRetorno(resultado, logger_invisible);
 
+		if(resultado.TipoDeMensaje == ERROR_JOURNAL)
+			printf("ES ERROR JOURNAL\n");
 		send_msg(socket, resultado);
 		break;
 	case TEXTO_PLANO:
@@ -295,6 +297,12 @@ void loggearRetorno(Operacion retorno, t_log * logger) {
 		return;
 	case ERROR:
 		log_error(logger_error,"%s \n",retorno.Argumentos.ERROR.mensajeError);
+		return;
+	case ERROR_JOURNAL:
+		log_error(logger_error,"La request no se proceso. Realizando Journal");
+		return;
+	case ERROR_MEMORIAFULL:
+		log_error(logger_error,"MEMORIA FULL, REALIZAR JOURNAL");
 		return;
 	case COMANDO:
 		return;

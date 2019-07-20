@@ -135,8 +135,7 @@ Operacion selectAPI(char* input, Comando comando) {
 				if(insertarPaginaDeSegmento(resultadoSelect.Argumentos.REGISTRO.value, keyBuscada, resultadoSelect.Argumentos.REGISTRO.timestamp, segmentoSeleccionado, false)== EXIT_SUCCESS){
 					return resultadoSelect;
 				}
-				resultadoSelect.TipoDeMensaje = ERROR;
-				resultadoSelect.Argumentos.ERROR.mensajeError= string_from_format("MEMORIA FULL, REALIZAR JOURNAL");
+				resultadoSelect.TipoDeMensaje = ERROR_MEMORIAFULL;
 				return resultadoSelect;
 
 			}else { //SE DEVUELVE EL ERROR QUE DA EL LFS
@@ -159,8 +158,8 @@ Operacion selectAPI(char* input, Comando comando) {
 				return resultadoSelect;
 			}
 
-			resultadoSelect.TipoDeMensaje = ERROR;
-			resultadoSelect.Argumentos.ERROR.mensajeError= string_from_format("MEMORIA FULL, REALIZAR JOURNAL");
+			resultadoSelect.TipoDeMensaje = ERROR_MEMORIAFULL;
+
 			return resultadoSelect;
 		}
 		return resultadoSelect;
@@ -236,8 +235,8 @@ Operacion insertAPI(char* input, Comando comando) {
 			}
 
 			//log_info(logger_invisible,"Se realizo el INSERT, estaba en memoria\n");
-			resultadoInsert.TipoDeMensaje = ERROR;
-			resultadoInsert.Argumentos.ERROR.mensajeError= string_from_format("MEMORIA FULL, REALIZAR JOURNAL");
+			resultadoInsert.TipoDeMensaje = ERROR_MEMORIAFULL;
+
 			return resultadoInsert;
 
 
@@ -255,8 +254,7 @@ Operacion insertAPI(char* input, Comando comando) {
 			return resultadoInsert;
 		}
 
-		resultadoInsert.TipoDeMensaje = ERROR;
-		resultadoInsert.Argumentos.ERROR.mensajeError= string_from_format("MEMORIA FULL, REALIZAR JOURNAL");
+		resultadoInsert.TipoDeMensaje = ERROR_MEMORIAFULL;
 		return resultadoInsert;
 
 	}

@@ -58,7 +58,11 @@ int send_msg(int socket, Operacion operacion) {
 		content=malloc(total);
 		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
 		break;
-
+	case ERROR_MEMORIAFULL:
+		total = sizeof(int);
+		content=malloc(total);
+		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
+		break;
 	case GOSSIPING_REQUEST:
 		longCadena = strlen(operacion.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 		total = sizeof(int) + sizeof(int) +sizeof(char) * longCadena;
@@ -139,6 +143,8 @@ Operacion recv_msg(int socket) {
 		retorno.Argumentos.ERROR.mensajeError[longitud]='\0';
 		break;
 	case ERROR_JOURNAL:
+		break;
+	case ERROR_MEMORIAFULL:
 		break;
 	case GOSSIPING_REQUEST:
 		recv(socket, &longitud, sizeof(int), 0);
