@@ -277,9 +277,9 @@ Operacion recibir_gossiping(Operacion resultado) {
 	if (resultado.TipoDeMensaje == GOSSIPING_REQUEST) {	// si es gossping request, proceso las memorias que me envian
 		t_list *aux = list_create();
 		t_list *aux_filtro = list_create();
-		log_info(logger_gossiping,
-				"GOSSIPING.C:recibir_gossiping: Recibo mensaje gossiping: %s",
-				resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
+		//log_info(logger_gossiping,
+				//"GOSSIPING.C:recibir_gossiping: Recibo mensaje gossiping: %s",
+				//resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 		char **descompresion = descomprimir_memoria(
 				resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 		pthread_mutex_lock(&mutexGossiping);

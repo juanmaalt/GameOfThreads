@@ -21,6 +21,6 @@
 	* 		 el hash devuelva alguna de las posibles memorias de la lista, siendo el limite la cantidad de elementos de la
 	* 		 lista. En una lista de 5 elementos indexad desde 0 hasta 4, esta funcion da numeros comprendidos entre 0 y 4.
 	*/
-	hash getHash(char *input, unsigned int limite);
+	hash getHash(char *input,  int limite);
 
 #endif /* HASH_HASH_SC_H_ */

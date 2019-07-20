@@ -132,6 +132,7 @@ int realizarLRU(char* value, uint16_t key, timestamp_t ts, segmento_t * segmento
 		return EXIT_SUCCESS;
 	}
 
+	log_info(logger_invisible,"ManejoDeMemoria.C: realizarLRU: No se puede reemplazar con LRU, MEMORIA FULL");
 	return ERROR_MEMORIA_FULL;
 }
 
