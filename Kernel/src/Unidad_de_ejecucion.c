@@ -442,7 +442,7 @@ static void generar_estadisticas(DynamicAddressingRequest *link){
 
 void *describe_automatico(void *null){
 	for(;;){
-		usleep(vconfig.refreshMetadata());
+		usleep(vconfig.refreshMetadata()*1000);
 		Memoria *memoria = elegir_cualquiera();
 		if(memoria == NULL) continue;
 		int socketMemoria = comunicarse_con_memoria(memoria);
