@@ -28,6 +28,7 @@ typedef struct{
 		COMANDO,
 		REGISTRO,
 		ERROR,
+		ERROR_JOURNAL,
 		GOSSIPING_REQUEST,
 		GOSSIPING_REQUEST_KERNEL,
 		DESCRIBE_REQUEST,
@@ -47,6 +48,8 @@ typedef struct{
 		struct{
 			char* mensajeError;
 		}ERROR;
+		struct{
+		}ERROR_JOURNAL;
 		struct{
 			char *resultado_comprimido;
 		}GOSSIPING_REQUEST;
