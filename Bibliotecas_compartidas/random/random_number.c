@@ -12,8 +12,8 @@ id getNumber(){
 }
 
 id getNumberUntil(int maximo){
-	if(maximo > 1)
-		return rand() % (maximo - 1);
-	else
+	if(maximo <= 1)
 		return 0;
+	else
+		return rand() % maximo;
 }

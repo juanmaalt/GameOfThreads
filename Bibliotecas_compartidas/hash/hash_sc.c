@@ -14,5 +14,5 @@ hash getHash(char *input, unsigned int limite){
 	for(int i=0; i<strlen(input); ++i){
 		acumulador += input[i];
 	}
-	return (acumulador % (limite - 1))-1;
+	return (acumulador % limite)-1;
 }
