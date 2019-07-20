@@ -18,6 +18,7 @@ int main(void) {
 
 		return EXIT_FAILURE;
 	}
+	log_info(logger_invisible, "=============Iniciando Memoria=============");
 	mostrar_por_pantalla_config();
 
 	 if(realizarHandshake()==EXIT_FAILURE){
@@ -58,13 +59,12 @@ int main(void) {
 		return EXIT_FAILURE;
 	}
 
-	//TODO: hilo de JOURNAL
-	/*if(iniciar_Journal() == EXIT_FAILURE){
+	if(iniciar_Journal() == EXIT_FAILURE){
 		log_error(logger_error,
 						"Memoria.c: main: no se pudo iniciar el hilo journal");
 
 				return EXIT_FAILURE;
-	}*/
+	}
 
 	//Habilita el server y queda en modo en listen
 	if (iniciar_serverMemoria() == EXIT_FAILURE) {
@@ -73,7 +73,7 @@ int main(void) {
 
 		return EXIT_FAILURE;
 	}
-
+	log_info(logger_invisible, "=============Finalizando Memoria=============");
 	liberarRecursos();
 }
 
@@ -241,6 +241,10 @@ int configuracion_inicial() {
 	if(logger_error == NULL)
 		RETURN_ERROR("Memoria.c: configuracion_inicial: error en 'logger_error = iniciar_logger(true);'");
 
+	remove("Logs/MemoriaGossiping.log");
+		logger_gossiping = iniciar_logger("Logs/MemoriaGossiping.log", false, LOG_LEVEL_INFO);
+		if(logger_gossiping == NULL)
+			RETURN_ERROR("Memoria.c: configuracion_inicial: error en 'logger_gossiping = iniciar_logger(false);'");
 	if (inicializar_configs() == EXIT_FAILURE)
 		RETURN_ERROR("Memoria.c: configuracion_inicial: error en la extraccion de datos del archivo de configuracion");
 
