@@ -437,7 +437,6 @@ Operacion journalAPI(){
 
 	sem_wait(&journal);
 
-	usleep(500000000);
 	//printf("TERMINO SLEEP JOURNAL\n");
 
 	pthread_mutex_lock(&mutexTablaSegmentos);

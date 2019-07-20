@@ -18,6 +18,7 @@ int main(void) {
 
 		return EXIT_FAILURE;
 	}
+	log_info(logger_invisible, "=============Iniciando Memoria=============");
 	mostrar_por_pantalla_config();
 
 	 if(realizarHandshake()==EXIT_FAILURE){
@@ -58,13 +59,12 @@ int main(void) {
 		return EXIT_FAILURE;
 	}
 
-	//TODO: hilo de JOURNAL
-	/*if(iniciar_Journal() == EXIT_FAILURE){
+	if(iniciar_Journal() == EXIT_FAILURE){
 		log_error(logger_error,
 						"Memoria.c: main: no se pudo iniciar el hilo journal");
 
 				return EXIT_FAILURE;
-	}*/
+	}
 
 	//Habilita el server y queda en modo en listen
 	if (iniciar_serverMemoria() == EXIT_FAILURE) {
@@ -73,7 +73,7 @@ int main(void) {
 
 		return EXIT_FAILURE;
 	}
-
+	log_info(logger_invisible, "=============Finalizando Memoria=============");
 	liberarRecursos();
 }
 
