@@ -42,8 +42,7 @@ void* compactar(void* nombreTabla){
 		if((dir = opendir(pathTabla)) != NULL){
 			/*Cambio el nombre de los archivos temporales de .tmp a .tmpc*/
 			cambiarNombreFilesTemp(pathTabla);
-			/*Agrego la tabla en el diccionario de compactación, para bloquear el acceso de las funciones que lleguen*/
-	//agregarTablaEnDiccCompactacion((char*)nombreTabla);
+			/*Tomo el semáforo de la tabla*/
 			wait_semaforo_tabla((char*)nombreTabla);
 			/*Compacto los archivos .tmpc hasta que no haya más*/
 			while((entry = readdir (dir)) != NULL){
@@ -67,8 +66,9 @@ void* compactar(void* nombreTabla){
 				}
 				free(nombreArchivo);
 			}
+			/*Libero el semáforo de la tabla*/
 			post_semaforo_tabla((char*)nombreTabla);
-			/*Busca en el diccionario por el hash nombreTabla hace un pop de cada peticion y la manda a ejecutarOperacion*/
+			/*Lee todas las peticiones y las manda a ejecutarOperacion*/
 			procesarPeticionesPendientes((char*)nombreTabla);
 			log_info(logger_invisible, "Compactador.c: compactar(%s) - Fin compactación", (char*)nombreTabla);
 

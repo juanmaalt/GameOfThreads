@@ -50,22 +50,27 @@ void leerBitmap(){
 	actualizarBitarray();
 
 	/*Función para imprimir*/
-	/*
+
 	for(int i=0;i<metadataFS.blocks;i++){
 		bool valor = bitarray_test_bit(bitarray, i);
-		printf("valor bit= %d\n", valor);
+		//printf("valor bit= %d\n", valor);
 	}
-	 */
+
+
+	sem_init(&leyendoBitarray, 0, 1);
+
 	close(fileDescriptor);
 	free(path);
 }
 
 char* getBloqueLibre(){
+	sem_wait(&leyendoBitarray);
+
 	int pos=0;
 	char* posicion;
 
 	while(bitarray_test_bit(bitarray, pos)!=0){
-		if(pos<(metadataFS.blocks/8)){
+		if(pos<metadataFS.blocks){
 			pos++;
 		}else{
 			log_error(logger_visible,"Bitmap.c: getBloqueLibre() - No hay Bloques libres, no se puede guardar la información");
@@ -78,7 +83,10 @@ char* getBloqueLibre(){
 	bitarray_set_bit(bitarray, pos);
 
 	escribirBitmap();
-	posicion=string_from_format("%d", pos+1);
+	//posicion=string_from_format("%d", pos+1);
+
+	//printf("posicion:%s\n", posicion);
+	sem_post(&leyendoBitarray);
 
 	return posicion;
 }
@@ -100,7 +108,7 @@ void escribirBitmap(){
 	char* texto = calloc(cantSimbolos, sizeof(char));
 
 	for(int i=0;i<metadataFS.blocks;i++){
-		if(bitarray_test_bit(bitarray, i)){
+		if(bitarray_test_bit(bitarray, i)!=0){
 			binario[i]='1';
 		}else{
 			binario[i]='0';
@@ -114,11 +122,15 @@ void escribirBitmap(){
 	binarioATexto(binario, texto, cantSimbolos);
 
 	bitmap = fopen(pathBitmap,"w");
-
+/*
 	for(int i=0; i<(metadataFS.blocks/8); i++){
 		fprintf (bitmap, "%c",texto[i]);
 		//printf("El texto que se guardaría en el bitmap.bin es: %c\n", texto[i]);
 	}
+	*/
+	fprintf (bitmap, "%s",texto);
+	//printf("texto: %s\n", texto);
+
 	fclose(bitmap);
 	free(texto);
 	free(pathBitmap);

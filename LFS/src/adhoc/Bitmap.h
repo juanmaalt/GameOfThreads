@@ -12,6 +12,10 @@
 #include <fcntl.h>
 #include "../Lissandra.h"
 
+/*GLOBALES*/
+sem_t leyendoBitarray;
+
+/*FUNCIONES*/
 void leerBitmap();
 char* getBloqueLibre();
 void liberarBloque(int pos);
