@@ -123,7 +123,6 @@ int caracteresEnBloque(char* bloque){
 	FILE* fBloque = fopen(pathBloque, "r+");
 	if(fBloque==NULL){
 		log_error(logger_visible, "Error a leer los caracteres del bloque '%s'", bloque);
-		fclose(fBloque);
 		free(pathBloque);
 		return metadataFS.blockSize;
 	}
