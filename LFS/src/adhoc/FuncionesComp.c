@@ -34,15 +34,16 @@ void cambiarNombreFilesTemp(char* pathTabla){
 
 void leerTemporal(char* pathTemp, int particiones, char* nombreTabla){
 	FILE* temp;
-    int timestamp, key;
+    int key;
+    timestamp_t timestamp;
     char value[atoi(config.tamanio_value)];
 
     /*Abro file .tmpc*/
 	temp = fopen(pathTemp, "r");
 	/*Leo el file linea a linea*/
-	while(fscanf(temp, "%d;%d;%s[^\n]", &timestamp, &key, value)!= EOF){
-		log_info(logger_invisible, "Compactador.c: leerTemporal() - Linea leída: %d;%d;%s", timestamp, key ,value);
-		char* linea = string_from_format("%d;%d;%s\n",timestamp, key, value);
+	while(fscanf(temp, "%llu;%d;%s[^\n]", &timestamp, &key, value)!= EOF){
+		log_info(logger_invisible, "Compactador.c: leerTemporal() - Linea leída: %llu;%d;%s", timestamp, key ,value);
+		char* linea = string_from_format("%llu;%d;%s\n",timestamp, key, value);
 
 		//printf("key:%d\npartciones:%d\n", key, particiones);
 		char* tkey= string_from_format("%d", key);
@@ -54,10 +55,12 @@ void leerTemporal(char* pathTemp, int particiones, char* nombreTabla){
 		log_info(logger_invisible, "Compactador.c: leerTemporal() - Bloques asignados: %s",listaDeBloques);
 
 		if(esRegistroMasReciente(timestamp, key, listaDeBloques)){
+			//printf("es más reciente\n");
+			fseekAndEraseBloque(key, listaDeBloques);
 			char* bloque = firstBloqueDisponible(listaDeBloques);
 
 			escribirLinea(bloque, linea, nombreTabla, particionNbr);
-			free(bloque);
+			//free(bloque);
 		}
 		free(linea);
 
@@ -141,14 +144,23 @@ void escribirEnBloque(char* bloque, char* linea){
 void escribirLinea(char* bloque, char* linea, char* nombreTabla, int particion){
 	//printf("bloque recibido: %s\n", bloque);
 	if(string_equals_ignore_case(bloque, "0")){
-		bloque = string_from_format("%d",getBloqueLibre());
+		char* bloqueLibre;
+		if((bloqueLibre = getBloqueLibre())==NULL){
+			log_error(logger_visible,"FuncionesComp.c: escribirLinea() - No hay Bloques libres, no se puede guardar la información");
+			log_error(logger_invisible,"FuncionesComp.c: escribirLinea() - No hay Bloques libres, no se puede guardar la información");
+			log_error(logger_error,"FuncionesComp.c: escribirLinea() - No hay Bloques libres, no se puede guardar la información");
+			return;
+		}
+
+		bloque = string_from_format("%s",bloqueLibre);
 	}
 	log_info(logger_invisible, "Compactador.c: escribirLinea() - Bloque a escribir: %s", bloque);
 	//printf("bloque elegido: %s\n", bloque);
 
 	int charsDisponibles = metadataFS.blockSize-caracteresEnBloque(bloque);
-	int nuevoBloque;
-	char* subLinea=NULL;
+	char* nuevoBloque;
+	char* subLinea=string_new();
+	subLinea=NULL;
 
 	//printf("espacio en Bloque: %d\n", charsDisponibles);
 
@@ -167,7 +179,12 @@ void escribirLinea(char* bloque, char* linea, char* nombreTabla, int particion){
 				if(strlen(linea)>charsDisponibles){
 					linea = string_substring_from(linea, charsDisponibles);
 					//printf("B> hay espacio en bloque y linea mayor al espacio: resto: %s\n", linea);
-					nuevoBloque = getBloqueLibre();
+					if((nuevoBloque = getBloqueLibre())==NULL){
+						log_error(logger_visible,"FuncionesComp.c: escribirLinea() - No hay Bloques libres, no se puede guardar la información");
+						log_error(logger_invisible,"FuncionesComp.c: escribirLinea() - No hay Bloques libres, no se puede guardar la información");
+						log_error(logger_error,"FuncionesComp.c: escribirLinea() - No hay Bloques libres, no se puede guardar la información");
+						return;
+					}
 					bloque = string_from_format("%d", nuevoBloque);
 					agregarBloqueEnParticion(bloque, nombreTabla, particion);
 					//printf("B> nuevo bloque para la sublinea: %s\n", bloque);
@@ -179,7 +196,12 @@ void escribirLinea(char* bloque, char* linea, char* nombreTabla, int particion){
 		}
 	}else{
 		if(strlen(linea)<metadataFS.blockSize){
-			nuevoBloque = getBloqueLibre();
+			if((nuevoBloque = getBloqueLibre())==NULL){
+				log_error(logger_visible,"FuncionesComp.c: escribirLinea() - No hay Bloques libres, no se puede guardar la información");
+				log_error(logger_invisible,"FuncionesComp.c: escribirLinea() - No hay Bloques libres, no se puede guardar la información");
+				log_error(logger_error,"FuncionesComp.c: escribirLinea() - No hay Bloques libres, no se puede guardar la información");
+				return;
+			}
 			bloque = string_from_format("%d", nuevoBloque);
 			escribirEnBloque(bloque, linea);
 			agregarBloqueEnParticion(bloque, nombreTabla, particion);
@@ -187,7 +209,12 @@ void escribirLinea(char* bloque, char* linea, char* nombreTabla, int particion){
 			//printf("C> nuevo bloque para la linea: %s\n", bloque);
 		}else{
 			while(strlen(linea)!=0){
-				nuevoBloque = getBloqueLibre();
+				if((nuevoBloque = getBloqueLibre())==NULL){
+					log_error(logger_visible,"FuncionesComp.c: escribirLinea() - No hay Bloques libres, no se puede guardar la información");
+					log_error(logger_invisible,"FuncionesComp.c: escribirLinea() - No hay Bloques libres, no se puede guardar la información");
+					log_error(logger_error,"FuncionesComp.c: escribirLinea() - No hay Bloques libres, no se puede guardar la información");
+					return;
+				}
 				bloque = string_from_format("%d", nuevoBloque);
 				subLinea = string_substring_until(linea, metadataFS.blockSize);
 				//printf("D> No hay espacio en bloque y linea menor al espacio: linea escrita: %s\n", subLinea);
@@ -233,10 +260,12 @@ void sacarTablaDeDiccCompactacion(char* nombreTabla){
 	dictionary_remove_and_destroy(diccCompactacion, nombreTabla, destructorValueDicc);
 }
 
-bool esRegistroMasReciente(int timestamp, int key, char* listaDeBloques){
+bool esRegistroMasReciente(timestamp_t timestamp, int key, char* listaDeBloques){
 	Registro* reciente;
 
 	reciente = fseekBloque(key, listaDeBloques);
 
-	return timestamp > reciente->timestamp;
+	//printf("timestamp recibido:%llu\ntimestamp encontrado:%llu\n", timestamp, reciente->timestamp);
+
+	return (timestamp > reciente->timestamp);
 }

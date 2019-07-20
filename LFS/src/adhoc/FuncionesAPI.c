@@ -149,7 +149,9 @@ void getValueMasReciente(t_list* lista, Operacion* resultadoSelect){
 
 timestamp_t checkTimestamp(char* timestamp){
 	if(timestamp==NULL){
-		return getCurrentTime();
+		timestamp_t ts = getCurrentTime();
+		printf("ts: %llu\n", ts);
+		return ts;
 	}
 	else{
 		//printf("time= %llu\n",atoll(timestamp));
@@ -212,11 +214,17 @@ void crearArchivosBinarios(char* path, int particiones){
 		crearArchivo(path, filename);
 
 		//printf("pathArchivo: %s\n", string_from_format("%s%s", path,filename));
+		char* bloque;
 
-		int bloque = getBloqueLibre();
+		if((bloque = getBloqueLibre())==NULL){
+			log_error(logger_visible,"FuncionesAPI.c: crearArchivosBinarios() - No hay Bloques libres, no se puede guardar la información");
+			log_error(logger_invisible,"FuncionesAPI.c: crearArchivosBinarios() - No hay Bloques libres, no se puede guardar la información");
+			log_error(logger_error,"FuncionesAPI.c: crearArchivosBinarios() - No hay Bloques libres, no se puede guardar la información");
+			return;
+		}
 		char* pathFinal=string_from_format("%s%s", path,filename);
 		binario = txt_open_for_append(pathFinal);
-		char* text=string_from_format("SIZE=0\nBLOCKS=[%d]\n",bloque);
+		char* text=string_from_format("SIZE=0\nBLOCKS=[%s]\n",bloque);
 		txt_write_in_file(binario, text);
 		free(text);
 		free(pathFinal);

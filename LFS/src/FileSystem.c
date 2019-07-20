@@ -257,7 +257,7 @@ int agregarBloqueEnBitarray(char* nombreCarpeta){
 				//printf("antes de lista de bloques\n");
 				char* listaDeBloques= obtenerListaDeBloques(atoi(particionNbr), nombreCarpeta);
 				if(string_starts_with(listaDeBloques, "[")&&string_ends_with(listaDeBloques, "]")){
-					printf("\n\n%s\n\n", listaDeBloques);
+					//printf("\n\n%s\n\n", listaDeBloques);
 					char** bloques = string_get_string_as_array(listaDeBloques);
 
 					int i=0;

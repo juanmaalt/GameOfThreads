@@ -234,20 +234,25 @@ Operacion ejecutarOperacion(char* input) {
 	if (parsed->valido) {
 		switch (parsed->keyword){
 		case SELECT:
+			/*//TODO:Meter semáforos
 			if(dictionary_has_key(diccCompactacion, parsed->argumentos.SELECT.nombreTabla)){
 				t_list* listaInputs;
 				listaInputs=dictionary_get(diccCompactacion, parsed->argumentos.SELECT.nombreTabla);
 				list_add(listaInputs, string_from_format(input));
-			}else{
-				retorno = selectAPI(*parsed);}
+			}else{retorno = selectAPI(*parsed);}
+			*/
+			retorno = selectAPI(*parsed);
 			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <SELECT> Mensaje de retorno \"%llu;%d;%s\"", retorno.Argumentos.REGISTRO.timestamp, retorno.Argumentos.REGISTRO.key, retorno.Argumentos.REGISTRO.value);
 			break;
 		case INSERT:
+			/*//TODO:Meter semáforos
 			if(dictionary_has_key(diccCompactacion, parsed->argumentos.INSERT.nombreTabla)){
 				t_list* listaInputs;
 				listaInputs=dictionary_get(diccCompactacion, parsed->argumentos.INSERT.nombreTabla);
 				list_add(listaInputs, string_from_format(input));
 			}else{retorno = insertAPI(*parsed);}
+			*/
+			retorno = insertAPI(*parsed);
 			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <INSERT> Mensaje de retorno \"%s\"", retorno.Argumentos.TEXTO_PLANO.texto);
 			break;
 		case CREATE:
@@ -259,11 +264,14 @@ Operacion ejecutarOperacion(char* input) {
 			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <DESCRIBE> Mensaje de retorno \"%s\"", retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
 			break;
 		case DROP:
+			/*//TODO:Meter semáforos
 			if(dictionary_has_key(diccCompactacion, parsed->argumentos.DROP.nombreTabla)){
 				t_list* listaInputs;
 				listaInputs=dictionary_get(diccCompactacion, parsed->argumentos.DROP.nombreTabla);
 				list_add(listaInputs, string_from_format(input));
 			}else{retorno = dropAPI(*parsed);}
+			*/
+			retorno = dropAPI(*parsed);
 			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <DROP> Mensaje de retorno \"%s\"", retorno.Argumentos.TEXTO_PLANO.texto);
 			break;
 		case RUN:
@@ -438,18 +446,20 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 
 			if(string_ends_with(linea, "\n")){
 				char** lineaParseada = string_split(linea,";");
-				if(atoi(lineaParseada[1])==key){
-					reg->value = string_from_format(lineaParseada[2]);
-					reg->timestamp=atoll(lineaParseada[0]);
+				if(lineaParseada[1]!=NULL){
+					if(atoi(lineaParseada[1])==key){
+						reg->value = string_from_format(lineaParseada[2]);
+						reg->timestamp=atoll(lineaParseada[0]);
 
-					free(pathBloque);
-					free(linea);
-					free(nchar);
-					fclose(fBloque);
-					return reg;
+						free(pathBloque);
+						free(linea);
+						free(nchar);
+						fclose(fBloque);
+						return reg;
+					}
+					string_iterate_lines(lineaParseada, (void* )free);
+					free(lineaParseada);
 				}
-				string_iterate_lines(lineaParseada, (void* )free);
-				free(lineaParseada);
 			}
 			free(nchar);
 			//printf("linea: %s\n", linea);
@@ -464,16 +474,14 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 /*FIN FSEEK*/
 
 /*INICIO FSEEKANDREPLACE*///TODO:Hacer
-/*
-void fseekAndReplaceBloque(int key, char* listaDeBloques){
-	Registro* reg = malloc(sizeof(Registro));
-	reg->key = key;
-	reg->value = NULL;
-	reg->timestamp=0;
+
+void fseekAndEraseBloque(int key, char* listaDeBloques){
 	char** bloques = string_get_string_as_array(listaDeBloques);
 
 	FILE* fBloque;
+	FILE* fBloqueTemp;
 	int i=0;
+	int continua=0;
 
 	char* linea = string_new();
 	char ch;
@@ -482,37 +490,63 @@ void fseekAndReplaceBloque(int key, char* listaDeBloques){
 
 	while(bloques[i]!=NULL){
 		char* pathBloque = string_from_format("%sBloques/%s.bin", config.punto_montaje, bloques[i]);
-		//printf("bloque[i]: %s\n", bloques[i]);
-		//printf("antes de fopen: %s\n", pathBloque);
 		fBloque = fopen(pathBloque, "r");
+		char* pathBloqueTemp = string_from_format("%sBloques/%s.binx", config.punto_montaje, bloques[i]);
+		fBloqueTemp = fopen(pathBloqueTemp, "w");
 		while((ch = getc(fBloque)) != EOF){
 			char* nchar = string_from_format("%c", ch);
 			string_append(&linea, nchar);
 
 			if(string_ends_with(linea, "\n")){
-				char** lineaParseada = string_split(linea,";");
-				if(atoi(lineaParseada[1])==key){
-					reg->value = string_from_format(lineaParseada[2]);
-					reg->timestamp=atoll(lineaParseada[0]);
+				char** lineaParse = string_split(linea,";");
+				if(lineaParse[1]!=NULL){
+					if(atoi(lineaParse[1])!=key){
+						if(continua!=0){
+							printf("entró por continua 1 y key no es igual\n");
+							char* bloqueTemp = string_from_format("%sBloques/%s.binx", config.punto_montaje, bloques[i-1]);
+							remove(bloqueTemp);
+							continua=0;
+							free(bloqueTemp);
+						}
+						fprintf(fBloqueTemp, "%s", linea);
+					}else{
+						if(continua!=0){
+							//Path del bloque viejo
+							//printf("entró por continua 1 y key es igual\n");
+							char* bloque = string_from_format("%sBloques/%s.bin", config.punto_montaje, bloques[i-1]);
+							//printf("bloque original: %s", bloque);
+							remove(bloque);
+							char* bloqueTemp = string_from_format("%sBloques/%s.binx", config.punto_montaje, bloques[i-1]);
+							//printf("bloque nuevo: %s", bloqueTemp);
+							rename(bloqueTemp, bloque);
+							continua=0;
+							free(bloque);
+							free(bloqueTemp);
+						}
+					}
 
-					free(pathBloque);
-					free(linea);
-					free(nchar);
-					fclose(fBloque);
+					string_iterate_lines(lineaParse, (void* )free);
+					free(lineaParse);
 				}
-				string_iterate_lines(lineaParseada, (void* )free);
-				free(lineaParseada);
 			}
 			free(nchar);
 			//printf("linea: %s\n", linea);
 		}
-		fclose(fBloque);
+		if(strlen(linea)>0){
+			continua=1;
+		}else{
+			printf("no continua remueve\n");
+			remove(pathBloqueTemp);
+		}
+		free(pathBloqueTemp);
 		free(pathBloque);
+		fclose(fBloque);
+		fclose(fBloqueTemp);
 		i++;
 	}
+
 	free(linea);
 }
-*/
 /*FIN FSEEKANDREPLACE*/
 
 

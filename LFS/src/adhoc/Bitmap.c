@@ -60,18 +60,27 @@ void leerBitmap(){
 	free(path);
 }
 
-int getBloqueLibre(){
+char* getBloqueLibre(){
 	int pos=0;
+	char* posicion;
 
 	while(bitarray_test_bit(bitarray, pos)!=0){
-		pos++;
+		if(pos<(metadataFS.blocks/8)){
+			pos++;
+		}else{
+			log_error(logger_visible,"Bitmap.c: getBloqueLibre() - No hay Bloques libres, no se puede guardar la información");
+			log_error(logger_invisible,"Bitmap.c: getBloqueLibre() - No hay Bloques libres, no se puede guardar la información");
+			log_error(logger_error,"Bitmap.c: getBloqueLibre() - No hay Bloques libres, no se puede guardar la información");
+			return NULL;
+		}
 	}
 
 	bitarray_set_bit(bitarray, pos);
 
 	escribirBitmap();
+	posicion=string_from_format("%d", pos+1);
 
-	return pos+1;
+	return posicion;
 }
 
 void liberarBloque(int pos){

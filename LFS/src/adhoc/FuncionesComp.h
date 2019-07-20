@@ -19,7 +19,7 @@ char* firstBloqueDisponible(char* listaDeBloques);
 int caracteresEnBloque(char* bloque);
 void escribirLinea(char* bloque, char* linea, char* nombreTabla, int particion);
 void escribirEnBloque(char* bloque, char* linea);
-bool esRegistroMasReciente(int timestamp, int key, char* listaDeBloques);
+bool esRegistroMasReciente(timestamp_t timestamp, int key, char* listaDeBloques);
 void procesarPeticionesPendientes(char *nombreTabla);
 
 void agregarTablaEnDiccCompactacion(char* nombreTabla);

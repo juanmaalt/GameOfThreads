@@ -43,7 +43,7 @@ void* compactar(void* nombreTabla){
 			/*Cambio el nombre de los archivos temporales de .tmp a .tmpc*/
 			cambiarNombreFilesTemp(pathTabla);
 			/*Agrego la tabla en el diccionario de compactación, para bloquear el acceso de las funciones que lleguen*/
-			agregarTablaEnDiccCompactacion((char*)nombreTabla);
+			//agregarTablaEnDiccCompactacion((char*)nombreTabla);
 			/*Compacto los archivos .tmpc hasta que no haya más*/
 			while((entry = readdir (dir)) != NULL){
 				nombreArchivo = string_from_format(entry->d_name);
@@ -52,9 +52,13 @@ void* compactar(void* nombreTabla){
 
 					log_info(logger_invisible, "Compactador.c: compactar(%s): [%s] es un archivo temporal, inciando su compactacion.", (char*)nombreTabla, nombreArchivo);
 					/*Leo el archivo temporal e inicio su compactación*/
+						//printf("llega a leer temporal\n");
+						//usleep(5000000);
 					leerTemporal(pathTemp, metadata.partitions, (char*)nombreTabla);
+						//printf("pasó leer temporal\n");
 					/*Borro el archivo temporal*/
 					remove(pathTemp);
+						//printf("pasó remover temp\n");
 					free(pathTemp);
 				}
 				else{
@@ -63,16 +67,17 @@ void* compactar(void* nombreTabla){
 				free(nombreArchivo);
 			}
 			/*Busca en el diccionario por el hash nombreTabla hace un pop de cada peticion y la manda a ejecutarOperacion*/
+			/*
 			procesarPeticionesPendientes((char*)nombreTabla);
 
 			sacarTablaDeDiccCompactacion((char*)nombreTabla);
-			closedir (dir);
 			log_info(logger_invisible, "Compactador.c: compactar(%s) - Fin compactación", (char*)nombreTabla);
+			*/
+			closedir (dir);
 		}
 	}
-	free(pathTabla);
 	config_destroy(metadataFile);
-	free(nombreTabla);
+	free(pathTabla);
 	return NULL;
 }
 

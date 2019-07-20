@@ -13,7 +13,7 @@
 #include "../Lissandra.h"
 
 void leerBitmap();
-int getBloqueLibre();
+char* getBloqueLibre();
 void liberarBloque(int pos);
 void escribirBitmap();
 void binarioATexto(char* binario, char* texto, int cantSimbolos);

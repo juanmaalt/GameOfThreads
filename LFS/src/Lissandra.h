@@ -124,7 +124,7 @@ void dumpRegistro(FILE* file, Registro* registro);
 void dumpTabla(char* nombreTable, t_list* value);
 
 Registro* fseekBloque(int key, char* listaDeBloques);
-void fseekAndReplaceBloque(int key, char* listaDeBloques);
+void fseekAndEraseBloque(int key, char* listaDeBloques);
 
 #endif /* LISSANDRA_H_ */
 
