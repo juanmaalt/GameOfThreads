@@ -56,10 +56,11 @@ void leerTemporal(char* pathTemp, int particiones, char* nombreTabla){
 			log_info(logger_invisible, "Compactador.c: leerTemporal() - Bloques asignados: %s",listaDeBloques);
 
 			if(esRegistroMasReciente(timestamp, key, listaDeBloques)){
-				//printf("es más reciente\n");
+				printf("es más reciente\n");
 				fseekAndEraseBloque(key, listaDeBloques);
 				char* bloque = firstBloqueDisponible(listaDeBloques);
 
+				printf("mando a escribirLinea el bloque %s", bloque);
 				escribirLinea(bloque, linea, nombreTabla, particionNbr);
 				//free(bloque);
 			}
@@ -113,11 +114,13 @@ char* firstBloqueDisponible(char* listaDeBloques){
 
 int caracteresEnBloque(char* bloque){
 	char* pathBloque = string_from_format("%sBloques/%s.bin", config.punto_montaje, bloque);
-	printf("path: %s\n", pathBloque);
+	//printf("path: %s\n", pathBloque);
 
 	FILE* fBloque = fopen(pathBloque, "r+");
 	if(fBloque==NULL){
 		log_error(logger_visible, "Error a leer los caracteres del bloque '%s'", bloque);
+		fclose(fBloque);
+		free(pathBloque);
 		return 0;
 	}
 	char ch;
@@ -151,7 +154,7 @@ void escribirEnBloque(char* bloque, char* linea){
 
 
 void escribirLinea(char* bloque, char* linea, char* nombreTabla, int particion){
-	//printf("bloque recibido: %s\n", bloque);
+	printf("bloque recibido: %s\n", bloque);
 	if(string_equals_ignore_case(bloque, "0")){
 		char* bloqueLibre;
 		if((bloqueLibre = getBloqueLibre())==NULL){
@@ -164,14 +167,14 @@ void escribirLinea(char* bloque, char* linea, char* nombreTabla, int particion){
 		bloque = string_from_format("%s",bloqueLibre);
 	}
 	log_info(logger_invisible, "Compactador.c: escribirLinea() - Bloque a escribir: %s", bloque);
-	//printf("bloque elegido: %s\n", bloque);
+	printf("bloque elegido: %s\n", bloque);
 
 	int charsDisponibles = metadataFS.blockSize-caracteresEnBloque(bloque);
 	char* nuevoBloque;
 	char* subLinea=string_new();
 	subLinea=NULL;
 
-	//printf("espacio en Bloque: %d\n", charsDisponibles);
+	printf("espacio en Bloque '%s': %d\n", bloque,charsDisponibles);
 
 	if(charsDisponibles>0){
 		if(charsDisponibles>=strlen(linea)){
