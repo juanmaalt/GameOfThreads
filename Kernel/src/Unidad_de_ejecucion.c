@@ -180,7 +180,8 @@ static INTERNAL_STATE exec_string_comando(PCB *pcb){
 	send_msg(target.socket, request);
 	destruir_operacion(request);
 	request = recv_msg(target.socket);
-	if(procesar_retorno_operacion(request, pcb, (char*)pcb->data, &target) != INSTRUCCION_ERROR){
+	int retorno = procesar_retorno_operacion(request, pcb, (char*)pcb->data, &target);
+	if(retorno != INSTRUCCION_ERROR && retorno != JOURNAL_MEMORY_INACCESSIBLE){
 		target.operacionExitosa = true;
 		target.finOperacion = getCurrentTime();
 		generar_estadisticas(&target);
@@ -191,6 +192,7 @@ static INTERNAL_STATE exec_string_comando(PCB *pcb){
 	free(pcb->nombreArchivoLQL);
 	free(pcb);
 	close(target.socket);
+	simular_retardo();
 	return FINISH;
 }
 
@@ -281,7 +283,7 @@ static void ejecutar_journal(void *memoria){
 	Memoria *mem = (Memoria*)memoria;
 	Operacion op;
 	op.TipoDeMensaje = COMANDO;
-	op.Argumentos.COMANDO.comandoParseable=string_from_format("JOURNAL");
+	op.Argumentos.COMANDO.comandoParseable = string_from_format("JOURNAL");
 	int socket = comunicarse_con_memoria(mem);
 	send_msg(socket, op);
 	destruir_operacion(op);
@@ -314,7 +316,7 @@ static INTERNAL_STATE procesar_retorno_operacion(Operacion op, PCB* pcb, char* i
 		return INSTRUCCION_ERROR;
 	case ERROR_JOURNAL:
 		instruccionActualTemp = remover_new_line(instruccionActual);
-		if(link->criterioQueSeUso == EC && pcb->tipo == FILE_LQL){
+		if(pcb->tipo == FILE_LQL){
 			if(pcb->instruccionPointer == 1)
 				fseek((FILE *)pcb->data, 0, SEEK_SET);
 			else
@@ -324,8 +326,8 @@ static INTERNAL_STATE procesar_retorno_operacion(Operacion op, PCB* pcb, char* i
 			free(instruccionActualTemp);
 			return JOURNAL_MEMORY_INACCESSIBLE;
 		}
-		log_error(logger_visible, "CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta realizando Journal. Abortando LQL", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
-		log_error(logger_invisible, "CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta realizando Journal. Abortando LQL", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
+		log_error(logger_visible, "CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta realizando Journal. Abortando.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
+		log_error(logger_invisible, "CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta realizando Journal. Abortando.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
 		free(instruccionActualTemp);
 		return INSTRUCCION_ERROR;
 	case DESCRIBE_REQUEST:
