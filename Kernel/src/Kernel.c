@@ -150,7 +150,7 @@ static int extraer_refresMetadata_config(){
 }
 static int extraer_retardo_config(){
 	t_config *tmpConfigFile = config_create(STANDARD_PATH_KERNEL_CONFIG);
-	int res = config_get_int_value(tmpConfigFile, "RETARDO");
+	int res = config_get_int_value(tmpConfigFile, "SLEEP_EJECUCION");
 	config_destroy(tmpConfigFile);
 	return res;
 }
@@ -165,14 +165,14 @@ void mostrar_por_pantalla_config(){
 	log_info(logger_visible, BLU"QUANTUM=%d"STD, vconfig.quantum());
 	log_info(logger_visible, BLU"MULTIPROCESAMIENTO=%d"STD, fconfig.multiprocesamiento);
 	log_info(logger_visible, BLU"REFRESH_METADATA=%d"STD, vconfig.refreshMetadata());
-	log_info(logger_visible, BLU"RETARDO=%d"STD, vconfig.retardo());
+	log_info(logger_visible, BLU"SLEEP_EJECUCION=%d"STD, vconfig.retardo());
 
 	log_info(logger_invisible, "IP_MEMORIA=%s", fconfig.ip_memoria_principal);
 	log_info(logger_invisible, "PUERTO_MEMORIA=%s", fconfig.puerto_memoria_principal);
 	log_info(logger_invisible, "QUANTUM=%d", vconfig.quantum());
 	log_info(logger_invisible, "MULTIPROCESAMIENTO=%d", fconfig.multiprocesamiento);
 	log_info(logger_invisible, "REFRESH_METADATA=%d", vconfig.refreshMetadata());
-	log_info(logger_invisible, "RETARDO=%d", vconfig.retardo());
+	log_info(logger_invisible, "SLEEP_EJECUCION=%d", vconfig.retardo());
 }
 
 
