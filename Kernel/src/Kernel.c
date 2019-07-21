@@ -62,9 +62,13 @@ static int configuracion_inicial(){
 	sem_init(&disponibilidadPlanificador, 0, 0); //el ultimo valor indica el valor con el que inicia el semaforo
 	sem_init(&scriptEnReady, 0, 0); //El primer valor (0) indica que afecta a hilos
 	sem_init(&dormirProcesoPadre, 1, 0); //El primer valor (1) indica que afecta a procesos
-	sem_init(&extraerDeReadyDeAUno, 0, 1);
-	sem_init(&meterEnReadyDeAUno, 0, 1);
-
+	sem_init(&mutexColaReady, 0, 1);
+	sem_init(&mutexMemoriasEC, 0, 1);
+	sem_init(&mutexMemoriasHSC, 0, 1);
+	sem_init(&mutexMemoriasSC, 0, 1);
+	sem_init(&mutexMemoriasExistentes, 0, 1);
+	sem_init(&mutexTablasExistentes, 0, 1);
+	sem_init(&mutexMetricas, 0, 1);
 
 	mkdir("log", 0777); //Crea la carpeta log junto al ejecutable (si ya existe no toca nada de lo que haya adentro)
 

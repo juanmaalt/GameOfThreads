@@ -23,9 +23,9 @@ void *exec(void *null){
 	for(;;){
 		//La cpu por default esta disponible si esta en este wait
 		sem_wait(&scriptEnReady);
-		sem_wait(&extraerDeReadyDeAUno);
+		sem_wait(&mutexColaReady);
 		PCB *pcb = seleccionar_siguiente();
-		sem_post(&extraerDeReadyDeAUno);
+		sem_post(&mutexColaReady);
 		switch(pcb->tipo){
 		case STRING_COMANDO:
 			exec_string_comando(pcb);
@@ -59,7 +59,7 @@ static DynamicAddressingRequest direccionar_request(char *request){
 		break;
 	case INSERT:
 		if(!tabla_esta_en_la_lista(comando.argumentos.INSERT.nombreTabla))
-			memoria = elegir_cualquiera(); //TODO: revisar que este bien esta idea
+			memoria = elegir_cualquiera();
 		else
 			memoria = determinar_memoria_para_tabla(comando.argumentos.INSERT.nombreTabla, comando.argumentos.INSERT.key);
 		retorno.criterioQueSeUso = consistencia_de_tabla(comando.argumentos.INSERT.nombreTabla);
@@ -85,7 +85,7 @@ static DynamicAddressingRequest direccionar_request(char *request){
 	case DROP:
 		memoria = determinar_memoria_para_tabla(comando.argumentos.DROP.nombreTabla, NULL);
 		retorno.criterioQueSeUso = consistencia_de_tabla(comando.argumentos.DROP.nombreTabla);
-		retorno.tipoOperacion = ESCRITURA; //TODO: sacar memoria de mi lista
+		retorno.tipoOperacion = ESCRITURA; //TODO: podria sacar la tabla de mi lista
 		break;
 	case JOURNAL:
 		retorno.socket = JOURNAL_REQUEST;
@@ -185,7 +185,9 @@ static INTERNAL_STATE exec_string_comando(PCB *pcb){
 	if(retorno != INSTRUCCION_ERROR && retorno != JOURNAL_MEMORY_INACCESSIBLE){
 		target.operacionExitosa = true;
 		target.finOperacion = getCurrentTime();
+		sem_wait(&mutexMetricas);
 		generar_estadisticas(&target);
+		sem_post(&mutexMetricas);
 	}
 
 	destruir_operacion(request);
@@ -212,6 +214,8 @@ static INTERNAL_STATE exec_file_lql(PCB *pcb){
 		fgetpos(lql, &(pcb->instruccionPointer));
 		line = fgets(buffer, MAX_BUFFER_SIZE_FOR_LQL_LINE, lql);
 		if(line == NULL || feof(lql)){
+			log_info(logger_visible, GRN"Unidad_de_ejecucion.c: exec_file_lql: El script %s finalizo"STD, pcb->nombreArchivoLQL);
+			log_info(logger_invisible, GRN"Unidad_de_ejecucion.c: exec_file_lql: El script %s finalizo"STD, pcb->nombreArchivoLQL);
 			printf("\n");
 			fclose(lql);
 			free(pcb->nombreArchivoLQL);
@@ -242,7 +246,7 @@ static INTERNAL_STATE exec_file_lql(PCB *pcb){
 			free(pcb);
 			free(aux);
 			return INSTRUCCION_ERROR;
-			//TODO
+			//TODO instruccion journal en lql
 		}
 		target.inicioOperacion = getCurrentTime();
 		request.TipoDeMensaje = COMANDO;
@@ -262,15 +266,17 @@ static INTERNAL_STATE exec_file_lql(PCB *pcb){
 		if(retorno != JOURNAL_MEMORY_INACCESSIBLE){
 			target.operacionExitosa = true;
 			target.finOperacion = getCurrentTime();
+			sem_wait(&mutexMetricas);
 			generar_estadisticas(&target);
+			sem_post(&mutexMetricas);
 		}
 		destruir_operacion(request);
 		close(target.socket);
 	}
 	printf("\n");
-	sem_wait(&meterEnReadyDeAUno);
+	sem_wait(&mutexColaReady);
 	desalojar(pcb);
-	sem_post(&meterEnReadyDeAUno);
+	sem_post(&mutexColaReady);
 	sem_post(&scriptEnReady); //Ya que se metio a la lista de vuelta
 	simular_retardo();
 	return DESALOJO;
@@ -337,7 +343,7 @@ static INTERNAL_STATE procesar_retorno_operacion(Operacion op, PCB* pcb, char* i
 			log_info(logger_invisible,"CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta full. Reintentando.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
 			free(instruccionActualTemp);
 			sleep(3);
-			return JOURNAL_MEMORY_INACCESSIBLE;
+			return JOURNAL_MEMORY_INACCESSIBLE; //TODO con este tipo de retorno, si el kernel se queda reintentando, y se mata a la memoria entra en un bucle infinito (setear memoria con baja capacidad, 100)
 		}
 		log_error(logger_visible, "CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta full. Abortando.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
 		log_error(logger_invisible, "CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta full. Abortando.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);

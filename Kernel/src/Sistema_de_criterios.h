@@ -118,7 +118,7 @@ t_list *tablasExistentes;
 
 	/**
 	* @NAME: procesar_describe_simple
-	* @DESC: todo
+	* @DESC: procesa el describe para una tabla en particular. La instruccion actual es necesaria para saber sobre que tabla es
 	*/
 	int procesar_describe_simple(char *cadenaResultadoDescribe, char *instruccionActual);
 
@@ -158,11 +158,10 @@ t_list *tablasExistentes;
 
 	/**
 	* @NAME: agregar_sin_repetidos
-	* @DESC: agrega los elementos de la lista fuente a la lista destino omitiendo los repetidos. La forma de saber si hay
-	* 		 repetidos es un particular del lugar donde se usa. Como se usa con memorias, se usa el numero de memoria
-	* 		 para comparar. Ademas, remueve de la lista fuente el elemento que que pudo agregar, para que al final de la
-	* 		 operacion se pueda hacer un destroy de la lista y sus nodos restantes. No es una funcion muy reutilizable
-	* 		 si no le pasamos por argumento alguna closure de comparacion
+	* @DESC: agrega los elementos de la lista fuente a la lista destino omitiendo los repetidos. Como se usa con memorias,
+	* 		 se usa el numero de memoria para comparar. Ademas, remueve de la lista fuente el elemento que que pudo
+	* 		 agregar, para que al final de la operacion se pueda hacer un destroy de la lista y sus nodos restantes.
+	* 		 No es una funcion muy reutilizable si no le pasamos por argumento alguna closure de comparacion
 	*/
 	void agregar_sin_repetidos(t_list *destino, t_list *fuente);
 

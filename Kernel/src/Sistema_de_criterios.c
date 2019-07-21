@@ -47,19 +47,32 @@ Memoria *determinar_memoria_para_tabla(char *nombreTabla, char *keyDeSerNecesari
 		return NULL;
 	}
 
+	sem_wait(&mutexTablasExistentes);
 	if((tabla = machearTabla(nombreTabla)) == NULL){
 		log_error(logger_error, "Sistema_de_criterios.c: determinar_memoria_para_tabla: la tabla no existe o aun no se conoce");
 		log_info(logger_invisible, "Sistema_de_criterios.c: determinar_memoria_para_tabla: la tabla no existe o aun no se conoce");
+		sem_post(&mutexTablasExistentes);
 		return NULL;
 	}
+	sem_post(&mutexTablasExistentes);
 
+	Memoria *memoria = NULL;
 	switch(tabla->consistencia){
 	case SC:
-		return sc_determinar_memoria(tabla);
+		sem_wait(&mutexMemoriasSC);
+		memoria = sc_determinar_memoria(tabla);
+		sem_post(&mutexMemoriasSC);
+		return memoria;
 	case SHC:
-		return hsc_determinar_memoria(tabla, keyDeSerNecesaria);
+		sem_wait(&mutexMemoriasHSC);
+		memoria = hsc_determinar_memoria(tabla, keyDeSerNecesaria);
+		sem_post(&mutexMemoriasHSC);
+		return memoria;
 	case EC:
-		return ec_determinar_memoria(tabla);
+		sem_wait(&mutexMemoriasEC);
+		memoria = ec_determinar_memoria(tabla);
+		sem_post(&mutexMemoriasEC);
+		return memoria;
 	default:
 		return NULL;
 	}
@@ -71,7 +84,9 @@ Memoria *determinar_memoria_para_tabla(char *nombreTabla, char *keyDeSerNecesari
 
 
 Memoria *elegir_cualquiera(){
+	sem_wait(&mutexMemoriasExistentes);
 	Memoria *m = (Memoria*)list_get(memoriasExistentes, getNumberUntil(list_size(memoriasExistentes)));
+	sem_post(&mutexMemoriasExistentes);
 	if(m == NULL){
 		log_error(logger_error, "Sistema_de_criterios.c: elegir_cualquiera: no hay memorias para responder a la request casual");
 		log_info(logger_invisible, "Sistema_de_criterios.c: elegir_cualquiera: no hay memorias para responder a la request casual");
@@ -85,36 +100,50 @@ Memoria *elegir_cualquiera(){
 
 int asociar_memoria(char *numeroMemoria, char *consistencia){
 	Memoria *memoria;
-	if((memoria = machearMemoria(atoi(numeroMemoria))) == NULL)
+
+	sem_wait(&mutexMemoriasExistentes);
+	if((memoria = machearMemoria(atoi(numeroMemoria))) == NULL){
+		sem_post(&mutexMemoriasExistentes);
 		RETURN_ERROR("Sistema_de_criterios.c: add_memory: el numero de memoria es invalido o aun no se conoce");
+	}
+	sem_post(&mutexMemoriasExistentes);
 
 	if(string_equals_ignore_case(consistencia, "SC")){
+		sem_wait(&mutexMemoriasSC);
 		if(!memoria_esta_en_la_lista(memoriasSC, memoria->numero)){
 			memoria->Metrics.SC.estaAsociada = true;
 			list_add(memoriasSC, memoria);
+			sem_post(&mutexMemoriasSC);
 		}else{
 			log_info(logger_visible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");
 			log_info(logger_invisible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");
+			sem_post(&mutexMemoriasSC);
 			return EXIT_SUCCESS;
 		}
 	}
 	else if(string_equals_ignore_case(consistencia, "SHC")){
+		sem_wait(&mutexMemoriasHSC);
 		if(!memoria_esta_en_la_lista(memoriasHSC, memoria->numero)){
 			memoria->Metrics.SHC.estaAsociada = true;
 			list_add(memoriasHSC, memoria);
+			sem_post(&mutexMemoriasHSC);
 		}else{
 			log_info(logger_visible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");
 			log_info(logger_invisible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");
+			sem_post(&mutexMemoriasHSC);
 			return EXIT_SUCCESS;
 		}
 	}
 	else if(string_equals_ignore_case(consistencia, "EC")){
+		sem_wait(&mutexMemoriasEC);
 		if(!memoria_esta_en_la_lista(memoriasEC, memoria->numero)){
 			memoria->Metrics.EC.estaAsociada = true;
 			list_add(memoriasEC, memoria);
+			sem_post(&mutexMemoriasEC);
 		}else{
 			log_info(logger_visible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");
 			log_info(logger_invisible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");
+			sem_post(&mutexMemoriasEC);
 			return EXIT_SUCCESS;
 		}
 	}else RETURN_ERROR("Sistema_de_criterios.c: add_memory: el tipo de consistencia es invalido. Solo se admite SC, SHC o EC");
@@ -134,8 +163,10 @@ int procesar_describe_global(char *cadenaResultadoDescribe){
 		free((MetadataTabla*)tabla);
 	}
 	if(cadenaResultadoDescribe == NULL){
+		sem_wait(&mutexTablasExistentes);
 		list_destroy_and_destroy_elements(tablasExistentes, destruir_tabla_encontrada);
 		tablasExistentes = list_create();
+		sem_post(&mutexTablasExistentes);
 		return EXIT_SUCCESS;
 	}
 	if(tablasExistentes == NULL)
@@ -146,18 +177,23 @@ int procesar_describe_global(char *cadenaResultadoDescribe){
 
 	char **descompresion = descomprimir_describe(cadenaResultadoDescribe); //Descomprimo los resultados del ultimo describe
 	for(int i=0; descompresion[i]!= NULL; i+=4){ //Este for maneja los bloques de la descompresion como 4-upla ya que la cadena esta convenientemente ordenada
+		sem_wait(&mutexTablasExistentes);
 		if((tabla = machearTabla(descompresion[i])) == NULL){ //Buscar la tabla (por nombre) en la lista de tablasExistentes
+			sem_post(&mutexTablasExistentes);
 			tabla = crear_tabla(descompresion[i], descompresion[i+1], descompresion[i+2], descompresion[i+2]); //Si no se encuentra, creo una nueva
 			if(tabla == NULL) return EXIT_FAILURE; //El crear tabla puede fallar
 			list_add(listaAuxiliar, tabla); //La agrego a mi lista auxiliar
 		}else{
+			sem_post(&mutexTablasExistentes);
 			remover_referencia_tabla(tabla); //Remuevo la referencia de la lista de tablasExistentes para que me quede solo con las tablas que NO estaban en la cadena de describe que se proceso
 			list_add(listaAuxiliar, tabla); //Si se encuentra, agrego esa referencia de tablasExistentes a mi listaAuxiliar. Esto lo hago asi por que hay ciertos atributos que se asignan en momentos distintos, por ejemplo, a una tabla SC se le asigna una memoria, y necesito que siga siendo siempre la misma, por eso quiero usar la misma referencia a esa tabla.
 		}
 	}
 	destruir_split_tablas(descompresion);
+	sem_wait(&mutexTablasExistentes);
 	list_destroy_and_destroy_elements(tablasExistentes, destruir_tabla_encontrada); //Libero las referencias de la lista que quedaron, que fueron los que se dieron de baja (indirectamente, gracias al remover referencia que removio las que si estaban)
 	tablasExistentes = list_duplicate(listaAuxiliar); //Duplico la lista auxiliar con todos los elementos del nuevo describe, manteniendo los del anterior describe (son sus respecrtivos atributos de criterios), y eliminando los viejos (ya que nunca se agregaron a la listaAuxiliar)
+	sem_post(&mutexTablasExistentes);
 	list_destroy(listaAuxiliar);
 	return EXIT_SUCCESS;
 }
@@ -169,7 +205,9 @@ int procesar_describe_global(char *cadenaResultadoDescribe){
 int procesar_describe_simple(char *cadenaResultadoDescribe, char *instruccionActual){
 	if(cadenaResultadoDescribe == NULL){
 		Comando comando = parsear_comando(instruccionActual);
+		sem_wait(&mutexTablasExistentes);
 		remover_metadata_tabla(machearTabla(comando.argumentos.DESCRIBE.nombreTabla));
+		sem_post(&mutexTablasExistentes);
 		destruir_comando(comando);
 		return EXIT_SUCCESS;
 	}
@@ -179,8 +217,7 @@ int procesar_describe_simple(char *cadenaResultadoDescribe, char *instruccionAct
 	char **descompresion = descomprimir_describe(cadenaResultadoDescribe);
 	for(int i=0; descompresion[i]!= NULL; i+=4){
 		if((tabla = machearTabla(descompresion[i])) == NULL){
-			tabla = crear_tabla(descompresion[i], descompresion[i+1], descompresion[i+2], descompresion[i+2]);
-			if(tabla == NULL) return EXIT_FAILURE;
+			agregar_metadata_tabla(descompresion[i], descompresion[i+1], descompresion[i+2], descompresion[i+2]);
 		}
 		//En este caso si la tabla se encuentra no hago nada. Para mejorar la robustez podria hacer que el machear tabla busque coincidencias por mas atributos de la tabla y no solo por el nombre
 	}
@@ -212,10 +249,14 @@ void mostrar_describe(char *cadenaResultadoDescribe){
 	return ;
 
 	LIST: ;
+	sem_wait(&mutexTablasExistentes);
 	if(list_is_empty(tablasExistentes)){
 		printf(BLU"No se encontraron metadatas\n"STD);
+		sem_post(&mutexTablasExistentes);
 		return;
 	}
+	sem_post(&mutexTablasExistentes);
+
 	void mostrar(void *elemento){
 		printf(GRN"Tabla: %s | "STD, ((MetadataTabla*)elemento)->nombre);
 		printf("Consistencia: %d | ", ((MetadataTabla*)elemento)->consistencia);
@@ -223,7 +264,9 @@ void mostrar_describe(char *cadenaResultadoDescribe){
 		printf("Tiempo entre compactacion: %d\n", ((MetadataTabla*)elemento)->tiempoEntreCompactaciones);
 	}
 	printf(BLU"0: SC | 1: SHC | 2: EC\n"STD);
+	sem_wait(&mutexTablasExistentes);
 	list_iterate(tablasExistentes, mostrar);
+	sem_post(&mutexTablasExistentes);
 	return ;
 }
 
@@ -256,7 +299,9 @@ t_list *procesar_gossiping(char *cadenaResultadoGossiping){
 
 
 Consistencia consistencia_de_tabla(char *nombreTabla){
+	sem_wait(&mutexTablasExistentes);
 	MetadataTabla *tabla = machearTabla(nombreTabla);
+	sem_post(&mutexTablasExistentes);
 	if(tabla == NULL)
 		return -1;
 	else
@@ -276,10 +321,18 @@ void remover_memoria(Memoria *memoria_a_remover){
 		free(((Memoria*)memoria)->puerto);
 		free((Memoria*)memoria);
 	}
+	sem_wait(&mutexMemoriasEC);
 	list_remove_by_condition(memoriasEC, remover_por_numero); //Solo remueven los nodos
+	sem_wait(&mutexMemoriasEC);
+	sem_wait(&mutexMemoriasHSC);
 	list_remove_by_condition(memoriasHSC, remover_por_numero);
+	sem_post(&mutexMemoriasHSC);
+	sem_wait(&mutexMemoriasSC);
 	list_remove_by_condition(memoriasSC, remover_por_numero);
+	sem_post(&mutexMemoriasSC);
+	sem_wait(&mutexMemoriasExistentes);
 	list_remove_and_destroy_by_condition(memoriasExistentes, remover_por_numero, destruir_memoria_encontrada); //Y el ultimo que remueva el nodo tambien deberia liberarlo
+	sem_post(&mutexMemoriasExistentes);
 }
 
 
@@ -294,7 +347,9 @@ void remover_metadata_tabla(MetadataTabla *tabla){
 		free(((MetadataTabla*)tabla)->nombre);
 		free((MetadataTabla*)tabla);
 	}
+	sem_wait(&mutexTablasExistentes);
 	list_remove_and_destroy_by_condition(tablasExistentes, remover_por_nombre, destruir_tabla_encontrada);
+	sem_post(&mutexTablasExistentes);
 }
 
 
@@ -325,7 +380,9 @@ void agregar_metadata_tabla(char *nombre, char *consistencia, char *particiones,
 		log_error(logger_invisible, "Sistema_de_criterios.c: agregar_metadata_tabla: no se puede agregar la metadata de la tabla %s", nombre);
 		return;
 	}
+	sem_wait(&mutexTablasExistentes);
 	list_add(tablasExistentes, tabla);
+	sem_post(&mutexTablasExistentes);
 }
 
 
@@ -440,6 +497,7 @@ static Memoria *sc_determinar_memoria(MetadataTabla *tabla){
 static Memoria *hsc_determinar_memoria(MetadataTabla *tabla, char *key){ //La verdad que la tabla no se usa para nada pero bueno paja
 	if(memoriasHSC == NULL)
 		return NULL;
+
 	if(list_is_empty(memoriasHSC)){
 		log_error(logger_error, "Sistema_de_criterios.c: hsc_determinar_memoria: No se puede responder la request por que no hay memorias Hash Strong Consistency disponibles");
 		log_info(logger_invisible, "Sistema_de_criterios.c: hsc_determinar_memoria: No se puede responder la request por que no hay memorias Hash Strong Consistency disponibles");
@@ -455,6 +513,7 @@ static Memoria *hsc_determinar_memoria(MetadataTabla *tabla, char *key){ //La ve
 static Memoria *ec_determinar_memoria(MetadataTabla *tabla){
 	if(memoriasEC == NULL)
 		return NULL;
+
 	if(list_is_empty(memoriasEC)){
 		log_error(logger_error, "Sistema_de_criterios.c: ec_determinar_memoria: No se puede responder la request por que no hay memorias Eventual Consistency disponibles");
 		log_info(logger_invisible, "Sistema_de_criterios.c: ec_determinar_memoria: No se puede responder la request por que no hay memorias Eventual Consistency disponibles");
@@ -491,7 +550,9 @@ static void remover_referencia_tabla(MetadataTabla *tabla){
 	bool remover_por_nombre(void *elemento){
 		return !strcmp(((MetadataTabla *)elemento)->nombre, tabla->nombre);
 	}
+	sem_wait(&mutexTablasExistentes);
 	list_remove_by_condition(tablasExistentes, remover_por_nombre);
+	sem_post(&mutexTablasExistentes);
 }
 
 

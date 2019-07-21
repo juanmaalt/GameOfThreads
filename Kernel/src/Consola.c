@@ -105,7 +105,7 @@ static int new_lql(char *path){
 	Comando comando;//Se usa para verificar que el lql contenga comandos validos
 	for(int i=1; !feof(lql) && (line = fgets(buffer, MAX_BUFFER_SIZE_FOR_LQL_LINE, lql)) != NULL; ++i){
 		comando = parsear_comando(line);
-		if(comando_validar(comando) == EXIT_FAILURE){ //TODO: posible malgasto de memoria, no perder de vista
+		if(comando_validar(comando) == EXIT_FAILURE){
 			destruir_comando(comando);
 			char *temp = remover_new_line(line);
     		log_error(logger_error, "Consola.c: new_lql: la linea %d: '%s' del LQL '%s' es invalida", i, temp, path);

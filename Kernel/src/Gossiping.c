@@ -58,7 +58,9 @@ static void hacer_gossiping(void *memoria){
 		if(op.Argumentos.GOSSIPING_REQUEST.resultado_comprimido != NULL)
 			seedsDeLaMemoria = procesar_gossiping(op.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 	destruir_operacion(op);
+	sem_wait(&mutexMemoriasExistentes);
 	agregar_sin_repetidos(memoriasExistentes, seedsDeLaMemoria);
+	sem_post(&mutexMemoriasExistentes);
 	eliminar_todas_las_memorias(seedsDeLaMemoria);
 	close(socketMem);
 }
@@ -88,7 +90,9 @@ static void modo_de_recuperacion(){
 	ping = recv_msg(memoriaPrincipal);
 	listaConLaMemoriaPrincipal = procesar_gossiping(ping.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 	destruir_operacion(ping);
+	sem_wait(&mutexMemoriasExistentes);
 	agregar_sin_repetidos(memoriasExistentes, listaConLaMemoriaPrincipal);
+	sem_post(&mutexMemoriasExistentes);
 	eliminar_todas_las_memorias(listaConLaMemoriaPrincipal);
 	close(memoriaPrincipal);
 	return;

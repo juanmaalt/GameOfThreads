@@ -18,12 +18,6 @@
 								return EXIT_FAILURE; \
 							   }
 
-#define MOSTRAR_ERROR(mensaje) { }
-
-#define MOSTRAR_INFO(mensaje) { }
-
-#define MOSTRAR_ESTADO(mensaje) { }
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <commons/log.h>
@@ -73,22 +67,23 @@ pthread_t idConsola;
 pthread_t servicioMetricas;
 pthread_t gossiping;
 pthread_t describeAutomatico;
-t_list *idsExecInstances; //TODO: ver como liberar esto al final del programa, poca importancia
+t_list *idsExecInstances;
 sem_t disponibilidadPlanificador; //Para que la consola no pueda mandarle algo al planificador si no se inicio
 sem_t scriptEnReady; //Para saber si hay algo en ready o no, y no estar preguntando permanentemente
-sem_t extraerDeReadyDeAUno;
 sem_t dormirProcesoPadre;
-sem_t meterEnReadyDeAUno;
+
+//GLOBALES: semaforos mutex: solo se sincroniza la escritura, no la lectura
+sem_t mutexColaReady;
+sem_t mutexMemoriasSC;
+sem_t mutexMemoriasHSC;
+sem_t mutexMemoriasEC;
+sem_t mutexMemoriasExistentes;
+sem_t mutexTablasExistentes;
+sem_t mutexMetricas;
 
 
 //FUNCIONES: Publicas
 void mostrar_por_pantalla_config();
-
-/*Descripcion de hilos:
- * padre (proceso): inicia todas las rutinas y termina haciendose cargo de la funcion ready() en planificador.c
- * consola: es iniciada por su padre y termina haciendose cargo de la consola en Consola.c. Va a ser el encargado de llamar a new() cada vez que reciba un script o comando
- * procesadores/unidades de ejecucion: tambien iniciados por el padre, todos se hacen cargo de la funcion exec()
- * */
 
 
 #endif /* KERNEL_H_ */

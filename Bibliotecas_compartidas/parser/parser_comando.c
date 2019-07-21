@@ -313,8 +313,9 @@ char *remover_new_line(char* cadena){
 
 bool esAlfaNumerica(char* cadena){
 	for(int i=0; cadena[i]!='\n' && cadena[i]!='\0' && cadena[i]!=' '; ++i)
-		if(!isalnum((int)cadena[i]))
-			return false;
+		if(cadena[i]!='-' && cadena[i]!='_')
+			if(!isalnum((int)cadena[i]))
+				return false;
 	return true;
 }
 
