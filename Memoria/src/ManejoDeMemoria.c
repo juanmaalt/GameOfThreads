@@ -58,6 +58,11 @@ int colocarPaginaEnMemoria(timestamp_t timestamp, uint16_t key, char* value) { /
 	}
 	usleep(vconfig.retardoMemoria() * 1000); //TODO: es correcto?
 
+	char* valueAux = malloc(sizeof(char)*tamanioValue);
+		strcpy(valueAux,value);
+		for(int i=strlen(value)+1; i< tamanioValue; ++i)
+			valueAux[i]='\0';
+
 	pthread_mutex_lock(&mutexMemoria);
 
 	MCB_t * marcoObjetivo = (MCB_t *) queue_pop(memoriaPrincipal.marcosLibres); //No se elimina porque el MCB tambien esta en listaAdministrativaMarcos
@@ -67,12 +72,6 @@ int colocarPaginaEnMemoria(timestamp_t timestamp, uint16_t key, char* value) { /
 	memcpy(direccionMarco, &timestamp, sizeof(timestamp_t));
 
 	memcpy(direccionMarco + sizeof(timestamp_t), &key, sizeof(uint16_t));
-
-
-	char* valueAux = malloc(sizeof(char)*tamanioValue);
-	strcpy(valueAux,value);
-	for(int i=strlen(value)+1; i< tamanioValue; ++i)
-		valueAux[i]='\0';
 
 	memcpy(direccionMarco + sizeof(timestamp_t) + sizeof(uint16_t), valueAux,
 			(sizeof(char) * tamanioValue));
