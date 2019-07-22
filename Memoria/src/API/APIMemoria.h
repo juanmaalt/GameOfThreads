@@ -17,8 +17,10 @@ typedef struct segmento segmento_t;
 typedef struct pagina pagina_t;
 typedef struct registroTablaPag registroTablaPag_t;
 
+void loggearMemoria(void);
 
 Operacion ejecutarOperacion(char*, bool);
+
 
 Operacion selectAPI(char*, Comando);
 Operacion insertAPI(char*,Comando);

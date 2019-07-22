@@ -38,7 +38,7 @@ void asignarPathASegmento(segmento_t * segmentoANombrar, char* nombreTabla) {
 void crearRegistroEnTabla(tabla_de_paginas_t *tablaDondeSeEncuentra, int indiceMarco, bool esInsert) {
 	registroTablaPag_t *registroACrear = malloc(sizeof(registroTablaPag_t));
 
-	registroACrear->nroPagina=list_size(tablaDondeSeEncuentra->registrosPag)-1;
+	registroACrear->nroPagina=list_size(tablaDondeSeEncuentra->registrosPag);
 
 	registroACrear->nroMarco = indiceMarco;
 
@@ -68,10 +68,18 @@ int colocarPaginaEnMemoria(timestamp_t timestamp, uint16_t key, char* value) { /
 
 	memcpy(direccionMarco + sizeof(timestamp_t), &key, sizeof(uint16_t));
 
-	memcpy(direccionMarco + sizeof(timestamp_t) + sizeof(uint16_t), value,
+
+	char* valueAux = malloc(sizeof(char)*tamanioValue);
+	strcpy(valueAux,value);
+	for(int i=strlen(value)+1; i< tamanioValue; ++i)
+		valueAux[i]='\0';
+
+	memcpy(direccionMarco + sizeof(timestamp_t) + sizeof(uint16_t), valueAux,
 			(sizeof(char) * tamanioValue));
 
 	pthread_mutex_unlock(&mutexMemoria);
+
+	free(valueAux);
 
 	return marcoObjetivo->nroMarco;
 }

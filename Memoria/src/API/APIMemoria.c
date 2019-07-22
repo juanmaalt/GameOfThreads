@@ -8,12 +8,38 @@
 
 #include "APIMemoria.h"
 
+void loggearMemoria(void){
+	void mostrarRegistros(void * segmento){
+
+		void muestroRegistro(void* registro){
+
+			void mostrarRetorno(Operacion retorno) {
+							log_info(logger_invisible,"		Timestamp: %llu\t|\tKey:%d\t|\tValue: %s",
+												retorno.Argumentos.REGISTRO.timestamp,
+												retorno.Argumentos.REGISTRO.key,
+												retorno.Argumentos.REGISTRO.value);
+										return;
+
+						}
+							log_info(logger_invisible,"		Nro Pagina: %d",((registroTablaPag_t *) registro)->nroPagina);
+							log_info(logger_invisible,"		Ultimo uso: %llu",((registroTablaPag_t *) registro)->ultimoUso);
+							log_info(logger_invisible,"		Flag Modificado: %d",((registroTablaPag_t *) registro)->flagModificado);
+							mostrarRetorno(tomarContenidoPagina(*((registroTablaPag_t *) registro)));
+
+					}
+
+					log_info(logger_invisible,"Segmento: %s",((segmento_t *) segmento)->pathTabla);
+		list_iterate(((segmento_t *) segmento)->tablaPaginas->registrosPag, muestroRegistro);
+
+	}
+	log_info(logger_invisible,"========================Estado de la Memoria========================");
+	list_iterate(tablaSegmentos.listaSegmentos, mostrarRegistros);
+}
+
 Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 	int valueSem;
-	//while(!sem_getvalue(&journal, &valueSem) && valueSem<1);
 
 	//TODO CHEQUEAR SINCRO TODO TODO
-
 	Comando *parsed = malloc(sizeof(Comando));
 	Operacion retorno;
 	*parsed = parsear_comando(input);
@@ -26,6 +52,7 @@ Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 				retorno.TipoDeMensaje = ERROR_JOURNAL;
 			}else
 				retorno = selectAPI(input, *parsed);
+			//loggearMemoria();
 			break;
 		case INSERT:
 			sem_getvalue(&journal, &valueSem);
@@ -40,7 +67,7 @@ Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 					retorno = insertAPI(input, *parsed);
 				}
 			}
-
+			loggearMemoria();
 			break;
 		case CREATE:
 			retorno = createAPI(input, *parsed);
@@ -54,9 +81,11 @@ Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 				retorno.TipoDeMensaje = ERROR_JOURNAL;
 			}else
 				retorno =dropAPI(input, *parsed);
+			//loggearMemoria();
 			break;
 		case JOURNAL:
 			retorno = journalAPI();
+			//loggearMemoria();
 			break;
 		default:
 
@@ -366,36 +395,6 @@ Operacion dropAPI(char* input, Comando comando) {
 
 }
 
-//TODO: BORRAR Y DEJAR JOURNAL BIEN
-
-void mostrarRegistrosConFlagDeModificado(void){
-	void mostrarRegistros(void * segmento){
-
-		void muestroRegistro(void* registro){
-
-			void mostrarRetorno(Operacion retorno) {
-							log_info(logger_invisible,"Timestamp: %llu\nKey:%d\nValue: %s\n\n",
-												retorno.Argumentos.REGISTRO.timestamp,
-												retorno.Argumentos.REGISTRO.key,
-												retorno.Argumentos.REGISTRO.value);
-										return;
-
-						}
-							log_info(logger_invisible,"REGISTRO: %s\n",((registroTablaPag_t *) registro)->nroPagina);
-							log_info(logger_invisible,"Ultimo uso: %llu\n",((registroTablaPag_t *) registro)->ultimoUso);
-							log_info(logger_invisible,"Flag Modificado: %d\n",((registroTablaPag_t *) registro)->flagModificado);
-							mostrarRetorno(tomarContenidoPagina(*((registroTablaPag_t *) registro)));
-
-					}
-
-					log_info(logger_invisible,"Segmento: %s",((segmento_t *) segmento)->pathTabla);
-		list_iterate(((segmento_t *) segmento)->tablaPaginas->registrosPag, muestroRegistro);
-
-	}
-	list_iterate(tablaSegmentos.listaSegmentos, mostrarRegistros);
-
-}
-
 //COSAS A TENER EN CUENTA
 //Una vez efectuados estos envíos se procederá a eliminar los segmentos actuales.
 
@@ -495,8 +494,6 @@ Operacion journalAPI(){
 
 	sem_post(&journal);
 	return resultadoJournal;
-
-	//mostrarRegistrosConFlagDeModificado();
 }
 
 
