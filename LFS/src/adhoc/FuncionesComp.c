@@ -8,8 +8,8 @@
 #include "FuncionesComp.h"
 
 void cambiarNombreFilesTemp(char* pathTabla){
-	char* pathFileViejo = string_new();
-	char* pathFileNuevo = string_new();
+	char* pathFileViejo;
+	char* pathFileNuevo;
 	DIR *dir;
 	struct dirent *entry;
 	char* nombreArchivo;

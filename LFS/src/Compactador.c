@@ -8,20 +8,21 @@
 #include "Compactador.h"
 
 //Private:
-static t_dictionary *registrosDeParticiones; //key(nro de particion), value(t_list con registros de esa particion (dump y bloque)) //Para saber si um registro partenece a tal particion => resto entre registro y cantidad de particiones de la tabla
+//key(nro de particion), value(t_list con registros de esa particion (dump y bloque)) //Para saber si um registro partenece a tal particion => resto entre registro y cantidad de particiones de la tabla
 
 static bool se_hizo_algun_dump(char *pathTabla);
 static EntradaDirectorio *hay_archivos(DIR *directorio);
 static Metadata_tabla *levantar_metadata(char *nombreTabla);
-static int levantar_registros(char *nombreTabla, char *pathArchivoTMPC, int particionesDeLaTabla);
+static int levantar_registros_dump(t_dictionary *lista, char *nombreTabla, char *pathArchivoTMPC, int particionesDeLaTabla);
+static int levantar_registros_bloques(t_dictionary *lista, char *nombreTabla, int particiones);
 static void agregar_registro(t_list *lista, Registro *registro);
-static void agregar_registros_de_bloques(t_list *lista, char *bloquesContenedores);
 
-static void ver_diccionario_debug();
+static void ver_diccionario_debug(t_dictionary *lista);
 
 
 void* compactar(void* nombreTabla){
 	pthread_detach(pthread_self());
+	t_dictionary *registrosDeParticiones;
 	registrosDeParticiones = dictionary_create();
 
 	Metadata_tabla *metadata = levantar_metadata(nombreTabla);
@@ -52,16 +53,19 @@ void* compactar(void* nombreTabla){
 			if(!string_ends_with(entrada->d_name, ".tmpc"))
 				continue; //Salteo y elijo otro archivo
 			char *pathArchivoTMPC = string_from_format("%s/%s", pathTabla, entrada->d_name);
-			if(levantar_registros(nombreTabla, pathArchivoTMPC, metadata->partitions) == EXIT_FAILURE){
+			if(levantar_registros_dump(registrosDeParticiones, nombreTabla, pathArchivoTMPC, metadata->partitions) == EXIT_FAILURE){
 				//TODO: Loggear error
 				free(pathArchivoTMPC);
 				continue; //Salteo y elijo al sgte archivo
 			}
 			free(pathArchivoTMPC);
+			if(levantar_registros_bloques(registrosDeParticiones, nombreTabla, metadata->partitions) == EXIT_FAILURE){
+				continue;
+			}
 		}
 		//TODO a partir de aca el diccionario ya esta listo para filtrarse y fueron revisados todos los TMPC
 		closedir(directorio);
-		ver_diccionario_debug();
+		ver_diccionario_debug(registrosDeParticiones);
 	}
 
 	//TODO: La compactacion de la tabla finalizo por que no se encontro el directorio
@@ -169,7 +173,7 @@ static Metadata_tabla *levantar_metadata(char *nombreTabla){
 
 
 
-static int levantar_registros(char *nombreTabla, char *pathArchivoTMPC, int particionesDeLaTabla){
+static int levantar_registros_dump(t_dictionary *registrosDeParticiones, char *nombreTabla, char *pathArchivoTMPC, int particionesDeLaTabla){
 	if(registrosDeParticiones == NULL)
 		return EXIT_FAILURE;
 
@@ -202,16 +206,6 @@ static int levantar_registros(char *nombreTabla, char *pathArchivoTMPC, int part
 			dictionary_put(registrosDeParticiones, particionAsignadaString, registros);
 		}
 		agregar_registro((t_list*)dictionary_get(registrosDeParticiones, particionAsignadaString), registro);
-
-		char *bloquesAsignados = obtenerListaDeBloques(particionAsignada, nombreTabla);
-		if(bloquesAsignados == NULL){
-			printf("La tabla %s no parece tener bloques asignados\n", nombreTabla);
-			free(particionAsignadaString);
-			fclose(archivoTMPC);
-			continue;
-		}
-		agregar_registros_de_bloques((t_list*)dictionary_get(registrosDeParticiones, particionAsignadaString), bloquesAsignados);
-		free(bloquesAsignados);
 		free(particionAsignadaString);
 	}
 	fclose(archivoTMPC);
@@ -234,11 +228,29 @@ static void agregar_registro(t_list *lista, Registro *registro){
 
 
 
-static void agregar_registros_de_bloques(t_list *lista, char *bloquesContenedores){
-	if(lista == NULL)
-		return;
-	if(bloquesContenedores == NULL)
-		return;
+static int levantar_registros_bloques(t_dictionary *registrosDeParticiones, char *nombreTabla, int particiones){
+	if(registrosDeParticiones == NULL)
+		return EXIT_FAILURE;
+	if(nombreTabla == NULL)
+		return EXIT_FAILURE;
+
+	char *generar_path_particion(int particion){return string_from_format("%s/%d.bin", pathTabla, particion);}
+
+	for(int i=0; i<particiones; ++i){
+		char *bloquesAsignados = obtenerListaDeBloques(i, nombreTabla);
+
+
+	}
+
+	char *bloquesAsignados = obtenerListaDeBloques(particionAsignada, nombreTabla);
+			if(bloquesAsignados == NULL){
+				printf("La tabla %s no parece tener bloques asignados\n", nombreTabla);
+				free(particionAsignadaString);
+				fclose(archivoTMPC);
+				continue;
+			}
+
+	/*
 	if(!string_starts_with(bloquesContenedores, "[") || !string_ends_with(bloquesContenedores, "]"))
 		return;
 
@@ -246,13 +258,19 @@ static void agregar_registros_de_bloques(t_list *lista, char *bloquesContenedore
 	if(bloques == NULL)
 		return;
 
-	char *generar_path_bloque(char *bloque){return string_from_format("%sBloques/%s.bin", config.punto_montaje, bloque);}
+
 
 	void parsear_y_agregar_registro(char *registro){
 		char **parsed = string_split(registro, ";");
 		if(parsed == NULL)
 			return;
 		if(parsed[0]!=NULL && parsed[1] != NULL && parsed[3] != NULL){
+			if(strlen(parsed[3])>atoi(config.tamanio_value)){
+				string_iterate_lines(parsed, (void*)free);
+				free(parsed);
+				return;
+			}
+
 			Registro *registro= malloc(sizeof(Registro));
 			registro->timestamp = atoi(parsed[0]);
 			registro->key = atoi(parsed[1]);
@@ -264,37 +282,42 @@ static void agregar_registros_de_bloques(t_list *lista, char *bloquesContenedore
 	}
 
 	for(int i=0; bloques[i]!=NULL; ++i){
+		printf("%d\n\n", i);
 		char *pathBloque = generar_path_bloque(bloques[i]);
+		printf("Path: %s\n", pathBloque);
 		FILE *archivoBloque = fopen(pathBloque, "r");
 		free(pathBloque);
-		if(archivoBloque == NULL)
+		if(archivoBloque == NULL){
+			printf("Archivo bloque == NULL\n");
 			continue;
+		}
 		char *registro = string_new();
 		char c;
 		while((c = getc(archivoBloque)) != EOF){
 			if(c == '\n'){
+				printf("Registro: %s\n", registro);
 				parsear_y_agregar_registro(registro);
 				free(registro);
 				registro = string_new();
+				continue;
 			}
 			char *c_string = string_from_format("%c", c);
 			string_append(&registro, c_string);
 			free(c_string);
-			if(strlen(registro)>atoi(config.tamanio_value))
-				return; //TODO: ver si hay que manejar este error y como
 		}
 		if(registro)
 			free(registro);
 	}
 	string_iterate_lines(bloques, (void*)free);
-	free(bloques);
+	free(bloques);*/
+	return EXIT_SUCCESS;
 }
 
 
 
 
 
-static void ver_diccionario_debug(){
+static void ver_diccionario_debug(t_dictionary *registrosDeParticiones){
 	void dictionary_element_viewer(char *key, void *data){
 		void list_viewer(void *registro){
 			printf("Registro => timestamp: %llu, key: %hu, value: %s\n", ((Registro*)registro)->timestamp, ((Registro*)registro)->key, ((Registro*)registro)->value);
