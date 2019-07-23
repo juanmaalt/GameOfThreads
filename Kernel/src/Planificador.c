@@ -90,5 +90,5 @@ void desalojar(PCB *pcb){
 }
 
 void simular_retardo(void){
-	usleep(vconfig.retardo());
+	usleep(vconfig.retardo);
 }

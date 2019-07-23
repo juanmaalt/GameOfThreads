@@ -208,7 +208,7 @@ static INTERNAL_STATE exec_file_lql(PCB *pcb){
 	char buffer[MAX_BUFFER_SIZE_FOR_LQL_LINE];
 	char *line = NULL;
 	FILE *lql = (FILE *)pcb->data; //Como el FILE nunca se cerro, cada vez que entre, va a continuar donde se habia quedado
-	int quantumBuffer = vconfig.quantum(); //Para hacer la llamada una sola vez por cada exec. No se actualiza el quantum en tiempo real, pero se actualiza cuando entra un nuevo script por que ya tiene el valor actualizado
+	int quantumBuffer = vconfig.quantum; //Para hacer la llamada una sola vez por cada exec. No se actualiza el quantum en tiempo real, pero se actualiza cuando entra un nuevo script por que ya tiene el valor actualizado
 
 	for(int i=1; i<=quantumBuffer; ++i){
 		fgetpos(lql, &(pcb->instruccionPointer));
@@ -448,7 +448,7 @@ static void generar_estadisticas(DynamicAddressingRequest *link){
 
 void *describe_automatico(void *null){
 	for(;;){
-		usleep(vconfig.refreshMetadata()*1000);
+		usleep(vconfig.refreshMetadata*1000);
 		Memoria *memoria = elegir_cualquiera();
 		if(memoria == NULL) continue;
 		int socketMemoria = comunicarse_con_memoria(memoria);

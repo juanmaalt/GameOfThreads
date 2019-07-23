@@ -31,6 +31,7 @@
 #include <semaphore.h>
 #include <colores/colores.h>
 #include <sys/stat.h> //Para mkdir
+#include <sys/inotify.h>
 #include "Consola.h"
 #include "Planificador.h"
 #include "Metrics.h"
@@ -46,9 +47,9 @@ struct Config_datos_fijos{
 typedef struct Config_datos_fijos fConfig;
 
 struct Config_datos_variables{
-	int (*quantum)();
-	int (*refreshMetadata)();
-	int (*retardo)();
+	int quantum;
+	int refreshMetadata;
+	int retardo;
 }; //Se actualizan en tiempo de ejecucion
 
 typedef struct Config_datos_variables vConfig;
@@ -67,6 +68,7 @@ pthread_t idConsola;
 pthread_t servicioMetricas;
 pthread_t gossiping;
 pthread_t describeAutomatico;
+pthread_t inotify;
 t_list *idsExecInstances;
 sem_t disponibilidadPlanificador; //Para que la consola no pueda mandarle algo al planificador si no se inicio
 sem_t scriptEnReady; //Para saber si hay algo en ready o no, y no estar preguntando permanentemente

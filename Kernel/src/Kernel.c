@@ -20,6 +20,8 @@ static int extraer_refresMetadata_config();
 static int extraer_retardo_config();
 static void finalizar_todos_los_hilos();
 static void rutinas_de_finalizacion();
+static void *inotify_service(void *null);
+static void refrescar_vconfig();
 
 int main(void) {
 	//Se hacen las configuraciones iniciales para log, config y se inician semaforos
@@ -121,7 +123,11 @@ static int inicializar_configs() {
 	config_destroy(configFile);
 
 	//Config_datos_variables
-	vconfig.quantum = extraer_quantum_config;
+	refrescar_vconfig();
+	if(pthread_create(&inotify, NULL, inotify_service, NULL))
+		RETURN_ERROR("Kernel.c: inicializar_configs: no se pudo iniciar inotify");
+
+	/*vconfig.quantum = extraer_quantum_config;
 	vconfig.refreshMetadata = extraer_refresMetadata_config;
 	vconfig.retardo = extraer_retardo_config;
 
@@ -132,7 +138,7 @@ static int inicializar_configs() {
 	if(vconfig.quantum() <= 0){
 		log_error(logger_error, "Kernel.c: extraer_data_config: (Warning) el quantum con valores menores o iguales a 0 genera comportamiento indefinido");
 	log_error(logger_error, "Kernel.c: extraer_data_config: (Warning) el quantum con valores menores o iguales a 0 genera comportamiento indefinido");
-	}
+	}*/
 	return EXIT_SUCCESS;
 }
 
@@ -160,23 +166,29 @@ static int extraer_retardo_config(){
 }
 
 
-
+static void refrescar_vconfig(){
+	t_config *tmpConfigFile = config_create(STANDARD_PATH_KERNEL_CONFIG);
+	vconfig.quantum = config_get_int_value(tmpConfigFile, "QUANTUM");
+	vconfig.refreshMetadata = config_get_int_value(tmpConfigFile, "REFRESH_METADATA");
+	vconfig.retardo = config_get_int_value(tmpConfigFile, "SLEEP_EJECUCION");
+	config_destroy(tmpConfigFile);
+}
 
 
 void mostrar_por_pantalla_config(){
 	log_info(logger_visible, BLU"IP_MEMORIA=%s"STD, fconfig.ip_memoria_principal);
 	log_info(logger_visible, BLU"PUERTO_MEMORIA=%s"STD, fconfig.puerto_memoria_principal);
-	log_info(logger_visible, BLU"QUANTUM=%d"STD, vconfig.quantum());
+	log_info(logger_visible, BLU"QUANTUM=%d"STD, vconfig.quantum);
 	log_info(logger_visible, BLU"MULTIPROCESAMIENTO=%d"STD, fconfig.multiprocesamiento);
-	log_info(logger_visible, BLU"REFRESH_METADATA=%d"STD, vconfig.refreshMetadata());
-	log_info(logger_visible, BLU"SLEEP_EJECUCION=%d"STD, vconfig.retardo());
+	log_info(logger_visible, BLU"REFRESH_METADATA=%d"STD, vconfig.refreshMetadata);
+	log_info(logger_visible, BLU"SLEEP_EJECUCION=%d"STD, vconfig.retardo);
 
 	log_info(logger_invisible, "IP_MEMORIA=%s", fconfig.ip_memoria_principal);
 	log_info(logger_invisible, "PUERTO_MEMORIA=%s", fconfig.puerto_memoria_principal);
-	log_info(logger_invisible, "QUANTUM=%d", vconfig.quantum());
+	log_info(logger_invisible, "QUANTUM=%d", vconfig.quantum);
 	log_info(logger_invisible, "MULTIPROCESAMIENTO=%d", fconfig.multiprocesamiento);
-	log_info(logger_invisible, "REFRESH_METADATA=%d", vconfig.refreshMetadata());
-	log_info(logger_invisible, "SLEEP_EJECUCION=%d", vconfig.retardo());
+	log_info(logger_invisible, "REFRESH_METADATA=%d", vconfig.refreshMetadata);
+	log_info(logger_invisible, "SLEEP_EJECUCION=%d", vconfig.retardo);
 }
 
 
@@ -191,6 +203,45 @@ static void finalizar_todos_los_hilos(){
 		pthread_cancel(*(pthread_t*)hilo);
 	}
 	list_iterate(idsExecInstances, cancelar);
+}
+
+
+
+
+
+#define EVENT_SIZE (sizeof (struct inotify_event))
+#define BUF_LEN (1024 * (EVENT_SIZE + 16))
+static void *inotify_service(void *null){
+	void *service(){
+		int fd = inotify_init();
+		if(fd<0){
+			printf(RED"Fallo el fd para inotify\n"STD);
+			return NULL;
+		}
+
+		int watch = inotify_add_watch(fd, STANDARD_PATH_KERNEL_CONFIG, IN_MODIFY | IN_DELETE);
+		if(watch<0){
+			printf(RED"Fallo en el add watch para inotify\n"STD);
+			return NULL;
+		}
+		char buf[BUF_LEN];
+		int len, i = 0;
+		len = read (fd, buf, BUF_LEN);
+		while (i < len) {
+			struct inotify_event *event;
+			event = (struct inotify_event *) &buf[i];
+			refrescar_vconfig();
+			//printf("wd=%d mask=%u cookie=%u len=%u\n", event->wd, event->mask, event->cookie, event->len);
+			i += EVENT_SIZE + event->len;
+		}
+		return NULL;
+	}
+
+	for(;;)
+		service();
+
+	printf(YEL"Inotify finalizo\n"STD);
+	return NULL;
 }
 
 
