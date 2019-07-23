@@ -44,7 +44,7 @@ static void *main_gossiping(void *null){
 static void hacer_gossiping(void *memoria){
 	int socketMem = connect_to_server(((Memoria*)memoria)->ip, ((Memoria*)memoria)->puerto);
 	if(socketMem == EXIT_FAILURE){
-		remover_memoria((Memoria*)memoria);
+		remover_memoria((Memoria*)memoria); //Ojo, remover memoria tiene mutex
 		return;
 	}
 

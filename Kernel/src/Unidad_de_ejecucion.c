@@ -126,8 +126,8 @@ static DynamicAddressingRequest direccionar_request(char *request){
 static socket_t comunicarse_con_memoria(Memoria *memoria){
 	int socketServer;
 	if((socketServer = connect_to_server(memoria->ip, memoria->puerto)) == EXIT_FAILURE){
-		log_error(logger_error, "Planificador.c: comunicarse_con_memoria: error al conectarse al servidor memoria %s:%s", memoria->ip, memoria->puerto);
-		log_error(logger_invisible, "Planificador.c: comunicarse_con_memoria: error al conectarse al servidor memoria %s:%s", memoria->ip, memoria->puerto);
+		log_error(logger_error, "Unidad_de_ejecucion.c: comunicarse_con_memoria: error al conectarse al servidor memoria %s:%s", memoria->ip, memoria->puerto);
+		log_error(logger_invisible, "Unidad_de_ejecucion.c: comunicarse_con_memoria: error al conectarse al servidor memoria %s:%s", memoria->ip, memoria->puerto);
 		return EXIT_FAILURE;
 	}
 	log_info(logger_invisible, "Request dirigida a la memoria numero: %d, %s:%s", memoria->numero, memoria->ip, memoria->puerto);

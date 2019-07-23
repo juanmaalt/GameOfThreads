@@ -71,6 +71,8 @@ static int mostrar_metricas_por_pantalla(){
 	if(memoriasExistentes == NULL){
 		RETURN_ERROR("Metrics.c: mostrar_metricas: deberia esperar a que se inicien las estructuras de las memorias");
 	}
+	sem_wait(&mutexMemoriasExistentes);
+	sem_wait(&mutexMetricas);
 
 	//LOGGER VISIBLE
 
@@ -165,6 +167,8 @@ static int mostrar_metricas_por_pantalla(){
 		list_iterate(memoriasExistentes, mostrar_estadisticas_de_memorias_simple);
 	}
 
+	sem_post(&mutexMemoriasExistentes);
+	sem_post(&mutexMetricas);
 	return EXIT_SUCCESS;
 }
 
@@ -173,6 +177,8 @@ static int mostrar_metricas_por_pantalla(){
 
 
 static void refrescar_valores(){
+	sem_wait(&mutexMemoriasExistentes);
+	sem_wait(&mutexMetricas);
 	void refrescar_memoria(void *memoria){
 		((Memoria*)memoria)->Metrics.EC.cantidadInsert = 0;
 		((Memoria*)memoria)->Metrics.EC.cantidadSelect = 0;
@@ -205,4 +211,6 @@ static void refrescar_valores(){
 	metricas.At.StrongConsistency.reads = 0;
 	metricas.At.StrongConsistency.writeLatency = 0;
 	metricas.At.StrongConsistency.writes = 0;
+	sem_post(&mutexMemoriasExistentes);
+	sem_post(&mutexMetricas);
 }
