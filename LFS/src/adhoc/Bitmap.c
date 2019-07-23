@@ -56,6 +56,7 @@ void leerBitmap(){
 		printf("valor bit= %d\n", valor);
 	}
 */
+	printf("bitarray:%sz\n", bitarray->bitarray);
 
 	sem_init(&leyendoBitarray, 0, 1);
 
@@ -83,10 +84,11 @@ char* getBloqueLibre(){
 	bitarray_set_bit(bitarray, pos);
 
 	escribirBitmap();
-	posicion=string_from_format("%d", pos+1);
 
 	//printf("posicion:%s\n", posicion);
 	sem_post(&leyendoBitarray);
+
+	posicion= string_from_format("%d",pos+1);
 
 	return posicion;
 }
@@ -104,8 +106,8 @@ void escribirBitmap(){
 	FILE* bitmap;
 
 	char binario[metadataFS.blocks+1];
-	int cantSimbolos=((metadataFS.blocks/8)+1);
-	char* texto = calloc(cantSimbolos, sizeof(char));
+	//int cantSimbolos=((metadataFS.blocks/8)+1);
+	//char* texto = calloc(cantSimbolos, sizeof(char));
 
 	for(int i=0;i<metadataFS.blocks;i++){
 		if(bitarray_test_bit(bitarray, i)!=0){
@@ -119,45 +121,21 @@ void escribirBitmap(){
 
 	//printf("El texto a transformar es: %s\n", binario);
 
-	binarioATexto(binario, texto, cantSimbolos);
+	//binarioATexto(binario, texto, cantSimbolos);
 
 	bitmap = fopen(pathBitmap,"w");
-/*
+	/*
 	for(int i=0; i<(metadataFS.blocks/8); i++){
 		fprintf (bitmap, "%c",texto[i]);
 		//printf("El texto que se guardaría en el bitmap.bin es: %c\n", texto[i]);
 	}
 	*/
-	fprintf (bitmap, "%s",texto);
+	fprintf (bitmap, "%s",binario);
 	//printf("texto: %s\n", texto);
 
 	fclose(bitmap);
-	free(texto);
+	free(binario);
 	free(pathBitmap);
-}
-
-
-void binarioATexto(char* binario, char* texto, int cantSimbolos){
-    for(int i = 0; i<metadataFS.blocks; i+=8, binario += 8){
-        char* byte = binario;
-        byte[8] = '\0';
-        *texto++ = binarioADecimal(byte, 8);
-    }
-    texto -= cantSimbolos;
-}
-
-unsigned long binarioADecimal(char* binario, int length){
-	int i;
-	unsigned long decimal = 0;
-	unsigned long weight = 1;
-	binario += length - 1;
-	weight = 1;
-	for(i = 0; i < length; ++i, --binario){
-		if(*binario == '1')
-			decimal += weight;
-		weight *= 2;
-	}
-	return decimal;
 }
 
 void actualizarBitarray(){
@@ -168,24 +146,18 @@ void actualizarBitarray(){
 
 	if((dir = opendir(pathBloques)) != NULL){
 		while((entry = readdir (dir)) != NULL){
-			nombreBloque = entry->d_name; //ERVISION: no se pide memoria y comentados los free
-			if(string_contains(nombreBloque, ".bin")){
-				if(!string_contains(nombreBloque, ".binx")){
-					char* bloque = string_substring_until(nombreBloque, (strlen(nombreBloque)-4));
-					if(caracteresEnBloque(bloque)>0){
-						bitarray_set_bit(bitarray, (atoi(bloque)-1));
-						log_info(logger_invisible, "Bloque con data: %s.bin", nombreBloque);
-					}
-					if(bloque)free(bloque);//REVISION agregado free bloque
-				}else{
-					char* pathBinx = string_from_format("%sBloques/%s", config.punto_montaje, nombreBloque);
-					remove(pathBinx);
-					free(pathBinx);
+			nombreBloque = entry->d_name;
+			if(string_ends_with(nombreBloque, ".bin")){
+				char* bloque = string_substring_until(nombreBloque, (strlen(nombreBloque)-4));
+				if(caracteresEnBloque(bloque)>0){
+					bitarray_set_bit(bitarray, (atoi(bloque)-1));
+					log_info(logger_invisible, "Bloque con data: %s.bin", nombreBloque);
 				}
+				if(bloque)
+					free(bloque);
 			}
-			//free(nombreBloque);
 		}
-		closedir(dir);
 	}
+	closedir(dir);
 	free(pathBloques);
 }
