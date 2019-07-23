@@ -11,9 +11,6 @@ int iniciar_gossiping() {
 
 	pthread_mutex_init(&mutexGossiping, NULL);
 
-	char * ip_port_compresed = string_from_format("%s:%s", fconfig.ip,
-			fconfig.puerto);
-//	char * ip_port_compresed =
 
 //char * ip_port_compresed = string_from_format("%s:%s", fconfig.ip, fconfig.puerto);
 //printf("IP propia : %s\n", ip_port_compresed);
@@ -151,7 +148,7 @@ void conectarConSeed() {
 					int socketLista = connect_to_server(
 							((knownMemory_t*) memoriaLista)->ip,
 							((knownMemory_t*) memoriaLista)->ip_port);
-					if (socket == EXIT_FAILURE) {
+					if (socketLista == EXIT_FAILURE) {
 						list_remove(listaMemoriasConocidas, indexList);
 						sizeList = list_size(listaMemoriasConocidas);
 						//printf(YEL"SEED CAIDA Y OTRA MEMORIA TAMBIEN\n"STD);
