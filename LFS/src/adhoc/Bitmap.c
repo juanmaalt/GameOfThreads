@@ -168,7 +168,7 @@ void actualizarBitarray(){
 
 	if((dir = opendir(pathBloques)) != NULL){
 		while((entry = readdir (dir)) != NULL){
-			nombreBloque = string_from_format(entry->d_name);
+			nombreBloque = entry->d_name; //ERVISION: no se pide memoria y comentados los free
 			if(string_contains(nombreBloque, ".bin")){
 				if(!string_contains(nombreBloque, ".binx")){
 					char* bloque = string_substring_until(nombreBloque, (strlen(nombreBloque)-4));
@@ -176,15 +176,16 @@ void actualizarBitarray(){
 						bitarray_set_bit(bitarray, (atoi(bloque)-1));
 						log_info(logger_invisible, "Bloque con data: %s.bin", nombreBloque);
 					}
+					if(bloque)free(bloque);//REVISION agregado free bloque
 				}else{
 					char* pathBinx = string_from_format("%sBloques/%s", config.punto_montaje, nombreBloque);
 					remove(pathBinx);
 					free(pathBinx);
 				}
 			}
-			free(nombreBloque);
+			//free(nombreBloque);
 		}
-		closedir (dir);
+		closedir(dir);
 	}
 	free(pathBloques);
 }

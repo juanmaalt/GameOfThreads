@@ -462,7 +462,7 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 	reg->key = key;
 	reg->value = NULL;
 	reg->timestamp=0;
-	char** bloques = string_get_string_as_array(listaDeBloques);
+	char** bloques = string_get_string_as_array(listaDeBloques); //REVISION: se libera esto al final de la funcion
 
 	FILE* fBloque;
 	int i=0;
@@ -505,6 +505,8 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 		free(pathBloque);
 		i++;
 	}
+	string_iterate_lines(bloques, (void*)free);
+	if(bloques)free(bloques);
 	free(linea);
 	return reg;
 }

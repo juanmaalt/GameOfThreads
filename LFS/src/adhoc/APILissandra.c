@@ -62,6 +62,7 @@ Operacion selectAPI(Comando comando){
 	if(string_starts_with(listaDeBloques, "[")&&string_ends_with(listaDeBloques, "]")){
 		list_add(listaDeValues, fseekBloque(atoi(comando.argumentos.SELECT.key), listaDeBloques));
 	}
+	if(listaDeBloques)free(listaDeBloques); //REVISION se libera la lista de bloques
 
 	/*Recorro la tabla y obtengo el valor más reciente*/
 	//recorrerTabla(listaDeValues);//Función ad-hoc para testing

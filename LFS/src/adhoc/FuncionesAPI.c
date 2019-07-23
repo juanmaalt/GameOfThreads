@@ -162,9 +162,9 @@ timestamp_t checkTimestamp(char* timestamp){
 
 
 void crearTablaEnMemtable(char* nombreTabla){
-	t_list* lista = list_create();
-	char* tabla=nombreTabla;
-
+	t_list* lista = list_create(); //LEAK: ver como se libera esto
+	char* tabla=string_from_format(nombreTabla);//REVISION: se agrego string from format ya que se le pasan constantes
+	//TODO: a veces se la llama con nombreCarpeta, otras con nombreTabla
 	dictionary_put(memtable, tabla, lista);
 }
 
@@ -389,6 +389,8 @@ void limpiarBloquesEnBitarray(char* nombreTabla){
 			if(string_contains(nombreArchivo, ".bin")){
 				char* particionNbr =string_substring_until(nombreArchivo, (strlen(nombreArchivo)-4));
 				char* listaDeBloques= obtenerListaDeBloques(atoi(particionNbr), nombreTabla);
+				if(particionNbr) free(particionNbr); //REVISION agregado el free
+				if(listaDeBloques == NULL)continue; //REVISION: agregado continue para evitar compara contra NULL.
 				if(string_starts_with(listaDeBloques, "[")&&string_ends_with(listaDeBloques, "]")){
 					char** bloques = string_get_string_as_array(listaDeBloques);
 
@@ -399,14 +401,17 @@ void limpiarBloquesEnBitarray(char* nombreTabla){
 						bitarray_clean_bit(bitarray, (pos-1));
 						i++;
 					}
+					if(bloques){string_iterate_lines(bloques, (void*)free); free(bloques);}//REVISION: agregado free
 				}else{
 					log_error(logger_visible, "FuncionesAPI.c: limpiarBloquesEnBitarray() - Las particion '%s' de la Tabla \"%s\" tiene un estado inconsistente.", particionNbr, nombreTabla);
 					log_error(logger_invisible, "FuncionesAPI.c: limpiarBloquesEnBitarray() - Las particion '%s' de la Tabla \"%s\" tiene un estado inconsistente.", particionNbr, nombreTabla);
 					log_error(logger_error, "FuncionesAPI.c: limpiarBloquesEnBitarray() - Las particion '%s' de la Tabla \"%s\" tiene un estado inconsistente.", particionNbr, nombreTabla);
 				}
+				if(listaDeBloques)free(listaDeBloques);//REVISION: agregado free listaDeBloques
 			}
 			free(nombreArchivo);
 		}
+		closedir(dir); //REVISION agregado closedir
 	}
 	free(pathTablas);
 }

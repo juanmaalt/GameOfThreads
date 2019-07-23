@@ -14,6 +14,7 @@ void checkEstructuraFS(){
 	option=readline(GRN "Existe una estructura definida en el punto de montaje? (Y/N): " STD);
 	while(!(string_equals_ignore_case(option, "Y")) && !(string_equals_ignore_case(option, "N"))){
 		printf(RED "Ha ingresado un caracter no esperado '%s'. Por favor indique si existe una estructura ingresando (Y/N)" STD, option);
+		free(option);//REVISION agregado free option
 		option= readline(": ");
 	}
 
@@ -26,6 +27,7 @@ void checkEstructuraFS(){
 	}else{
 		checkDirectorios();
 	}
+	free(option);//REVISION agregado free option
 
 }
 
@@ -82,8 +84,10 @@ int levantarMetadata(){
 
 t_config* leer_MetadataFS(){
 	//printf("pathMetadata= %s\n",pathMetadata);
-
-	return config_create(string_from_format("%sMetadata/Metadata.bin",config.punto_montaje));
+	char *fullPath = string_from_format("%sMetadata/Metadata.bin",config.punto_montaje);
+	t_config *config = config_create(fullPath);
+	free(fullPath); //REVISION: modificada la funcion para liberar el path generado por string_from_format
+	return config;
 }
 
 void extraer_MetadataFS(){
@@ -184,10 +188,10 @@ void levantarTablasExistentes(){
 
 	if((dir = opendir(path)) != NULL){
 		while((entry = readdir (dir)) != NULL){
-			nombreCarpeta = string_from_format(entry->d_name);
+			nombreCarpeta = entry->d_name; //REVISION ya no se pide memoria para nombreCarpeta
 			if(!strcmp(nombreCarpeta, ".") || !strcmp(nombreCarpeta, "..")){
 			}else{
-				crearTablaEnMemtable(nombreCarpeta);
+				crearTablaEnMemtable(nombreCarpeta); //REVISION como no se pide memoria, esta funcion la reserva
 
 				SemaforoTabla *semt = malloc(sizeof(SemaforoTabla));
 				sem_init(&(semt->semaforo), 0, 1);
@@ -198,7 +202,7 @@ void levantarTablasExistentes(){
 
 				log_info(logger_invisible, "FileSystem.c: levantarTablasExistentes() - Tabla levantada: %s", nombreCarpeta);
 				if(agregarBloqueEnBitarray(nombreCarpeta)==0){
-					iniciarCompactacion(nombreCarpeta);
+					iniciarCompactacion(string_from_format(nombreCarpeta));//REVISION pido memoria para nombreCarpeta solo en el uso de la compactacion. Se puede liberar desde ahi
 				}else{
 					log_error(logger_visible, "FileSystem.c: levantarTablasExistentes() - Las particiones de la Tabla \"%s\" tiene un estado inconsistente. Tabla %s borrada. ", nombreCarpeta, nombreCarpeta);
 					log_error(logger_invisible, "FileSystem.c: levantarTablasExistentes() - Las particiones de la Tabla \"%s\" tiene un estado inconsistente. Tabla %s borrada. ", nombreCarpeta, nombreCarpeta);
@@ -214,7 +218,7 @@ void levantarTablasExistentes(){
 
 			}
 		}
-		closedir (dir);
+		closedir(dir);
 	}
 	free(path);
 }
@@ -264,7 +268,7 @@ int agregarBloqueEnBitarray(char* nombreCarpeta){
 
 	if((dir = opendir(pathTablas)) != NULL){
 		while((entry = readdir (dir)) != NULL){
-			nombreArchivo = string_from_format(entry->d_name);
+			nombreArchivo = entry->d_name; //REVISION: ya no se pide memoria para nombreArchivo
 			if(string_contains(nombreArchivo, ".bin")){
 				char* particionNbr = string_substring_until(nombreArchivo, (strlen(nombreArchivo)-4));
 				//printf("antes de lista de bloques\n");
@@ -280,17 +284,20 @@ int agregarBloqueEnBitarray(char* nombreCarpeta){
 						bitarray_set_bit(bitarray, (pos-1));
 						i++;
 					}
+					if(bloques){string_iterate_lines(bloques, (void*)free);free(bloques);}//REVISION: se libera bloques y punteros
 					free(particionNbr);
 				}else{
 					free(particionNbr);
-					free(nombreArchivo);
+					//free(nombreArchivo); REVISION free constante
 					free(pathTablas);
 
 					return 1;
 				}
+				if(listaDeBloques)free(listaDeBloques);//REVISION se libera la lista de bloques
 			}
-			free(nombreArchivo);
+			//free(nombreArchivo); REVISION free constante
 		}
+		closedir(dir);//REVISION agregado closedir
 	}
 	free(pathTablas);
 	return 0;
