@@ -60,7 +60,6 @@ void* compactar(void* nombreTabla){
 			}
 			free(pathArchivoTMPC);
 
-			printf("particiones: %d\n", metadata->partitions);
 			if(levantarRegistrosBloques(registrosDeParticiones, nombreTabla, metadata->partitions) == EXIT_FAILURE){
 				continue;
 			}
@@ -269,68 +268,6 @@ static int levantarRegistrosBloques(t_dictionary *registrosDeParticiones, char *
 		free(particionActual);
 
 	}
-
-
-	/*
-	if(!string_starts_with(bloquesContenedores, "[") || !string_ends_with(bloquesContenedores, "]"))
-		return;
-
-	char **bloques = string_get_string_as_array(bloquesContenedores);
-	if(bloques == NULL)
-		return;
-
-
-
-	void parsear_y_agregar_registro(char *registro){
-		char **parsed = string_split(registro, ";");
-		if(parsed == NULL)
-			return;
-		if(parsed[0]!=NULL && parsed[1] != NULL && parsed[3] != NULL){
-			if(strlen(parsed[3])>atoi(config.tamanio_value)){
-				string_iterate_lines(parsed, (void*)free);
-				free(parsed);
-				return;
-			}
-
-			Registro *registro= malloc(sizeof(Registro));
-			registro->timestamp = atoi(parsed[0]);
-			registro->key = atoi(parsed[1]);
-			registro->value = string_from_format(parsed[3]);
-			agregar_registro(lista, registro);
-		}
-		string_iterate_lines(parsed, (void*)free);
-		free(parsed);
-	}
-
-	for(int i=0; bloques[i]!=NULL; ++i){
-		printf("%d\n\n", i);
-		char *pathBloque = generar_path_bloque(bloques[i]);
-		printf("Path: %s\n", pathBloque);
-		FILE *archivoBloque = fopen(pathBloque, "r");
-		free(pathBloque);
-		if(archivoBloque == NULL){
-			printf("Archivo bloque == NULL\n");
-			continue;
-		}
-		char *registro = string_new();
-		char c;
-		while((c = getc(archivoBloque)) != EOF){
-			if(c == '\n'){
-				printf("Registro: %s\n", registro);
-				parsear_y_agregar_registro(registro);
-				free(registro);
-				registro = string_new();
-				continue;
-			}
-			char *c_string = string_from_format("%c", c);
-			string_append(&registro, c_string);
-			free(c_string);
-		}
-		if(registro)
-			free(registro);
-	}
-	string_iterate_lines(bloques, (void*)free);
-	free(bloques);*/
 	return EXIT_SUCCESS;
 }
 
