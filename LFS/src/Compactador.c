@@ -10,14 +10,14 @@
 //Private:
 //key(nro de particion), value(t_list con registros de esa particion (dump y bloque)) //Para saber si um registro partenece a tal particion => resto entre registro y cantidad de particiones de la tabla
 
-static bool se_hizo_algun_dump(char *pathTabla);
-static EntradaDirectorio *hay_archivos(DIR *directorio);
-static Metadata_tabla *levantar_metadata(char *nombreTabla);
-static int levantar_registros_dump(t_dictionary *lista, char *nombreTabla, char *pathArchivoTMPC, int particionesDeLaTabla);
-static int levantar_registros_bloques(t_dictionary *lista, char *nombreTabla, int particiones);
-static void agregar_registro(t_list *lista, Registro *registro);
+static bool seHizoUnDump(char *pathTabla);
+static EntradaDirectorio *hayArchivos(DIR *directorio);
+static Metadata_tabla* levantarMetadataTabla(char *nombreTabla);
+static int levantarRegistrosDump(t_dictionary *lista, char *nombreTabla, char *pathArchivoTMPC, int particionesDeLaTabla);
+static int levantarRegistrosBloques(t_dictionary *lista, char *nombreTabla, int particiones);
+static void agregarRegistro(t_list *lista, Registro *registro);
 
-static void ver_diccionario_debug(t_dictionary *lista);
+static void verDiccionarioDebug(t_dictionary *lista);
 
 
 void* compactar(void* nombreTabla){
@@ -25,7 +25,7 @@ void* compactar(void* nombreTabla){
 	t_dictionary *registrosDeParticiones;
 	registrosDeParticiones = dictionary_create();
 
-	Metadata_tabla *metadata = levantar_metadata(nombreTabla);
+	Metadata_tabla* metadata = levantarMetadataTabla((char*)nombreTabla);
 	if(metadata == NULL){
 		//TODO: loggear error
 		return NULL;
@@ -45,27 +45,27 @@ void* compactar(void* nombreTabla){
 		usleep(metadata->compaction_time * 1000);
 		log_info(logger_invisible, "Compactador.c: compactar() - Inicio compactación de %s", pathTabla);
 
-		if(!se_hizo_algun_dump(pathTabla))
+		if(!seHizoUnDump(pathTabla))
 			continue; //Salteo y vuelvo al inicio del for a esperar a la sgte compactacion
 		cambiarNombreFilesTemp(pathTabla);
 
-		while((entrada = hay_archivos(directorio)) != NULL){
+		while((entrada = hayArchivos(directorio)) != NULL){
 			if(!string_ends_with(entrada->d_name, ".tmpc"))
 				continue; //Salteo y elijo otro archivo
 			char *pathArchivoTMPC = string_from_format("%s/%s", pathTabla, entrada->d_name);
-			if(levantar_registros_dump(registrosDeParticiones, nombreTabla, pathArchivoTMPC, metadata->partitions) == EXIT_FAILURE){
+			if(levantarRegistrosDump(registrosDeParticiones, nombreTabla, pathArchivoTMPC, metadata->partitions) == EXIT_FAILURE){
 				//TODO: Loggear error
 				free(pathArchivoTMPC);
 				continue; //Salteo y elijo al sgte archivo
 			}
 			free(pathArchivoTMPC);
-			if(levantar_registros_bloques(registrosDeParticiones, nombreTabla, metadata->partitions) == EXIT_FAILURE){
+			if(levantarRegistrosBloques(registrosDeParticiones, nombreTabla, metadata->partitions) == EXIT_FAILURE){
 				continue;
 			}
 		}
 		//TODO a partir de aca el diccionario ya esta listo para filtrarse y fueron revisados todos los TMPC
 		closedir(directorio);
-		ver_diccionario_debug(registrosDeParticiones);
+		verDiccionarioDebug(registrosDeParticiones);
 	}
 
 	//TODO: La compactacion de la tabla finalizo por que no se encontro el directorio
@@ -119,10 +119,7 @@ void* compactar(void* nombreTabla){
 }
 
 
-
-
-
-static bool se_hizo_algun_dump(char *pathTabla){
+static bool seHizoUnDump(char *pathTabla){
 	DIR *dir;
 	struct dirent *entry;
 	char* nombreArchivo;
@@ -143,25 +140,19 @@ static bool se_hizo_algun_dump(char *pathTabla){
 }
 
 
-
-
-
-static EntradaDirectorio *hay_archivos(DIR *directorio){
+static EntradaDirectorio *hayArchivos(DIR *directorio){
 	return readdir(directorio);
 }
 
 
-
-
-
-static Metadata_tabla *levantar_metadata(char *nombreTabla){
+static Metadata_tabla* levantarMetadataTabla(char* nombreTabla){
 	t_config* metadataFile = leerMetadata(nombreTabla);
 	if(metadataFile == NULL){
 		log_error(logger_visible, "Compactador.c: compactar(%s) - Error en el archivo 'Metadata' de la tabla %s, la tablara no se compactará.", nombreTabla, nombreTabla);
 		log_error(logger_error, "Compactador.c: compactar(%s) - Error en el archivo 'Metadata' de la tabla %s, la tablara no se compactará.", nombreTabla, nombreTabla);
 		return NULL;
 	}
-	Metadata_tabla *metadata = malloc(sizeof(Metadata_tabla));
+	Metadata_tabla* metadata = malloc(sizeof(Metadata_tabla));
 	metadata->compaction_time = config_get_int_value(metadataFile, "COMPACTION_TIME");
 	metadata->consistency = string_from_format(config_get_string_value(metadataFile, "CONSISTENCY"));
 	metadata->partitions= config_get_int_value(metadataFile, "PARTITIONS");
@@ -170,10 +161,7 @@ static Metadata_tabla *levantar_metadata(char *nombreTabla){
 }
 
 
-
-
-
-static int levantar_registros_dump(t_dictionary *registrosDeParticiones, char *nombreTabla, char *pathArchivoTMPC, int particionesDeLaTabla){
+static int levantarRegistrosDump(t_dictionary *registrosDeParticiones, char *nombreTabla, char *pathArchivoTMPC, int particionesDeLaTabla){
 	if(registrosDeParticiones == NULL)
 		return EXIT_FAILURE;
 
@@ -205,7 +193,7 @@ static int levantar_registros_dump(t_dictionary *registrosDeParticiones, char *n
 			t_list *registros = list_create();
 			dictionary_put(registrosDeParticiones, particionAsignadaString, registros);
 		}
-		agregar_registro((t_list*)dictionary_get(registrosDeParticiones, particionAsignadaString), registro);
+		agregarRegistro((t_list*)dictionary_get(registrosDeParticiones, particionAsignadaString), registro);
 		free(particionAsignadaString);
 	}
 	fclose(archivoTMPC);
@@ -213,10 +201,7 @@ static int levantar_registros_dump(t_dictionary *registrosDeParticiones, char *n
 }
 
 
-
-
-
-static void agregar_registro(t_list *lista, Registro *registro){
+static void agregarRegistro(t_list *lista, Registro *registro){
 	if(lista == NULL)
 		return;
 	if(registro == NULL)
@@ -225,30 +210,62 @@ static void agregar_registro(t_list *lista, Registro *registro){
 }
 
 
-
-
-
-static int levantar_registros_bloques(t_dictionary *registrosDeParticiones, char *nombreTabla, int particiones){
+static int levantarRegistrosBloques(t_dictionary *registrosDeParticiones, char *nombreTabla, int particiones){
 	if(registrosDeParticiones == NULL)
 		return EXIT_FAILURE;
 	if(nombreTabla == NULL)
 		return EXIT_FAILURE;
 
-	char *generar_path_particion(int particion){return string_from_format("%s/%d.bin", pathTabla, particion);}
-
 	for(int i=0; i<particiones; ++i){
-		char *bloquesAsignados = obtenerListaDeBloques(i, nombreTabla);
+		char* bloquesAsignados = obtenerListaDeBloques(i, nombreTabla);
 
+		if(bloquesAsignados == NULL){
+			printf("La tabla %s no parece tener bloques asignados\n", nombreTabla);
+			continue;
+		}
+
+		char** bloques = string_get_string_as_array(bloquesAsignados);
+		char* particionActual= string_from_format("%d", i);
+		char ch;
+		char* linea = string_new();
+
+		while(bloques[i]!=NULL){
+			FILE* fBloque;
+			char* pathBloque = string_from_format("%sBloques/%s.bin", config.punto_montaje, bloques[i]);
+			fBloque = fopen(pathBloque, "r");
+
+			while((ch = getc(fBloque)) != EOF){
+				char* nchar = string_from_format("%c", ch);
+				string_append(&linea, nchar);
+
+				if(string_ends_with(linea, "\n")){
+					char** lineaParsed = string_split(linea,";");
+					Registro *registro = malloc(sizeof(Registro));
+					registro->timestamp = atoll(lineaParsed[0]);
+					registro->key = atoi(lineaParsed[1]);
+					registro->value = string_from_format(lineaParsed[2]); //No liberar ninguno de los dos hasta que se elimite el registro de la lista en el final
+					string_iterate_lines(lineaParsed, (void* )free);
+					free(lineaParsed);
+					free(linea);
+
+					if(!dictionary_has_key(registrosDeParticiones, particionActual)){
+						t_list *registros = list_create();
+						dictionary_put(registrosDeParticiones, particionActual, registros);
+					}
+					agregarRegistro((t_list*)dictionary_get(registrosDeParticiones, particionActual), registro);
+					free(particionActual);
+				}
+
+				free(nchar);
+			}
+
+		}
+		string_iterate_lines(bloques, (void* )free);
+		free(bloques);
+		free(bloquesAsignados);
 
 	}
 
-	char *bloquesAsignados = obtenerListaDeBloques(particionAsignada, nombreTabla);
-			if(bloquesAsignados == NULL){
-				printf("La tabla %s no parece tener bloques asignados\n", nombreTabla);
-				free(particionAsignadaString);
-				fclose(archivoTMPC);
-				continue;
-			}
 
 	/*
 	if(!string_starts_with(bloquesContenedores, "[") || !string_ends_with(bloquesContenedores, "]"))
@@ -317,7 +334,7 @@ static int levantar_registros_bloques(t_dictionary *registrosDeParticiones, char
 
 
 
-static void ver_diccionario_debug(t_dictionary *registrosDeParticiones){
+static void verDiccionarioDebug(t_dictionary *registrosDeParticiones){
 	void dictionary_element_viewer(char *key, void *data){
 		void list_viewer(void *registro){
 			printf("Registro => timestamp: %llu, key: %hu, value: %s\n", ((Registro*)registro)->timestamp, ((Registro*)registro)->key, ((Registro*)registro)->value);
@@ -331,9 +348,6 @@ static void ver_diccionario_debug(t_dictionary *registrosDeParticiones){
 }
 
 
-
-
-
 void waitSemaforoTabla(char *tabla){
 	bool buscar(void *tablaSemaforo){
 		return !strcmp(tabla, ((SemaforoTabla*) tablaSemaforo)->tabla);
@@ -343,9 +357,6 @@ void waitSemaforoTabla(char *tabla){
 }
 
 
-
-
-
 void postSemaforoTabla(char *tabla){
 	bool buscar(void *tablaSemaforo){
 		return !strcmp(tabla, ((SemaforoTabla*) tablaSemaforo)->tabla);
@@ -353,7 +364,5 @@ void postSemaforoTabla(char *tabla){
 	void *semt = list_find(semaforosPorTabla, buscar);
 	sem_post(&(((SemaforoTabla*)semt)->semaforo));
 }
-
-
 
 
