@@ -22,6 +22,43 @@ void recorrer_directorio_haciendo(char *pathDirectorio, void(*closure)(EntradaDi
 
 
 
+bool all_satisfy(char *pathDirectorio, bool(*closure)(EntradaDirectorio *)){
+	if(pathDirectorio == NULL)
+		return false;
+	DIR *directorio = opendir(pathDirectorio);
+	if(directorio == NULL)
+		return false;
+	EntradaDirectorio *entrada = NULL;
+	while((entrada = readdir(directorio)) != NULL){
+		if(!closure(entrada)){
+			closedir(directorio);
+			return false;
+		}
+	}
+	closedir(directorio);
+	return true;
+}
+
+
+
+bool any_satisfy(char *pathDirectorio, bool(*closure)(EntradaDirectorio *)){
+	if(pathDirectorio == NULL)
+		return false;
+	DIR *directorio = opendir(pathDirectorio);
+	if(directorio == NULL)
+		return false;
+	EntradaDirectorio *entrada = NULL;
+	while((entrada = readdir(directorio)) != NULL){
+		if(closure(entrada)){
+			closedir(directorio);
+			return true;
+		}
+	}
+	return false;
+}
+
+
+
 /*INICIO FUNCIONES COMPLEMENTARIAS*/
 bool existeTabla(char* nombreTabla){
 	return dictionary_has_key(memtable, nombreTabla);
