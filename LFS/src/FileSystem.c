@@ -198,7 +198,7 @@ void levantarTablasExistentes(){
 
 				log_info(logger_invisible, "FileSystem.c: levantarTablasExistentes() - Tabla levantada: %s", nombreCarpeta);
 				if(agregarBloqueEnBitarray(nombreCarpeta)==0){
-					iniciarCompactacion(nombreCarpeta);
+					//iniciarCompactacion(nombreCarpeta);
 				}else{
 					log_error(logger_visible, "FileSystem.c: levantarTablasExistentes() - Las particiones de la Tabla \"%s\" tiene un estado inconsistente. Tabla %s borrada. ", nombreCarpeta, nombreCarpeta);
 					log_error(logger_invisible, "FileSystem.c: levantarTablasExistentes() - Las particiones de la Tabla \"%s\" tiene un estado inconsistente. Tabla %s borrada. ", nombreCarpeta, nombreCarpeta);
