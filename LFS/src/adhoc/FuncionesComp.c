@@ -17,7 +17,7 @@ void cambiarNombreFilesTemp(char* pathTabla){
 	if((dir = opendir(pathTabla)) != NULL){
 		while((entry = readdir (dir)) != NULL){
 			nombreArchivo = string_from_format(entry->d_name);
-			if(string_contains(nombreArchivo, ".tmp")){
+			if(string_ends_with(nombreArchivo, ".tmp")){
 				pathFileViejo = string_from_format("%s/%s", pathTabla, nombreArchivo);
 				pathFileNuevo = string_duplicate(pathFileViejo);
 				string_append(&pathFileNuevo,"c");
@@ -77,13 +77,12 @@ void leerTemporal(char* pathTemp, int particiones, char* nombreTabla){
 char* obtenerListaDeBloques(int particion, char* nombreTabla){
 	char* pathFile = string_from_format("%sTables/%s/%d.bin", config.punto_montaje, nombreTabla, particion);
 
-	t_config* particionFile;
-	particionFile = config_create(pathFile);
+	t_config* particionFile = config_create(pathFile);
+	if(particionFile == NULL)
+		return NULL;
 	char* listaDeBloques = string_from_format(config_get_string_value(particionFile, "BLOCKS"));
-
 	config_destroy(particionFile);
 	free(pathFile);
-
 	return listaDeBloques;
 }
 
@@ -280,9 +279,7 @@ bool esRegistroMasReciente(timestamp_t timestamp, int key, char* listaDeBloques)
 }
 
 int getMin(int value1, int value2){
-	if(value1<value2){
+	if(value1<value2)
 		return value1;
-	}else{
-		return value2;
-	}
+	return value2;
 }

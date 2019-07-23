@@ -11,6 +11,9 @@
 #include "adhoc/FuncionesComp.h"
 #include <commons/config.h>
 
+
+typedef struct dirent EntradaDirectorio;
+
 /*GLOBALES*/
 
 /*FUNCIONES*/

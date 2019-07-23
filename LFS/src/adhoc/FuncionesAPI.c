@@ -28,7 +28,10 @@ int getMetadata(char* nombreTabla, t_config* metadataFile){
 
 
 t_config* leerMetadata(char* nombreTabla){
-	return config_create(string_from_format("%sTables/%s/Metadata", config.punto_montaje, nombreTabla));
+	char *fullPath = string_from_format("%sTables/%s/Metadata", config.punto_montaje, nombreTabla);
+	t_config* config = config_create(fullPath);
+	free(fullPath);
+	return config;
 }
 
 /*
