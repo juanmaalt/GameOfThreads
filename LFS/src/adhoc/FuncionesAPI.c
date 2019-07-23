@@ -7,6 +7,21 @@
 
 #include "FuncionesAPI.h"
 
+//INICIO FUNCIONES NUEVAS
+void recorrer_directorio_haciendo(char *pathDirectorio, void(*closure)(EntradaDirectorio *)){
+	if(pathDirectorio == NULL)
+		return;
+	DIR *directorio = opendir(pathDirectorio);
+	if(directorio == NULL)
+		return;
+	EntradaDirectorio *entrada = NULL;
+	while((entrada = readdir(directorio)) != NULL)
+		closure(entrada);
+	closedir(directorio);
+}
+
+
+
 /*INICIO FUNCIONES COMPLEMENTARIAS*/
 bool existeTabla(char* nombreTabla){
 	return dictionary_has_key(memtable, nombreTabla);

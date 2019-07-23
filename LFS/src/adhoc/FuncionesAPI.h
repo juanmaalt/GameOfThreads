@@ -12,8 +12,13 @@
 #include "Metadata.h"
 #include <parser/compresor_describe.h>
 
+typedef struct dirent EntradaDirectorio;
+
 //GLOBALES
 //Metadata_tabla metadata;
+
+//NUEVAS
+void recorrer_directorio_haciendo(char *pathDirectorio, void(*closure)(EntradaDirectorio *));
 
 //COMPLEMENTARIAS
 bool existeTabla(char* key);
