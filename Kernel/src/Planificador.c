@@ -66,7 +66,7 @@ static int iniciar_unidades_de_ejecucion(){
 		pthread_t *id = malloc(sizeof(pthread_t));
 		int res = pthread_create(id, NULL, exec, NULL);
 		if(res != 0){
-			RETURN_ERROR("Kernel.c: iniciar_planificacion: fallo la creacion de un proceso");
+			RETURN_ERROR("Planificador.c: iniciar_planificacion: fallo la creacion de un proceso");
 		}
 		list_add(idsExecInstances, id);
 	}

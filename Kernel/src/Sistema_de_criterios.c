@@ -323,7 +323,7 @@ void remover_memoria(Memoria *memoria_a_remover){
 	}
 	sem_wait(&mutexMemoriasEC);
 	list_remove_by_condition(memoriasEC, remover_por_numero); //Solo remueven los nodos
-	sem_wait(&mutexMemoriasEC);
+	sem_post(&mutexMemoriasEC);
 	sem_wait(&mutexMemoriasHSC);
 	list_remove_by_condition(memoriasHSC, remover_por_numero);
 	sem_post(&mutexMemoriasHSC);
