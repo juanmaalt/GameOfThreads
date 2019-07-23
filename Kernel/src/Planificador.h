@@ -45,5 +45,7 @@ int new(PCB_DataType tipo, void *data, char *nombreArchivoLQL); //Esta funcion v
 PCB *seleccionar_siguiente();
 void desalojar(PCB *pcb);
 void simular_retardo(void);
+void *describe_automatico(void *null);
+void ejecutar_journal(void *memoria);
 
 #endif /* PLANIFICADOR_H_ */

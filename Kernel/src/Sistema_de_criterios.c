@@ -126,6 +126,7 @@ int asociar_memoria(char *numeroMemoria, char *consistencia){
 		if(!memoria_esta_en_la_lista(memoriasHSC, memoria->numero)){
 			memoria->Metrics.SHC.estaAsociada = true;
 			list_add(memoriasHSC, memoria);
+			list_iterate(memoriasHSC, ejecutar_journal);
 			sem_post(&mutexMemoriasHSC);
 		}else{
 			log_info(logger_visible, "Sistema_de_criterios.c: add_memory: la memoria ya esta asignada al criterio");

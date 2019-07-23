@@ -14,7 +14,6 @@ static INTERNAL_STATE procesar_retorno_operacion(Operacion op, PCB *pcb, char *i
 static DynamicAddressingRequest direccionar_request(char *request);
 static socket_t comunicarse_con_memoria();
 static socket_t comunicarse_con_memoria_principal();
-static void ejecutar_journal(void *memoria);
 static void generar_estadisticas(DynamicAddressingRequest *link);
 
 
@@ -136,7 +135,9 @@ static socket_t comunicarse_con_memoria(Memoria *memoria){
 }
 
 
-
+int solicitar_socket(Memoria *memoria){ //Si la cpu lo permite
+	return comunicarse_con_memoria(memoria);
+}
 
 
 static socket_t comunicarse_con_memoria_principal(){
@@ -280,20 +281,6 @@ static INTERNAL_STATE exec_file_lql(PCB *pcb){
 	sem_post(&scriptEnReady); //Ya que se metio a la lista de vuelta
 	simular_retardo();
 	return DESALOJO;
-}
-
-
-
-
-
-static void ejecutar_journal(void *memoria){
-	Memoria *mem = (Memoria*)memoria;
-	Operacion op;
-	op.TipoDeMensaje = COMANDO;
-	op.Argumentos.COMANDO.comandoParseable = string_from_format("JOURNAL");
-	int socket = comunicarse_con_memoria(mem);
-	send_msg(socket, op);
-	destruir_operacion(op);
 }
 
 
@@ -446,19 +433,3 @@ static void generar_estadisticas(DynamicAddressingRequest *link){
 
 
 
-void *describe_automatico(void *null){
-	for(;;){
-		usleep(vconfig.refreshMetadata*1000);
-		Memoria *memoria = elegir_cualquiera();
-		if(memoria == NULL) continue;
-		int socketMemoria = comunicarse_con_memoria(memoria);
-		Operacion operacion;
-		operacion.TipoDeMensaje = COMANDO;
-		operacion.Argumentos.COMANDO.comandoParseable = string_from_format("DESCRIBE");
-		send_msg(socketMemoria, operacion);
-		destruir_operacion(operacion);
-		operacion = recv_msg(socketMemoria);
-		destruir_operacion(operacion); //No hago nada
-	}
-	return NULL;
-}

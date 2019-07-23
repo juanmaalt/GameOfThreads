@@ -64,6 +64,6 @@ typedef struct{
 
 //FUNCIONES: Publicas
 void *exec(void *null);
-void *describe_automatico(void *null);
+int solicitar_socket(Memoria *memoria);
 
 #endif /* UNIDAD_DE_EJECUCION_H_ */

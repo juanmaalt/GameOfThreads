@@ -15,9 +15,6 @@ static int configuracion_inicial();
 static int iniciar_consola();
 static t_log* iniciar_logger(char *fileName, bool visibilidad, t_log_level level);
 static int inicializar_configs();
-static int extraer_quantum_config();
-static int extraer_refresMetadata_config();
-static int extraer_retardo_config();
 static void finalizar_todos_los_hilos();
 static void rutinas_de_finalizacion();
 static void *inotify_service(void *null);
@@ -112,33 +109,46 @@ static int inicializar_configs() {
 		RETURN_ERROR("Kernel.c: extraer_data_config: no se encontro el archivo 'Kernel.config'. Deberia estar junto al ejecutable");
 
 	//Config_datos_fijos
-	fconfig.ip_memoria_principal = malloc(sizeof(char) * strlen(config_get_string_value(configFile, "IP_MEMORIA"))+1);
-	strcpy(fconfig.ip_memoria_principal, config_get_string_value(configFile, "IP_MEMORIA"));
 
-	fconfig.puerto_memoria_principal = malloc(sizeof(char) * strlen(config_get_string_value(configFile, "PUERTO_MEMORIA"))+1);
-	strcpy(fconfig.puerto_memoria_principal, config_get_string_value(configFile, "PUERTO_MEMORIA"));
+	if(config_get_string_value(configFile, "IP_MEMORIA") == NULL)
+		RETURN_ERROR("Kernel.c: inicializar_configs: error en la extraccion del parametro IP_MEMORIA");
+	fconfig.ip_memoria_principal = string_from_format(config_get_string_value(configFile, "IP_MEMORIA"));
 
+	if(config_get_string_value(configFile, "PUERTO_MEMORIA") == NULL)
+		RETURN_ERROR("Kernel.c: inicializar_configs: error en la extraccion del parametro PUERTO_MEMORIA")
+	fconfig.puerto_memoria_principal = string_from_format(config_get_string_value(configFile, "PUERTO_MEMORIA"));
+
+	if(config_get_string_value(configFile, "MULTIPROCESAMIENTO") == NULL)
+		RETURN_ERROR("Kernel.c: inicializar_configs: error en la extraccion del parametro MULTIPROCESAMIENTO");
+	if(!esNumerica(config_get_string_value(configFile, "MULTIPROCESAMIENTO")))
+		RETURN_ERROR("Kernel.c: inicializar_configs: el parametro MULTIPROCESAMIENTO debe ser numerico")
 	fconfig.multiprocesamiento = config_get_int_value(configFile, "MULTIPROCESAMIENTO");
 
-	config_destroy(configFile);
+
 
 	//Config_datos_variables
-	refrescar_vconfig();
+	if(config_get_string_value(configFile, "QUANTUM") == NULL)
+		RETURN_ERROR("Kernel.c: inicializar_configs: error en la extraccion del parametro QUANTUM")
+	if(!esNumerica(config_get_string_value(configFile, "QUANTUM")))
+		RETURN_ERROR("Kernel.c: inicializar_configs: el parametro QUANTUM debe ser numerico")
+	vconfig.quantum = config_get_int_value(configFile, "QUANTUM");
+
+	if(config_get_string_value(configFile, "REFRESH_METADATA") == NULL)
+		RETURN_ERROR("Kernel.c: inicializar_configs: error en la extraccion del parametro REFRESH_METADATA")
+	if(!esNumerica(config_get_string_value(configFile, "REFRESH_METADATA")))
+		RETURN_ERROR("Kernel.c: inicializar_configs: el parametro REFRESH_METADATA debe ser numerico")
+	vconfig.refreshMetadata = config_get_int_value(configFile, "REFRESH_METADATA");
+
+	if(config_get_string_value(configFile, "SLEEP_EJECUCION") == NULL)
+		RETURN_ERROR("Kernel.c: inicializar_configs: error en la extraccion del parametro SLEEP_EJECUCION")
+	if(!esNumerica(config_get_string_value(configFile, "SLEEP_EJECUCION")))
+		RETURN_ERROR("Kernel.c: inicializar_configs: el parametro SLEEP_EJECUCION debe ser numerico")
+	vconfig.retardo = config_get_int_value(configFile, "SLEEP_EJECUCION");
+
 	if(pthread_create(&inotify, NULL, inotify_service, NULL))
 		RETURN_ERROR("Kernel.c: inicializar_configs: no se pudo iniciar inotify");
 
-	/*vconfig.quantum = extraer_quantum_config;
-	vconfig.refreshMetadata = extraer_refresMetadata_config;
-	vconfig.retardo = extraer_retardo_config;
-
-	if(fconfig.multiprocesamiento <= 0){
-		log_error(logger_error, "Kernel.c: extraer_data_config: (Warning) el multiprocesamiento con valores menores o iguales a 0 genera comportamiento indefinido");
-		log_error(logger_error, "Kernel.c: extraer_data_config: (Warning) el multiprocesamiento con valores menores o iguales a 0 genera comportamiento indefinido");
-	}
-	if(vconfig.quantum() <= 0){
-		log_error(logger_error, "Kernel.c: extraer_data_config: (Warning) el quantum con valores menores o iguales a 0 genera comportamiento indefinido");
-	log_error(logger_error, "Kernel.c: extraer_data_config: (Warning) el quantum con valores menores o iguales a 0 genera comportamiento indefinido");
-	}*/
+	config_destroy(configFile);
 	return EXIT_SUCCESS;
 }
 
@@ -146,33 +156,20 @@ static int inicializar_configs() {
 
 
 
-static int extraer_quantum_config(){
-	t_config *tmpConfigFile = config_create(STANDARD_PATH_KERNEL_CONFIG); //Muhcho overhead pero no encontre otra forma, ya que el config una vez que esta abierto, no recibe las modificaciones en tiempo real. Hay que abrirlo y cerrarlo cada vez
-	int res = config_get_int_value(tmpConfigFile, "QUANTUM");
-	config_destroy(tmpConfigFile);
-	return res;
-}
-static int extraer_refresMetadata_config(){
-	t_config *tmpConfigFile = config_create(STANDARD_PATH_KERNEL_CONFIG);
-	int res = config_get_int_value(tmpConfigFile, "REFRESH_METADATA");
-	config_destroy(tmpConfigFile);
-	return res;
-}
-static int extraer_retardo_config(){
-	t_config *tmpConfigFile = config_create(STANDARD_PATH_KERNEL_CONFIG);
-	int res = config_get_int_value(tmpConfigFile, "SLEEP_EJECUCION");
-	config_destroy(tmpConfigFile);
-	return res;
-}
-
-
 static void refrescar_vconfig(){
 	t_config *tmpConfigFile = config_create(STANDARD_PATH_KERNEL_CONFIG);
+	if(tmpConfigFile == NULL){
+		log_error(logger_visible, "inotify_service: refrescar_vconfig: el archivo de configuracion no se encontro");
+		log_error(logger_invisible, "inotify_service: refrescar_vconfig: el archivo de configuracion no se encontro");
+	}
 	vconfig.quantum = config_get_int_value(tmpConfigFile, "QUANTUM");
 	vconfig.refreshMetadata = config_get_int_value(tmpConfigFile, "REFRESH_METADATA");
 	vconfig.retardo = config_get_int_value(tmpConfigFile, "SLEEP_EJECUCION");
 	config_destroy(tmpConfigFile);
 }
+
+
+
 
 
 void mostrar_por_pantalla_config(){
@@ -215,13 +212,13 @@ static void *inotify_service(void *null){
 	void *service(){
 		int fd = inotify_init();
 		if(fd<0){
-			printf(RED"Fallo el fd para inotify\n"STD);
+			printf(RED"Kernel.c: inotify_service: fallo el fd para inotify\n"STD);
 			return NULL;
 		}
 
 		int watch = inotify_add_watch(fd, STANDARD_PATH_KERNEL_CONFIG, IN_MODIFY | IN_DELETE);
 		if(watch<0){
-			printf(RED"Fallo en el add watch para inotify\n"STD);
+			printf(RED"Kernel.c: inotify_service: fallo en el add watch para inotify\n"STD);
 			return NULL;
 		}
 		char buf[BUF_LEN];
@@ -231,6 +228,9 @@ static void *inotify_service(void *null){
 			struct inotify_event *event;
 			event = (struct inotify_event *) &buf[i];
 			refrescar_vconfig();
+			log_info(logger_visible, GRN"El archivo de configuracion ha cambiado"STD);
+			log_info(logger_invisible, "El archivo de configuracion ha cambiado");
+			mostrar_por_pantalla_config();
 			//printf("wd=%d mask=%u cookie=%u len=%u\n", event->wd, event->mask, event->cookie, event->len);
 			i += EVENT_SIZE + event->len;
 		}
@@ -240,7 +240,7 @@ static void *inotify_service(void *null){
 	for(;;)
 		service();
 
-	printf(YEL"Inotify finalizo\n"STD);
+	printf(YEL"Kernel.c: inotify_service: inotify finalizo. Ya no se podra tener un seguimiento del archivo de configuracion.\n"STD);
 	return NULL;
 }
 

@@ -74,11 +74,52 @@ static int iniciar_unidades_de_ejecucion(){
 }
 
 
+
+
+
 static int iniciar_describe_automatico(){
 	if((describeAutomatico = pthread_create(&describeAutomatico, NULL, describe_automatico, NULL)) != 0)
 		RETURN_ERROR("Error al crear hilo de describe automatico");
 	return EXIT_SUCCESS;
 }
+
+
+
+
+
+void *describe_automatico(void *null){
+	for(;;){
+		usleep(vconfig.refreshMetadata*1000);
+		Memoria *memoria = elegir_cualquiera();
+		if(memoria == NULL) continue;
+		int socketMemoria = solicitar_socket(memoria);
+		Operacion operacion;
+		operacion.TipoDeMensaje = COMANDO;
+		operacion.Argumentos.COMANDO.comandoParseable = string_from_format("DESCRIBE");
+		send_msg(socketMemoria, operacion);
+		destruir_operacion(operacion);
+		operacion = recv_msg(socketMemoria);
+		destruir_operacion(operacion); //No hago nada
+	}
+	return NULL;
+}
+
+
+
+
+
+void ejecutar_journal(void *memoria){
+	Memoria *mem = (Memoria*)memoria;
+	Operacion op;
+	op.TipoDeMensaje = COMANDO;
+	op.Argumentos.COMANDO.comandoParseable = string_from_format("JOURNAL");
+	int socket = solicitar_socket(mem);
+	send_msg(socket, op);
+	destruir_operacion(op);
+}
+
+
+
 
 
 PCB *seleccionar_siguiente(){
