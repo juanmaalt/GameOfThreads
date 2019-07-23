@@ -59,6 +59,8 @@ void* compactar(void* nombreTabla){
 				continue; //Salteo y elijo al sgte archivo
 			}
 			free(pathArchivoTMPC);
+
+			printf("particiones: %d\n", metadata->partitions);
 			if(levantarRegistrosBloques(registrosDeParticiones, nombreTabla, metadata->partitions) == EXIT_FAILURE){
 				continue;
 			}
@@ -216,18 +218,18 @@ static int levantarRegistrosBloques(t_dictionary *registrosDeParticiones, char *
 	if(nombreTabla == NULL)
 		return EXIT_FAILURE;
 
-	for(int i=0; i<particiones; ++i){
-		char* bloquesAsignados = obtenerListaDeBloques(i, nombreTabla);
+	for(int p=0; p<particiones; p++){
+		char* bloquesAsignados = obtenerListaDeBloques(p, nombreTabla);
 
 		if(bloquesAsignados == NULL){
-			printf("La tabla %s no parece tener bloques asignados\n", nombreTabla);
+			printf("La particion %d de la tabla %s no parece tener bloques asignados\n", p, nombreTabla);
 			continue;
 		}
-
 		char** bloques = string_get_string_as_array(bloquesAsignados);
-		char* particionActual= string_from_format("%d", i);
+		char* particionActual= string_from_format("%d", p);
 		char ch;
 		char* linea = string_new();
+		int i=0;
 
 		while(bloques[i]!=NULL){
 			FILE* fBloque;
@@ -243,7 +245,8 @@ static int levantarRegistrosBloques(t_dictionary *registrosDeParticiones, char *
 					Registro *registro = malloc(sizeof(Registro));
 					registro->timestamp = atoll(lineaParsed[0]);
 					registro->key = atoi(lineaParsed[1]);
-					registro->value = string_from_format(lineaParsed[2]); //No liberar ninguno de los dos hasta que se elimite el registro de la lista en el final
+					registro->value = string_substring_until(lineaParsed[2], (strlen(lineaParsed[2])-1)); //No liberar ninguno de los dos hasta que se elimite el registro de la lista en el final
+
 					string_iterate_lines(lineaParsed, (void* )free);
 					free(lineaParsed);
 					free(linea);
@@ -253,16 +256,17 @@ static int levantarRegistrosBloques(t_dictionary *registrosDeParticiones, char *
 						dictionary_put(registrosDeParticiones, particionActual, registros);
 					}
 					agregarRegistro((t_list*)dictionary_get(registrosDeParticiones, particionActual), registro);
-					free(particionActual);
+					linea=string_new();
 				}
-
 				free(nchar);
 			}
-
+			i++;
 		}
+		free(linea);
 		string_iterate_lines(bloques, (void* )free);
 		free(bloques);
 		free(bloquesAsignados);
+		free(particionActual);
 
 	}
 
