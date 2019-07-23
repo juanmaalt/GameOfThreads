@@ -190,12 +190,13 @@ Operacion createAPI(Comando comando){
 	sem_post(&mutexPeticionesPorTabla);
 
 	/*Inicio el proceso de compactación*/
+/*
 	char* nombreTabla = string_from_format(comando.argumentos.CREATE.nombreTabla);
 	if(iniciarCompactacion(nombreTabla) == EXIT_FAILURE){
 		log_error(logger_error,"APILissandra.c: <CREATE> No se pudo iniciar el hilo de compactación");
 		return resultadoCreate;
 	}
-
+*/
 	/*Loggeo el CREATE exitoso y le aviso a la Memoria*/
 	log_info(logger_invisible, "CREATE realizado con éxito.");
 	resultadoCreate.TipoDeMensaje = TEXTO_PLANO;
