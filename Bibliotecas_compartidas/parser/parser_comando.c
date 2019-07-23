@@ -1,6 +1,12 @@
 #include "parser_comando.h"
 
-#define RETURN_ERROR Comando ERROR={ .valido = false }; return ERROR
+#define RETURN_ERROR Comando ERROR={ .valido = false }; \
+									if(auxLine)free(auxLine); \
+									if(ret._raw){ \
+										string_iterate_lines(ret._raw, (void*)free); \
+										free(ret._raw); \
+									} \
+									return ERROR
 
 /*#define _CHECK_CLAVE x if(string_length(x) > 40){\
 						fprintf(stderr, "La clave <%.40s...> es muy larga\n", (x)); \
@@ -16,18 +22,21 @@ void destruir_comando(Comando op){
 }
 
 Comando parsear_comando(char* line){
-	if(line == NULL || string_equals_ignore_case(line, "")){
-		fprintf(stderr, RED"No pude interpretar una linea vacia"STD"\n");
-		RETURN_ERROR;
-	}
+	char* auxLine = NULL; //REVISION: agregado la posible liberacion de auxLine en caso de RETURN_ERROR
+	char **split = NULL; //REVISION agregado la posible liberacion de split en caso de RETURN_ERROR
 
 	Comando ret = {
 		.valido = true
 	};
 
-	char* auxLine = string_duplicate(line);
+	if(line == NULL || string_equals_ignore_case(line, "")){
+		fprintf(stderr, RED"No pude interpretar una linea vacia"STD"\n");
+		RETURN_ERROR;
+	}
+
+	auxLine = string_duplicate(line);
 	string_trim(&auxLine);
-	char** split = string_double_split(auxLine, " ", "\"");
+	split = string_double_split(auxLine, " ", "\"");
 	//char** split = string_n_split(auxLine, 5, " ");
 
 	char* keyword = split[0];
@@ -379,7 +388,7 @@ char **string_double_split(char *cadena, char *firstSeprator, char *secondSepara
 	}
 
 	size++;
-	substrings = realloc(substrings, sizeof(char*) * size);
+	substrings = realloc(substrings, sizeof(char*) * size); //FIXME: error en esta linea cuando se ingresa un comando invalido
 	substrings[size - 1] = NULL;
 
 	free(text_to_iterate);

@@ -230,6 +230,7 @@ void crearArchivosBinarios(char* path, int particiones){
 		free(text);
 		free(pathFinal);
 		free(filename);
+		free(bloque); //REVISION free de bloque
 		fclose(binario);
 	}
 }
