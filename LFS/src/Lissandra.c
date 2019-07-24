@@ -247,7 +247,7 @@ Operacion ejecutarOperacion(char* input) {
 		case SELECT:
 			sem_wait(&mutexPeticionesPorTabla);
 			bufferTabla=parsed->argumentos.SELECT.nombreTabla;
-			semt = list_find(semaforosPorTabla, buscar);
+			semt = list_find(semaforosPorTabla, buscar); //FIXME si semt es null, no deberiamos hacer getvalue
 			sem_getvalue(&semt->semaforo, &valorSemaforo);
 			sem_post(&mutexPeticionesPorTabla);
 
