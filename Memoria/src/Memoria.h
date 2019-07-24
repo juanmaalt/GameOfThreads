@@ -38,6 +38,7 @@
 #include <pthread.h>
 #include <semaphore.h>
 #include <sys/stat.h> //Para mkdir
+#include <sys/inotify.h>
 
 #include "Consola.h"
 #include "API/APIMemoria.h"
@@ -64,10 +65,10 @@ struct Config_datos_fijos{
 typedef struct Config_datos_fijos fConfig;
 
 struct Config_datos_variables{
-	int (*retardoMemoria)();
-	int (*retardoFS)();
-	int (*retardoJOURNAL)();
-	int (*retardoGossiping)();
+	int retardoMemoria;
+	int retardoFS;
+	int retardoJOURNAL;
+	int retardoGossiping;
 }; //Se actualizan en tiempo de ejecucion
 
 typedef struct Config_datos_variables vConfig;
@@ -87,12 +88,6 @@ int inicializar_configs();
 
 void extraer_data_fija_config(void);
 void mostrar_por_pantalla_config();
-
-
-int extraer_retardo_memoria();
-int extraer_retardo_FS();
-int extraer_retardo_JOURNAL();
-int extraer_retardo_Gossiping();
 
 //GLOBALES
 
@@ -172,6 +167,7 @@ memoria_principal memoriaPrincipal;
 
 pthread_t idConsola;
 pthread_t idJournal;
+pthread_t inotify;
 
 //TODO: HILO DE GOSSIPING?
 

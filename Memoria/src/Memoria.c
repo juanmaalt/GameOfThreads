@@ -10,6 +10,10 @@
 
 #include "Memoria.h"
 
+static void refrescar_vconfig();
+static void *inotify_service(void *null);
+static void finalizar_todos_los_hilos();
+
 int main(void) {
 	//Se hacen las configuraciones iniciales para log y config
 	if (configuracion_inicial() == EXIT_FAILURE) {
@@ -21,16 +25,17 @@ int main(void) {
 	log_info(logger_invisible, "=============Iniciando Memoria=============");
 	mostrar_por_pantalla_config();
 
-	 if(realizarHandshake()==EXIT_FAILURE){
-		 log_error(logger_error,"Memoria.c: main: no se pudo inicializar la memoria principal");
-		 return EXIT_FAILURE;
-	 }
+	if (realizarHandshake() == EXIT_FAILURE) {
+		log_error(logger_error,
+				"Memoria.c: main: no se pudo inicializar la memoria principal");
+		return EXIT_FAILURE;
+	}
 
 	/*tamanioValue = 4;
 
-	pathLFS = malloc(strlen("/puntoDeMontajeQueMeDaJuanEnElHandshake/") * sizeof(char)+ 1);
-	strcpy(pathLFS, "/puntoDeMontajeQueMeDaJuanEnElHandshake/");
-*/
+	 pathLFS = malloc(strlen("/puntoDeMontajeQueMeDaJuanEnElHandshake/") * sizeof(char)+ 1);
+	 strcpy(pathLFS, "/puntoDeMontajeQueMeDaJuanEnElHandshake/");
+	 */
 	// Inicializar la memoria principal
 	if (inicializar_memoriaPrincipal() == EXIT_FAILURE) {
 		log_error(logger_error,
@@ -39,7 +44,7 @@ int main(void) {
 		return EXIT_FAILURE;
 	}
 
-	log_info(logger_visible,"Memoria Inicializada correctamente");
+	log_info(logger_visible, "Memoria Inicializada correctamente");
 
 	//TODO:GOSSIPING
 	iniciar_gossiping();
@@ -47,11 +52,10 @@ int main(void) {
 	//FUNCIONES PARA TEST DE SELECT TODO: ELIMINAR
 	/*memoriaConUnSegmentoYUnaPagina();
 
-	mostrarContenidoMemoria();
-	mostrarPathSegmentos();
-*/
+	 mostrarContenidoMemoria();
+	 mostrarPathSegmentos();
+	 */
 	//Inicio consola
-
 	if (iniciar_consola() == EXIT_FAILURE) {
 		log_error(logger_error,
 				"Memoria.c: main: no se pudo levantar la consola");
@@ -59,11 +63,11 @@ int main(void) {
 		return EXIT_FAILURE;
 	}
 
-	if(iniciar_Journal() == EXIT_FAILURE){
+	if (iniciar_Journal() == EXIT_FAILURE) {
 		log_error(logger_error,
-						"Memoria.c: main: no se pudo iniciar el hilo journal");
+				"Memoria.c: main: no se pudo iniciar el hilo journal");
 
-				return EXIT_FAILURE;
+		return EXIT_FAILURE;
 	}
 
 	//Habilita el server y queda en modo en listen
@@ -74,30 +78,30 @@ int main(void) {
 		return EXIT_FAILURE;
 	}
 	log_info(logger_invisible, "=============Finalizando Memoria=============");
+	finalizar_todos_los_hilos();
 	liberarRecursos();
+
 }
 
-void *realizarJournal(void* null){
+void *realizarJournal(void* null) {
 	pthread_detach(pthread_self());
-	while(1){
-		usleep(vconfig.retardoJOURNAL() * 1000);
+	while (1) {
+		usleep(vconfig.retardoJOURNAL * 1000);
 
-		log_info(logger_invisible,"Memoria.c: realizarJournal: Inicio Journal automatico");
+		log_info(logger_invisible,
+				"Memoria.c: realizarJournal: Inicio Journal automatico");
 		journalAPI();
 	}
 }
 
-int iniciar_Journal(void){
+int iniciar_Journal(void) {
 	if (pthread_create(&idJournal, NULL, realizarJournal, NULL)) {
-			log_error(logger_error,
-					"Memoria.c: iniciar_consola: fallo el hilo de JOURNAL automatico");
-			return EXIT_FAILURE;
+		log_error(logger_error,
+				"Memoria.c: iniciar_consola: fallo el hilo de JOURNAL automatico");
+		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;
 }
-
-
-
 
 int iniciar_serverMemoria(void) {
 
@@ -106,7 +110,8 @@ int iniciar_serverMemoria(void) {
 	if (memorySocket == EXIT_FAILURE)
 		return EXIT_FAILURE;
 
-	log_info(logger_invisible, "Memoria.c: iniciar_serverMemoria: Servidor encendido, esperando conexiones");
+	log_info(logger_invisible,
+			"Memoria.c: iniciar_serverMemoria: Servidor encendido, esperando conexiones");
 
 	threadConnection(memorySocket, connection_handler);
 
@@ -122,11 +127,12 @@ void *connection_handler(void *nSocket) {
 
 	switch (resultado.TipoDeMensaje) {
 	case COMANDO:
-		log_info(logger_visible,"Request recibido por SOCKET: %s",resultado.Argumentos.COMANDO.comandoParseable);
-		resultado = ejecutarOperacion(resultado.Argumentos.COMANDO.comandoParseable,false);
+		log_info(logger_visible, "Request recibido por SOCKET: %s",
+				resultado.Argumentos.COMANDO.comandoParseable);
+		resultado = ejecutarOperacion(
+				resultado.Argumentos.COMANDO.comandoParseable, false);
 
 		loggearRetorno(resultado, logger_invisible);
-
 
 		send_msg(socket, resultado);
 		break;
@@ -157,20 +163,16 @@ void *connection_handler(void *nSocket) {
 	return NULL;
 }
 
-
-
 int realizarHandshake(void) {
 	lfsSocket = conectarLFS();
 	log_info(logger_visible, "Conectado al LFS. Iniciando Handshake.");
-	if(handshakeLFS(lfsSocket)==EXIT_FAILURE){
+	if (handshakeLFS(lfsSocket) == EXIT_FAILURE) {
 		return EXIT_FAILURE;
 	}
 	//printf("TAMAÑO_VALUE= %d\n", tamanioValue);
 	log_info(logger_visible, "Handshake realizado correctamente");
 	return EXIT_SUCCESS;
 }
-
-
 
 int inicializar_memoriaPrincipal() {
 	//Obtengo tamanio de memoria desde el .config
@@ -229,25 +231,34 @@ int configuracion_inicial() {
 
 	remove("Logs/MemoriaResumen.log"); //Esto define que cada ejecucion, el log se renueva
 
-	logger_visible = iniciar_logger("Logs/MemoriaResumen.log", true, LOG_LEVEL_INFO);
-	if(logger_visible == NULL)
-		RETURN_ERROR("Memoria.c: configuracion_inicial: error en 'logger_visible = iniciar_logger(true);'");
+	logger_visible = iniciar_logger("Logs/MemoriaResumen.log", true,
+			LOG_LEVEL_INFO);
+	if (logger_visible == NULL)
+		RETURN_ERROR(
+				"Memoria.c: configuracion_inicial: error en 'logger_visible = iniciar_logger(true);'");
 
-	logger_invisible = iniciar_logger("Logs/MemoriaTodo.log", false, LOG_LEVEL_INFO);
-	if(logger_invisible == NULL)
-		RETURN_ERROR("Memoria.c: configuracion_inicial: error en 'logger_invisible = iniciar_logger(false);'");
+	logger_invisible = iniciar_logger("Logs/MemoriaTodo.log", false,
+			LOG_LEVEL_INFO);
+	if (logger_invisible == NULL)
+		RETURN_ERROR(
+				"Memoria.c: configuracion_inicial: error en 'logger_invisible = iniciar_logger(false);'");
 
 	remove("Logs/MemoriaErrores.log");
-	logger_error = iniciar_logger("Logs/MemoriaErrores.log", true, LOG_LEVEL_ERROR);
-	if(logger_error == NULL)
-		RETURN_ERROR("Memoria.c: configuracion_inicial: error en 'logger_error = iniciar_logger(true);'");
+	logger_error = iniciar_logger("Logs/MemoriaErrores.log", true,
+			LOG_LEVEL_ERROR);
+	if (logger_error == NULL)
+		RETURN_ERROR(
+				"Memoria.c: configuracion_inicial: error en 'logger_error = iniciar_logger(true);'");
 
 	remove("Logs/MemoriaGossiping.log");
-		logger_gossiping = iniciar_logger("Logs/MemoriaGossiping.log", false, LOG_LEVEL_INFO);
-		if(logger_gossiping == NULL)
-			RETURN_ERROR("Memoria.c: configuracion_inicial: error en 'logger_gossiping = iniciar_logger(false);'");
+	logger_gossiping = iniciar_logger("Logs/MemoriaGossiping.log", false,
+			LOG_LEVEL_INFO);
+	if (logger_gossiping == NULL)
+		RETURN_ERROR(
+				"Memoria.c: configuracion_inicial: error en 'logger_gossiping = iniciar_logger(false);'");
 	if (inicializar_configs() == EXIT_FAILURE)
-		RETURN_ERROR("Memoria.c: configuracion_inicial: error en la extraccion de datos del archivo de configuracion");
+		RETURN_ERROR(
+				"Memoria.c: configuracion_inicial: error en la extraccion de datos del archivo de configuracion");
 
 	return EXIT_SUCCESS;
 }
@@ -265,17 +276,49 @@ int inicializar_configs() {
 	extraer_data_fija_config();
 
 	//Config_datos_variables
-	vconfig.retardoMemoria = extraer_retardo_memoria;
-	vconfig.retardoFS = extraer_retardo_FS;
-	vconfig.retardoJOURNAL = extraer_retardo_JOURNAL;
-	vconfig.retardoGossiping = extraer_retardo_Gossiping;
-	/*
-	 if(vconfig.quantum() <= 0)
-	 log_error(logger_error, "Kernel.c: extraer_data_config: (Warning) el quantum con valores menores o iguales a 0 genera comportamiento indefinido");
-	 */
-	//TODO: Si yo hago un get de un valor que en el config no existe, va a tirar core dump. Arreglar eso.
-	//La inversa no pasa nada, o sea , si agrego cosas al config y no les hago get aca no pasa nada
-	//TODO: hacer que algunas se ajusten en tiempo real
+	//Retardo Memoria
+	if (config_get_string_value(configFile, "RETARDO_MEM") == NULL)
+		RETURN_ERROR(
+				"Memoria.c: inicializar_configs: error en la extraccion del parametro RETARDO_MEM")
+	if (!esNumerica(config_get_string_value(configFile, "RETARDO_MEM")))
+		RETURN_ERROR(
+				"Memoria.c: inicializar_configs: el parametro RETARDO_MEM debe ser numerico")
+	vconfig.retardoMemoria = config_get_int_value(configFile, "RETARDO_MEM");
+
+	//Retardo FS
+	if (config_get_string_value(configFile, "RETARDO_FS") == NULL)
+		RETURN_ERROR(
+				"Memoria.c: inicializar_configs: error en la extraccion del parametro RETARDO_FS")
+	if (!esNumerica(config_get_string_value(configFile, "RETARDO_FS")))
+		RETURN_ERROR(
+				"Memoria.c: inicializar_configs: el parametro RETARDO_FS debe ser numerico")
+	vconfig.retardoFS = config_get_int_value(configFile, "RETARDO_FS");
+
+	//Retardo JOURNAL
+	if (config_get_string_value(configFile, "RETARDO_JOURNAL") == NULL)
+		RETURN_ERROR(
+				"Memoria.c: inicializar_configs: error en la extraccion del parametro RETARDO_JOURNAL")
+	if (!esNumerica(config_get_string_value(configFile, "RETARDO_JOURNAL")))
+		RETURN_ERROR(
+				"Memoria.c: inicializar_configs: el parametro RETARDO_JOURNAL debe ser numerico")
+	vconfig.retardoJOURNAL = config_get_int_value(configFile,
+			"RETARDO_JOURNAL");
+
+	//Retardo GOSSIPING
+	if (config_get_string_value(configFile, "RETARDO_GOSSIPING") == NULL)
+		RETURN_ERROR(
+				"Memoria.c: inicializar_configs: error en la extraccion del parametro RETARDO_GOSSIPING")
+	if (!esNumerica(config_get_string_value(configFile, "RETARDO_GOSSIPING")))
+		RETURN_ERROR(
+				"Memoria.c: inicializar_configs: el parametro RETARDO_GOSSIPING debe ser numerico")
+	vconfig.retardoGossiping = config_get_int_value(configFile,
+			"RETARDO_GOSSIPING");
+
+
+	if (pthread_create(&inotify, NULL, inotify_service, NULL))
+		RETURN_ERROR(
+				"Memoria.c: inicializar_configs: no se pudo iniciar inotify");
+
 	return EXIT_SUCCESS;
 }
 
@@ -286,27 +329,28 @@ t_log* iniciar_logger(char* fileName, bool visibilidad, t_log_level level) {
 void loggearRetorno(Operacion retorno, t_log * logger) {
 	switch (retorno.TipoDeMensaje) {
 	case REGISTRO:
-		log_info(logger,"Timestamp: %llu  Key:%d  Value: %s\n",
+		log_info(logger, "Timestamp: %llu  Key:%d  Value: %s\n",
 				retorno.Argumentos.REGISTRO.timestamp,
 				retorno.Argumentos.REGISTRO.key,
 				retorno.Argumentos.REGISTRO.value);
 		return;
 	case TEXTO_PLANO:
-		log_info(logger,"Resultado: %s\n",retorno.Argumentos.TEXTO_PLANO.texto);
+		log_info(logger, "Resultado: %s\n",
+				retorno.Argumentos.TEXTO_PLANO.texto);
 		return;
 	case ERROR:
-		log_error(logger_error,"%s \n",retorno.Argumentos.ERROR.mensajeError);
+		log_error(logger_error, "%s \n", retorno.Argumentos.ERROR.mensajeError);
 		return;
 	case ERROR_JOURNAL:
-		log_error(logger_error,"La request no se proceso. Realizando Journal");
+		log_error(logger_error, "La request no se proceso. Realizando Journal");
 		return;
 	case ERROR_MEMORIAFULL:
-		log_error(logger_error,"MEMORIA FULL, REALIZAR JOURNAL");
+		log_error(logger_error, "MEMORIA FULL, REALIZAR JOURNAL");
 		return;
 	case COMANDO:
 		return;
 	default:
-		log_error(logger,"No cumple con el tipo de mensaje esperado");
+		log_error(logger, "No cumple con el tipo de mensaje esperado");
 		return;
 	}
 }
@@ -324,32 +368,6 @@ void extraer_data_fija_config() {
 			"MEMORY_NUMBER");
 }
 
-int extraer_retardo_memoria() {
-	t_config *tmpConfigFile = config_create(STANDARD_PATH_MEMORIA_CONFIG);
-	int res = config_get_int_value(tmpConfigFile, "RETARDO_MEM");
-	config_destroy(tmpConfigFile);
-	return res;
-}
-
-int extraer_retardo_FS() {
-	t_config *tmpConfigFile = config_create(STANDARD_PATH_MEMORIA_CONFIG);
-	int res = config_get_int_value(tmpConfigFile, "RETARDO_FS");
-	config_destroy(tmpConfigFile);
-	return res;
-}
-int extraer_retardo_JOURNAL() {
-	t_config *tmpConfigFile = config_create(STANDARD_PATH_MEMORIA_CONFIG);
-	int res = config_get_int_value(tmpConfigFile, "RETARDO_JOURNAL");
-	config_destroy(tmpConfigFile);
-	return res;
-}
-int extraer_retardo_Gossiping() {
-	t_config *tmpConfigFile = config_create(STANDARD_PATH_MEMORIA_CONFIG);
-	int res = config_get_int_value(tmpConfigFile, "RETARDO_GOSSIPING");
-	config_destroy(tmpConfigFile);
-	return res;
-}
-
 void mostrar_por_pantalla_config() {
 	log_info(logger_visible, BLU"IP=%s", fconfig.ip);
 	log_info(logger_visible, BLU"PUERTO=%s", fconfig.puerto);
@@ -357,12 +375,12 @@ void mostrar_por_pantalla_config() {
 	log_info(logger_visible, BLU"PUERTO_FS=%s", fconfig.puerto_fileSystem);
 	log_info(logger_visible, BLU"IP_SEEDS=%s", fconfig.ip_seeds);
 	log_info(logger_visible, BLU"PUERTO_SEEDS=%s", fconfig.puerto_seeds);
-	log_info(logger_visible, BLU"RETARDO_MEM=%d", vconfig.retardoMemoria());
-	log_info(logger_visible, BLU"RETARDO_FS=%d", vconfig.retardoFS());
+	log_info(logger_visible, BLU"RETARDO_MEM=%d", vconfig.retardoMemoria);
+	log_info(logger_visible, BLU"RETARDO_FS=%d", vconfig.retardoFS);
 	log_info(logger_visible, BLU"TAM_MEM=%s", fconfig.tamanio_memoria);
-	log_info(logger_visible, BLU"RETARDO_JOURNAL=%d", vconfig.retardoJOURNAL());
+	log_info(logger_visible, BLU"RETARDO_JOURNAL=%d", vconfig.retardoJOURNAL);
 	log_info(logger_visible, BLU"RETARDO_GOSSIPING=%d",
-			vconfig.retardoGossiping());
+			vconfig.retardoGossiping);
 	log_info(logger_visible, BLU"MEMORY_NUMBER=%s", fconfig.numero_memoria);
 
 	log_info(logger_invisible, "IP=%s", fconfig.ip);
@@ -371,40 +389,80 @@ void mostrar_por_pantalla_config() {
 	log_info(logger_invisible, "PUERTO_FS=%s", fconfig.puerto_fileSystem);
 	log_info(logger_invisible, "IP_SEEDS=%s", fconfig.ip_seeds);
 	log_info(logger_invisible, "PUERTO_SEEDS=%s", fconfig.puerto_seeds);
-	log_info(logger_invisible, "RETARDO_MEM=%d", vconfig.retardoMemoria());
-	log_info(logger_invisible, "RETARDO_FS=%d", vconfig.retardoFS());
+	log_info(logger_invisible, "RETARDO_MEM=%d", vconfig.retardoMemoria);
+	log_info(logger_invisible, "RETARDO_FS=%d", vconfig.retardoFS);
 	log_info(logger_invisible, "TAM_MEM=%s", fconfig.tamanio_memoria);
-	log_info(logger_invisible, "RETARDO_JOURNAL=%d", vconfig.retardoJOURNAL());
+	log_info(logger_invisible, "RETARDO_JOURNAL=%d", vconfig.retardoJOURNAL);
 	log_info(logger_invisible, "RETARDO_GOSSIPING=%d",
-			vconfig.retardoGossiping());
+			vconfig.retardoGossiping);
 	log_info(logger_invisible, "MEMORY_NUMBER=%s", fconfig.numero_memoria);
 }
 
-//TODO: FUNCION A ELIMINAR >>> USADA PARA TEST
+static void refrescar_vconfig() {
+	t_config *tmpConfigFile = config_create(STANDARD_PATH_MEMORIA_CONFIG);
+	if (tmpConfigFile == NULL) {
+		log_error(logger_visible,
+				"inotify_service: refrescar_vconfig: el archivo de configuracion no se encontro");
+		log_error(logger_invisible,
+				"inotify_service: refrescar_vconfig: el archivo de configuracion no se encontro");
+	}
 
-void memoriaConUnSegmentoYUnaPagina(void) { //TODO: se podrian usar las de manejo de memoria...
-
-	//Crear un segmento
-	segmento_t* segmentoEjemplo = malloc(sizeof(segmento_t));
-
-	//Asignar path determinado
-	asignarPathASegmento(segmentoEjemplo, "tablaEjemplo");
-
-	//Crear su tabla de paginas
-	segmentoEjemplo->tablaPaginas = malloc(sizeof(tabla_de_paginas_t));
-	segmentoEjemplo->tablaPaginas->registrosPag = list_create();
-
-	//Insertar pagina Ejemplo en Memoria Principal
-	int indiceMarcoEjemplo = colocarPaginaEnMemoria(getCurrentTime(), 1, "Car");
-
-	//Crear registro de pagina en la tabla
-
-	crearRegistroEnTabla(segmentoEjemplo->tablaPaginas, indiceMarcoEjemplo, false);
-
-	//Agregar segmento Ejemplo a tabla de segmentos
-	//pthread_mutex_lock(&mutexTablaSegmentos);
-	//pthread_mutex_unlock(&mutexTablaSegmentos);
-	list_add(tablaSegmentos.listaSegmentos, (segmento_t*) segmentoEjemplo);
-
+	vconfig.retardoMemoria = config_get_int_value(tmpConfigFile, "RETARDO_MEM");
+	vconfig.retardoFS = config_get_int_value(tmpConfigFile, "RETARDO_FS");
+	vconfig.retardoJOURNAL = config_get_int_value(tmpConfigFile,
+			"RETARDO_JOURNAL");
+	vconfig.retardoGossiping = config_get_int_value(tmpConfigFile,
+			"RETARDO_GOSSIPING");
+	config_destroy(tmpConfigFile);
 }
 
+#define EVENT_SIZE (sizeof (struct inotify_event))
+#define BUF_LEN (1024 * (EVENT_SIZE + 16))
+static void *inotify_service(void *null) {
+	void *service() {
+		int fd = inotify_init();
+		if (fd < 0) {
+			printf(
+			RED"Memoria.c: inotify_service: fallo el fd para inotify\n"STD);
+			return NULL;
+		}
+
+		int watch = inotify_add_watch(fd, STANDARD_PATH_MEMORIA_CONFIG,
+		IN_MODIFY | IN_DELETE);
+		if (watch < 0) {
+			printf(
+					RED"Memoria.c: inotify_service: fallo en el add watch para inotify\n"STD);
+			return NULL;
+		}
+		char buf[BUF_LEN];
+		int len, i = 0;
+		len = read(fd, buf, BUF_LEN);
+		while (i < len) {
+			struct inotify_event *event;
+			event = (struct inotify_event *) &buf[i];
+			refrescar_vconfig();
+			log_info(logger_visible,
+			GRN"El archivo de configuracion ha cambiado"STD);
+			log_info(logger_invisible,
+					"El archivo de configuracion ha cambiado");
+			mostrar_por_pantalla_config();
+			//printf("wd=%d mask=%u cookie=%u len=%u\n", event->wd, event->mask, event->cookie, event->len);
+			i += EVENT_SIZE + event->len;
+		}
+		return NULL;
+	}
+
+	for (;;)
+		service();
+
+	printf(
+			YEL"Memoria.c: inotify_service: inotify finalizo. Ya no se podra tener un seguimiento del archivo de configuracion.\n"STD);
+	return NULL;
+}
+
+static void finalizar_todos_los_hilos(){
+	pthread_cancel(idConsola);
+	pthread_cancel(idJournal);
+	pthread_cancel(inotify);
+
+}

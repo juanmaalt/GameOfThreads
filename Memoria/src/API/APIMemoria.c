@@ -14,6 +14,7 @@ void loggearMemoria(void){
 		void muestroRegistro(void* registro){
 
 			void mostrarRetorno(Operacion retorno) {
+							log_info(logger_invisible,"     REGISTRO: ");
 							log_info(logger_invisible,"		Timestamp: %llu\t|\tKey:%d\t|\tValue: %s",
 												retorno.Argumentos.REGISTRO.timestamp,
 												retorno.Argumentos.REGISTRO.key,
@@ -21,10 +22,12 @@ void loggearMemoria(void){
 										return;
 
 						}
-							log_info(logger_invisible,"		Nro Pagina: %d",((registroTablaPag_t *) registro)->nroPagina);
+							log_info(logger_invisible,"	  Nro Pagina: %d",((registroTablaPag_t *) registro)->nroPagina);
 							log_info(logger_invisible,"		Ultimo uso: %llu",((registroTablaPag_t *) registro)->ultimoUso);
 							log_info(logger_invisible,"		Flag Modificado: %d",((registroTablaPag_t *) registro)->flagModificado);
-							mostrarRetorno(tomarContenidoPagina(*((registroTablaPag_t *) registro)));
+							Operacion retorno=tomarContenidoPagina(*((registroTablaPag_t *) registro));
+							mostrarRetorno(retorno);
+							free(retorno.Argumentos.REGISTRO.value);
 
 					}
 
@@ -33,9 +36,15 @@ void loggearMemoria(void){
 
 	}
 	log_info(logger_invisible,"========================Estado de la Memoria========================");
-	list_iterate(tablaSegmentos.listaSegmentos, mostrarRegistros);
-}
+	if(list_is_empty(tablaSegmentos.listaSegmentos))
 
+		log_info(logger_invisible,"MEMORIA VACIA");
+	else{
+		pthread_mutex_lock(&mutexTablaSegmentos);
+		list_iterate(tablaSegmentos.listaSegmentos, mostrarRegistros);
+		pthread_mutex_unlock(&mutexTablaSegmentos);
+	}
+}
 Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 	int valueSem;
 
@@ -52,7 +61,7 @@ Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 				retorno.TipoDeMensaje = ERROR_JOURNAL;
 			}else
 				retorno = selectAPI(input, *parsed);
-			//loggearMemoria();
+			loggearMemoria();
 			break;
 		case INSERT:
 			sem_getvalue(&journal, &valueSem);
@@ -81,11 +90,11 @@ Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 				retorno.TipoDeMensaje = ERROR_JOURNAL;
 			}else
 				retorno =dropAPI(input, *parsed);
-			//loggearMemoria();
+			loggearMemoria();
 			break;
 		case JOURNAL:
 			retorno = journalAPI();
-			//loggearMemoria();
+			loggearMemoria();
 			break;
 		default:
 
@@ -259,7 +268,7 @@ Operacion insertAPI(char* input, Comando comando) {
 				resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format(
 									"Insert realizado con exito");
 
-				log_info(logger_invisible,"APIMemoria.c: insertAPI: Se realizo el Insert, se pide pidio pagina");
+				log_info(logger_invisible,"APIMemoria.c: insertAPI: Se realizo el Insert, se pidio pagina");
 				return resultadoInsert;
 			}
 
@@ -278,7 +287,7 @@ Operacion insertAPI(char* input, Comando comando) {
 		if(crearSegmentoInsertandoRegistro(comando.argumentos.INSERT.nombreTabla, comando.argumentos.INSERT.value, getCurrentTime(), keyBuscada, true) == EXIT_SUCCESS){
 			resultadoInsert.TipoDeMensaje = TEXTO_PLANO;
 			resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format(
-					"INSERT REALIZADO CON EXITO");
+					"Insert realizado con exito");
 
 			return resultadoInsert;
 		}
@@ -443,9 +452,13 @@ Operacion journalAPI(){
 				//INSERT <NombreTabla> <KEY> “<VALUE>” <TIMESTAMP>
 				input=string_from_format("INSERT %s %d \"%s\" %llu",nombreTabla,registroAEnviar.Argumentos.REGISTRO.key,registroAEnviar.Argumentos.REGISTRO.value, registroAEnviar.Argumentos.REGISTRO.timestamp);
 
+				free(registroAEnviar.Argumentos.REGISTRO.value);
+
 				log_info(logger_invisible,"APIMemoria.c: Journaling->Request enviada: %s", input);
 
 				enviarRequestFS(input);
+
+				free(input);
 
 				resultadoJournal=recibirRequestFS();
 
@@ -462,7 +475,6 @@ Operacion journalAPI(){
 				}
 				if(nombreTabla!=NULL)
 					free(nombreTabla);
-				free(input);
 
 				return;
 			}

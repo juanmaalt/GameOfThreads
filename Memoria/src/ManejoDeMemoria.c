@@ -56,7 +56,7 @@ int colocarPaginaEnMemoria(timestamp_t timestamp, uint16_t key, char* value) { /
 	if (queue_is_empty(memoriaPrincipal.marcosLibres)) {	//TODO: PUEDE DESAPARECER o dejar como salvaguarda
 		return ERROR_MEMORIA_FULL;
 	}
-	usleep(vconfig.retardoMemoria() * 1000); //TODO: es correcto?
+	usleep(vconfig.retardoMemoria * 1000); //TODO: es correcto?
 
 	char* valueAux = malloc(sizeof(char)*tamanioValue);
 		strcpy(valueAux,value);
@@ -158,7 +158,7 @@ int insertarPaginaDeSegmento(char* value, uint16_t key, timestamp_t ts, segmento
 
 Operacion tomarContenidoPagina(registroTablaPag_t registro) {
 	//Paso copia del registro ya que solo me interesa el nroMarco, no modifico nada en el registro
-	usleep(vconfig.retardoMemoria() * 1000); //TODO: es correcto?
+	usleep(vconfig.retardoMemoria * 1000); //TODO: es correcto?
 	Operacion resultadoRetorno;
 
 	resultadoRetorno.TipoDeMensaje=REGISTRO;
@@ -191,7 +191,7 @@ Operacion tomarContenidoPagina(registroTablaPag_t registro) {
 }
 
 void actualizarValueDeKey(char *value, registroTablaPag_t *registro){
-	usleep(vconfig.retardoMemoria() * 1000); //TODO: es correcto?
+	usleep(vconfig.retardoMemoria * 1000); //TODO: es correcto?
 
 	pthread_mutex_lock(&mutexMemoria);
 
