@@ -209,6 +209,7 @@ void escribirLinea(char* bloque, char* linea, char* nombreTabla, int particion){
 						return;
 					}
 					bloque=nuevoBloque;
+					free(nuevoBloque);
 					agregarBloqueEnParticion(bloque, nombreTabla, particion);
 					//printf("B> nuevo bloque para la sublinea: %s\n", bloque);
 				}else{linea="";}
@@ -226,6 +227,7 @@ void escribirLinea(char* bloque, char* linea, char* nombreTabla, int particion){
 				return;
 			}
 			bloque=nuevoBloque;
+			free(nuevoBloque);
 			escribirEnBloque(bloque, linea);
 			agregarBloqueEnParticion(bloque, nombreTabla, particion);
 			//printf("C> No hay espacio en bloque y linea menor al espacio: linea escrita: %s\n", linea);
@@ -242,6 +244,7 @@ void escribirLinea(char* bloque, char* linea, char* nombreTabla, int particion){
 				//printf("D> No hay espacio en bloque y linea menor al espacio: linea escrita: %s\n", subLinea);
 				//printf("D> nuevo bloque para la linea: %s\n", bloque);
 				bloque=nuevoBloque;
+				free(nuevoBloque);
 				escribirEnBloque(bloque, subLinea);
 				agregarBloqueEnParticion(bloque, nombreTabla, particion);
 				linea = string_substring_from(linea, metadataFS.blockSize);
