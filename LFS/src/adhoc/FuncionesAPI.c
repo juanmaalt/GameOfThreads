@@ -23,21 +23,18 @@ int recorrer_directorio_haciendo(char *pathDirectorio, void(*closure)(EntradaDir
 
 
 
-bool directory_all_satisfy(char *pathDirectorio, bool(*closure)(EntradaDirectorio *)){
+int directory_iterate_if(char *pathDirectorio, bool (*condicion)(EntradaDirectorio*), void(*closure)(EntradaDirectorio *)){
 	if(pathDirectorio == NULL)
-		return false;
+		return EXIT_FAILURE;
 	DIR *directorio = opendir(pathDirectorio);
 	if(directorio == NULL)
-		return false;
+		return EXIT_FAILURE;
 	EntradaDirectorio *entrada = NULL;
-	while((entrada = readdir(directorio)) != NULL){
-		if(!closure(entrada)){
-			closedir(directorio);
-			return false;
-		}
-	}
+	while((entrada = readdir(directorio)) != NULL)
+		if(condicion(entrada))
+			closure(entrada);
 	closedir(directorio);
-	return true;
+	return EXIT_SUCCESS;
 }
 
 

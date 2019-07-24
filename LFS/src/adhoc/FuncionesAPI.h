@@ -19,7 +19,7 @@ typedef struct dirent EntradaDirectorio;
 
 //NUEVAS
 int directory_iterate(char *pathDirectorio, void(*closure)(EntradaDirectorio *));
-bool directory_all_satisfy(char *pathDirectorio, bool(*closure)(EntradaDirectorio *));
+int directory_iterate_if(char *pathDirectorio, bool (*condicion)(EntradaDirectorio*), void(*closure)(EntradaDirectorio *));
 bool directory_any_satisfy(char *pathDirectorio, bool(*closure)(EntradaDirectorio *));
 
 //COMPLEMENTARIAS
