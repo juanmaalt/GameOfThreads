@@ -15,7 +15,7 @@ int connect_to_server(char * ip, char *port){
 	int result = connect(listenningSocket, serverInfo->ai_addr, serverInfo->ai_addrlen);
 	freeaddrinfo(serverInfo);
 
-	if(result == -1){
+	if(result != 0){
 		close(listenningSocket);
 		//fprintf(stderr, RED"cliente.c: conect_to_server: fallo la conexion con el servidor"STD"\n");
 		return EXIT_FAILURE;
