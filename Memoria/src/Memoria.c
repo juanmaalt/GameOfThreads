@@ -42,7 +42,7 @@ int main(void) {
 	log_info(logger_visible,"Memoria Inicializada correctamente");
 
 	//TODO:GOSSIPING
-	//iniciar_gossiping();
+	iniciar_gossiping();
 
 	//FUNCIONES PARA TEST DE SELECT TODO: ELIMINAR
 	/*memoriaConUnSegmentoYUnaPagina();

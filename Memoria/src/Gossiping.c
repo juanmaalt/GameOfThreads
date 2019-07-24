@@ -11,8 +11,7 @@ int iniciar_gossiping() {
 
 	pthread_mutex_init(&mutexGossiping, NULL);
 
-	char * ip_port_compresed = string_from_format("%s:%s", fconfig.ip,
-			fconfig.puerto);
+
 //	char * ip_port_compresed =
 
 //char * ip_port_compresed = string_from_format("%s:%s", fconfig.ip, fconfig.puerto);
@@ -296,20 +295,21 @@ Operacion recibir_gossiping(Operacion resultado) {
 				memoria->memory_number = atoi(descompresion[i]);
 				memoria->ip = string_from_format(descompresion[i + 1]);
 				memoria->ip_port = string_from_format(descompresion[i + 2]);
+				//printf("PUERTO SOCKET %s:%s\n",descompresion[i + 1], descompresion[i + 2]);
 				int socketNew = connect_to_server(descompresion[i + 1],
 						descompresion[i + 2]);
+				//printf("SOCKET NEW : %d\n",socketNew);
 				if (socketNew == EXIT_FAILURE) {
+					//printf("FALLO SOCKET\n");
 					log_info(logger_gossiping,
 							"GOSSIPING.C:recibir_gossiping: La memoria no esta activa %s:%s",
 							descompresion[i + 1], descompresion[i + 2]);
 					//printf("No activa\n");
 
 					// Debo quitar de la lista esta memoria ya que no esta
-					for (int j = 0; list_size(listaMemoriasConocidas) > j;
-							j++) {
+					for (int j = 0; list_size(listaMemoriasConocidas) > j; j++) {
 						//printf("Entro a filtar para quitar de lista\n");
-						recupero = (knownMemory_t *) list_get(
-								listaMemoriasConocidas, j);
+						recupero = (knownMemory_t *) list_get(listaMemoriasConocidas, j);
 						int cmpIP = strcmp(recupero->ip, descompresion[j + 1]);
 						int cmpIPPORT = strcmp(recupero->ip_port,
 								descompresion[j + 2]);
@@ -327,6 +327,7 @@ Operacion recibir_gossiping(Operacion resultado) {
 
 				} else {
 					list_add(aux, memoria);
+					//printf("AGREGO EN LISTA cierro socket\n %s\n%s\n%s\n",descompresion[i],descompresion[i+1],descompresion[i+2]);
 					close(socketNew);
 					//printf("Cierro Socket\n");
 				}
@@ -366,7 +367,7 @@ Operacion recibir_gossiping(Operacion resultado) {
 	}
 	resultado.TipoDeMensaje = GOSSIPING_REQUEST;
 	resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido = envio;
-	log_info(logger_visible,
+	log_info(logger_gossiping,
 			"GOSSIPING.C:recibir_gossiping: Envio mensaje gossiping %s", envio);
 	pthread_mutex_unlock(&mutexGossiping);
 
