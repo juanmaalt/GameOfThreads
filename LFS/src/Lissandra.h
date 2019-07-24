@@ -68,7 +68,7 @@ typedef struct Config_datos_variables vConfig;
 
 typedef unsigned long long timestamp_t;
 
-typedef struct{
+typedef struct registro_t{
 	timestamp_t timestamp;
 	uint16_t key;
 	char* value;

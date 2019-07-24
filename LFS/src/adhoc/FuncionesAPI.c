@@ -56,7 +56,29 @@ bool directory_any_satisfy(char *pathDirectorio, bool(*closure)(EntradaDirectori
 	return false;
 }
 
+int dump_iterate_registers(char *pathDumpFile, char *mode, void(*closure)(Registro*)){
+	if(pathDumpFile == NULL)
+		return EXIT_FAILURE;
+	if(mode == NULL)
+		mode = "r";
+	FILE *archivo = fopen(pathDumpFile, mode);
+	if(archivo == NULL)
+		return EXIT_FAILURE;
 
+	Registro *registro = malloc(sizeof(Registro));
+	registro->value = malloc(sizeof(char)*(atoi(config.tamanio_value)+1));
+
+	while(fscanf(archivo, "%llu;%hu;%[^\n]", &registro->timestamp, &registro->key, registro->value)!= EOF){
+		registro->value[atoi(config.tamanio_value)] = '\0';
+		closure(registro);
+		registro = malloc(sizeof(Registro));
+		registro->value = malloc(sizeof(char)*(atoi(config.tamanio_value)+1));
+	}
+	free(registro->value);
+	free(registro);
+	fclose(archivo);
+	return EXIT_FAILURE;
+}
 
 /*INICIO FUNCIONES COMPLEMENTARIAS*/
 bool existeTabla(char* nombreTabla){

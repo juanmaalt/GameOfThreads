@@ -235,7 +235,7 @@ Operacion ejecutarOperacion(char* input) {
 	SemaforoTabla *semt=NULL;
 	char *bufferTabla=NULL;
 	bool buscar(void *tablaSemaforo){
-		return !strcmp(bufferTabla, ((SemaforoTabla*) tablaSemaforo)->tabla);
+		return string_equals_ignore_case(bufferTabla, ((SemaforoTabla*) tablaSemaforo)->tabla);
 	}
 
 	log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - Mensaje recibido %s", input);
@@ -248,7 +248,7 @@ Operacion ejecutarOperacion(char* input) {
 			sem_wait(&mutexPeticionesPorTabla);
 			bufferTabla=parsed->argumentos.SELECT.nombreTabla;
 			semt = list_find(semaforosPorTabla, buscar); //FIXME si semt es null, no deberiamos hacer getvalue
-			sem_getvalue(&semt->semaforo, &valorSemaforo);
+			sem_getvalue(&semt->semaforo, &valorSemaforo); //TODO no bloquear el select, solo bloquear la lectura de bloques
 			sem_post(&mutexPeticionesPorTabla);
 
 			if(valorSemaforo >= 1){

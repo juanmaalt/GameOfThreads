@@ -11,13 +11,13 @@
 //key(nro de particion), value(t_list con registros de esa particion (dump y bloque)) //Para saber si um registro partenece a tal particion => resto entre registro y cantidad de particiones de la tabla
 
 static bool seHizoUnDump(char *pathTabla);
-static EntradaDirectorio *hayArchivos(DIR *directorio);
 static Metadata_tabla* levantarMetadataTabla(char *nombreTabla);
 static int levantarRegistrosDump(t_dictionary *lista, char *nombreTabla, char *pathArchivoTMPC, int particionesDeLaTabla);
 static int levantarRegistrosBloques(t_dictionary *lista, char *nombreTabla, int particiones);
 static void agregarRegistro(t_list *lista, Registro *registro);
 static void destruirRegistro(void *reg);
 static void verDiccionarioDebug(t_dictionary *lista);
+static void destruirRegistrosDeParticiones(t_dictionary *diccionario);
 
 
 void* compactar(void* nombreTabla){
@@ -58,6 +58,7 @@ void* compactar(void* nombreTabla){
 			continue;
 		}
 		verDiccionarioDebug(registrosDeParticiones);
+		destruirRegistrosDeParticiones(registrosDeParticiones);
 	}
 
 	return NULL;
@@ -143,92 +144,74 @@ static int levantarRegistrosDump(t_dictionary *registrosDeParticiones, char *nom
 	if(registrosDeParticiones == NULL)
 		return EXIT_FAILURE;
 
-	FILE *archivoTMPC = fopen(pathArchivoTMPC, "r");
-	if(archivoTMPC == NULL)
-		return EXIT_FAILURE;
-
-	timestamp_t *timestamp = malloc(sizeof(timestamp_t));
-	uint16_t *key = malloc(sizeof(uint16_t));
-	char *value = malloc(sizeof(char)*(atoi(config.tamanio_value)+1)); //Va a tirar fragmentacion interna en el valgrind
-
-	while(fscanf(archivoTMPC, "%llu;%hu;%[^\n]", timestamp, key, value)!= EOF){ //%ms significa que reserva espacio automaticamente para el value .%hu es para formatear a uint16_t
-		if(strlen(value) > atoi(config.tamanio_value)){
-			free(value);
-			free(key);
-			free(timestamp);
-			continue; //Lo saltea
-		}
-		value[atoi(config.tamanio_value)] = '\0';
-
-		Registro *registro = malloc(sizeof(Registro));
-		registro->timestamp = *timestamp;
-		registro->key = *key;
-		registro->value = string_from_format(value); //No liberar ninguno de los dos hasta que se elimite el registro de la lista en el final
-
-		int particionAsignada = registro->key % particionesDeLaTabla;
-		char *particionAsignadaString = string_from_format("%d", particionAsignada);
-
-		if(!dictionary_has_key(registrosDeParticiones, particionAsignadaString)){ //El diccionario no tiene entrada en la particion por que en los bloques no hay nada
-			t_list *registros = list_create();
-			list_add(registros, registro);
-			dictionary_put(registrosDeParticiones, particionAsignadaString, registros);
-			free(particionAsignadaString);
-			free(value);
-			free(key);
-			free(timestamp);
-			continue;
-		}
-		t_list *registros = (t_list*)dictionary_get(registrosDeParticiones, particionAsignadaString);
-		bool noEskeyIgual(void *registroBloque){
-			return ((Registro*)registroBloque)->key != registro->key;
-		}
-		bool keyIgual(void *registroBloque){
-			return ((Registro*)registroBloque)->key == registro->key;
-		}
-		if(list_all_satisfy(registros, noEskeyIgual)){
-			list_add(registros, registro);
-			free(particionAsignadaString);
-			free(value);
-			free(key);
-			free(timestamp);
-			continue;
-		}
-		bool sonTimestampViejos(void *registroBloque){
-			if(noEskeyIgual(registroBloque)) //Si las keys son distintas no me interesan y tecnicamente satisfacen
-				return true;
-			if(((Registro*)registroBloque)->timestamp <= registro->timestamp)
-				return true;
-			return false;
-		}
-		if(list_all_satisfy(registros, sonTimestampViejos)){
-			list_remove_and_destroy_by_condition(registros, keyIgual, destruirRegistro);
-			list_add(registros, registro);
-		}
-		free(particionAsignadaString);
-		free(value);
-		free(key);
-		free(timestamp);
-		timestamp = malloc(sizeof(timestamp_t));
-		key = malloc(sizeof(uint16_t));
-		value = malloc(sizeof(char)*(atoi(config.tamanio_value)+1));
+	bool existeLaParticion(char *particion){
+		return dictionary_has_key(registrosDeParticiones, particion);
 	}
-	free(value);
-	free(key);
-	free(timestamp);
-	fclose(archivoTMPC);
+
+	bool estaLaKey(t_list *list, uint16_t key){
+		bool keyIgual(void *registro){
+			return ((Registro*)registro)->key == key;
+		}
+		return list_any_satisfy(list, keyIgual);
+	}
+
+	bool hayQueAgregarlo(Registro *registro, t_list *lista){
+		bool keyIgual(void *elemento){
+			return ((Registro*)elemento)->key == registro->key;
+		}
+		bool sonViejos(void *elemento){
+			return ((Registro*)elemento)->timestamp <= registro->timestamp;
+		}
+		t_list *keysIguales = list_filter(lista, keyIgual);
+		bool retorno = list_all_satisfy(keysIguales, sonViejos);
+		list_destroy(keysIguales);
+		return retorno;
+	}
+
+	void removerKeysIguales(t_list *registrosDeParticion, uint16_t key){
+		bool keyIgual(void *elemento){
+			return ((Registro*)elemento)->key == key;
+		}
+		void destruir(void *elemento){
+			free(((Registro*)elemento)->value);
+			free((Registro*)elemento);
+		}
+		list_remove_and_destroy_by_condition(registrosDeParticion, keyIgual, destruir);
+	}
+
+	void levantarRegistro(Registro *registro){
+		char *particionAsignada = string_from_format("%d", registro->key % particionesDeLaTabla);
+		//Step 1: check partition
+		if(!existeLaParticion(particionAsignada)){
+			t_list *registrosDeParticion = list_create();
+			list_add(registrosDeParticion, registro);
+			dictionary_put(registrosDeParticiones, particionAsignada, registrosDeParticion);
+			free(particionAsignada);
+			return;
+		}
+		//Step 2: if partition exists, check if exists the key in partition
+		t_list *registrosDeParticion = dictionary_get(registrosDeParticiones, particionAsignada);
+		if(!estaLaKey(registrosDeParticion, registro->key)){
+			list_add(registrosDeParticion, registro);
+			free(particionAsignada);
+			return;
+		}
+		//Step 3: if partition exists and has the key, compare and add the newest register
+		if(hayQueAgregarlo(registro, registrosDeParticion)){
+			removerKeysIguales(registrosDeParticion, registro->key);
+			list_add(registrosDeParticion, registro);
+			free(particionAsignada);
+			return;
+		}
+		//No cumplio ninguna condicion => no se uso para nada y ya no lo necesitamos
+		free(registro->value);
+		free(registro);
+		free(particionAsignada);
+	}
+
+	if(dump_iterate_registers(pathArchivoTMPC, "r", levantarRegistro) == EXIT_FAILURE)
+		return EXIT_FAILURE;
 	return EXIT_SUCCESS;
-}
-
-
-
-
-
-static void agregarRegistro(t_list *lista, Registro *registro){
-	if(lista == NULL)
-		return;
-	if(registro == NULL)
-		return;
-	list_add(lista, registro);
 }
 
 
@@ -297,6 +280,18 @@ static int levantarRegistrosBloques(t_dictionary *registrosDeParticiones, char *
 
 
 
+static void agregarRegistro(t_list *lista, Registro *registro){
+	if(lista == NULL)
+		return;
+	if(registro == NULL)
+		return;
+	list_add(lista, registro);
+}
+
+
+
+
+
 static void verDiccionarioDebug(t_dictionary *registrosDeParticiones){
 	void dictionary_element_viewer(char *key, void *data){
 		void list_viewer(void *registro){
@@ -311,10 +306,31 @@ static void verDiccionarioDebug(t_dictionary *registrosDeParticiones){
 }
 
 
+
+
+
+static void destruirRegistrosDeParticiones(t_dictionary *diccionario){
+	void destruirDiccionario(void *lista){
+		void destruirLista(void *registro){
+			free(((Registro*)registro)->value);
+			free((Registro*)registro);
+		}
+		list_destroy_and_destroy_elements((t_list*)lista, destruirLista);
+	}
+	dictionary_destroy_and_destroy_elements(diccionario, destruirDiccionario);
+}
+
+
+
+
+
 static void destruirRegistro(void *reg){
 	free(((Registro*)reg)->value);
 	free(reg);
 }
+
+
+
 
 
 void waitSemaforoTabla(char *tabla){
@@ -324,6 +340,9 @@ void waitSemaforoTabla(char *tabla){
 	void *semt = list_find(semaforosPorTabla, buscar);
 	sem_wait(&(((SemaforoTabla*)semt)->semaforo));
 }
+
+
+
 
 
 void postSemaforoTabla(char *tabla){
