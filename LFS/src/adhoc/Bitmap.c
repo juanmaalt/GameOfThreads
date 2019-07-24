@@ -56,9 +56,10 @@ void leerBitmap(){
 		printf("valor bit= %d\n", valor);
 	}
 */
-	printf("bitarray:%sz\n", bitarray->bitarray);
+	printf("bitarray:%s\n", bitarray->bitarray);
 
 	sem_init(&leyendoBitarray, 0, 1);
+	escribirBitmap();
 
 	close(fileDescriptor);
 	free(path);
@@ -106,8 +107,6 @@ void escribirBitmap(){
 	FILE* bitmap;
 
 	char binario[metadataFS.blocks+1];
-	//int cantSimbolos=((metadataFS.blocks/8)+1);
-	//char* texto = calloc(cantSimbolos, sizeof(char));
 
 	for(int i=0;i<metadataFS.blocks;i++){
 		if(bitarray_test_bit(bitarray, i)!=0){
@@ -115,13 +114,8 @@ void escribirBitmap(){
 		}else{
 			binario[i]='0';
 		}
-		//printf("El char a transformar es: %c\n", binario[i]);
 	}
-	binario[metadataFS.blocks]='\0';
-
-	//printf("El texto a transformar es: %s\n", binario);
-
-	//binarioATexto(binario, texto, cantSimbolos);
+	binario[metadataFS.blocks]='\n';
 
 	bitmap = fopen(pathBitmap,"w");
 	/*
@@ -134,7 +128,7 @@ void escribirBitmap(){
 	//printf("texto: %s\n", texto);
 
 	fclose(bitmap);
-	free(binario);
+	//free(binario);
 	free(pathBitmap);
 }
 
