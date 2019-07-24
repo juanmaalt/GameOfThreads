@@ -18,9 +18,9 @@ typedef struct dirent EntradaDirectorio;
 //Metadata_tabla metadata;
 
 //NUEVAS
-void directory_iterate(char *pathDirectorio, void(*closure)(EntradaDirectorio *));
-bool all_satisfy(char *pathDirectorio, bool(*closure)(EntradaDirectorio *));
-bool any_satisfy(char *pathDirectorio, bool(*closure)(EntradaDirectorio *));
+int directory_iterate(char *pathDirectorio, void(*closure)(EntradaDirectorio *));
+bool directory_all_satisfy(char *pathDirectorio, bool(*closure)(EntradaDirectorio *));
+bool directory_any_satisfy(char *pathDirectorio, bool(*closure)(EntradaDirectorio *));
 
 //COMPLEMENTARIAS
 bool existeTabla(char* key);

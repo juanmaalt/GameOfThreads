@@ -32,47 +32,22 @@ void* compactar(void* nombreTabla){
 	}
 
 	char* pathTabla = string_from_format("%sTables/%s", config.punto_montaje, (char*)nombreTabla);
-	DIR *directorio = opendir(pathTabla);
-	if(directorio == NULL){
+
+	if(NULL){
 		log_error(logger_visible, "Compactador.c: compactar(%s) - Error en el path de la tabla %s, la tabla no se compactará.", (char*)nombreTabla, (char*)nombreTabla);
 		log_error(logger_error, "Compactador.c: compactar(%s) - Error en el path de la tabla %s, la tabla no se compactará.", (char*)nombreTabla, (char*)nombreTabla);
 		return NULL;
 	}
 
-	EntradaDirectorio *entrada = NULL;
-
-	for( ;directorio!=NULL; directorio = opendir(pathTabla)){
+	for(;;){
 		usleep(metadata->compaction_time * 1000);
 		log_info(logger_invisible, "Compactador.c: compactar() - Inicio compactación de %s", pathTabla);
-
 		if(!seHizoUnDump(pathTabla))
-			continue; //Salteo y vuelvo al inicio del for a esperar a la sgte compactacion
-		cambiarNombreFilesTemp(pathTabla);
+			continue;
 
-		while((entrada = hayArchivos(directorio)) != NULL){
-			if(!string_ends_with(entrada->d_name, ".tmpc"))
-				continue; //Salteo y elijo otro archivo
-			char *pathArchivoTMPC = string_from_format("%s/%s", pathTabla, entrada->d_name);
-			if(levantarRegistrosDump(registrosDeParticiones, nombreTabla, pathArchivoTMPC, metadata->partitions) == EXIT_FAILURE){
-				//TODO: Loggear error
-				free(pathArchivoTMPC);
-				continue; //Salteo y elijo al sgte archivo
-			}
-			free(pathArchivoTMPC);
 
-			if(levantarRegistrosBloques(registrosDeParticiones, nombreTabla, metadata->partitions) == EXIT_FAILURE){
-				continue;
-			}
-		}
-		//TODO a partir de aca el diccionario ya esta listo para filtrarse y fueron revisados todos los TMPC
-		closedir(directorio);
-		verDiccionarioDebug(registrosDeParticiones);
 	}
 
-	//TODO: La compactacion de la tabla finalizo por que no se encontro el directorio
-	free(metadata->consistency);
-	free(metadata);
-	free(pathTabla);
 	return NULL;
 
 	/*for(;;){
@@ -121,23 +96,16 @@ void* compactar(void* nombreTabla){
 
 
 static bool seHizoUnDump(char *pathTabla){
-	DIR *dir;
-	struct dirent *entry;
-	char* nombreArchivo;
-
-	if((dir = opendir(pathTabla)) != NULL){
-		while((entry = readdir (dir)) != NULL){
-			nombreArchivo = entry->d_name;
-			if(string_ends_with(nombreArchivo, ".tmp")){
-				closedir(dir);
-				printf("Se hizo al menos un dump en %s\n", pathTabla);
-				return true;
-			}
-		}
-		closedir (dir);
+	bool es_tmp(EntradaDirectorio *entrada){
+		return string_ends_with(entrada->d_name, ".tmp");
+	}
+	bool debug = directory_any_satisfy(pathTabla, es_tmp);
+	if(debug){
+		printf("Se hizo algun dump en %s\n", pathTabla);
+		return debug;
 	}
 	printf("No se hizo ningun dump en %s\n", pathTabla);
-	return false;
+	return debug;
 }
 
 

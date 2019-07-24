@@ -8,21 +8,22 @@
 #include "FuncionesAPI.h"
 
 //INICIO FUNCIONES NUEVAS
-void recorrer_directorio_haciendo(char *pathDirectorio, void(*closure)(EntradaDirectorio *)){
+int recorrer_directorio_haciendo(char *pathDirectorio, void(*closure)(EntradaDirectorio *)){
 	if(pathDirectorio == NULL)
-		return;
+		return EXIT_FAILURE;
 	DIR *directorio = opendir(pathDirectorio);
 	if(directorio == NULL)
-		return;
+		return EXIT_FAILURE;
 	EntradaDirectorio *entrada = NULL;
 	while((entrada = readdir(directorio)) != NULL)
 		closure(entrada);
 	closedir(directorio);
+	return EXIT_SUCCESS;
 }
 
 
 
-bool all_satisfy(char *pathDirectorio, bool(*closure)(EntradaDirectorio *)){
+bool directory_all_satisfy(char *pathDirectorio, bool(*closure)(EntradaDirectorio *)){
 	if(pathDirectorio == NULL)
 		return false;
 	DIR *directorio = opendir(pathDirectorio);
@@ -41,7 +42,7 @@ bool all_satisfy(char *pathDirectorio, bool(*closure)(EntradaDirectorio *)){
 
 
 
-bool any_satisfy(char *pathDirectorio, bool(*closure)(EntradaDirectorio *)){
+bool directory_any_satisfy(char *pathDirectorio, bool(*closure)(EntradaDirectorio *)){
 	if(pathDirectorio == NULL)
 		return false;
 	DIR *directorio = opendir(pathDirectorio);
@@ -54,6 +55,7 @@ bool any_satisfy(char *pathDirectorio, bool(*closure)(EntradaDirectorio *)){
 			return true;
 		}
 	}
+	closedir(directorio);
 	return false;
 }
 
