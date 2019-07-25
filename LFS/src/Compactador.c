@@ -60,8 +60,8 @@ void* compactar(void* nombreTabla){
 			continue;
 		}
 		verDiccionarioDebug(registrosDeParticiones);
-		//escribirDiccionarioEnBloques(registrosDeParticiones, (char*)nombreTabla);
-		//destruirRegistrosDeParticiones(registrosDeParticiones);
+		escribirDiccionarioEnBloques(registrosDeParticiones, (char*)nombreTabla);
+		destruirRegistrosDeParticiones(registrosDeParticiones);
 	}
 
 	return NULL;
@@ -303,11 +303,6 @@ static void verDiccionarioDebug(t_dictionary *registrosDeParticiones){
 		printf("Particion: %s\n", key);
 		list_iterate((t_list*)data, list_viewer);
 		printf("\n");
-		void ver(char *linea){
-			printf("%s (size: %d)\n", linea, strlen(linea));
-		}
-		string_iterate_lines(generarRegistroBloque((t_list*)data, metadataFS.blockSize), ver);
-		printf("\n");
 	}
 	dictionary_iterator(registrosDeParticiones, dictionary_element_viewer);
 
@@ -396,45 +391,34 @@ static int escribirDiccionarioEnBloques(t_dictionary* registrosDeParticiones, ch
 }
 
 static int escribirBloques(t_list* listaDeRegistros, char** bloques){
-	int size=10000; //TODO: =metadataFS.blockSize
+	int size = metadataFS.blockSize;
+	int numeroDeBloque = 0;
+	char **registrosBloques = generarRegistroBloque(listaDeRegistros, size);
 
-	for(int i=0; bloques[i]!=NULL; i++){
-		char* pathBloque = string_from_format("%sBloques/%s.bin", config.punto_montaje, bloques[i]);
+	void escribirEnBloques(char *linea){
+		char* pathBloque = string_from_format("%sBloques/%s.bin", config.punto_montaje, bloques[numeroDeBloque]);
 		int fdBloque = open(pathBloque, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
-
 		if(fdBloque == -1){
 			log_error(logger_visible, "No se pudieron abrir los bloques de la particion");
 			log_error(logger_error, "No se pudieron abrir los bloques de la particion");
-			return EXIT_FAILURE;
+			free(pathBloque);
+			close(fdBloque);
+			return;
 		}
-		ftruncate(fdBloque, size);
+		ftruncate(fdBloque, strlen(linea)); //strlen linea va a ser menor o igual a size. Si lo hago por el size, y nosotros escribimos menos del size, entonces se va a ver obligado a rellenar el resto del archivo con caracteres feos
 		char* textoBloque = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fdBloque, 0);
-
-		memset(textoBloque,0,size);//TODO: Borrar
-
-		int m=0;
-		for(int j=0; j<list_size(listaDeRegistros);j++){//TODO:Cambiar por función de facu
-			Registro *registro = malloc(sizeof(Registro));
-			registro = list_get(listaDeRegistros, j);
-			char* linea=string_from_format("%llu;%d;%s\n", registro->timestamp,registro->key,registro->value);
-
-			//printf("registro: %s\n", linea);
-
-		    for (int k=0; k<strlen(linea); k++){
-		        textoBloque[m] = linea[k];
-		        m++;
-		    }
-		    //printf("textoBloque: %s\n", textoBloque);
-		    free(linea);
-		    free(registro);
-		}
-		munmap(textoBloque, size);
-		m=0;
-
-		close(fdBloque);
+		memcpy(textoBloque, linea, strlen(linea)); //strlen linea va a ser menor o igual a size. La linea contiene \n al finalizar cada registro. Contiene \0 al final pero el strlen no lo tiene en cuenta
+		msync(textoBloque, size, MS_SYNC);
 		free(pathBloque);
+		++numeroDeBloque; //TODO revisar la gestion de bloques, si me quedo sin bloques o me sobran
+		munmap(textoBloque, size);
+		close(fdBloque);
 	}
-
+	string_iterate_lines(registrosBloques, escribirEnBloques);
+	if(registrosBloques){
+		string_iterate_lines(registrosBloques, (void*)free);
+		free(registrosBloques);
+	}
 
 	return EXIT_SUCCESS;
 }
