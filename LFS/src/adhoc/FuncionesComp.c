@@ -286,3 +286,45 @@ int getMin(int value1, int value2){
 		return value1;
 	return value2;
 }
+
+char **generarRegistroBloque(t_list *registros, int sizeBloque){
+	//1: genero una cadena que contenga todos los registros de la lista
+	char *stringsDeRegistros = string_new();
+	char *registroString(Registro *reg){
+		return string_from_format("%llu;%d;%s\n", reg->timestamp, reg->key, reg->value);
+	}
+	void generarString(void *registro){
+		char *stringRegAux = registroString((Registro*)registro);
+		string_append(&stringsDeRegistros, stringRegAux);
+		free(stringRegAux);
+	}
+	list_iterate(registros, generarString);
+	//2: empiezo a cortar la cadena en pedazos de longitud sizeBloque y las voy agregando a la matriz de retorno
+	int pos = 1;
+	char **retorno = malloc(sizeof(char*)*pos);
+	retorno[pos-1] = NULL;
+	void iterarString(char *c){
+		if(retorno[pos-1] == NULL)
+			retorno[pos-1] = string_new();
+		string_append(&retorno[pos-1], c);
+		if(strlen(retorno[pos-1]) == sizeBloque){
+			++pos;
+			retorno = realloc(retorno, sizeof(char*)*pos);
+			retorno[pos-1] = NULL;
+		}
+	}
+	simple_string_iterate(stringsDeRegistros, iterarString);
+	if(retorno[pos-1] != NULL){
+		++pos;
+		retorno = realloc(retorno, sizeof(char*)*pos);
+		retorno[pos-1] = NULL;
+	}
+	return retorno;
+}
+
+
+
+
+
+
+

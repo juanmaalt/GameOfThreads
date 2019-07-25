@@ -60,8 +60,8 @@ void* compactar(void* nombreTabla){
 			continue;
 		}
 		verDiccionarioDebug(registrosDeParticiones);
-		escribirDiccionarioEnBloques(registrosDeParticiones, (char*)nombreTabla);
-		destruirRegistrosDeParticiones(registrosDeParticiones);
+		//escribirDiccionarioEnBloques(registrosDeParticiones, (char*)nombreTabla);
+		//destruirRegistrosDeParticiones(registrosDeParticiones);
 	}
 
 	return NULL;
@@ -303,10 +303,16 @@ static void verDiccionarioDebug(t_dictionary *registrosDeParticiones){
 		printf("Particion: %s\n", key);
 		list_iterate((t_list*)data, list_viewer);
 		printf("\n");
+		void ver(char *linea){
+			printf("%s (size: %d)\n", linea, strlen(linea));
+		}
+		string_iterate_lines(generarRegistroBloque((t_list*)data, metadataFS.blockSize), ver);
+		printf("\n");
 	}
 	dictionary_iterator(registrosDeParticiones, dictionary_element_viewer);
 
 }
+
 
 
 

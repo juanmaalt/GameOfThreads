@@ -23,6 +23,7 @@ int directory_iterate(char *pathDirectorio, void(*closure)(EntradaDirectorio *))
 int directory_iterate_if(char *pathDirectorio, bool (*condicion)(EntradaDirectorio*), void(*closure)(EntradaDirectorio *));
 bool directory_any_satisfy(char *pathDirectorio, bool(*closure)(EntradaDirectorio *));
 int dump_iterate_registers(char *pathFile, char *mode, void(*closure)(Registro*));
+void simple_string_iterate(char *stringToIterate, void (*closure)(char*));
 
 //COMPLEMENTARIAS
 bool existeTabla(char* key);

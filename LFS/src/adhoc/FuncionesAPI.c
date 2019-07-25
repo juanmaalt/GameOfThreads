@@ -80,6 +80,14 @@ int dump_iterate_registers(char *pathDumpFile, char *mode, void(*closure)(Regist
 	return EXIT_FAILURE;
 }
 
+void simple_string_iterate(char *stringToIterate, void (*closure)(char*)){
+	for(int i=0; stringToIterate[i] != '\0'; ++i){
+		char *characterAsString = string_from_format("%c", stringToIterate[i]);
+		closure(characterAsString);
+		free(characterAsString);
+	}
+}
+
 /*INICIO FUNCIONES COMPLEMENTARIAS*/
 bool existeTabla(char* nombreTabla){
 	return dictionary_has_key(memtable, nombreTabla);
