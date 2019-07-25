@@ -18,6 +18,8 @@ static void agregarRegistro(t_list *lista, Registro *registro);
 static void destruirRegistro(void *reg);
 static void verDiccionarioDebug(t_dictionary *lista);
 static void destruirRegistrosDeParticiones(t_dictionary *diccionario);
+static int escribirDiccionarioEnBloques(t_dictionary* registrosDeParticiones, char* nombreTabla);
+static int escribirBloques(t_list* listaDeRegistros, char** bloques);
 
 
 void* compactar(void* nombreTabla){
@@ -58,6 +60,7 @@ void* compactar(void* nombreTabla){
 			continue;
 		}
 		verDiccionarioDebug(registrosDeParticiones);
+		escribirDiccionarioEnBloques(registrosDeParticiones, (char*)nombreTabla);
 		destruirRegistrosDeParticiones(registrosDeParticiones);
 	}
 
@@ -351,6 +354,83 @@ void postSemaforoTabla(char *tabla){
 	}
 	void *semt = list_find(semaforosPorTabla, buscar);
 	sem_post(&(((SemaforoTabla*)semt)->semaforo));
+}
+
+static int escribirDiccionarioEnBloques(t_dictionary* registrosDeParticiones, char* nombreTabla){
+	for(int i=0; i<dictionary_size(registrosDeParticiones);i++){
+		char* particion = string_from_format("%d", i);
+		char* bloquesAsignados = obtenerListaDeBloques(i, nombreTabla);
+		char** bloques = string_get_string_as_array(bloquesAsignados);
+		t_list* listaDeRegistros = dictionary_get(registrosDeParticiones, particion);
+
+		escribirBloques(listaDeRegistros, bloques);
+
+		free(particion);
+		string_iterate_lines(bloques, (void* )free);
+		free(bloques);
+		free(bloquesAsignados);
+	}
+
+
+	/*
+		while(hayaParticionesEnDiccionario){
+			ObtenerNroParticion
+			ObtenerBloquesEnParticion
+			mmap(bloque)
+			stringParaBloque[blocksize]
+
+
+			EscribirVirtualmenteElBloque
+
+		}
+
+
+	*/
+	return EXIT_SUCCESS;
+}
+
+static int escribirBloques(t_list* listaDeRegistros, char** bloques){
+	int size=10000; //TODO: =metadataFS.blockSize
+
+	for(int i=0; bloques[i]!=NULL; i++){
+		char* pathBloque = string_from_format("%sBloques/%s.bin", config.punto_montaje, bloques[i]);
+		int fdBloque = open(pathBloque, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+
+		if(fdBloque == -1){
+			log_error(logger_visible, "No se pudieron abrir los bloques de la particion");
+			log_error(logger_error, "No se pudieron abrir los bloques de la particion");
+			return EXIT_FAILURE;
+		}
+		ftruncate(fdBloque, size);
+		char* textoBloque = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fdBloque, 0);
+
+		memset(textoBloque,0,size);//TODO: Borrar
+
+		int m=0;
+		for(int j=0; j<list_size(listaDeRegistros);j++){//TODO:Cambiar por función de facu
+			Registro *registro = malloc(sizeof(Registro));
+			registro = list_get(listaDeRegistros, j);
+			char* linea=string_from_format("%llu;%d;%s\n", registro->timestamp,registro->key,registro->value);
+
+			//printf("registro: %s\n", linea);
+
+		    for (int k=0; k<strlen(linea); k++){
+		        textoBloque[m] = linea[k];
+		        m++;
+		    }
+		    //printf("textoBloque: %s\n", textoBloque);
+		    free(linea);
+		    free(registro);
+		}
+		munmap(textoBloque, size);
+		m=0;
+
+		close(fdBloque);
+		free(pathBloque);
+	}
+
+
+	return EXIT_SUCCESS;
 }
 
 
