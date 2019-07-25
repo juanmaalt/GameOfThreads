@@ -20,7 +20,5 @@ sem_t leyendoBitarray;
 void leerBitmap();
 char* getBloqueLibre();
 void liberarBloque(int pos);
-void escribirBitmap();
-void actualizarBitarray();
 
 #endif /* ADHOC_BITMAP_H_ */

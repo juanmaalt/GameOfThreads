@@ -9,59 +9,56 @@
 
 void leerBitmap(){
 	log_info(logger_invisible, "Inicio levantarBitmap");
-	int size = ((metadataFS.blocks/8)+1);
+	size_t sizeBitarray = (metadataFS.blocks/8);
+	size_t size = metadataFS.blocks;
 	char* path = string_from_format("%sMetadata/Bitmap.bin", config.punto_montaje);
 
 	//printf("path: %s\n", path);
 
-	int fileDescriptor;
-	char* bitmap;
-
 	/*Abro el bitmap.bin, provisto o creado por la consola del fileSystem*/
-	fileDescriptor = open(path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
-	/*Trunco el archivo con la longitud de los bloques, para evitar problemas*/
-	ftruncate(fileDescriptor, size);
-	if(fileDescriptor == -1){
-		log_error(logger_visible, "No se pudo abrir el archivo");
+	int fd = open(path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+	if(fd == -1){
+		log_error(logger_visible, "No se pudo abrir el archivo Bitmap.bin");
+		log_error(logger_error, "No se pudo abrir el archivo Bitmap.bin");
 		return;
 	}
+	/*Trunco el archivo con la longitud de los bloques, para evitar problemas*/
+	ftruncate(fd, size);
 
 		//printf("antes del mmap\n");
 	/*Mapeo a la variable bitmap el contenido del fileDescriptor*/
-	bitmap = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor, 0);
+	bitmap = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 
 	/*Inicializo el bitmap ni bien se abre, si está vacío*/
 	if(strlen(bitmap)==0){
 		memset(bitmap,0,size);
 	}
 
-		//printf("antes del bitarray_create\nsize= %d\n", size);
+	//printf("antes del bitarray_create\nsize= %d\n", size);
 	/*Creo el bitarray para poder manejar lo leído del bitmap*/
-	bitarray = bitarray_create_with_mode(bitmap, size, MSB_FIRST);
+	bitarray = bitarray_create_with_mode(bitmap, sizeBitarray, MSB_FIRST);
 
-		//printf("antes del msync\n");
+	//printf("antes del msync\n");
 	/*Sincronizo el archivo con los datos del bitarray*/
-	msync(bitarray, size, MS_SYNC);
+	msync(bitmap, size, MS_SYNC);
 
 	//log_info(logger_visible, "El tamanio del bitmap es de %lu bits", tamanio);
-	/*Libero el file que está en memoria*/
-	munmap(bitarray,size);
-	/*Leo los bloques con información y actualizo el Bitarray*/
-	actualizarBitarray();
 
 	/*Función para imprimir*/
-/*
-	for(int i=0;i<metadataFS.blocks;i++){
-		bool valor = bitarray_test_bit(bitarray, i);
-		printf("valor bit= %d\n", valor);
+	/*
+	for(size_t i=0;i<metadataFS.blocks+1;i++){
+		if(bitarray_test_bit(bitarray,i)){
+			printf("1");
+		}else{
+			printf("0");
+		}
 	}
-*/
-	printf("bitarray:%s\n", bitarray->bitarray);
+	printf("\n");
+	*/
 
 	sem_init(&leyendoBitarray, 0, 1);
-	escribirBitmap();
 
-	close(fileDescriptor);
+	close(fd);
 	free(path);
 }
 
@@ -84,9 +81,18 @@ char* getBloqueLibre(){
 
 	bitarray_set_bit(bitarray, pos);
 
-	escribirBitmap();
+	/*Función para imprimir*/
+	/*
+	for(size_t i=0;i<metadataFS.blocks+1;i++){
+		if(bitarray_test_bit(bitarray,i)){
+			printf("1");
+		}else{
+			printf("0");
+		}
+	}
+	printf("\n");
+	*/
 
-	//printf("posicion:%s\n", posicion);
 	sem_post(&leyendoBitarray);
 
 	posicion= string_from_format("%d",pos+1);
@@ -97,61 +103,17 @@ char* getBloqueLibre(){
 void liberarBloque(int pos){
 	if(bitarray_test_bit(bitarray, (pos-1))){
 		bitarray_clean_bit(bitarray, (pos-1));
-		escribirBitmap();
 	}
-}
 
-void escribirBitmap(){
-	char* pathBitmap = string_from_format("%sMetadata/Bitmap.bin",config.punto_montaje);
-
-	FILE* bitmap;
-
-	char binario[metadataFS.blocks+1];
-
-	for(int i=0;i<metadataFS.blocks;i++){
-		if(bitarray_test_bit(bitarray, i)!=0){
-			binario[i]='1';
-		}else{
-			binario[i]='0';
-		}
-	}
-	binario[metadataFS.blocks]='\n';
-
-	bitmap = fopen(pathBitmap,"w");
+	/*Función para imprimir*/
 	/*
-	for(int i=0; i<(metadataFS.blocks/8); i++){
-		fprintf (bitmap, "%c",texto[i]);
-		//printf("El texto que se guardaría en el bitmap.bin es: %c\n", texto[i]);
-	}
-	*/
-	fprintf (bitmap, "%s",binario);
-	//printf("texto: %s\n", texto);
-
-	fclose(bitmap);
-	//free(binario);
-	free(pathBitmap);
-}
-
-void actualizarBitarray(){
-	char* pathBloques = string_from_format("%sBloques", config.punto_montaje);
-	DIR *dir;
-	struct dirent *entry;
-	char* nombreBloque;
-
-	if((dir = opendir(pathBloques)) != NULL){
-		while((entry = readdir (dir)) != NULL){
-			nombreBloque = entry->d_name;
-			if(string_ends_with(nombreBloque, ".bin")){
-				char* bloque = string_substring_until(nombreBloque, (strlen(nombreBloque)-4));
-				if(caracteresEnBloque(bloque)>0){
-					bitarray_set_bit(bitarray, (atoi(bloque)-1));
-					log_info(logger_invisible, "Bloque con data: %s.bin", nombreBloque);
-				}
-				if(bloque)
-					free(bloque);
-			}
+	for(size_t i=0;i<metadataFS.blocks+1;i++){
+		if(bitarray_test_bit(bitarray,i)){
+			printf("1");
+		}else{
+			printf("0");
 		}
 	}
-	closedir(dir);
-	free(pathBloques);
+	printf("\n");
+ 	*/
 }

@@ -301,8 +301,11 @@ Operacion ejecutarOperacion(char* input) {
 			}
 			break;
 		case RUN:
-			//dump();
+			liberarBloque(atoi(parsed->argumentos.RUN.path));
 			//compactar(parsed->argumentos.RUN.path);
+			break;
+		case JOURNAL:
+			getBloqueLibre();
 			break;
 		default:
 			fprintf(stderr, RED"No se pude interpretar el enum: %d"STD"\n",parsed->keyword);
@@ -602,6 +605,7 @@ void rutinas_de_finalizacion(){
 	dictionary_destroy(dPeticionesPorTabla);
 	bitarray_destroy(bitarray);
 	close(miSocket);
+	munmap(bitmap,metadataFS.blocks);
 	log_destroy(logger_visible);
 	log_destroy(logger_invisible);
 	log_destroy(logger_error);

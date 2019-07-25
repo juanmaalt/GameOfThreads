@@ -96,6 +96,7 @@ t_dictionary* memtable;
 t_dictionary* dPeticionesPorTabla;
 t_list* semaforosPorTabla;
 t_bitarray* bitarray;
+char* bitmap;
 
 sem_t mutexPeticionesPorTabla;
 
