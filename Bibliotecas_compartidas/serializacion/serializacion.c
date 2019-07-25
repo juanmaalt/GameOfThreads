@@ -147,6 +147,7 @@ Operacion recv_msg(int socket) {
 	case ERROR_MEMORIAFULL:
 		break;
 	case GOSSIPING_REQUEST:
+
 		recv(socket, &longitud, sizeof(int), 0);
 		retorno.Argumentos.GOSSIPING_REQUEST.resultado_comprimido = calloc(longitud+1, sizeof(char));
 		recv(socket, retorno.Argumentos.GOSSIPING_REQUEST.resultado_comprimido, sizeof(char)*longitud, 0);
