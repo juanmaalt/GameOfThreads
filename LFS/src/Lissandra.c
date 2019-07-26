@@ -76,19 +76,19 @@ void *connection_handler(void *nSocket){
 	switch (recibido.TipoDeMensaje){
 	case COMANDO://TODO checkear que funcione
 		log_info(logger_invisible,"Lissandra.c: connection_handler() - Comando recibido: %s", recibido.Argumentos.COMANDO.comandoParseable);
-		destruir_operacion(recibido);
-		resultado = ejecutarOperacion(resultado.Argumentos.COMANDO.comandoParseable);
+		resultado = ejecutarOperacion(recibido.Argumentos.COMANDO.comandoParseable);
 		send_msg(socket, resultado);
 		break;
 	case TEXTO_PLANO:
 		if(strcmp(recibido.Argumentos.TEXTO_PLANO.texto, "handshake")==0)
 			handshakeMemoria(socket);
-		else{printf("No se pudo conectar la Memoria\n");}
+		else
+			printf("No se pudo conectar la Memoria\n");
 		break;
 	default:
 		fprintf(stderr, RED"No se pude interpretar el enum %d"STD"\n", recibido.TipoDeMensaje);
 	}
-
+	destruir_operacion(recibido);
 	destruir_operacion(resultado);
 
 	return NULL;
@@ -197,7 +197,6 @@ void handshakeMemoria(int socketMemoria) {
 	switch (handshake.TipoDeMensaje) {
 		case TEXTO_PLANO:
 			if (string_equals_ignore_case(handshake.Argumentos.TEXTO_PLANO.texto, "handshake pathLFS")) {
-				destruir_operacion(handshake);
 				handshake.TipoDeMensaje = TEXTO_PLANO;
 				handshake.Argumentos.TEXTO_PLANO.texto=string_from_format(config.punto_montaje);
 				send_msg(socketMemoria, handshake);
@@ -217,6 +216,7 @@ void handshakeMemoria(int socketMemoria) {
 		case ERROR_MEMORIAFULL:
 			break;
 	}
+	destruir_operacion(handshake);
 	log_info(logger_invisible,"Lissandra.c: handshakeMemoria() - Memoria conectada exitosamente.");
 }
 

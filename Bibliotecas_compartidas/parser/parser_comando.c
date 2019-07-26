@@ -27,7 +27,11 @@ Comando parsear_comando(char* line){
 	char** split = NULL;
 	char* auxLine = NULL;
 
-	if(line == NULL || string_equals_ignore_case(line, "")){
+	if(line == NULL){
+		fprintf(stderr, RED"No pude interpretar una linea vacia"STD"\n");
+		RETURN_ERROR;
+	}
+	if(string_equals_ignore_case(line, "")){
 		fprintf(stderr, RED"No pude interpretar una linea vacia"STD"\n");
 		RETURN_ERROR;
 	}
