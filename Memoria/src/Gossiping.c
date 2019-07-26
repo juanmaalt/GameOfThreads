@@ -101,6 +101,8 @@ void conectarConSeed() {
 		//printf("FOR IPS\n");
 		int socket = connect_to_server(IPs[conteo_seeds],
 				IPsPorts[conteo_seeds]);
+		if(socket == EXIT_FAILURE)
+			printf("ESTA DANDO ERROR\n");
 		printf(YEL"IMPRIMO SOCKET %d\n IP PUERTO %s:%s"STD"\n",socket,IPs[conteo_seeds],IPsPorts[conteo_seeds]);
 		if (socket == EXIT_FAILURE) {
 			log_info(logger_visible,
@@ -156,6 +158,8 @@ void conectarConSeed() {
 						sizeList = list_size(listaMemoriasConocidas);
 						//printf(YEL"SEED CAIDA Y OTRA MEMORIA TAMBIEN\n"STD);
 						indexList++;
+					} else {
+						close (socketLista);
 					}
 					//free(((knownMemory_t*)memoriaLista)->ip);
 					//free(((knownMemory_t*)memoriaLista)->ip_port);
@@ -174,7 +178,7 @@ void conectarConSeed() {
 					IPs[conteo_seeds], IPsPorts[conteo_seeds]);
 
 			ConsultoPorMemoriasConocidas(socket); //
-
+			close(socket);
 		}
 
 	}
@@ -264,7 +268,7 @@ void ConsultoPorMemoriasConocidas(int socketSEEDS) {
 			"GOSSIPING.C:ConsultoPorMemoriasConocidas:Fin GOSSIP");
 	log_info(logger_visible,
 			"GOSSIPING.C:ConsultoPorMemoriasConocidas:Fin GOSSIP");
-	close(socketSEEDS);
+	//close(socketSEEDS);
 
 }
 
