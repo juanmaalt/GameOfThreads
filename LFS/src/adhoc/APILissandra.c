@@ -62,16 +62,30 @@ Operacion selectAPI(Comando comando){
 	if(string_starts_with(listaDeBloques, "[")&&string_ends_with(listaDeBloques, "]")){
 		list_add(listaDeValues, fseekBloque(atoi(comando.argumentos.SELECT.key), listaDeBloques));
 	}
-	if(listaDeBloques)free(listaDeBloques); //REVISION se libera la lista de bloques
+	if(listaDeBloques)free(listaDeBloques);
 
 	/*Recorro la tabla y obtengo el valor más reciente*/
 	//recorrerTabla(listaDeValues);//Función ad-hoc para testing
-	getValueMasReciente(listaDeValues, &resultadoSelect);
+	odernarPorMasReciente(listaDeValues);
 
-	if(resultadoSelect.Argumentos.REGISTRO.value==NULL){
+	Registro* reg = malloc(sizeof(Registro));
+	reg = list_get(listaDeValues, 0);
+
+	if(reg->value!=NULL){
+		resultadoSelect.TipoDeMensaje = REGISTRO;
+		resultadoSelect.Argumentos.REGISTRO.timestamp=reg->timestamp;
+		resultadoSelect.Argumentos.REGISTRO.key=reg->key;
+		resultadoSelect.Argumentos.REGISTRO.value=string_from_format("%s",reg->value);
+	}else{
 		resultadoSelect.TipoDeMensaje = ERROR;
 		resultadoSelect.Argumentos.ERROR.mensajeError = string_from_format("No existen registros relacionados con la key solicitada");
 	}
+
+	void destruirLista(void *registro){
+		free(((Registro*)registro)->value);
+		free((Registro*)registro);
+	}
+	list_destroy_and_destroy_elements((t_list*)listaDeValues, destruirLista);
 
 	/*Libero recursos en memoria*/
 	list_destroy(listaDeValues);
@@ -192,13 +206,12 @@ Operacion createAPI(Comando comando){
 	sem_post(&mutexPeticionesPorTabla);
 
 	/*Inicio el proceso de compactación*/
-/*
 	char* nombreTabla = string_from_format(comando.argumentos.CREATE.nombreTabla);
 	if(iniciarCompactacion(nombreTabla) == EXIT_FAILURE){
 		log_error(logger_error,"APILissandra.c: <CREATE> No se pudo iniciar el hilo de compactación");
 		return resultadoCreate;
 	}
-*/
+
 	/*Loggeo el CREATE exitoso y le aviso a la Memoria*/
 	log_info(logger_invisible, "CREATE realizado con éxito.");
 	resultadoCreate.TipoDeMensaje = TEXTO_PLANO;

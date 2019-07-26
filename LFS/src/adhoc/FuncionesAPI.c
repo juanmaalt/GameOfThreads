@@ -205,7 +205,7 @@ void recorrerTabla(t_list* lista){
 }
 
 
-void getValueMasReciente(t_list* lista, Operacion* resultadoSelect){
+void odernarPorMasReciente(t_list* lista){
 	if(list_size(lista)>0){
 		if(list_size(lista)>1){
 			bool compararFechas(void* item1, void* item2){
@@ -216,20 +216,8 @@ void getValueMasReciente(t_list* lista, Operacion* resultadoSelect){
 			}
 			list_sort(lista, compararFechas);
 		}
-
-		Registro* reg = list_get(lista, 0);
-
-		resultadoSelect->TipoDeMensaje = REGISTRO;
-		resultadoSelect->Argumentos.REGISTRO.timestamp=reg->timestamp;
-		resultadoSelect->Argumentos.REGISTRO.key=reg->key;
-		resultadoSelect->Argumentos.REGISTRO.value=string_from_format("%s",reg->value);
-
-	}else{
-		resultadoSelect->TipoDeMensaje = ERROR;
-		resultadoSelect->Argumentos.ERROR.mensajeError = string_from_format("No existen registros relacionados con la key solicitada");
 	}
 }
-
 
 timestamp_t checkTimestamp(char* timestamp){
 	if(timestamp==NULL){
