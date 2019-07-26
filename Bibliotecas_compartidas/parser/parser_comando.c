@@ -13,11 +13,7 @@
 
 void destruir_comando(Comando op){
 	if(op._raw){
-		void ver(char*c){
-			printf("|%s|\n", c);
-			free(c);
-		}
-		string_iterate_lines(op._raw, ver);
+		string_iterate_lines(op._raw, (void*)free);
 		free(op._raw);
 	}
 }
@@ -403,7 +399,7 @@ char **string_double_split(char *cadena, char *firstSeprator, char *secondSepara
 	};
 
 	if (next[0] != '\0') {
-		size++;printf("asd\n");
+		size++;
 		substrings = realloc(substrings, sizeof(char*) * size);
 		substrings[size - 1] = string_duplicate(next);
 	}
