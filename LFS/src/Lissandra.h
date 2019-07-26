@@ -68,7 +68,7 @@ typedef struct Config_datos_variables vConfig;
 
 typedef unsigned long long timestamp_t;
 
-typedef struct{
+typedef struct registro_t{
 	timestamp_t timestamp;
 	uint16_t key;
 	char* value;
@@ -76,7 +76,10 @@ typedef struct{
 
 typedef struct {
 	char* tabla;
-	sem_t semaforo;
+	sem_t semaforoGral;
+	sem_t semaforoSelect;
+	timestamp_t inicioBloqueo;
+	timestamp_t finBloqueo;
 }SemaforoTabla;
 
 /*GLOBALES*/
@@ -96,6 +99,7 @@ t_dictionary* memtable;
 t_dictionary* dPeticionesPorTabla;
 t_list* semaforosPorTabla;
 t_bitarray* bitarray;
+char* bitmap;
 
 sem_t mutexPeticionesPorTabla;
 
@@ -136,7 +140,7 @@ void agregarDatos(t_dictionary* memtable);
 void setPathTabla(char* path, char* nombreTabla);
 void* dump();
 void dumpRegistro(FILE* file, Registro* registro);
-void dumpTabla(char* nombreTable, t_list* value);
+void dumpTabla(char* nombreTable, void* value);
 
 #endif /* LISSANDRA_H_ */
 

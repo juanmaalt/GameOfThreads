@@ -32,7 +32,7 @@ int main(void) {
 	leerBitmap();
 
 	/*Creo el diccionario para las tablas en compactación*/
-	dPeticionesPorTabla = dictionary_create();
+	dPeticionesPorTabla = dictionary_create();//REVISION: se liberan las peticiones cuando se hace un drop
 	semaforosPorTabla =list_create();
 	sem_init(&mutexPeticionesPorTabla, 0, 1);
 
@@ -66,25 +66,27 @@ int main(void) {
 void *connection_handler(void *nSocket){
 	pthread_detach(pthread_self());
 	int socket = *(int*) nSocket;
+	Operacion recibido;
 	Operacion resultado;
 
-	resultado = recv_msg(socket);
+	recibido = recv_msg(socket);
 
 	log_info(logger_invisible,"Lissandra.c: connection_handler() - Nueva conexión");
 
-	switch (resultado.TipoDeMensaje){
-	case COMANDO://TODO destruir operacion
-		log_info(logger_invisible,"Lissandra.c: connection_handler() - Comando recibido: %s", resultado.Argumentos.COMANDO.comandoParseable);
+	switch (recibido.TipoDeMensaje){
+	case COMANDO://TODO checkear que funcione
+		log_info(logger_invisible,"Lissandra.c: connection_handler() - Comando recibido: %s", recibido.Argumentos.COMANDO.comandoParseable);
+		destruir_operacion(recibido);
 		resultado = ejecutarOperacion(resultado.Argumentos.COMANDO.comandoParseable);
 		send_msg(socket, resultado);
 		break;
 	case TEXTO_PLANO:
-		if(strcmp(resultado.Argumentos.TEXTO_PLANO.texto, "handshake")==0)
+		if(strcmp(recibido.Argumentos.TEXTO_PLANO.texto, "handshake")==0)
 			handshakeMemoria(socket);
 		else{printf("No se pudo conectar la Memoria\n");}
 		break;
 	default:
-		fprintf(stderr, RED"No se pude interpretar el enum %d"STD"\n", resultado.TipoDeMensaje);
+		fprintf(stderr, RED"No se pude interpretar el enum %d"STD"\n", recibido.TipoDeMensaje);
 	}
 
 	destruir_operacion(resultado);
@@ -235,7 +237,7 @@ Operacion ejecutarOperacion(char* input) {
 	SemaforoTabla *semt=NULL;
 	char *bufferTabla=NULL;
 	bool buscar(void *tablaSemaforo){
-		return !strcmp(bufferTabla, ((SemaforoTabla*) tablaSemaforo)->tabla);
+		return string_equals_ignore_case(bufferTabla, ((SemaforoTabla*) tablaSemaforo)->tabla);
 	}
 
 	log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - Mensaje recibido %s", input);
@@ -246,11 +248,15 @@ Operacion ejecutarOperacion(char* input) {
 		switch (parsed->keyword){
 		case SELECT:
 			sem_wait(&mutexPeticionesPorTabla);
-			bufferTabla=parsed->argumentos.SELECT.nombreTabla;
+			bufferTabla=parsed->argumentos.INSERT.nombreTabla;
 			semt = list_find(semaforosPorTabla, buscar);
-			sem_getvalue(&semt->semaforo, &valorSemaforo);
+			if(semt==NULL){
+				//TODO:log error
+				//TODO:Devolver mensaje error
+				break;
+			}
+			sem_getvalue(&semt->semaforoSelect, &valorSemaforo);
 			sem_post(&mutexPeticionesPorTabla);
-
 			if(valorSemaforo >= 1){
 				retorno = selectAPI(*parsed);
 				log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <SELECT> Mensaje de retorno \"%llu;%d;%s\"", retorno.Argumentos.REGISTRO.timestamp, retorno.Argumentos.REGISTRO.key, retorno.Argumentos.REGISTRO.value);
@@ -264,7 +270,12 @@ Operacion ejecutarOperacion(char* input) {
 			sem_wait(&mutexPeticionesPorTabla);
 			bufferTabla=parsed->argumentos.INSERT.nombreTabla;
 			semt = list_find(semaforosPorTabla, buscar);
-			sem_getvalue(&semt->semaforo, &valorSemaforo);
+			if(semt==NULL){
+				//TODO:log error
+				//TODO:Devolver mensaje error
+				break;
+			}
+			sem_getvalue(&semt->semaforoGral, &valorSemaforo);
 			sem_post(&mutexPeticionesPorTabla);
 
 			if(valorSemaforo >= 1){
@@ -288,7 +299,12 @@ Operacion ejecutarOperacion(char* input) {
 			sem_wait(&mutexPeticionesPorTabla);
 			bufferTabla=parsed->argumentos.DROP.nombreTabla;
 			semt = list_find(semaforosPorTabla, buscar);
-			sem_getvalue(&semt->semaforo, &valorSemaforo);
+			if(semt==NULL){
+				//TODO:log error
+				//TODO:Devolver mensaje error
+				break;
+			}
+			sem_getvalue(&semt->semaforoGral, &valorSemaforo);
 			sem_post(&mutexPeticionesPorTabla);
 
 			if(valorSemaforo >= 1){
@@ -301,8 +317,11 @@ Operacion ejecutarOperacion(char* input) {
 			}
 			break;
 		case RUN:
-			//dump();
+			liberarBloque(atoi(parsed->argumentos.RUN.path));
 			//compactar(parsed->argumentos.RUN.path);
+			break;
+		case JOURNAL:
+			getBloqueLibre();
 			break;
 		default:
 			fprintf(stderr, RED"No se pude interpretar el enum: %d"STD"\n",parsed->keyword);
@@ -393,7 +412,7 @@ void* dump(){
 
 	for(;;){
 		usleep(vconfig.tiempoDump() * 1000);
-		dictionary_iterator(memtable, (void*) dumpTabla);
+		dictionary_iterator(memtable, dumpTabla);
 	}
 	return NULL;
 }
@@ -420,14 +439,15 @@ int cuentaArchivos(char* path) {
 	return cuenta;
 }
 
-void dumpTabla(char* nombreTable, t_list* list){
+void dumpTabla(char* nombreTable, void* value){
+	t_list* list = (t_list*) value;
 
 	//t_list * list = dictionary_get(memtable, nombreTable);//obtengo la data, en el insert debera checkear que este dato no sea null
 
-	if (list == NULL || list_size(list) == 0) {
+	if(list==NULL || list_size(list)==0){
+		//TODO:log
 		return;
 	}
-
 	char* path = string_from_format("%sTables/%s", config.punto_montaje, nombreTable);
 
 	int numeroDump = cuentaArchivos(path);
@@ -436,19 +456,23 @@ void dumpTabla(char* nombreTable, t_list* list){
 
 	FILE* file = fopen(pathArchivo,"w");
 
-	Registro* reg = list_get(list, 0);
-
-	int i = 0;
-	int size = list_size(list);
-	while (i < size) {
-		dumpRegistro(file, reg);
-		i++;
-		reg = list_get(list, i);
+	void dumpearTodosLosRegistros(void* reg){
+		Registro* registro = (Registro*) reg;
+		dumpRegistro(file, registro);
 	}
-	list_clean(list);
+
+	list_iterate(list, dumpearTodosLosRegistros);
+
 	fclose(file);
 	free(pathArchivo);
 	free(path);
+
+	void eliminarRegistro(void* elem){
+		free(((Registro*)elem)->value);
+		free(((Registro*)elem));
+	}
+
+	list_clean_and_destroy_elements(list, eliminarRegistro);
 }
 
 void dumpRegistro(FILE* file, Registro* registro) {
@@ -462,7 +486,7 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 	reg->key = key;
 	reg->value = NULL;
 	reg->timestamp=0;
-	char** bloques = string_get_string_as_array(listaDeBloques);
+	char** bloques = string_get_string_as_array(listaDeBloques); //REVISION: se libera esto al final de la funcion
 
 	FILE* fBloque;
 	int i=0;
@@ -505,12 +529,14 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 		free(pathBloque);
 		i++;
 	}
+	string_iterate_lines(bloques, (void*)free);
+	if(bloques)free(bloques);
 	free(linea);
 	return reg;
 }
 /*FIN FSEEK*/
 
-/*INICIO FSEEKANDREPLACE*///TODO:Hacer
+/*INICIO FSEEKANDREPLACE*///TODO:Borrar
 
 void fseekAndEraseBloque(int key, char* listaDeBloques){
 	char** bloques = string_get_string_as_array(listaDeBloques);
@@ -600,6 +626,7 @@ void rutinas_de_finalizacion(){
 	dictionary_destroy(dPeticionesPorTabla);
 	bitarray_destroy(bitarray);
 	close(miSocket);
+	munmap(bitmap,metadataFS.blocks);
 	log_destroy(logger_visible);
 	log_destroy(logger_invisible);
 	log_destroy(logger_error);

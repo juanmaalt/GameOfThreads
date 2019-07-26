@@ -7,6 +7,87 @@
 
 #include "FuncionesAPI.h"
 
+//INICIO FUNCIONES NUEVAS
+int recorrer_directorio_haciendo(char *pathDirectorio, void(*closure)(EntradaDirectorio *)){
+	if(pathDirectorio == NULL)
+		return EXIT_FAILURE;
+	DIR *directorio = opendir(pathDirectorio);
+	if(directorio == NULL)
+		return EXIT_FAILURE;
+	EntradaDirectorio *entrada = NULL;
+	while((entrada = readdir(directorio)) != NULL)
+		closure(entrada);
+	closedir(directorio);
+	return EXIT_SUCCESS;
+}
+
+
+
+int directory_iterate_if(char *pathDirectorio, bool (*condicion)(EntradaDirectorio*), void(*closure)(EntradaDirectorio *)){
+	if(pathDirectorio == NULL)
+		return EXIT_FAILURE;
+	DIR *directorio = opendir(pathDirectorio);
+	if(directorio == NULL)
+		return EXIT_FAILURE;
+	EntradaDirectorio *entrada = NULL;
+	while((entrada = readdir(directorio)) != NULL)
+		if(condicion(entrada))
+			closure(entrada);
+	closedir(directorio);
+	return EXIT_SUCCESS;
+}
+
+
+
+bool directory_any_satisfy(char *pathDirectorio, bool(*closure)(EntradaDirectorio *)){
+	if(pathDirectorio == NULL)
+		return false;
+	DIR *directorio = opendir(pathDirectorio);
+	if(directorio == NULL)
+		return false;
+	EntradaDirectorio *entrada = NULL;
+	while((entrada = readdir(directorio)) != NULL){
+		if(closure(entrada)){
+			closedir(directorio);
+			return true;
+		}
+	}
+	closedir(directorio);
+	return false;
+}
+
+int dump_iterate_registers(char *pathDumpFile, char *mode, void(*closure)(Registro*)){
+	if(pathDumpFile == NULL)
+		return EXIT_FAILURE;
+	if(mode == NULL)
+		mode = "r";
+	FILE *archivo = fopen(pathDumpFile, mode);
+	if(archivo == NULL)
+		return EXIT_FAILURE;
+
+	Registro *registro = malloc(sizeof(Registro));
+	registro->value = malloc(sizeof(char)*(atoi(config.tamanio_value)+1));
+
+	while(fscanf(archivo, "%llu;%hu;%[^\n]", &registro->timestamp, &registro->key, registro->value)!= EOF){
+		registro->value[atoi(config.tamanio_value)] = '\0';
+		closure(registro);
+		registro = malloc(sizeof(Registro));
+		registro->value = malloc(sizeof(char)*(atoi(config.tamanio_value)+1));
+	}
+	free(registro->value);
+	free(registro);
+	fclose(archivo);
+	return EXIT_FAILURE;
+}
+
+void simple_string_iterate(char *stringToIterate, void (*closure)(char*)){
+	for(int i=0; stringToIterate[i] != '\0'; ++i){
+		char *characterAsString = string_from_format("%c", stringToIterate[i]);
+		closure(characterAsString);
+		free(characterAsString);
+	}
+}
+
 /*INICIO FUNCIONES COMPLEMENTARIAS*/
 bool existeTabla(char* nombreTabla){
 	return dictionary_has_key(memtable, nombreTabla);
@@ -28,7 +109,10 @@ int getMetadata(char* nombreTabla, t_config* metadataFile){
 
 
 t_config* leerMetadata(char* nombreTabla){
-	return config_create(string_from_format("%sTables/%s/Metadata", config.punto_montaje, nombreTabla));
+	char *fullPath = string_from_format("%sTables/%s/Metadata", config.punto_montaje, nombreTabla);
+	t_config* config = config_create(fullPath);
+	free(fullPath);
+	return config;
 }
 
 /*
@@ -160,8 +244,7 @@ timestamp_t checkTimestamp(char* timestamp){
 
 void crearTablaEnMemtable(char* nombreTabla){
 	t_list* lista = list_create();
-	char* tabla=nombreTabla;
-
+	char* tabla=string_from_format(nombreTabla);
 	dictionary_put(memtable, tabla, lista);
 }
 
@@ -227,6 +310,7 @@ void crearArchivosBinarios(char* path, int particiones){
 		free(text);
 		free(pathFinal);
 		free(filename);
+		free(bloque);
 		fclose(binario);
 	}
 }
@@ -386,6 +470,8 @@ void limpiarBloquesEnBitarray(char* nombreTabla){
 			if(string_contains(nombreArchivo, ".bin")){
 				char* particionNbr =string_substring_until(nombreArchivo, (strlen(nombreArchivo)-4));
 				char* listaDeBloques= obtenerListaDeBloques(atoi(particionNbr), nombreTabla);
+				if(particionNbr) free(particionNbr); //REVISION agregado el free
+				if(listaDeBloques == NULL)continue; //REVISION: agregado continue para evitar compara contra NULL.
 				if(string_starts_with(listaDeBloques, "[")&&string_ends_with(listaDeBloques, "]")){
 					char** bloques = string_get_string_as_array(listaDeBloques);
 
@@ -396,14 +482,17 @@ void limpiarBloquesEnBitarray(char* nombreTabla){
 						bitarray_clean_bit(bitarray, (pos-1));
 						i++;
 					}
+					if(bloques){string_iterate_lines(bloques, (void*)free); free(bloques);}//REVISION: agregado free
 				}else{
 					log_error(logger_visible, "FuncionesAPI.c: limpiarBloquesEnBitarray() - Las particion '%s' de la Tabla \"%s\" tiene un estado inconsistente.", particionNbr, nombreTabla);
 					log_error(logger_invisible, "FuncionesAPI.c: limpiarBloquesEnBitarray() - Las particion '%s' de la Tabla \"%s\" tiene un estado inconsistente.", particionNbr, nombreTabla);
 					log_error(logger_error, "FuncionesAPI.c: limpiarBloquesEnBitarray() - Las particion '%s' de la Tabla \"%s\" tiene un estado inconsistente.", particionNbr, nombreTabla);
 				}
+				if(listaDeBloques)free(listaDeBloques);//REVISION: agregado free listaDeBloques
 			}
 			free(nombreArchivo);
 		}
+		closedir(dir); //REVISION agregado closedir
 	}
 	free(pathTablas);
 }

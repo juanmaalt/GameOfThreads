@@ -22,9 +22,12 @@ void escribirLinea(char* bloque, char* linea, char* nombreTabla, int particion);
 void escribirEnBloque(char* bloque, char* linea);
 bool esRegistroMasReciente(timestamp_t timestamp, int key, char* listaDeBloques);
 void procesarPeticionesPendientes(char *nombreTabla);
+void destruirPeticionesPendientes(char *nombreTabla);
 int getMin(int value1, int value2);
 
 void sacarTablaDeDiccCompactacion(char* nombreTabla);
+
+char **generarRegistroBloque(t_list *registros);
 
 
 #endif /* ADHOC_FUNCIONESCOMP_H_ */

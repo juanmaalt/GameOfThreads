@@ -1,5 +1,6 @@
 #include "parser_comando.h"
 
+
 #define RETURN_ERROR Comando ERROR={ .valido = false, ._raw = split }; \
 									if(auxLine != NULL) \
 										free(auxLine);\
@@ -30,7 +31,6 @@ Comando parsear_comando(char* line){
 		fprintf(stderr, RED"No pude interpretar una linea vacia"STD"\n");
 		RETURN_ERROR;
 	}
-
 
 	auxLine = string_duplicate(line);
 	string_trim(&auxLine);
@@ -405,7 +405,7 @@ char **string_double_split(char *cadena, char *firstSeprator, char *secondSepara
 	}
 
 	size++;
-	substrings = realloc(substrings, sizeof(char*) * size);
+	substrings = realloc(substrings, sizeof(char*) * size); //FIXME: error en esta linea cuando se ingresa un comando invalido
 	substrings[size - 1] = NULL;
 
 	free(text_to_iterate);

@@ -9,7 +9,11 @@
 #define COMPACTADOR_H_
 
 #include "adhoc/FuncionesComp.h"
+//#include "adhoc/FuncionesAPI.h"
 #include <commons/config.h>
+
+
+typedef struct dirent EntradaDirectorio;
 
 /*GLOBALES*/
 

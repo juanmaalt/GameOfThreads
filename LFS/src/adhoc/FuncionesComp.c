@@ -8,8 +8,8 @@
 #include "FuncionesComp.h"
 
 void cambiarNombreFilesTemp(char* pathTabla){
-	char* pathFileViejo = string_new();
-	char* pathFileNuevo = string_new();
+	char* pathFileViejo;
+	char* pathFileNuevo;
 	DIR *dir;
 	struct dirent *entry;
 	char* nombreArchivo;
@@ -17,7 +17,7 @@ void cambiarNombreFilesTemp(char* pathTabla){
 	if((dir = opendir(pathTabla)) != NULL){
 		while((entry = readdir (dir)) != NULL){
 			nombreArchivo = string_from_format(entry->d_name);
-			if(string_contains(nombreArchivo, ".tmp")){
+			if(string_ends_with(nombreArchivo, ".tmp")){
 				pathFileViejo = string_from_format("%s/%s", pathTabla, nombreArchivo);
 				pathFileNuevo = string_duplicate(pathFileViejo);
 				string_append(&pathFileNuevo,"c");
@@ -32,7 +32,7 @@ void cambiarNombreFilesTemp(char* pathTabla){
 	free(pathFileNuevo);
 }
 
-void leerTemporal(char* pathTemp, int particiones, char* nombreTabla){
+void leerTemporal(char* pathTemp, int particiones, char* nombreTabla){//TODO: Borrar funcion
 	FILE* temp;
     int key;
     timestamp_t timestamp;
@@ -57,7 +57,7 @@ void leerTemporal(char* pathTemp, int particiones, char* nombreTabla){
 
 			if(esRegistroMasReciente(timestamp, key, listaDeBloques)){
 				//printf("es más reciente\n");
-				fseekAndEraseBloque(key, listaDeBloques);//TODO: descomentar
+				fseekAndEraseBloque(key, listaDeBloques);
 				char* bloque = firstBloqueDisponible(listaDeBloques);
 
 				//printf("mando a escribirLinea el bloque %s\n", bloque);
@@ -77,13 +77,12 @@ void leerTemporal(char* pathTemp, int particiones, char* nombreTabla){
 char* obtenerListaDeBloques(int particion, char* nombreTabla){
 	char* pathFile = string_from_format("%sTables/%s/%d.bin", config.punto_montaje, nombreTabla, particion);
 
-	t_config* particionFile;
-	particionFile = config_create(pathFile);
+	t_config* particionFile = config_create(pathFile);
+	if(particionFile == NULL)
+		return NULL;
 	char* listaDeBloques = string_from_format(config_get_string_value(particionFile, "BLOCKS"));
-
 	config_destroy(particionFile);
 	free(pathFile);
-
 	return listaDeBloques;
 }
 
@@ -210,6 +209,7 @@ void escribirLinea(char* bloque, char* linea, char* nombreTabla, int particion){
 						return;
 					}
 					bloque=nuevoBloque;
+					free(nuevoBloque);
 					agregarBloqueEnParticion(bloque, nombreTabla, particion);
 					//printf("B> nuevo bloque para la sublinea: %s\n", bloque);
 				}else{linea="";}
@@ -227,6 +227,7 @@ void escribirLinea(char* bloque, char* linea, char* nombreTabla, int particion){
 				return;
 			}
 			bloque=nuevoBloque;
+			free(nuevoBloque);
 			escribirEnBloque(bloque, linea);
 			agregarBloqueEnParticion(bloque, nombreTabla, particion);
 			//printf("C> No hay espacio en bloque y linea menor al espacio: linea escrita: %s\n", linea);
@@ -243,6 +244,7 @@ void escribirLinea(char* bloque, char* linea, char* nombreTabla, int particion){
 				//printf("D> No hay espacio en bloque y linea menor al espacio: linea escrita: %s\n", subLinea);
 				//printf("D> nuevo bloque para la linea: %s\n", bloque);
 				bloque=nuevoBloque;
+				free(nuevoBloque);
 				escribirEnBloque(bloque, subLinea);
 				agregarBloqueEnParticion(bloque, nombreTabla, particion);
 				linea = string_substring_from(linea, metadataFS.blockSize);
@@ -253,21 +255,28 @@ void escribirLinea(char* bloque, char* linea, char* nombreTabla, int particion){
 	free(subLinea);
 }
 
-void procesarPeticionesPendientes(char *nombreTabla){
+void procesarPeticionesPendientes(char *nombreTabla){//REVISION: se llama después compactar y sincronizar semáforos;
 	log_info(logger_visible, "Comenzando a procesar peticiones pendiente para la tabla %s", nombreTabla);
 	t_list *encoladas = dictionary_get(dPeticionesPorTabla, nombreTabla);
 	if(encoladas==NULL){
 		return;
 	}
 	void procesar(void *peticion){
-		Operacion op = ejecutarOperacion((char*)peticion);
+		Operacion op = ejecutarOperacion((char*)peticion);//FIXME:no se le puede notificar a la memoria lo que paso
 		mostrarRetorno(op);
 	}
 	list_iterate(encoladas, procesar);
-	list_destroy_and_destroy_elements(encoladas, (void*)free);
-	dictionary_remove(dPeticionesPorTabla, nombreTabla);
 }
 
+void destruirPeticionesPendientes(char *nombreTabla){
+	t_list *encoladas = dictionary_get(dPeticionesPorTabla, nombreTabla);
+	if(encoladas==NULL)
+		return;
+	void destroy(void *request){
+		free((char*)request);
+	}
+	dictionary_remove_and_destroy(dPeticionesPorTabla, nombreTabla, destroy);
+}
 
 bool esRegistroMasReciente(timestamp_t timestamp, int key, char* listaDeBloques){
 	Registro* reciente;
@@ -280,9 +289,49 @@ bool esRegistroMasReciente(timestamp_t timestamp, int key, char* listaDeBloques)
 }
 
 int getMin(int value1, int value2){
-	if(value1<value2){
+	if(value1<value2)
 		return value1;
-	}else{
-		return value2;
-	}
+	return value2;
 }
+
+char **generarRegistroBloque(t_list *registros){
+	//1: genero una cadena que contenga todos los registros de la lista
+	char *stringsDeRegistros = string_new();
+	char *registroString(Registro *reg){
+		return string_from_format("%llu;%d;%s\n", reg->timestamp, reg->key, reg->value);
+	}
+	void generarString(void *registro){
+		char *stringRegAux = registroString((Registro*)registro);
+		string_append(&stringsDeRegistros, stringRegAux);
+		free(stringRegAux);
+	}
+	list_iterate(registros, generarString);
+	//2: empiezo a cortar la cadena en pedazos de longitud sizeBloque y las voy agregando a la matriz de retorno
+	int pos = 1;
+	char **retorno = malloc(sizeof(char*)*pos);
+	retorno[pos-1] = NULL;
+	void iterarString(char *c){
+		if(retorno[pos-1] == NULL)
+			retorno[pos-1] = string_new();
+		string_append(&retorno[pos-1], c);
+		if(strlen(retorno[pos-1]) == metadataFS.blockSize){
+			++pos;
+			retorno = realloc(retorno, sizeof(char*)*pos);
+			retorno[pos-1] = NULL;
+		}
+	}
+	simple_string_iterate(stringsDeRegistros, iterarString);
+	if(retorno[pos-1] != NULL){
+		++pos;
+		retorno = realloc(retorno, sizeof(char*)*pos);
+		retorno[pos-1] = NULL;
+	}
+	return retorno;
+}
+
+
+
+
+
+
+

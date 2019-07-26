@@ -10,6 +10,7 @@
 
 #include <sys/mman.h>
 #include <fcntl.h>
+#include <stdlib.h>
 #include "../Lissandra.h"
 
 /*GLOBALES*/
@@ -19,9 +20,5 @@ sem_t leyendoBitarray;
 void leerBitmap();
 char* getBloqueLibre();
 void liberarBloque(int pos);
-void escribirBitmap();
-void binarioATexto(char* binario, char* texto, int cantSimbolos);
-unsigned long binarioADecimal(char* binario, int length);
-void actualizarBitarray();
 
 #endif /* ADHOC_BITMAP_H_ */
