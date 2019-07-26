@@ -9,7 +9,7 @@
 
 int iniciar_gossiping() {
 
-	//pthread_mutex_init(&mutexGossiping, NULL);
+	pthread_mutex_init(&mutexGossiping, NULL);
 
 
 //	char * ip_port_compresed =
@@ -30,9 +30,9 @@ int iniciar_gossiping() {
 	mem->memory_number = atoi(fconfig.numero_memoria);
 	mem->ip = string_from_format(fconfig.ip);
 	mem->ip_port = string_from_format(fconfig.puerto);
-	//pthread_mutex_lock(&mutexGossiping);
+	pthread_mutex_lock(&mutexGossiping);
 	list_add(listaMemoriasConocidas, (knownMemory_t *) mem);
-	//pthread_mutex_unlock(&mutexGossiping);
+	pthread_mutex_unlock(&mutexGossiping);
 	for (int i = 0; IPs[i] != NULL; ++i)	//Muestro por pantalla las IP seeds
 		log_info(logger_gossiping,
 				"GOSSIPING.C: iniciar_gossiping: IP SEED %d: %s:%s:", i, IPs[i],
@@ -116,7 +116,7 @@ void conectarConSeed() {
 				int comparoIP = strcmp(IPs[conteo_seeds],
 						((knownMemory_t*) buscoMemoria)->ip);
 				//return ((IPs[conteo_seeds] == ((knownMemory_t*)buscoMemoria)->ip) && (IPsPorts[conteo_seeds] == ((knownMemory_t*)buscoMemoria)->ip_port));
-				//printf("Buscar primeri %s  BUSCAR SEGUNDO %s\n",IPsPorts[conteo_seeds],((knownMemory_t*)buscoMemoria)->ip_port);
+				printf("Buscar primeri %s  BUSCAR SEGUNDO %s\n",IPsPorts[conteo_seeds],((knownMemory_t*)buscoMemoria)->ip_port);
 
 				if ((comparoPort * comparoPort + comparoIP * comparoIP) == 0) // Como me puede dar negativo, saco los modulos. En el caso de que la IP y el puerto sean iguales devuelve 0 la suma
 					return 1; //Tengo que ir a destruirMemoria
@@ -124,13 +124,14 @@ void conectarConSeed() {
 					return 0;	// No hago nada
 			}
 			void destruirMemoria(void *destruir) {
+				printf(RED"DESTRUYO MEMORIA %d %s:%s"STD"\n",((knownMemory_t*) destruir)->memory_number,((knownMemory_t*) destruir)->ip,((knownMemory_t*) destruir)->ip_port);
 				free(((knownMemory_t*) destruir)->ip);
 				free(((knownMemory_t*) destruir)->ip_port);
 				free(((knownMemory_t*) destruir));
 				//printf("Destrui Memoria\n");
 				return;
 			}
-			//pthread_mutex_lock(&mutexGossiping);
+			pthread_mutex_lock(&mutexGossiping);
 			list_remove_and_destroy_by_condition(listaMemoriasConocidas,
 					buscarMemoria, destruirMemoria);
 			//printf("Sali Destruir\n");
@@ -146,8 +147,10 @@ void conectarConSeed() {
 						((knownMemory_t*) memoriaLista)->ip_port);
 				int comparoIP = strcmp(fconfig.ip,
 						((knownMemory_t*) memoriaLista)->ip);
-				if ((comparoPort * comparoPort + comparoIP * comparoIP) == 0)
+				if ((comparoPort * comparoPort + comparoIP * comparoIP) == 0){
 					indexList++;
+				printf(GRN"Yo mismo no hago nada"STD"\n");
+				}
 				else {
 					// TIRO SOCKET, SI DA ERROR, lo tengo que limpiar de la lista
 					int socketLista = connect_to_server(
@@ -156,10 +159,10 @@ void conectarConSeed() {
 					if (socketLista == EXIT_FAILURE) {
 						list_remove(listaMemoriasConocidas, indexList);
 						sizeList = list_size(listaMemoriasConocidas);
-						//printf(YEL"SEED CAIDA Y OTRA MEMORIA TAMBIEN\n"STD);
+						printf(YEL"SEED CAIDA Y OTRA MEMORIA TAMBIEN\n"STD);
 						indexList++;
 					} else {
-						close (socketLista);
+						//close (socketLista);
 					}
 					//free(((knownMemory_t*)memoriaLista)->ip);
 					//free(((knownMemory_t*)memoriaLista)->ip_port);
@@ -168,6 +171,8 @@ void conectarConSeed() {
 				}
 
 			}
+			pthread_mutex_unlock(&mutexGossiping);
+			printf("TAMANIO LISTA CONOCIDAS %d\n",list_size(listaMemoriasConocidas));
 			//pthread_mutex_unlock(&mutexGossiping);
 			// return EXIT_FAILURE;
 			// Debo quitar del diccionario esta memoria ya que no esta
@@ -178,7 +183,8 @@ void conectarConSeed() {
 					IPs[conteo_seeds], IPsPorts[conteo_seeds]);
 
 			ConsultoPorMemoriasConocidas(socket); //
-			close(socket);
+			printf("TAMANIO LISTA CONOCIDAS %d\n",list_size(listaMemoriasConocidas));
+			//close(socket);
 		}
 
 	}
@@ -190,7 +196,7 @@ void ConsultoPorMemoriasConocidas(int socketSEEDS) {
 	char * envio = NULL;
 	knownMemory_t * recupero;
 	//printf("Armo paquete\n");
-	//pthread_mutex_lock(&mutexGossiping);
+	pthread_mutex_lock(&mutexGossiping);
 	for (int i = 0; list_size(listaMemoriasConocidas) > i; i++) {
 		//printf("Entro en lista\n");
 		recupero = (knownMemory_t *) list_get(listaMemoriasConocidas, i);
@@ -268,7 +274,8 @@ void ConsultoPorMemoriasConocidas(int socketSEEDS) {
 			"GOSSIPING.C:ConsultoPorMemoriasConocidas:Fin GOSSIP");
 	log_info(logger_visible,
 			"GOSSIPING.C:ConsultoPorMemoriasConocidas:Fin GOSSIP");
-	//close(socketSEEDS);
+	pthread_mutex_unlock(&mutexGossiping);
+	close(socketSEEDS);
 
 }
 
@@ -277,7 +284,7 @@ Operacion recibir_gossiping(Operacion resultado) {
 	char * envio = NULL;
 	log_info(logger_gossiping,
 			"GOSSIPING.C:recibir_gossiping: ENTRO FUNCION RECIBIR GOSSIPING");
-	//pthread_mutex_lock(&mutexGossiping);
+	pthread_mutex_lock(&mutexGossiping);
 	if (resultado.TipoDeMensaje == GOSSIPING_REQUEST) {	// si es gossping request, proceso las memorias que me envian
 		t_list *aux = list_create();
 		t_list *aux_filtro = list_create();
@@ -294,7 +301,7 @@ Operacion recibir_gossiping(Operacion resultado) {
 		for (int i = 0; descompresion[i] != NULL; i += 3) {
 			knownMemory_t *memoria;
 			if ((memoria = machearMemoria(atoi(descompresion[i]))) == NULL) {
-				//printf("NO MACHEA\n");
+				printf("NO MACHEA\n");
 
 				knownMemory_t *memoria = malloc(sizeof(knownMemory_t));
 				memoria->memory_number = atoi(descompresion[i]);
@@ -306,7 +313,7 @@ Operacion recibir_gossiping(Operacion resultado) {
 				//printf("SOCKET NEW : %d\n",socketNew);
 				if (socketNew == EXIT_FAILURE) {
 					//printf("FALLO SOCKET\n");
-					log_info(logger_gossiping,
+					log_info(logger_visible,
 							"GOSSIPING.C:recibir_gossiping: La memoria no esta activa %s:%s",
 							descompresion[i + 1], descompresion[i + 2]);
 					//printf("No activa\n");
@@ -374,8 +381,8 @@ Operacion recibir_gossiping(Operacion resultado) {
 	resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido = envio;
 	log_info(logger_visible,
 			"GOSSIPING.C:recibir_gossiping: Envio mensaje gossiping %s", envio);
-	//pthread_mutex_unlock(&mutexGossiping);
-
+	pthread_mutex_unlock(&mutexGossiping);
+	//pthread_mutex_lock(&mutexGossiping);
 	return resultado;
 }
 
