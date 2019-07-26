@@ -197,6 +197,7 @@ void handshakeMemoria(int socketMemoria) {
 	switch (handshake.TipoDeMensaje) {
 		case TEXTO_PLANO:
 			if (string_equals_ignore_case(handshake.Argumentos.TEXTO_PLANO.texto, "handshake pathLFS")) {
+				destruir_operacion(handshake);
 				handshake.TipoDeMensaje = TEXTO_PLANO;
 				handshake.Argumentos.TEXTO_PLANO.texto=string_from_format(config.punto_montaje);
 				send_msg(socketMemoria, handshake);
@@ -204,16 +205,10 @@ void handshakeMemoria(int socketMemoria) {
 			else{
 				log_error(logger_invisible,"Lissandra.c: handshakeMemoria() - No se pudo conectar la Memoria.");
 				log_error(logger_error,"Lissandra.c: handshakeMemoria() - No se pudo conectar la Memoria.");
+				destruir_operacion(handshake);
 			}
 			break;
-		case ERROR:
-		case COMANDO:
-		case REGISTRO:
-		case DESCRIBE_REQUEST:
-		case GOSSIPING_REQUEST:
-		case GOSSIPING_REQUEST_KERNEL:
-		case ERROR_JOURNAL:
-		case ERROR_MEMORIAFULL:
+		default:
 			break;
 	}
 	destruir_operacion(handshake);
