@@ -57,10 +57,7 @@ static DynamicAddressingRequest direccionar_request(char *request){
 		retorno.tipoOperacion = LECTURA;
 		break;
 	case INSERT:
-		if(!tabla_esta_en_la_lista(comando.argumentos.INSERT.nombreTabla))
-			memoria = elegir_cualquiera();
-		else
-			memoria = determinar_memoria_para_tabla(comando.argumentos.INSERT.nombreTabla, comando.argumentos.INSERT.key);
+		memoria = determinar_memoria_para_tabla(comando.argumentos.INSERT.nombreTabla, comando.argumentos.INSERT.key);
 		retorno.criterioQueSeUso = consistencia_de_tabla(comando.argumentos.INSERT.nombreTabla);
 		retorno.tipoOperacion = ESCRITURA;
 		break;
@@ -74,7 +71,7 @@ static DynamicAddressingRequest direccionar_request(char *request){
 	case DESCRIBE:
 		if(comando.argumentos.DESCRIBE.nombreTabla == NULL){
 			memoria = elegir_cualquiera();
-			retorno.criterioQueSeUso = EC;
+			retorno.criterioQueSeUso = NULL_CONSISTENCY; //Para que no joda en las estadisticas
 		}else{
 			memoria = determinar_memoria_para_tabla(comando.argumentos.DESCRIBE.nombreTabla, NULL);
 			retorno.criterioQueSeUso = consistencia_de_tabla(comando.argumentos.DESCRIBE.nombreTabla);
@@ -85,9 +82,6 @@ static DynamicAddressingRequest direccionar_request(char *request){
 		memoria = determinar_memoria_para_tabla(comando.argumentos.DROP.nombreTabla, NULL);
 		retorno.criterioQueSeUso = consistencia_de_tabla(comando.argumentos.DROP.nombreTabla);
 		retorno.tipoOperacion = ESCRITURA; //TODO: podria sacar la tabla de mi lista
-		break;
-	case JOURNAL:
-		retorno.socket = JOURNAL_REQUEST;
 		break;
 	default:
 		log_info(logger_invisible, "Instruccion ilegal");
@@ -103,8 +97,7 @@ static DynamicAddressingRequest direccionar_request(char *request){
 			retorno.socket = comunicarse_con_memoria_principal();
 			return retorno;
 		}
-		if(retorno.socket != JOURNAL_REQUEST)
-			retorno.socket = NULL_MEMORY;
+		retorno.socket = NULL_MEMORY;
 		return retorno;
 	}
 	retorno.memoria = memoria;
@@ -168,13 +161,6 @@ static INTERNAL_STATE exec_string_comando(PCB *pcb){
 		log_error(logger_invisible, "Unidad_de_ejecucion.c: exec_string_comando: finalizando operacion.");
 		return INSTRUCCION_ERROR;
 	}
-	if(target.socket == JOURNAL_REQUEST){
-		list_iterate(memoriasExistentes, ejecutar_journal);
-		free(pcb->data);
-		free(pcb->nombreArchivoLQL);
-		free(pcb);
-		return FINISH;
-	}
 	target.inicioOperacion = getCurrentTime();
 	Operacion request;
 	request.TipoDeMensaje = COMANDO;
@@ -237,17 +223,6 @@ static INTERNAL_STATE exec_file_lql(PCB *pcb){
 			free(pcb->nombreArchivoLQL);
 			free(pcb);
 			return INSTRUCCION_ERROR;
-		}
-		if(target.socket == JOURNAL_REQUEST){
-			char *aux = remover_new_line(line);
-			log_error(logger_error, "Unidad_de_ejecucion.c: exec_file_lql: finalizando operacion '%s' debido a la instruccion '%s'. No se espera la instruccion JOURNAL en un LQL", pcb->nombreArchivoLQL, aux);
-			log_error(logger_invisible, "Unidad_de_ejecucion.c: exec_file_lql: finalizando operacion '%s' debido a la instruccion '%s'. No se espera la instruccion JOURNAL en un LQL", pcb->nombreArchivoLQL, aux);
-			fclose(lql);
-			free(pcb->nombreArchivoLQL);
-			free(pcb);
-			free(aux);
-			return INSTRUCCION_ERROR;
-			//TODO instruccion journal en lql
 		}
 		target.inicioOperacion = getCurrentTime();
 		request.TipoDeMensaje = COMANDO;
@@ -316,7 +291,7 @@ static INTERNAL_STATE procesar_retorno_operacion(Operacion op, PCB* pcb, char* i
 			log_info(logger_invisible,"CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta realizando Journal. Se eligira otra de manera aleatoria si el criterio lo permite", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
 			free(instruccionActualTemp);
 			sleep(3);
-			return JOURNAL_MEMORY_INACCESSIBLE;
+			return JOURNAL_MEMORY_INACCESSIBLE; //TODO: ver de solucionar espera activa
 		}
 		log_error(logger_visible, "CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta realizando Journal. Se eligira otra de manera aleatoria si el criterio lo permite", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
 		log_error(logger_invisible, "CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta realizando Journal. Se eligira otra de manera aleatoria si el criterio lo permite", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);

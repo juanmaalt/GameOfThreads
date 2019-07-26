@@ -126,6 +126,8 @@ int asociar_memoria(char *numeroMemoria, char *consistencia){
 		if(!memoria_esta_en_la_lista(memoriasHSC, memoria->numero)){
 			memoria->Metrics.SHC.estaAsociada = true;
 			list_add(memoriasHSC, memoria);
+			log_info(logger_visible, "Sistema_de_criterios.c: add_memory: se dio la orden de journal a todas las memorias SHC");
+			log_info(logger_invisible, "Sistema_de_criterios.c: add_memory: se dio la orden de journal a todas las memorias SHC");
 			list_iterate(memoriasHSC, ejecutar_journal);
 			sem_post(&mutexMemoriasHSC);
 		}else{
@@ -304,7 +306,7 @@ Consistencia consistencia_de_tabla(char *nombreTabla){
 	MetadataTabla *tabla = machearTabla(nombreTabla);
 	sem_post(&mutexTablasExistentes);
 	if(tabla == NULL)
-		return -1;
+		return NULL_CONSISTENCY;
 	else
 		return tabla->consistencia;
 }
