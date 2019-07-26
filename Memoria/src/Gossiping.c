@@ -99,12 +99,12 @@ void conectarConSeed() {
 	//printf("CONECTARCONSEED\n");
 	for (; IPs[conteo_seeds] != NULL; conteo_seeds++) {
 		//printf("FOR IPS\n");
-		int socket = connect_to_server(IPs[conteo_seeds],
+		int socketGossip = connect_to_server(IPs[conteo_seeds],
 				IPsPorts[conteo_seeds]);
-		if(socket == EXIT_FAILURE)
+		if(socketGossip == EXIT_FAILURE)
 			printf("ESTA DANDO ERROR\n");
-		printf(YEL"IMPRIMO SOCKET %d\n IP PUERTO %s:%s"STD"\n",socket,IPs[conteo_seeds],IPsPorts[conteo_seeds]);
-		if (socket == EXIT_FAILURE) {
+		printf(YEL"IMPRIMO SOCKET %d\n IP PUERTO %s:%s"STD"\n",socketGossip,IPs[conteo_seeds],IPsPorts[conteo_seeds]);
+		if (socketGossip == EXIT_FAILURE) {
 			log_info(logger_visible,
 					"GOSSIPING.C:conectarConSeed: La memoria seed no esta activa %s:%s",
 					IPs[conteo_seeds], IPsPorts[conteo_seeds]);
@@ -137,9 +137,10 @@ void conectarConSeed() {
 			//printf("Sali Destruir\n");
 
 			int sizeList = list_size(listaMemoriasConocidas);
+			printf("TAMAÑO DE LISTA; %d\n", sizeList);
 			int indexList = 0;
 			while ((sizeList > 0) && (indexList < sizeList)) {
-				//printf(YEL"ENTRO AL WHILE\n"STD);
+				printf(YEL"ENTRO AL WHILE\n"STD);
 				knownMemory_t * memoriaLista;
 				memoriaLista = (knownMemory_t *) list_get(
 						listaMemoriasConocidas, indexList);
@@ -153,6 +154,7 @@ void conectarConSeed() {
 				}
 				else {
 					// TIRO SOCKET, SI DA ERROR, lo tengo que limpiar de la lista
+					printf("VIENDO SI ESTA: %s ----- %s\n",((knownMemory_t*) memoriaLista)->ip,((knownMemory_t*) memoriaLista)->ip_port);
 					int socketLista = connect_to_server(
 							((knownMemory_t*) memoriaLista)->ip,
 							((knownMemory_t*) memoriaLista)->ip_port);
@@ -160,10 +162,12 @@ void conectarConSeed() {
 						list_remove(listaMemoriasConocidas, indexList);
 						sizeList = list_size(listaMemoriasConocidas);
 						printf(YEL"SEED CAIDA Y OTRA MEMORIA TAMBIEN\n"STD);
-						indexList++;
+
 					} else {
-						//close (socketLista);
+						close (socketLista);
 					}
+
+					indexList++;
 					//free(((knownMemory_t*)memoriaLista)->ip);
 					//free(((knownMemory_t*)memoriaLista)->ip_port);
 					//free(((knownMemory_t*)memoriaLista));
@@ -182,7 +186,7 @@ void conectarConSeed() {
 					"GOSSIPING.C:conectarConSeed: Memoria conocida. Enviar mensaje %s:%s ",
 					IPs[conteo_seeds], IPsPorts[conteo_seeds]);
 
-			ConsultoPorMemoriasConocidas(socket); //
+			ConsultoPorMemoriasConocidas(socketGossip); //
 			printf("TAMANIO LISTA CONOCIDAS %d\n",list_size(listaMemoriasConocidas));
 			//close(socket);
 		}
