@@ -55,7 +55,7 @@ Operacion selectAPI(Comando comando){
 	listaDeValues=buscarValueEnLista(data, comando.argumentos.SELECT.key);
 
 	/*Busco en Temporales*/
-	leerTemps(comando.argumentos.SELECT.nombreTabla, comando.argumentos.SELECT.key, listaDeValues);
+	leerTemps(comando.argumentos.SELECT.nombreTabla, comando.argumentos.SELECT.key, listaDeValues);//TODO:Revisar que se lean los .tmpc también
 
 	/*Busco en Bloques*/
 	char* listaDeBloques= obtenerListaDeBloques(particionNbr, comando.argumentos.SELECT.nombreTabla);
@@ -133,7 +133,7 @@ Operacion insertAPI(Comando comando){
 	/*
 	char* path = malloc(100 * sizeof(char));
 	setPathTabla(path, comando.argumentos.INSERT.nombreTabla);
-	insertInFile(path, particionNbr, comando.argumentos.INSERT.key, comando.argumentos.INSERT.value); //TODO: Borrar?
+	insertInFile(path, particionNbr, comando.argumentos.INSERT.key, comando.argumentos.INSERT.value);
 	//FIN AD-HOC//
 	*/
 
@@ -181,10 +181,11 @@ Operacion createAPI(Comando comando){
 	crearArchivosBinarios(path, atoi(comando.argumentos.CREATE.numeroParticiones));
 
 	/*Creo la Tabla en la Memtable*/
-	crearTablaEnMemtable(comando.argumentos.CREATE.nombreTabla); //TODO
+	crearTablaEnMemtable(comando.argumentos.CREATE.nombreTabla);
 
 	SemaforoTabla *semt = malloc(sizeof(SemaforoTabla));
-	sem_init(&(semt->semaforo), 0, 1);
+	sem_init(&(semt->semaforoGral), 0, 1);
+	sem_init(&(semt->semaforoSelect), 0, 1);
 	semt->tabla = string_from_format(comando.argumentos.CREATE.nombreTabla);
 	sem_wait(&mutexPeticionesPorTabla);
 	list_add(semaforosPorTabla, semt);
@@ -237,10 +238,30 @@ Operacion dropAPI(Comando comando){
 	Operacion resultadoDrop;
 	resultadoDrop.TipoDeMensaje = ERROR;
 
+	/*Borro la entrada de la memtable*/
 	if(existeTabla(comando.argumentos.DROP.nombreTabla)){
 		/*Borro la entrada de la memtable*/
-		dictionary_remove(memtable, comando.argumentos.DROP.nombreTabla);
+		//dictionary_remove(memtable, comando.argumentos.DROP.nombreTabla);
+		void eliminarTablaDeMemtable(void* listaTabla){
+			void destroyElement(void* elemento){
+				free(((Registro*)elemento)->value);
+				free((Registro*)elemento);
+			}
+			list_destroy_and_destroy_elements((t_list*)listaTabla, destroyElement);
+		}
+		dictionary_remove_and_destroy(memtable, comando.argumentos.DROP.nombreTabla, eliminarTablaDeMemtable);
 	}
+
+	/*Borro el semáforo del diccionario de semáforos*/
+	bool buscarSemaforo(void* semaforo){
+		return string_equals_ignore_case(((SemaforoTabla*) semaforo)->tabla, comando.argumentos.DROP.nombreTabla);
+	}
+	void destruirSemaforo(void* semaforo){
+		SemaforoTabla* sem = ((SemaforoTabla*) semaforo);
+		free(sem->tabla);
+		free(sem);
+	}
+	list_remove_and_destroy_by_condition(semaforosPorTabla, buscarSemaforo, destruirSemaforo);
 
 	limpiarBloquesEnBitarray(comando.argumentos.DROP.nombreTabla);
 

@@ -76,7 +76,10 @@ typedef struct registro_t{
 
 typedef struct {
 	char* tabla;
-	sem_t semaforo;
+	sem_t semaforoGral;
+	sem_t semaforoSelect;
+	timestamp_t inicioBloqueo;
+	timestamp_t finBloqueo;
 }SemaforoTabla;
 
 /*GLOBALES*/

@@ -32,7 +32,7 @@ void cambiarNombreFilesTemp(char* pathTabla){
 	free(pathFileNuevo);
 }
 
-void leerTemporal(char* pathTemp, int particiones, char* nombreTabla){
+void leerTemporal(char* pathTemp, int particiones, char* nombreTabla){//TODO: Borrar funcion
 	FILE* temp;
     int key;
     timestamp_t timestamp;
@@ -57,7 +57,7 @@ void leerTemporal(char* pathTemp, int particiones, char* nombreTabla){
 
 			if(esRegistroMasReciente(timestamp, key, listaDeBloques)){
 				//printf("es más reciente\n");
-				fseekAndEraseBloque(key, listaDeBloques);//TODO: descomentar
+				fseekAndEraseBloque(key, listaDeBloques);
 				char* bloque = firstBloqueDisponible(listaDeBloques);
 
 				//printf("mando a escribirLinea el bloque %s\n", bloque);
@@ -255,7 +255,7 @@ void escribirLinea(char* bloque, char* linea, char* nombreTabla, int particion){
 	free(subLinea);
 }
 
-void procesarPeticionesPendientes(char *nombreTabla){
+void procesarPeticionesPendientes(char *nombreTabla){//FIXME:Llamarla después compactar y sincronizar semáforos;
 	log_info(logger_visible, "Comenzando a procesar peticiones pendiente para la tabla %s", nombreTabla);
 	t_list *encoladas = dictionary_get(dPeticionesPorTabla, nombreTabla);
 	if(encoladas==NULL){

@@ -288,9 +288,19 @@ void waitSemaforoTabla(char *tabla){
 		return !strcmp(tabla, ((SemaforoTabla*) tablaSemaforo)->tabla);
 	}
 	void *semt = list_find(semaforosPorTabla, buscar);
-	sem_wait(&(((SemaforoTabla*)semt)->semaforo));
+	sem_wait(&(((SemaforoTabla*)semt)->semaforoGral));
 }
 
+
+void waitSemaforoTablaSelect(char *tabla){
+	bool buscar(void *tablaSemaforo){
+		return !strcmp(tabla, ((SemaforoTabla*) tablaSemaforo)->tabla);
+	}
+	void *semt = list_find(semaforosPorTabla, buscar);
+	sem_wait(&(((SemaforoTabla*)semt)->semaforoSelect));
+	((SemaforoTabla*) semt)->inicioBloqueo = getCurrentTime();
+	log_info(logger_visible, "Compactar(%s): Se inicio la escritura de los bloques de la tabla %s", tabla, tabla);
+}
 
 
 
@@ -300,8 +310,20 @@ void postSemaforoTabla(char *tabla){
 		return !strcmp(tabla, ((SemaforoTabla*) tablaSemaforo)->tabla);
 	}
 	void *semt = list_find(semaforosPorTabla, buscar);
-	sem_post(&(((SemaforoTabla*)semt)->semaforo));
+	sem_post(&(((SemaforoTabla*)semt)->semaforoGral));
 }
+
+void postSemaforoTablaSelect(char *tabla){
+	bool buscar(void *tablaSemaforo){
+		return !strcmp(tabla, ((SemaforoTabla*) tablaSemaforo)->tabla);
+	}
+	void *semt = list_find(semaforosPorTabla, buscar);
+	sem_post(&(((SemaforoTabla*)semt)->semaforoSelect));
+	((SemaforoTabla*) semt)->finBloqueo = getCurrentTime();
+	log_info(logger_visible, "Compactar(%s): Se finalizo la escritura de los bloques de la tabla %s", tabla, tabla);
+	log_info(logger_visible, "Compactar(%s): Tiempo en el que la tabla estuvo bloqueada= %llu", tabla, (((SemaforoTabla*) semt)->finBloqueo-((SemaforoTabla*) semt)->inicioBloqueo));
+}
+
 
 static int escribirDiccionarioEnBloques(t_dictionary* registrosDeParticiones, char* nombreTabla){
 	for(int i=0; i<dictionary_size(registrosDeParticiones);i++){

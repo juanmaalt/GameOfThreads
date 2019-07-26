@@ -32,7 +32,7 @@ int main(void) {
 	leerBitmap();
 
 	/*Creo el diccionario para las tablas en compactación*/
-	dPeticionesPorTabla = dictionary_create();
+	dPeticionesPorTabla = dictionary_create();//FIXME: Ver de liberar las peticiones cuando hago un drop
 	semaforosPorTabla =list_create();
 	sem_init(&mutexPeticionesPorTabla, 0, 1);
 
@@ -66,25 +66,27 @@ int main(void) {
 void *connection_handler(void *nSocket){
 	pthread_detach(pthread_self());
 	int socket = *(int*) nSocket;
+	Operacion recibido;
 	Operacion resultado;
 
-	resultado = recv_msg(socket);
+	recibido = recv_msg(socket);
 
 	log_info(logger_invisible,"Lissandra.c: connection_handler() - Nueva conexión");
 
-	switch (resultado.TipoDeMensaje){
-	case COMANDO://TODO destruir operacion
-		log_info(logger_invisible,"Lissandra.c: connection_handler() - Comando recibido: %s", resultado.Argumentos.COMANDO.comandoParseable);
+	switch (recibido.TipoDeMensaje){
+	case COMANDO://TODO checkear que funcione
+		log_info(logger_invisible,"Lissandra.c: connection_handler() - Comando recibido: %s", recibido.Argumentos.COMANDO.comandoParseable);
+		destruir_operacion(recibido);
 		resultado = ejecutarOperacion(resultado.Argumentos.COMANDO.comandoParseable);
 		send_msg(socket, resultado);
 		break;
 	case TEXTO_PLANO:
-		if(strcmp(resultado.Argumentos.TEXTO_PLANO.texto, "handshake")==0)
+		if(strcmp(recibido.Argumentos.TEXTO_PLANO.texto, "handshake")==0)
 			handshakeMemoria(socket);
 		else{printf("No se pudo conectar la Memoria\n");}
 		break;
 	default:
-		fprintf(stderr, RED"No se pude interpretar el enum %d"STD"\n", resultado.TipoDeMensaje);
+		fprintf(stderr, RED"No se pude interpretar el enum %d"STD"\n", recibido.TipoDeMensaje);
 	}
 
 	destruir_operacion(resultado);
@@ -246,11 +248,15 @@ Operacion ejecutarOperacion(char* input) {
 		switch (parsed->keyword){
 		case SELECT:
 			sem_wait(&mutexPeticionesPorTabla);
-			bufferTabla=parsed->argumentos.SELECT.nombreTabla;
-			semt = list_find(semaforosPorTabla, buscar); //FIXME si semt es null, no deberiamos hacer getvalue
-			sem_getvalue(&semt->semaforo, &valorSemaforo); //TODO no bloquear el select, solo bloquear la lectura de bloques
+			bufferTabla=parsed->argumentos.INSERT.nombreTabla;
+			semt = list_find(semaforosPorTabla, buscar);
+			if(semt==NULL){
+				//TODO:log error
+				//TODO:Devolver mensaje error
+				break;
+			}
+			sem_getvalue(&semt->semaforoSelect, &valorSemaforo);
 			sem_post(&mutexPeticionesPorTabla);
-
 			if(valorSemaforo >= 1){
 				retorno = selectAPI(*parsed);
 				log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <SELECT> Mensaje de retorno \"%llu;%d;%s\"", retorno.Argumentos.REGISTRO.timestamp, retorno.Argumentos.REGISTRO.key, retorno.Argumentos.REGISTRO.value);
@@ -264,7 +270,12 @@ Operacion ejecutarOperacion(char* input) {
 			sem_wait(&mutexPeticionesPorTabla);
 			bufferTabla=parsed->argumentos.INSERT.nombreTabla;
 			semt = list_find(semaforosPorTabla, buscar);
-			sem_getvalue(&semt->semaforo, &valorSemaforo);
+			if(semt==NULL){
+				//TODO:log error
+				//TODO:Devolver mensaje error
+				break;
+			}
+			sem_getvalue(&semt->semaforoGral, &valorSemaforo);
 			sem_post(&mutexPeticionesPorTabla);
 
 			if(valorSemaforo >= 1){
@@ -288,7 +299,12 @@ Operacion ejecutarOperacion(char* input) {
 			sem_wait(&mutexPeticionesPorTabla);
 			bufferTabla=parsed->argumentos.DROP.nombreTabla;
 			semt = list_find(semaforosPorTabla, buscar);
-			sem_getvalue(&semt->semaforo, &valorSemaforo);
+			if(semt==NULL){
+				//TODO:log error
+				//TODO:Devolver mensaje error
+				break;
+			}
+			sem_getvalue(&semt->semaforoGral, &valorSemaforo);
 			sem_post(&mutexPeticionesPorTabla);
 
 			if(valorSemaforo >= 1){
@@ -520,7 +536,7 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 }
 /*FIN FSEEK*/
 
-/*INICIO FSEEKANDREPLACE*///TODO:Hacer
+/*INICIO FSEEKANDREPLACE*///TODO:Borrar
 
 void fseekAndEraseBloque(int key, char* listaDeBloques){
 	char** bloques = string_get_string_as_array(listaDeBloques);
