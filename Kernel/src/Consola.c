@@ -27,11 +27,15 @@ void *recibir_comandos(void *null){
 	            case CREATE:
 	            case DESCRIBE:
 	            case DROP:
-	            case JOURNAL:
 	            	if(new_comando(STRING_COMANDO, userImput) == EXIT_FAILURE){
 	            		log_error(logger_error, "Consola.c: recibir_comandos: el comando no pudo ingresar a new");
 	            		log_error(logger_invisible, "Consola.c: recibir_comandos: el comando no pudo ingresar a new");
 	            	}//Aca no se libera userImput, se libera en unidad_de_ejecucion.c con el nombre de pcb->data
+	            	break;
+	            case JOURNAL:
+	            	log_info(logger_invisible, "Consola.c: recibir_comandos: se dio la orden de journal a todas las memorias");
+	            	log_info(logger_visible, "Consola.c: recibir_comandos: se dio la orden de journal a todas las memorias");
+	            	list_iterate(memoriasExistentes, ejecutar_journal);
 	            	break;
 	            case ADDMEMORY:
 	            	if(asociar_memoria(parsed->argumentos.ADDMEMORY.numero, parsed->argumentos.ADDMEMORY.criterio) == EXIT_FAILURE){
@@ -63,6 +67,8 @@ void *recibir_comandos(void *null){
 	                break;
 
 	            case METRICS_STOP:
+	            	log_info(logger_invisible, "Consola.c: recibir_comandos: se finalizaron las metricas");
+	            	log_info(logger_visible, "Consola.c: recibir_comandos: se finalizaron las metricas");
 	            	no_ver_metricas();
 	            	free(userImput);
 	            	break;

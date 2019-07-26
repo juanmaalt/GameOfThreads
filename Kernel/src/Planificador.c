@@ -7,7 +7,7 @@
 
 #include "Planificador.h"
 
-//FUNCIONES: Privadas. No van en el header
+//FUNCIONES: Privadas
 static int iniciar_unidades_de_ejecucion();
 static int iniciar_describe_automatico();
 
@@ -26,7 +26,7 @@ int iniciar_planificador(){
 	}
 
 	colaDeReady = queue_create();
-	sem_post(&disponibilidadPlanificador); //No queremos que la consola agregue algo a la cola de news si todavia no existe la cola de news
+	sem_post(&disponibilidadPlanificador); //No queremos que la consola agregue algo a la cola de news si todavia no existe la cola de ready
 
 	sem_wait(&dormirProcesoPadre);
 	return EXIT_SUCCESS;
@@ -66,7 +66,7 @@ static int iniciar_unidades_de_ejecucion(){
 		pthread_t *id = malloc(sizeof(pthread_t));
 		int res = pthread_create(id, NULL, exec, NULL);
 		if(res != 0){
-			RETURN_ERROR("Planificador.c: iniciar_planificacion: fallo la creacion de un proceso");
+			RETURN_ERROR("Planificador.c: iniciar_planificacion: fallo la creacion de un proceso.");
 		}
 		list_add(idsExecInstances, id);
 	}
@@ -79,7 +79,7 @@ static int iniciar_unidades_de_ejecucion(){
 
 static int iniciar_describe_automatico(){
 	if((describeAutomatico = pthread_create(&describeAutomatico, NULL, describe_automatico, NULL)) != 0)
-		RETURN_ERROR("Error al crear hilo de describe automatico");
+		RETURN_ERROR("Planificador.c: iniciar_describe_automatico: Error al crear hilo de describe automatico");
 	return EXIT_SUCCESS;
 }
 
@@ -131,5 +131,5 @@ void desalojar(PCB *pcb){
 }
 
 void simular_retardo(void){
-	usleep(vconfig.retardo);
+	usleep(vconfig.retardo * 1000);
 }

@@ -46,6 +46,7 @@ typedef struct memoria Memoria;
 #define NULL_MEMORY -5
 #define JOURNAL_REQUEST -6
 #define JOURNAL_MEMORY_INACCESSIBLE -7
+#define NULL_CONSISTENCY -8
 
 typedef enum{
 	LECTURA,
