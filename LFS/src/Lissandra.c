@@ -32,7 +32,7 @@ int main(void) {
 	leerBitmap();
 
 	/*Creo el diccionario para las tablas en compactación*/
-	dPeticionesPorTabla = dictionary_create();//FIXME: Ver de liberar las peticiones cuando hago un drop
+	dPeticionesPorTabla = dictionary_create();//REVISION: se liberan las peticiones cuando se hace un drop
 	semaforosPorTabla =list_create();
 	sem_init(&mutexPeticionesPorTabla, 0, 1);
 

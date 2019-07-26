@@ -255,21 +255,28 @@ void escribirLinea(char* bloque, char* linea, char* nombreTabla, int particion){
 	free(subLinea);
 }
 
-void procesarPeticionesPendientes(char *nombreTabla){//FIXME:Llamarla después compactar y sincronizar semáforos;
+void procesarPeticionesPendientes(char *nombreTabla){//REVISION: se llama después compactar y sincronizar semáforos;
 	log_info(logger_visible, "Comenzando a procesar peticiones pendiente para la tabla %s", nombreTabla);
 	t_list *encoladas = dictionary_get(dPeticionesPorTabla, nombreTabla);
 	if(encoladas==NULL){
 		return;
 	}
 	void procesar(void *peticion){
-		Operacion op = ejecutarOperacion((char*)peticion);
+		Operacion op = ejecutarOperacion((char*)peticion);//FIXME:no se le puede notificar a la memoria lo que paso
 		mostrarRetorno(op);
 	}
 	list_iterate(encoladas, procesar);
-	list_destroy_and_destroy_elements(encoladas, (void*)free);
-	dictionary_remove(dPeticionesPorTabla, nombreTabla);
 }
 
+void destruirPeticionesPendientes(char *nombreTabla){
+	t_list *encoladas = dictionary_get(dPeticionesPorTabla, nombreTabla);
+	if(encoladas==NULL)
+		return;
+	void destroy(void *request){
+		free((char*)request);
+	}
+	dictionary_remove_and_destroy(dPeticionesPorTabla, nombreTabla, destroy);
+}
 
 bool esRegistroMasReciente(timestamp_t timestamp, int key, char* listaDeBloques){
 	Registro* reciente;

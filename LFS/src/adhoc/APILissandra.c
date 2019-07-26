@@ -263,6 +263,10 @@ Operacion dropAPI(Comando comando){
 	}
 	list_remove_and_destroy_by_condition(semaforosPorTabla, buscarSemaforo, destruirSemaforo);
 
+	//Borro peticiones pendientes si es que existen
+	destruirPeticionesPendientes(comando.argumentos.DROP.nombreTabla);
+
+	//Limpiar bloques
 	limpiarBloquesEnBitarray(comando.argumentos.DROP.nombreTabla);
 
 	/*Reservo espacio para los paths*/
