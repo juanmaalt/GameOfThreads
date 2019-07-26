@@ -15,11 +15,10 @@ static Metadata_tabla* levantarMetadataTabla(char *nombreTabla);
 static int levantarRegistrosDump(t_dictionary *lista, char *nombreTabla, char *pathArchivoTMPC, int particionesDeLaTabla);
 static int levantarRegistrosBloques(t_dictionary *lista, char *nombreTabla, int particiones);
 static void agregarRegistro(t_list *lista, Registro *registro);
-static void destruirRegistro(void *reg);
 static void verDiccionarioDebug(t_dictionary *lista);
 static void destruirRegistrosDeParticiones(t_dictionary *diccionario);
 static int escribirDiccionarioEnBloques(t_dictionary* registrosDeParticiones, char* nombreTabla);
-static int escribirBloques(t_list* listaDeRegistros, char** bloques);
+static int escribirBloques(t_list* listaDeRegistros, char** bloques, char* nombreTabla, int particion);
 
 
 void* compactar(void* nombreTabla){
@@ -52,62 +51,20 @@ void* compactar(void* nombreTabla){
 			continue;
 		cambiarNombreFilesTemp(pathTabla);
 		if(levantarRegistrosBloques(registrosDeParticiones, (char*)nombreTabla, metadata->partitions) == EXIT_FAILURE){
-			//TODO
+			//TODO: Loggear el error
 			continue;
 		}
 		if(directory_iterate_if(pathTabla, es_tmpc, iterar_tmpc)==EXIT_FAILURE){
-			//TODO
+			//TODO: Loggear el error
 			continue;
 		}
 		verDiccionarioDebug(registrosDeParticiones);
 		escribirDiccionarioEnBloques(registrosDeParticiones, (char*)nombreTabla);
 		destruirRegistrosDeParticiones(registrosDeParticiones);
+		//TODO: Destruir temps
 	}
 
 	return NULL;
-
-	/*for(;;){
-
-
-		if((dir = opendir(pathTabla)) != NULL){
-			//Cambio el nombre de los archivos temporales de .tmp a .tmpc
-			cambiarNombreFilesTemp(pathTabla);
-			//Tomo el semáforo de la tabla
-			waitSemaforoTabla((char*)nombreTabla);
-			//Compacto los archivos .tmpc hasta que no haya más
-			while((entry = readdir (dir)) != NULL){
-				nombreArchivo = string_from_format(entry->d_name);
-				if(string_contains(nombreArchivo, ".tmpc")){
-					char* pathTemp = string_from_format("%s/%s", pathTabla, nombreArchivo);
-
-					log_info(logger_invisible, "Compactador.c: compactar(%s): [%s] es un archivo temporal, inciando su compactacion.", (char*)nombreTabla, nombreArchivo);
-					//Leo el archivo temporal e inicio su compactación
-						//printf("llega a leer temporal\n");
-						//usleep(5000000);
-					leerTemporal(pathTemp, metadata.partitions, (char*)nombreTabla);
-						//printf("pasó leer temporal\n");
-					//Borro el archivo temporal
-					remove(pathTemp);
-						//printf("pasó remover temp\n");
-					free(pathTemp);
-				}
-				else{
-					log_info(logger_invisible, "Compactador.c: compactar(%s): [%s] no es un archivo temporal, no se compactara", (char*)nombreTabla, nombreArchivo);
-				}
-				free(nombreArchivo);
-			}
-			//Libero el semáforo de la tabla
-			postSemaforoTabla((char*)nombreTabla);
-			//Lee todas las peticiones y las manda a ejecutarOperacion
-			procesarPeticionesPendientes((char*)nombreTabla);
-			log_info(logger_invisible, "Compactador.c: compactar(%s) - Fin compactación", (char*)nombreTabla);
-
-			closedir (dir);
-		}
-	}
-	config_destroy(metadataFile);
-	free(pathTabla);
-	return NULL;*/
 }
 
 
@@ -326,17 +283,6 @@ static void destruirRegistrosDeParticiones(t_dictionary *diccionario){
 
 
 
-
-
-static void destruirRegistro(void *reg){
-	free(((Registro*)reg)->value);
-	free(reg);
-}
-
-
-
-
-
 void waitSemaforoTabla(char *tabla){
 	bool buscar(void *tablaSemaforo){
 		return !strcmp(tabla, ((SemaforoTabla*) tablaSemaforo)->tabla);
@@ -364,39 +310,32 @@ static int escribirDiccionarioEnBloques(t_dictionary* registrosDeParticiones, ch
 		char** bloques = string_get_string_as_array(bloquesAsignados);
 		t_list* listaDeRegistros = dictionary_get(registrosDeParticiones, particion);
 
-		escribirBloques(listaDeRegistros, bloques);
+		escribirBloques(listaDeRegistros, bloques, nombreTabla, i);
 
 		free(particion);
 		string_iterate_lines(bloques, (void* )free);
 		free(bloques);
 		free(bloquesAsignados);
 	}
-
-
-	/*
-		while(hayaParticionesEnDiccionario){
-			ObtenerNroParticion
-			ObtenerBloquesEnParticion
-			mmap(bloque)
-			stringParaBloque[blocksize]
-
-
-			EscribirVirtualmenteElBloque
-
-		}
-
-
-	*/
 	return EXIT_SUCCESS;
 }
 
-static int escribirBloques(t_list* listaDeRegistros, char** bloques){
+static int escribirBloques(t_list* listaDeRegistros, char** bloques, char* nombreTabla, int particion){
 	int size = metadataFS.blockSize;
 	int numeroDeBloque = 0;
-	char **registrosBloques = generarRegistroBloque(listaDeRegistros, size);
+	char **registrosBloques = generarRegistroBloque(listaDeRegistros);
 
 	void escribirEnBloques(char *linea){
-		char* pathBloque = string_from_format("%sBloques/%s.bin", config.punto_montaje, bloques[numeroDeBloque]);
+		char* pathBloque;
+		if(bloques[numeroDeBloque]!=NULL){
+			pathBloque = string_from_format("%sBloques/%s.bin", config.punto_montaje, bloques[numeroDeBloque]);
+			numeroDeBloque++;
+		}else{
+			char* bloque = getBloqueLibre();
+			pathBloque = string_from_format("%sBloques/%s.bin", config.punto_montaje,bloque);
+			agregarBloqueEnParticion(bloque, nombreTabla, particion);
+			free(bloque);
+		}
 		int fdBloque = open(pathBloque, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 		if(fdBloque == -1){
 			log_error(logger_visible, "No se pudieron abrir los bloques de la particion");
@@ -410,7 +349,6 @@ static int escribirBloques(t_list* listaDeRegistros, char** bloques){
 		memcpy(textoBloque, linea, strlen(linea)); //strlen linea va a ser menor o igual a size. La linea contiene \n al finalizar cada registro. Contiene \0 al final pero el strlen no lo tiene en cuenta
 		msync(textoBloque, size, MS_SYNC);
 		free(pathBloque);
-		++numeroDeBloque; //TODO revisar la gestion de bloques, si me quedo sin bloques o me sobran
 		munmap(textoBloque, size);
 		close(fdBloque);
 	}
@@ -419,7 +357,6 @@ static int escribirBloques(t_list* listaDeRegistros, char** bloques){
 		string_iterate_lines(registrosBloques, (void*)free);
 		free(registrosBloques);
 	}
-
 	return EXIT_SUCCESS;
 }
 

@@ -26,7 +26,7 @@ int getMin(int value1, int value2);
 
 void sacarTablaDeDiccCompactacion(char* nombreTabla);
 
-char **generarRegistroBloque(t_list *registros, int sizeBloque);
+char **generarRegistroBloque(t_list *registros);
 
 
 #endif /* ADHOC_FUNCIONESCOMP_H_ */

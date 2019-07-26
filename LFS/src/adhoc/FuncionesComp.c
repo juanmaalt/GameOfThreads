@@ -287,7 +287,7 @@ int getMin(int value1, int value2){
 	return value2;
 }
 
-char **generarRegistroBloque(t_list *registros, int sizeBloque){
+char **generarRegistroBloque(t_list *registros){
 	//1: genero una cadena que contenga todos los registros de la lista
 	char *stringsDeRegistros = string_new();
 	char *registroString(Registro *reg){
@@ -307,7 +307,7 @@ char **generarRegistroBloque(t_list *registros, int sizeBloque){
 		if(retorno[pos-1] == NULL)
 			retorno[pos-1] = string_new();
 		string_append(&retorno[pos-1], c);
-		if(strlen(retorno[pos-1]) == sizeBloque){
+		if(strlen(retorno[pos-1]) == metadataFS.blockSize){
 			++pos;
 			retorno = realloc(retorno, sizeof(char*)*pos);
 			retorno[pos-1] = NULL;
