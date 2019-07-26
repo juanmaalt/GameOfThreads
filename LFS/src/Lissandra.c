@@ -396,7 +396,7 @@ void* dump(){
 
 	for(;;){
 		usleep(vconfig.tiempoDump() * 1000);
-		dictionary_iterator(memtable, (void*) dumpTabla);
+		dictionary_iterator(memtable, dumpTabla);
 	}
 	return NULL;
 }
@@ -423,14 +423,15 @@ int cuentaArchivos(char* path) {
 	return cuenta;
 }
 
-void dumpTabla(char* nombreTable, t_list* list){
+void dumpTabla(char* nombreTable, void* value){
+	t_list* list = (t_list*) value;
 
 	//t_list * list = dictionary_get(memtable, nombreTable);//obtengo la data, en el insert debera checkear que este dato no sea null
 
-	if (list == NULL || list_size(list) == 0) {
+	if(list==NULL || list_size(list)==0){
+		//TODO:log
 		return;
 	}
-
 	char* path = string_from_format("%sTables/%s", config.punto_montaje, nombreTable);
 
 	int numeroDump = cuentaArchivos(path);
@@ -439,19 +440,23 @@ void dumpTabla(char* nombreTable, t_list* list){
 
 	FILE* file = fopen(pathArchivo,"w");
 
-	Registro* reg = list_get(list, 0);
-
-	int i = 0;
-	int size = list_size(list);
-	while (i < size) {
-		dumpRegistro(file, reg);
-		i++;
-		reg = list_get(list, i);
+	void dumpearTodosLosRegistros(void* reg){
+		Registro* registro = (Registro*) reg;
+		dumpRegistro(file, registro);
 	}
-	list_clean(list);
+
+	list_iterate(list, dumpearTodosLosRegistros);
+
 	fclose(file);
 	free(pathArchivo);
 	free(path);
+
+	void eliminarRegistro(void* elem){
+		free(((Registro*)elem)->value);
+		free(((Registro*)elem));
+	}
+
+	list_clean_and_destroy_elements(list, eliminarRegistro);
 }
 
 void dumpRegistro(FILE* file, Registro* registro) {

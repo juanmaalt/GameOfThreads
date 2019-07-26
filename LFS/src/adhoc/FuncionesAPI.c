@@ -243,9 +243,8 @@ timestamp_t checkTimestamp(char* timestamp){
 
 
 void crearTablaEnMemtable(char* nombreTabla){
-	t_list* lista = list_create(); //LEAK: ver como se libera esto
-	char* tabla=string_from_format(nombreTabla);//REVISION: se agrego string from format ya que se le pasan constantes
-	//TODO: a veces se la llama con nombreCarpeta, otras con nombreTabla
+	t_list* lista = list_create();
+	char* tabla=string_from_format(nombreTabla);
 	dictionary_put(memtable, tabla, lista);
 }
 
@@ -311,7 +310,7 @@ void crearArchivosBinarios(char* path, int particiones){
 		free(text);
 		free(pathFinal);
 		free(filename);
-		free(bloque); //REVISION free de bloque
+		free(bloque);
 		fclose(binario);
 	}
 }

@@ -137,7 +137,7 @@ void agregarDatos(t_dictionary* memtable);
 void setPathTabla(char* path, char* nombreTabla);
 void* dump();
 void dumpRegistro(FILE* file, Registro* registro);
-void dumpTabla(char* nombreTable, t_list* value);
+void dumpTabla(char* nombreTable, void* value);
 
 #endif /* LISSANDRA_H_ */
 
