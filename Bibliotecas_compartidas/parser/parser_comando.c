@@ -1,6 +1,9 @@
 #include "parser_comando.h"
 
-#define RETURN_ERROR Comando ERROR={ .valido = false }; return ERROR
+#define RETURN_ERROR Comando ERROR={ .valido = false, ._raw = split }; \
+									if(auxLine != NULL) \
+										free(auxLine);\
+									return ERROR
 
 /*#define _CHECK_CLAVE x if(string_length(x) > 40){\
 						fprintf(stderr, "La clave <%.40s...> es muy larga\n", (x)); \
@@ -10,24 +13,32 @@
 
 void destruir_comando(Comando op){
 	if(op._raw){
-		string_iterate_lines(op._raw, (void*)free);
+		void ver(char*c){
+			printf("|%s|\n", c);
+			free(c);
+		}
+		string_iterate_lines(op._raw, ver);
 		free(op._raw);
 	}
 }
 
 Comando parsear_comando(char* line){
+	Comando ret = {
+		.valido = true
+	};
+
+	char** split = NULL;
+	char* auxLine = NULL;
+
 	if(line == NULL || string_equals_ignore_case(line, "")){
 		fprintf(stderr, RED"No pude interpretar una linea vacia"STD"\n");
 		RETURN_ERROR;
 	}
 
-	Comando ret = {
-		.valido = true
-	};
 
-	char* auxLine = string_duplicate(line);
+	auxLine = string_duplicate(line);
 	string_trim(&auxLine);
-	char** split = string_double_split(auxLine, " ", "\"");
+	split = string_double_split(auxLine, " ", "\"");
 	//char** split = string_n_split(auxLine, 5, " ");
 
 	char* keyword = split[0];
@@ -347,7 +358,7 @@ bool esUint16_t(char* key){
 bool esTimestamp(char* timestamp){
 	bool valido = esNumerica(timestamp) && strlen(timestamp) <= RANGO_MAX_TIMESTAMP && strlen(timestamp) >= RANGO_MIN_TIMESTAMP;
 	if(!valido)
-		printf(RED"Error, '%s' no esta en el rango de timestamp (unsigned log long) [%d <= timestamp <= %d]"STD, timestamp, RANGO_MIN_TIMESTAMP, RANGO_MAX_TIMESTAMP);
+		printf(RED"Error, '%s' no esta en el rango de timestamp (unsigned log long) [%d <= timestamp <= %llu]"STD, timestamp, RANGO_MIN_TIMESTAMP, RANGO_MAX_TIMESTAMP);
 	return valido;
 }
 
@@ -392,7 +403,7 @@ char **string_double_split(char *cadena, char *firstSeprator, char *secondSepara
 	};
 
 	if (next[0] != '\0') {
-		size++;
+		size++;printf("asd\n");
 		substrings = realloc(substrings, sizeof(char*) * size);
 		substrings[size - 1] = string_duplicate(next);
 	}
