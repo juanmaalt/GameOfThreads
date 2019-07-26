@@ -81,6 +81,7 @@ void *recibir_comandos(void *null){
 	    }else{
     		log_error(logger_error, "Consola.c: recibir_comandos: la linea no es valida");
     		log_error(logger_invisible, "Consola.c: recibir_comandos: la linea no es valida");
+    		free(userImput);
 	    }
 	    destruir_comando(*parsed);
 	    free(parsed);
