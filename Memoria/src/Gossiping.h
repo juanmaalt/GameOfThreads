@@ -43,4 +43,5 @@ void *conectar_seeds(void*);
 void ConsultoPorMemoriasConocidas(int );
 Operacion recibir_gossiping (Operacion);
 static knownMemory_t *machearMemoria(int );
+void chequeo_memorias_en_lista_activas (void);
 #endif /* GOSSIPING_H_ */
