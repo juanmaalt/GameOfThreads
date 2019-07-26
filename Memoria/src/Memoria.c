@@ -78,7 +78,7 @@ int main(void) {
 		return EXIT_FAILURE;
 	}
 	log_info(logger_invisible, "=============Finalizando Memoria=============");
-	finalizar_todos_los_hilos();
+	//finalizar_todos_los_hilos();
 	liberarRecursos();
 
 }
