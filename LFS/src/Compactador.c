@@ -62,6 +62,8 @@ void* compactar(void* nombreTabla){
 		escribirDiccionarioEnBloques(registrosDeParticiones, (char*)nombreTabla);
 		destruirRegistrosDeParticiones(registrosDeParticiones);
 		//TODO: Destruir temps
+		procesarPeticionesPendientes(nombreTabla);
+		destruirPeticionesPendientes(nombreTabla);
 	}
 
 	return NULL;
