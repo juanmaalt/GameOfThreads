@@ -44,7 +44,7 @@ Comando parsear_comando(char* line){
 			fprintf(stderr, RED"Error sintactico, SELECT [NOMBRE_TABLA(char*)] [KEY(int)]"STD"\n");
 			RETURN_ERROR;
 		}else{
-			if(!esAlfaNumerica(split[1]) || !esNumerica(split[2])){
+			if(!esAlfaNumerica(split[1]) || !esUint16_t(split[2])){
 				fprintf(stderr, RED"Error sintactico, SELECT [NOMBRE_TABLA(char*)] [KEY(int)]"STD"\n");
 				RETURN_ERROR;
 			}
@@ -56,11 +56,11 @@ Comando parsear_comando(char* line){
 			fprintf(stderr, RED"Error sintactico, INSERT [NOMBRE_TABLA(cadena)] [KEY(numerico)] “[VALUE(cadena)]” [TIMESTAMP(numerico, opcional)]"STD"\n");
 			RETURN_ERROR;
 		}else{
-			if(!esAlfaNumerica(split[1]) || !esNumerica(split[2]) || !esValue(split[3])){
+			if(!esAlfaNumerica(split[1]) || !esUint16_t(split[2]) || !esValue(split[3])){
 				fprintf(stderr, RED"Error sintactico, INSERT [NOMBRE_TABLA(cadena)] [KEY(numerico)] “[VALUE(cadena)]” [TIMESTAMP(numerico, opcional)]"STD"\n");
 				RETURN_ERROR;
 			}
-			else if(split[4] != NULL && !esNumerica(split[4])){
+			else if(split[4] != NULL && !esTimestamp(split[4])){
 				fprintf(stderr, RED"Error sintactico, INSERT [NOMBRE_TABLA(char*)] [KEY(int)] “[VALUE(char*)]” [TIMESTAMP(int, opcional)]"STD"\n");
 				RETURN_ERROR;
 			}
@@ -314,22 +314,41 @@ char *remover_new_line(char* cadena){
 bool esAlfaNumerica(char* cadena){
 	for(int i=0; cadena[i]!='\n' && cadena[i]!='\0' && cadena[i]!=' '; ++i)
 		if(cadena[i]!='-' && cadena[i]!='_')
-			if(!isalnum((int)cadena[i]))
+			if(!isalnum((int)cadena[i])){
+				printf(RED"Error, '%s' deberia ser alfa numerico\n", cadena);
 				return false;
+			}
 	return true;
 }
 
 bool esNumerica(char* cadena){
 	for(int i=0; cadena[i]!='\n' && cadena[i]!='\0' && cadena[i]!=' '; ++i)
-		if(!isdigit((int)cadena[i]))
+		if(!isdigit((int)cadena[i])){
+			printf(RED"Error, '%s' deberia ser numerico\n", cadena);
 			return false;
+		}
 	return true;
 }
 
 bool esConsistenciaValida(char* cadena){
 	if(string_equals_ignore_case(cadena, "SC") || string_equals_ignore_case(cadena, "EC") || string_equals_ignore_case(cadena, "SHC"))
 		return true;
+	printf(RED"Error, '%s' deberia ser [EC | SC | SHC]\n", cadena);
 	return false;
+}
+
+bool esUint16_t(char* key){
+	bool valido = esNumerica(key) && strlen(key) <= RANGO_MAX_UINT16_T && strlen(key) >= RANGO_MIN_UINT16_T;
+	if(!valido)
+		printf(RED"Error, '%s' no esta en el rango de uint16_t [%d <= key <= %d]"STD, key, RANGO_MIN_UINT16_T, RANGO_MAX_UINT16_T);
+	return valido;
+}
+
+bool esTimestamp(char* timestamp){
+	bool valido = esNumerica(timestamp) && strlen(timestamp) <= RANGO_MAX_TIMESTAMP && strlen(timestamp) >= RANGO_MIN_TIMESTAMP;
+	if(!valido)
+		printf(RED"Error, '%s' no esta en el rango de timestamp (unsigned log long) [%d <= timestamp <= %d]"STD, timestamp, RANGO_MIN_TIMESTAMP, RANGO_MAX_TIMESTAMP);
+	return valido;
 }
 
 bool esValue(char* cadena){

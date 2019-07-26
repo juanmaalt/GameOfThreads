@@ -18,6 +18,10 @@
 
 #ifndef PARSER_H_
 #define PARSER_H_
+#define RANGO_MAX_UINT16_T 65535
+#define RANGO_MIN_UINT16_T 0
+#define RANGO_MAX_TIMESTAMP 18446744073709551615
+#define RANGO_MIN_TIMESTAMP 0
 
 #include "../colores/colores.h"
 
@@ -159,6 +163,18 @@
 	* @DESC: esConsistenciaValida
 	*/
 	bool esConsistenciaValida(char* cadena);
+
+	/**
+	* @NAME: esUint16_t
+	* @DESC: esUint16_t
+	*/
+	bool esUint16_t(char* key);
+
+	/**
+	* @NAME: esTimestamp
+	* @DESC: esTimestamp
+	*/
+	bool esTimestamp(char* timestamp);
 
 	/**
 	* @NAME: esValue

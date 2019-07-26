@@ -17,8 +17,8 @@ void *recibir_comandos(void *null){
 	pthread_detach(pthread_self());
 	sem_wait(&disponibilidadPlanificador);
 	for(;;){
-		Comando *parsed = malloc(sizeof(Comando));
 		char *userImput = readline(NULL);
+		Comando *parsed = malloc(sizeof(Comando));
 		*parsed = parsear_comando(userImput);
 	    if(parsed->valido){
 	        switch(parsed->keyword){
@@ -78,11 +78,11 @@ void *recibir_comandos(void *null){
             		log_error(logger_invisible, "Consola.c: recibir_comandos: no se pude interpretar el enum");
             		free(userImput);
 	        }
-	        destruir_comando(*parsed);
 	    }else{
     		log_error(logger_error, "Consola.c: recibir_comandos: la linea no es valida");
     		log_error(logger_invisible, "Consola.c: recibir_comandos: la linea no es valida");
 	    }
+	    destruir_comando(*parsed);
 	    free(parsed);
 	}
 	return NULL;
