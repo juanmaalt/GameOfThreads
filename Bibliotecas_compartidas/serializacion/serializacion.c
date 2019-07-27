@@ -109,7 +109,7 @@ int send_msg(int socket, Operacion operacion) {
 }
 
 Operacion recv_msg(int socket) {
-	Operacion retorno;
+	Operacion retorno = {.TipoDeMensaje = -1};
 	int longitud = 0;
 	int result = recv(socket, &(retorno.TipoDeMensaje), sizeof(int), 0);
 	if (result <= 0)
@@ -120,16 +120,20 @@ Operacion recv_msg(int socket) {
 		if(recv(socket, &longitud, sizeof(int), 0) <= 0)
 			RECV_FAIL("(Serializacion.c: recv_msg) Error en la recepcion del resultado. Es posible que se haya perdido la conexion")
 		retorno.Argumentos.TEXTO_PLANO.texto = calloc(longitud+1, sizeof(char));
-		if(recv(socket, retorno.Argumentos.TEXTO_PLANO.texto, sizeof(char) * longitud, 0) <= 0)
+		if(recv(socket, retorno.Argumentos.TEXTO_PLANO.texto, sizeof(char) * longitud, 0) <= 0){
+			if(retorno.Argumentos.TEXTO_PLANO.texto)free(retorno.Argumentos.TEXTO_PLANO.texto);
 			RECV_FAIL("(Serializacion.c: recv_msg) Error en la recepcion del resultado. Es posible que se haya perdido la conexion")
+		}
 		retorno.Argumentos.TEXTO_PLANO.texto[longitud]='\0';
 		break;
 	case COMANDO:
 		if(recv(socket, &longitud, sizeof(int), 0)<= 0)
 			RECV_FAIL("(Serializacion.c: recv_msg) Error en la recepcion del resultado. Es posible que se haya perdido la conexion")
 		retorno.Argumentos.COMANDO.comandoParseable = calloc(longitud+1,sizeof(char));
-		if(recv(socket, retorno.Argumentos.COMANDO.comandoParseable,sizeof(char) * longitud, 0)<= 0)
+		if(recv(socket, retorno.Argumentos.COMANDO.comandoParseable,sizeof(char) * longitud, 0)<= 0){
+			if(retorno.Argumentos.COMANDO.comandoParseable)free(retorno.Argumentos.COMANDO.comandoParseable);
 			RECV_FAIL("(Serializacion.c: recv_msg) Error en la recepcion del resultado. Es posible que se haya perdido la conexion")
+		}
 		retorno.Argumentos.COMANDO.comandoParseable[longitud]='\0';
 		break;
 	case REGISTRO:
@@ -140,16 +144,20 @@ Operacion recv_msg(int socket) {
 		if(recv(socket, &longitud, sizeof(int), 0)<=0)
 			RECV_FAIL("(Serializacion.c: recv_msg) Error en la recepcion del resultado. Es posible que se haya perdido la conexion")
 		retorno.Argumentos.REGISTRO.value = calloc(longitud+1, sizeof(char));
-		if(recv(socket, retorno.Argumentos.REGISTRO.value, sizeof(char) * longitud,0)<=0)
+		if(recv(socket, retorno.Argumentos.REGISTRO.value, sizeof(char) * longitud,0)<=0){
+			if(retorno.Argumentos.REGISTRO.value)free(retorno.Argumentos.REGISTRO.value);
 			RECV_FAIL("(Serializacion.c: recv_msg) Error en la recepcion del resultado. Es posible que se haya perdido la conexion")
+		}
 		retorno.Argumentos.REGISTRO.value[longitud]='\0';
 		break;
 	case ERROR:
 		if(recv(socket, &longitud, sizeof(int), 0)<=0)
 			RECV_FAIL("(Serializacion.c: recv_msg) Error en la recepcion del resultado. Es posible que se haya perdido la conexion")
 		retorno.Argumentos.ERROR.mensajeError = calloc(longitud+1, sizeof(char));
-		if(recv(socket, retorno.Argumentos.ERROR.mensajeError, sizeof(char) * longitud, 0)<=0)
+		if(recv(socket, retorno.Argumentos.ERROR.mensajeError, sizeof(char) * longitud, 0)<=0){
+			if(retorno.Argumentos.ERROR.mensajeError)free(retorno.Argumentos.ERROR.mensajeError);
 			RECV_FAIL("(Serializacion.c: recv_msg) Error en la recepcion del resultado. Es posible que se haya perdido la conexion")
+		}
 		retorno.Argumentos.ERROR.mensajeError[longitud]='\0';
 		break;
 	case ERROR_JOURNAL:
@@ -160,8 +168,10 @@ Operacion recv_msg(int socket) {
 		if(recv(socket, &longitud, sizeof(int), 0)<=0)
 			RECV_FAIL("(Serializacion.c: recv_msg) Error en la recepcion del resultado. Es posible que se haya perdido la conexion")
 		retorno.Argumentos.GOSSIPING_REQUEST.resultado_comprimido = calloc(longitud+1, sizeof(char));
-		if(recv(socket, retorno.Argumentos.GOSSIPING_REQUEST.resultado_comprimido, sizeof(char)*longitud, 0)<=0)
+		if(recv(socket, retorno.Argumentos.GOSSIPING_REQUEST.resultado_comprimido, sizeof(char)*longitud, 0)<=0){
+			if(retorno.Argumentos.GOSSIPING_REQUEST.resultado_comprimido)free(retorno.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 			RECV_FAIL("(Serializacion.c: recv_msg) Error en la recepcion del resultado. Es posible que se haya perdido la conexion")
+		}
 		retorno.Argumentos.GOSSIPING_REQUEST.resultado_comprimido[longitud] = '\0';
 		break;
 	case GOSSIPING_REQUEST_KERNEL:
@@ -175,8 +185,10 @@ Operacion recv_msg(int socket) {
 			retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido = NULL;
 		}else{
 			retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido = calloc(longitud+1, sizeof(char));
-			if(recv(socket, retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido, sizeof(char)*longitud, 0)<=0)
+			if(recv(socket, retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido, sizeof(char)*longitud, 0)<=0){
+				if(retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido)free(retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
 				RECV_FAIL("(Serializacion.c: recv_msg) Error en la recepcion del resultado. Es posible que se haya perdido la conexion")
+			}
 			retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido[longitud] = '\0';
 		}
 		break;
@@ -211,6 +223,8 @@ void destruir_operacion(Operacion op) {
 	case DESCRIBE_REQUEST:
 		if(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido != NULL)
 			free(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
+		return;
+	default:
 		return;
 	}
 
