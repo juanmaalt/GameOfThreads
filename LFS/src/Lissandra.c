@@ -185,8 +185,8 @@ void handshakeMemoria(int socketMemoria) {
 	log_info(logger_invisible, "Lissandra.c: handshakeMemoria() - La Memoria está intentando conectarse");
 
 	Operacion handshake;
-	handshake.TipoDeMensaje=TEXTO_PLANO;
-	handshake.Argumentos.TEXTO_PLANO.texto=string_from_format(config.tamanio_value);
+	handshake.TipoDeMensaje=HANDSHAKE;
+	handshake.Argumentos.HANDSHAKE.informacion=string_from_format(config.tamanio_value);
 
 	/*Mando el tamanio del value*/
 	send_msg(socketMemoria, handshake);
@@ -195,7 +195,7 @@ void handshakeMemoria(int socketMemoria) {
 	destruir_operacion(handshake);
 	handshake = recv_msg(socketMemoria);
 
-	switch (handshake.TipoDeMensaje) {
+	switch (handshake.TipoDeMensaje){
 		case HANDSHAKE:
 			if (string_equals_ignore_case(handshake.Argumentos.HANDSHAKE.informacion, "handshake pathLFS")) {
 				destruir_operacion(handshake);
