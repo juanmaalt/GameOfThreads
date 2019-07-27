@@ -35,7 +35,7 @@ int calcularParticionNbr(char* key, int particiones);
 void buscarValueEnFiles(char* nombreTabla, char* key, int particionNbr, t_list* listaDeValues);
 void leerTemps(char* nombreTabla, char* key, t_list* listaDeValues);
 t_list* buscarValueEnLista(t_list* data, char* key);
-void getValueMasReciente(t_list* lista, Operacion* resultadoSelect);
+void odernarPorMasReciente(t_list* lista);
 timestamp_t checkTimestamp(char* timestamp);
 void crearTablaEnMemtable(char* nombreTabla);
 void crearDirectorioTabla(char* nombreTabla);
