@@ -68,7 +68,7 @@ Operacion selectAPI(Comando comando){
 	//recorrerTabla(listaDeValues);//Función ad-hoc para testing
 	odernarPorMasReciente(listaDeValues);
 
-	Registro* reg = malloc(sizeof(Registro));
+	Registro* reg = NULL;
 	reg = list_get(listaDeValues, 0);
 
 	if(reg->value!=NULL){
@@ -81,14 +81,13 @@ Operacion selectAPI(Comando comando){
 		resultadoSelect.Argumentos.ERROR.mensajeError = string_from_format("No existen registros relacionados con la key solicitada");
 	}
 
+	/*Libero recursos en memoria*/
 	void destruirLista(void *registro){
 		free(((Registro*)registro)->value);
 		free((Registro*)registro);
 	}
 	list_destroy_and_destroy_elements((t_list*)listaDeValues, destruirLista);
 
-	/*Libero recursos en memoria*/
-	list_destroy(listaDeValues);
 	config_destroy(metadataFile);
 
 	return resultadoSelect; //FIXME: solucionar manejo de memoria para destruir todos los elementos de la lista excepto el primero. El primero se va a destruir despues de enviarlo a la memoria!!

@@ -78,9 +78,10 @@ void *connection_handler(void *nSocket){
 		log_info(logger_invisible,"Lissandra.c: connection_handler() - Comando recibido: %s", recibido.Argumentos.COMANDO.comandoParseable);
 		resultado = ejecutarOperacion(recibido.Argumentos.COMANDO.comandoParseable);
 		send_msg(socket, resultado);
+		destruir_operacion(resultado);
 		break;
 	case TEXTO_PLANO:
-		if(strcmp(recibido.Argumentos.TEXTO_PLANO.texto, "handshake")==0)
+		if(strcmp(recibido.Argumentos.TEXTO_PLANO.texto, "handshake")==0) //TODO: crear handshake memoria
 			handshakeMemoria(socket);
 		else
 			printf("No se pudo conectar la Memoria\n");
@@ -89,7 +90,6 @@ void *connection_handler(void *nSocket){
 		fprintf(stderr, RED"No se pude interpretar el enum %d"STD"\n", recibido.TipoDeMensaje);
 	}
 	destruir_operacion(recibido);
-	destruir_operacion(resultado);
 
 	return NULL;
 }
@@ -254,7 +254,7 @@ Operacion ejecutarOperacion(char* input) {
 			sem_post(&mutexPeticionesPorTabla);
 			if(valorSemaforo >= 1){
 				retorno = selectAPI(*parsed);
-				log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <SELECT> Mensaje de retorno \"%llu;%d;%s\"", retorno.Argumentos.REGISTRO.timestamp, retorno.Argumentos.REGISTRO.key, retorno.Argumentos.REGISTRO.value);
+				mostrarRetorno(retorno);
 			}else{
 				encolar_peticion(string_from_format(parsed->argumentos.SELECT.nombreTabla), string_from_format(input));
 				retorno.TipoDeMensaje = TEXTO_PLANO;
@@ -275,7 +275,7 @@ Operacion ejecutarOperacion(char* input) {
 
 			if(valorSemaforo >= 1){
 				retorno = insertAPI(*parsed);
-				log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <INSERT> Mensaje de retorno \"%s\"", retorno.Argumentos.TEXTO_PLANO.texto);
+				mostrarRetorno(retorno);
 			}else{
 				encolar_peticion(string_from_format(parsed->argumentos.INSERT.nombreTabla), string_from_format(input));
 				retorno.TipoDeMensaje = TEXTO_PLANO;
@@ -284,11 +284,11 @@ Operacion ejecutarOperacion(char* input) {
 			break;
 		case CREATE:
 			retorno = createAPI(*parsed);
-			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <CREATE> Mensaje de retorno \"%s\"", retorno.Argumentos.TEXTO_PLANO.texto);
+			mostrarRetorno(retorno);
 			break;
 		case DESCRIBE:
 			retorno = describeAPI(*parsed);
-			log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <DESCRIBE> Mensaje de retorno \"%s\"", retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
+			mostrarRetorno(retorno);
 			break;
 		case DROP:
 			sem_wait(&mutexPeticionesPorTabla);
@@ -304,7 +304,7 @@ Operacion ejecutarOperacion(char* input) {
 
 			if(valorSemaforo >= 1){
 				retorno = dropAPI(*parsed);
-				log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <DROP> Mensaje de retorno \"%s\"", retorno.Argumentos.TEXTO_PLANO.texto);
+				mostrarRetorno(retorno);
 			}else{
 				encolar_peticion(string_from_format(parsed->argumentos.DROP.nombreTabla), string_from_format(input));
 				retorno.TipoDeMensaje = TEXTO_PLANO;
