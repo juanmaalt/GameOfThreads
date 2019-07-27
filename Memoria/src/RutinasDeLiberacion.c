@@ -35,7 +35,7 @@ void liberarRegistroTablaPags(void* registroAdestruir) {
 
 	pthread_mutex_lock(&mutexColaMarcos);
 	queue_push(memoriaPrincipal.marcosLibres, (MCB_t*)MCBLibre);
-	pthread_mutex_lock(&mutexColaMarcos);
+	pthread_mutex_unlock(&mutexColaMarcos);
 
 	if ((registroTablaPag_t *) registroAdestruir != NULL)
 		free(registroAdestruir);
