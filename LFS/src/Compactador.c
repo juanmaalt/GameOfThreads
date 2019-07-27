@@ -47,6 +47,7 @@ void* compactar(void* nombreTabla){
 
 	for(;;){
 		usleep(metadata->compaction_time * 1000);
+		waitSemaforoTabla((char*) nombreTabla);
 		log_info(logger_invisible, "Compactador.c: Se inicio la compactacion de los dumps de la tabla %s", pathTabla);
 		if(!seHizoUnDump(pathTabla))
 			continue;
@@ -62,9 +63,12 @@ void* compactar(void* nombreTabla){
 			continue;
 		}
 		verDiccionarioDebug(registrosDeParticiones);
+		waitSemaforoTablaSelect((char*) nombreTabla);
 		escribirDiccionarioEnBloques(registrosDeParticiones, (char*)nombreTabla);
 		destruirRegistrosDeParticiones(registrosDeParticiones);
 		borrarArchivosTmpc(nombreTabla);
+		postSemaforoTablaSelect((char*) nombreTabla);
+		postSemaforoTabla((char*) nombreTabla);
 		procesarPeticionesPendientes(nombreTabla);
 		destruirPeticionesPendientes(nombreTabla);
 	}
