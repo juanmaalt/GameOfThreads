@@ -209,7 +209,10 @@ static int levantarRegistrosBloques(t_dictionary *registrosDeParticiones, char *
 			FILE* fBloque;
 			char* pathBloque = string_from_format("%sBloques/%s.bin", config.punto_montaje, bloques[i]);
 			fBloque = fopen(pathBloque, "r");
-
+			if(fBloque == NULL){
+				free(pathBloque);
+				continue;
+			}
 			while((ch = getc(fBloque)) != EOF){
 				char* nchar = string_from_format("%c", ch);
 				string_append(&linea, nchar);
