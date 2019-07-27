@@ -76,6 +76,7 @@ typedef struct Config_datos_variables vConfig;
 sem_t journal;
 pthread_mutex_t mutexMemoria;
 pthread_mutex_t mutexTablaSegmentos;
+pthread_mutex_t mutexColaMarcos;
 
 int configuracion_inicial(void);
 int realizarHandshake(void);
