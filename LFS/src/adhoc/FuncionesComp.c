@@ -114,7 +114,7 @@ void escribirEnBloque(char* bloque, char* linea){
 	free(pathBloque);
 }
 
-
+/*
 void escribirLinea(char* bloque, char* linea, char* nombreTabla, int particion){
 	//printf("bloque recibido: %s\n", bloque);
 	if(string_equals_ignore_case(bloque, "0")){
@@ -212,6 +212,7 @@ void escribirLinea(char* bloque, char* linea, char* nombreTabla, int particion){
 	}
 	free(subLinea);
 }
+*/
 
 void procesarPeticionesPendientes(char *nombreTabla){//REVISION: se llama después compactar y sincronizar semáforos;
 	log_info(logger_visible, "Comenzando a procesar peticiones pendiente para la tabla %s", nombreTabla);
@@ -240,7 +241,6 @@ bool esRegistroMasReciente(timestamp_t timestamp, int key, char* listaDeBloques)
 	Registro* reciente;
 
 	reciente = fseekBloque(key, listaDeBloques);
-
 	//printf("timestamp recibido:%llu\ntimestamp encontrado:%llu\n", timestamp, reciente->timestamp);
 
 	return (timestamp > reciente->timestamp);
@@ -288,7 +288,19 @@ char **generarRegistroBloque(t_list *registros){
 }
 
 
+void borrarArchivosTmpc(char* nombreTabla){
+	char* pathTabla = string_from_format("%sTables/%s", config.punto_montaje, nombreTabla);
 
+	bool es_tmpc(EntradaDirectorio *entrada){
+		return string_ends_with(entrada->d_name, ".tmpc");
+	}
+	void iterar_tmpc(EntradaDirectorio *entrada){
+		char* pathArchivoTMPC = string_from_format("%s/%s", pathTabla, entrada->d_name);
+		remove(pathArchivoTMPC);
+		free(pathArchivoTMPC);
+	}
+	free(pathTabla);
+}
 
 
 

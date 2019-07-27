@@ -28,7 +28,8 @@ void* compactar(void* nombreTabla){
 
 	Metadata_tabla* metadata = levantarMetadataTabla((char*)nombreTabla);
 	if(metadata == NULL){
-		//TODO: loggear error
+		log_error(logger_invisible, "No existe el archivo Metadata de la tabla %s, no se puede realizar la compactación.", (char*)nombreTabla);
+		log_error(logger_error, "No existe el archivo Metadata de la tabla %s, no se puede realizar la compactación.", (char*)nombreTabla);
 		return NULL;
 	}
 
@@ -46,22 +47,24 @@ void* compactar(void* nombreTabla){
 
 	for(;;){
 		usleep(metadata->compaction_time * 1000);
-		log_info(logger_invisible, "Compactador.c: compactar() - Inicio compactación de %s", pathTabla);
+		log_info(logger_invisible, "Compactador.c: Se inicio la compactacion de los dumps de la tabla %s", pathTabla);
 		if(!seHizoUnDump(pathTabla))
 			continue;
 		cambiarNombreFilesTemp(pathTabla);
 		if(levantarRegistrosBloques(registrosDeParticiones, (char*)nombreTabla, metadata->partitions) == EXIT_FAILURE){
-			//TODO: Loggear el error
+			log_error(logger_invisible, "No se pudieron leer los bloques asociados a la tabla %s, no se puede realizar la compactación.", (char*)nombreTabla);
+			log_error(logger_error, "No se pudieron leer los bloques asociados a la tabla %s, no se puede realizar la compactación.", (char*)nombreTabla);
 			continue;
 		}
 		if(directory_iterate_if(pathTabla, es_tmpc, iterar_tmpc)==EXIT_FAILURE){
-			//TODO: Loggear el error
+			log_error(logger_invisible, "No se pudieron leer los dumps de la tabla %s, no se puede realizar la compactación.", (char*)nombreTabla);
+			log_error(logger_error, "No se pudieron leer los dumps de la tabla %s, no se puede realizar la compactación.", (char*)nombreTabla);
 			continue;
 		}
 		verDiccionarioDebug(registrosDeParticiones);
 		escribirDiccionarioEnBloques(registrosDeParticiones, (char*)nombreTabla);
 		destruirRegistrosDeParticiones(registrosDeParticiones);
-		//TODO: Destruir temps
+		borrarArchivosTmpc(nombreTabla);
 		procesarPeticionesPendientes(nombreTabla);
 		destruirPeticionesPendientes(nombreTabla);
 	}

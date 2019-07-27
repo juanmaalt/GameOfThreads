@@ -26,6 +26,8 @@ void mostrarRetorno(Operacion retorno){
 	case DESCRIBE_REQUEST:
 		log_info(logger_visible,"<DESCRIBE>\n%s",retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
 		return;
+	case HANDSHAKE:
+		return;
 	case GOSSIPING_REQUEST:
 		return;
 	case GOSSIPING_REQUEST_KERNEL:

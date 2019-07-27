@@ -49,27 +49,31 @@ Operacion selectAPI(Comando comando){
 	//printf("Partición Nro: %d\n", particionNbr);
 
 	/*Creo la lista de valores que condicen con dicha key*/
-	t_list* listaDeValues = list_create();
+	t_list* listaDeValues;
+	t_list* listaDeValuesFiles = list_create();
 
 	/*Busco en Memtable*/
 	listaDeValues=buscarValueEnLista(data, comando.argumentos.SELECT.key);
 
 	/*Busco en Temporales*/
-	leerTemps(comando.argumentos.SELECT.nombreTabla, comando.argumentos.SELECT.key, listaDeValues);//TODO:Revisar que se lean los .tmpc también
+	leerTemps(comando.argumentos.SELECT.nombreTabla, comando.argumentos.SELECT.key, listaDeValuesFiles);
 
 	/*Busco en Bloques*/
 	char* listaDeBloques= obtenerListaDeBloques(particionNbr, comando.argumentos.SELECT.nombreTabla);
 	if(string_starts_with(listaDeBloques, "[")&&string_ends_with(listaDeBloques, "]")){
-		list_add(listaDeValues, fseekBloque(atoi(comando.argumentos.SELECT.key), listaDeBloques));
+		list_add(listaDeValuesFiles, fseekBloque(atoi(comando.argumentos.SELECT.key), listaDeBloques));
 	}
 	if(listaDeBloques)free(listaDeBloques);
 
-	/*Recorro la tabla y obtengo el valor más reciente*/
-	//recorrerTabla(listaDeValues);//Función ad-hoc para testing
-	odernarPorMasReciente(listaDeValues);
+	/*Ordeno las tablas por el timestamp más reciente*/
+	ordernarPorMasReciente(listaDeValues);
+	ordernarPorMasReciente(listaDeValuesFiles);
 
-	Registro* reg = NULL;
-	reg = list_get(listaDeValues, 0);
+	//recorrerTabla(listaDeValues);//Función ad-hoc para testing
+	//recorrerTabla(listaDeValuesFiles);//Función ad-hoc para testing
+
+	Registro* reg;
+	reg = getMasReciente(listaDeValues, listaDeValuesFiles);
 
 	if(reg->value!=NULL){
 		resultadoSelect.TipoDeMensaje = REGISTRO;
@@ -86,7 +90,8 @@ Operacion selectAPI(Comando comando){
 		free(((Registro*)registro)->value);
 		free((Registro*)registro);
 	}
-	list_destroy_and_destroy_elements((t_list*)listaDeValues, destruirLista);
+	list_destroy_and_destroy_elements((t_list*)listaDeValuesFiles, destruirLista);
+	list_destroy(listaDeValues);
 
 	config_destroy(metadataFile);
 

@@ -80,11 +80,12 @@ void *connection_handler(void *nSocket){
 		send_msg(socket, resultado);
 		destruir_operacion(resultado);
 		break;
-	case TEXTO_PLANO:
-		if(strcmp(recibido.Argumentos.TEXTO_PLANO.texto, "handshake")==0) //TODO: crear handshake memoria
+	case HANDSHAKE:
+		if(strcmp(recibido.Argumentos.HANDSHAKE.informacion, "handshake")==0) //TODO: crear handshake memoria
 			handshakeMemoria(socket);
 		else
-			printf("No se pudo conectar la Memoria\n");
+			log_error(logger_visible ,"Lissandra.c: connectionHandler() - No se pudo conectar la Memoria.");
+			log_error(logger_error ,"Lissandra.c: connectionHandler() - No se pudo conectar la Memoria.");
 		break;
 	default:
 		fprintf(stderr, RED"No se pude interpretar el enum %d"STD"\n", recibido.TipoDeMensaje);
@@ -181,7 +182,7 @@ void ver_config(){
 
 /*INICIO FUNCIONES COMPLEMENTARIAS*/
 void handshakeMemoria(int socketMemoria) {
-	log_info(logger_invisible, "Lissandra.c: handshakeMemoria() - Se conectó la memoria");
+	log_info(logger_invisible, "Lissandra.c: handshakeMemoria() - La Memoria está intentando conectarse");
 
 	Operacion handshake;
 	handshake.TipoDeMensaje=TEXTO_PLANO;
@@ -195,15 +196,15 @@ void handshakeMemoria(int socketMemoria) {
 	handshake = recv_msg(socketMemoria);
 
 	switch (handshake.TipoDeMensaje) {
-		case TEXTO_PLANO:
+		case HANDSHAKE:
 			if (string_equals_ignore_case(handshake.Argumentos.TEXTO_PLANO.texto, "handshake pathLFS")) {
 				destruir_operacion(handshake);
-				handshake.TipoDeMensaje = TEXTO_PLANO;
-				handshake.Argumentos.TEXTO_PLANO.texto=string_from_format(config.punto_montaje);
+				handshake.TipoDeMensaje = HANDSHAKE;
+				handshake.Argumentos.HANDSHAKE.informacion=string_from_format(config.punto_montaje);
 				send_msg(socketMemoria, handshake);
 			}
 			else{
-				log_error(logger_invisible,"Lissandra.c: handshakeMemoria() - No se pudo conectar la Memoria.");
+				log_error(logger_visible,"Lissandra.c: handshakeMemoria() - No se pudo conectar la Memoria.");
 				log_error(logger_error,"Lissandra.c: handshakeMemoria() - No se pudo conectar la Memoria.");
 				destruir_operacion(handshake);
 			}
@@ -212,7 +213,7 @@ void handshakeMemoria(int socketMemoria) {
 			break;
 	}
 	destruir_operacion(handshake);
-	log_info(logger_invisible,"Lissandra.c: handshakeMemoria() - Memoria conectada exitosamente.");
+	log_info(logger_visible,"Lissandra.c: handshakeMemoria() - Memoria conectada exitosamente.");
 }
 
 int iniciar_consola(){

@@ -101,7 +101,6 @@ int getMetadata(char* nombreTabla, t_config* metadataFile){
 	}
 
 	//extraerMetadata(metadataFile);
-
 	//mostrarMetadata();//funcion adhoc para testing
 
 	return EXIT_SUCCESS;
@@ -153,7 +152,7 @@ t_list* buscarValueEnLista(t_list* data, char* key){
 	return list_filter(data, compararConItem);
 }
 
-void leerTemps(char* nombreTabla, char* key, t_list* listaDeValues){
+void leerTemps(char* nombreTabla, char* key, t_list* listaDeValuesFiles){
 	char* pathTabla = string_from_format("%sTables/%s", config.punto_montaje, nombreTabla);
 
 	DIR *dir;
@@ -177,7 +176,7 @@ void leerTemps(char* nombreTabla, char* key, t_list* listaDeValues){
 						reg->value = string_from_format(value);
 						reg->timestamp= timestamp;
 
-						list_add(listaDeValues, reg);
+						list_add(listaDeValuesFiles, reg);
 					}
 				}
 				free(pathTemp);
@@ -205,7 +204,7 @@ void recorrerTabla(t_list* lista){
 }
 
 
-void odernarPorMasReciente(t_list* lista){
+void ordernarPorMasReciente(t_list* lista){
 	if(list_size(lista)>0){
 		if(list_size(lista)>1){
 			bool compararFechas(void* item1, void* item2){
@@ -217,6 +216,29 @@ void odernarPorMasReciente(t_list* lista){
 			list_sort(lista, compararFechas);
 		}
 	}
+}
+
+Registro* getMasReciente(t_list* listaDeValues, t_list* listaDeValuesFiles){
+	Registro* registroMemtable = NULL;
+	Registro* registroFile = NULL;
+
+	registroMemtable = list_get(listaDeValues, 0);
+	registroFile = list_get(listaDeValuesFiles, 0);
+
+	if(registroMemtable!=NULL && registroFile!=NULL){
+		if((registroMemtable->timestamp) > (registroFile->timestamp)){
+			return registroMemtable;
+		}else{
+			return registroFile;
+		}
+	}else{
+		if(registroMemtable!=NULL){
+			return registroMemtable;
+		}else{
+			return registroFile;
+		}
+	}
+
 }
 
 timestamp_t checkTimestamp(char* timestamp){
