@@ -197,7 +197,7 @@ void handshakeMemoria(int socketMemoria) {
 
 	switch (handshake.TipoDeMensaje) {
 		case HANDSHAKE:
-			if (string_equals_ignore_case(handshake.Argumentos.TEXTO_PLANO.texto, "handshake pathLFS")) {
+			if (string_equals_ignore_case(handshake.Argumentos.HANDSHAKE.informacion, "handshake pathLFS")) {
 				destruir_operacion(handshake);
 				handshake.TipoDeMensaje = HANDSHAKE;
 				handshake.Argumentos.HANDSHAKE.informacion=string_from_format(config.punto_montaje);
