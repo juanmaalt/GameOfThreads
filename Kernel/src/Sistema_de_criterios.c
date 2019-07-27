@@ -93,8 +93,8 @@ Memoria *elegir_cualquiera(){
 	Memoria *m = (Memoria*)list_get(memoriasExistentes, getNumberUntil(list_size(memoriasExistentes)));
 	sem_post(&mutexMemoriasExistentes);
 	if(m == NULL){
-		log_error(logger_error, "Sistema_de_criterios.c: elegir_cualquiera: no hay memorias para responder a la request casual");
-		log_info(logger_invisible, "Sistema_de_criterios.c: elegir_cualquiera: no hay memorias para responder a la request casual");
+		log_error(logger_error, "Sistema_de_criterios.c: elegir_cualquiera: no hay memorias para responder a la request.");
+		log_info(logger_invisible, "Sistema_de_criterios.c: elegir_cualquiera: no hay memorias para responder a la request.");
 	}
 	return m;
 }

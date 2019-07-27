@@ -183,7 +183,7 @@ void leerTemps(char* nombreTabla, char* key, t_list* listaDeValuesFiles){
 			}
 			free(nombreTemp);
 		}
-		fclose(dir);
+		if(dir)closedir(dir);
 	}
     free(pathTabla);
 }
@@ -378,7 +378,7 @@ void getStringDescribe(char* path, char* string, char* nombreTabla, Operacion *r
 				}
 				free(nombreCarpeta);
 		  }
-			closedir (dir);
+			closedir(dir);
 			if(strlen(string)>1){
 				resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = string;
 				resultadoDescribe->TipoDeMensaje= DESCRIBE_REQUEST;
@@ -401,7 +401,7 @@ void getStringDescribe(char* path, char* string, char* nombreTabla, Operacion *r
 			if(metadata == NULL){
 				resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = NULL;
 				resultadoDescribe->Argumentos.DESCRIBE_REQUEST.esGlobal=false;
-				fclose(dir);
+				if(dir)closedir(dir);
 				return;
 			}
 
@@ -416,7 +416,7 @@ void getStringDescribe(char* path, char* string, char* nombreTabla, Operacion *r
 			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.esGlobal=false;
 			config_destroy(metadata);
 			free(consistencia);
-			fclose(dir);
+		    if(dir)closedir(dir);
 		}
 		else{
 			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = NULL;

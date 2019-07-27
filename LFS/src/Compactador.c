@@ -33,7 +33,7 @@ void* compactar(void* nombreTabla){
 		return NULL;
 	}
 
-	char* pathTabla = string_from_format("%sTables/%s", config.punto_montaje, (char*)nombreTabla);
+	char* pathTabla = string_from_format("%sTables/%s", config.punto_montaje, (char*)nombreTabla); //FIXME: usar el pathTabla para saber si la tabla existe y cancelar o no el hilo de la compactacion
 
 	bool es_tmpc(EntradaDirectorio *entrada){
 		return string_ends_with(entrada->d_name, ".tmpc");
