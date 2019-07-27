@@ -247,10 +247,10 @@ Operacion ejecutarOperacion(char* input) {
 			bufferTabla=parsed->argumentos.SELECT.nombreTabla;
 			semt = list_find(semaforosPorTabla, buscar);
 			if(semt==NULL){
-				log_error(logger_visible, "No existe la tabla a la que se le quiere hacer SELECT");
-				log_error(logger_error, "No existe la tabla a la que se le quiere hacer SELECT");
+				log_error(logger_visible, "No existe la tabla %s. No se puede realizar el SELECT.", parsed->argumentos.SELECT.nombreTabla);
+				log_error(logger_error, "No existe la tabla a la que se le quiere hacer SELECT", parsed->argumentos.SELECT.nombreTabla);
 				retorno.TipoDeMensaje = ERROR;
-				retorno.Argumentos.ERROR.mensajeError = string_from_format("No existe la tabla a la que se le quiere hacer SELECT");
+				retorno.Argumentos.ERROR.mensajeError = string_from_format("No existe la tabla %s. No se puede realizar el SELECT.", parsed->argumentos.SELECT.nombreTabla);
 				break;
 			}
 			sem_getvalue(&semt->semaforoSelect, &valorSemaforo);
@@ -268,10 +268,10 @@ Operacion ejecutarOperacion(char* input) {
 			bufferTabla=parsed->argumentos.INSERT.nombreTabla;
 			semt = list_find(semaforosPorTabla, buscar);
 			if(semt==NULL){
-				log_error(logger_visible, "No existe la tabla a la que se le quiere hacer INSERT");
-				log_error(logger_error, "No existe la tabla a la que se le quiere hacer INSERT");
+				log_error(logger_visible, "No existe la tabla %s. No se puede realizar el INSERT.", parsed->argumentos.INSERT.nombreTabla);
+				log_error(logger_error, "No existe la tabla %s. No se puede realizar el INSERT.", parsed->argumentos.INSERT.nombreTabla);
 				retorno.TipoDeMensaje = ERROR;
-				retorno.Argumentos.ERROR.mensajeError = string_from_format("No existe la tabla a la que se le quiere hacer INSERT");
+				retorno.Argumentos.ERROR.mensajeError = string_from_format("No existe la tabla %s. No se puede realizar el INSERT.", parsed->argumentos.INSERT.nombreTabla);
 
 				break;
 			}
@@ -297,10 +297,10 @@ Operacion ejecutarOperacion(char* input) {
 			bufferTabla=parsed->argumentos.DROP.nombreTabla;
 			semt = list_find(semaforosPorTabla, buscar);
 			if(semt==NULL){
-				log_error(logger_visible, "No existe la tabla a la que se le quiere hacer DROP");
-				log_error(logger_error, "No existe la tabla a la que se le quiere hacer DROP");
+				log_error(logger_visible, "No existe la tabla %s. No se puede realizar el DROP.", parsed->argumentos.DROP.nombreTabla);
+				log_error(logger_error, "No existe la tabla %s. No se puede realizar el DROP.", parsed->argumentos.DROP.nombreTabla);
 				retorno.TipoDeMensaje = ERROR;
-				retorno.Argumentos.ERROR.mensajeError = string_from_format("No existe la tabla a la que se le quiere hacer DROP");
+				retorno.Argumentos.ERROR.mensajeError = string_from_format("No existe la tabla %s. No se puede realizar el DROP.", parsed->argumentos.DROP.nombreTabla);
 				break;
 			}
 			sem_getvalue(&semt->semaforoGral, &valorSemaforo);
