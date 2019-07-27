@@ -94,6 +94,14 @@ int send_msg(int socket, Operacion operacion) {
 			memcpy(content+sizeof(int)+sizeof(bool), &longCadena, sizeof(int));
 		}
 		break;
+	case HANDSHAKE:
+		longCadena = strlen(operacion.Argumentos.HANDSHAKE.informacion);
+		total = sizeof(int) + sizeof(int) + sizeof(char) * longCadena;
+		content=malloc(total);
+		memcpy(content, &(operacion.TipoDeMensaje), sizeof(int));
+		memcpy(content+sizeof(int), &longCadena, sizeof(int));
+		memcpy(content+2*sizeof(int), operacion.Argumentos.HANDSHAKE.informacion, sizeof(char)*longCadena);
+		break;
 	default:
 		return EXIT_FAILURE;
 	}
@@ -192,6 +200,14 @@ Operacion recv_msg(int socket) {
 			retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido[longitud] = '\0';
 		}
 		break;
+	case HANDSHAKE:
+		if(recv(socket, &longitud, sizeof(int), 0)<=0)
+			RECV_FAIL("(Serializacion.c: recv_msg) Error en la recepcion del resultado. Es posible que se haya perdido la conexion")
+			retorno.Argumentos.HANDSHAKE.informacion = calloc(longitud+1, sizeof(char));
+		if(recv(socket, retorno.Argumentos.HANDSHAKE.informacion, sizeof(char)*longitud, 0)<=0)
+			RECV_FAIL("(Serializacion.c: recv_msg) Error en la recepcion del resultado. Es posible que se haya perdido la conexion")
+		retorno.Argumentos.HANDSHAKE.informacion[longitud] = '\0';
+		break;
 	default:
 		RECV_FAIL("(Serializacion.c: recv_msg) Error en la recepcion del resultado. Tipo de operacion desconocido");
 	}
@@ -223,6 +239,10 @@ void destruir_operacion(Operacion op) {
 	case DESCRIBE_REQUEST:
 		if(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido != NULL)
 			free(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
+		return;
+	case HANDSHAKE:
+		if(op.Argumentos.HANDSHAKE.informacion != NULL)
+			free(op.Argumentos.HANDSHAKE.informacion);
 		return;
 	default:
 		return;

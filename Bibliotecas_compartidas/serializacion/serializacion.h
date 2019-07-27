@@ -33,6 +33,7 @@ typedef struct{
 		GOSSIPING_REQUEST,
 		GOSSIPING_REQUEST_KERNEL,
 		DESCRIBE_REQUEST,
+		HANDSHAKE
 	}TipoDeMensaje;
 	union{
 		struct{
@@ -60,6 +61,9 @@ typedef struct{
 			bool esGlobal;
 			char *resultado_comprimido;
 		}DESCRIBE_REQUEST;
+		struct{
+			char *informacion;
+		}HANDSHAKE;
 	}Argumentos;
 }Operacion;
 
