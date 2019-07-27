@@ -105,7 +105,7 @@ void removerDeListaDeConocidas(char * IP,char * puerto){
 		int comparoIP = strcmp(IP,
 				((knownMemory_t*) buscoMemoria)->ip);
 		//return ((IPs[conteo_seeds] == ((knownMemory_t*)buscoMemoria)->ip) && (IPsPorts[conteo_seeds] == ((knownMemory_t*)buscoMemoria)->ip_port));
-		printf("Buscar primeri %s  BUSCAR SEGUNDO %s\n",puerto,((knownMemory_t*)buscoMemoria)->ip_port);
+		//printf("Buscar primeri %s  BUSCAR SEGUNDO %s\n",puerto,((knownMemory_t*)buscoMemoria)->ip_port);
 
 		if ((comparoPort * comparoPort + comparoIP * comparoIP) == 0) // Como me puede dar negativo, saco los modulos. En el caso de que la IP y el puerto sean iguales devuelve 0 la suma
 			return 1; //Tengo que ir a destruirMemoria
@@ -113,7 +113,7 @@ void removerDeListaDeConocidas(char * IP,char * puerto){
 			return 0;	// No hago nada
 	}
 	void destruirMemoria(void *destruir) {
-		printf(RED"DESTRUYO MEMORIA %d %s:%s"STD"\n",((knownMemory_t*) destruir)->memory_number,((knownMemory_t*) destruir)->ip,((knownMemory_t*) destruir)->ip_port);
+		//printf(RED"DESTRUYO MEMORIA %d %s:%s"STD"\n",((knownMemory_t*) destruir)->memory_number,((knownMemory_t*) destruir)->ip,((knownMemory_t*) destruir)->ip_port);
 		free(((knownMemory_t*) destruir)->ip);
 		free(((knownMemory_t*) destruir)->ip_port);
 		free(((knownMemory_t*) destruir));
@@ -136,15 +136,15 @@ void conectarConSeed() {
 
 
 		if(levantarSocketSeed(IPs[conteo_seeds],IPsPorts[conteo_seeds], &socketGossip) == EXIT_FAILURE){
-			printf(YEL"IMPRIMO SOCKET %d\n IP PUERTO %s:%s"STD"\n",socketGossip,IPs[conteo_seeds],IPsPorts[conteo_seeds]);
-			log_info(logger_visible, "GOSSIPING.C:conectarConSeed: La memoria seed no esta activa %s:%s", IPs[conteo_seeds], IPsPorts[conteo_seeds]);
+			//printf(YEL"IMPRIMO SOCKET %d\n IP PUERTO %s:%s"STD"\n",socketGossip,IPs[conteo_seeds],IPsPorts[conteo_seeds]);
+			log_info(logger_gossiping, "GOSSIPING.C:conectarConSeed: La memoria seed no esta activa %s:%s", IPs[conteo_seeds], IPsPorts[conteo_seeds]);
 
 			removerDeListaDeConocidas(IPs[conteo_seeds],IPsPorts[conteo_seeds]);
 
 			chequeo_memorias_en_lista_activas();
 
 			pthread_mutex_unlock(&mutexGossiping);
-			printf("TAMANIO LISTA CONOCIDAS %d\n",list_size(listaMemoriasConocidas));
+			//printf("TAMANIO LISTA CONOCIDAS %d\n",list_size(listaMemoriasConocidas));
 
 		} else {
 
@@ -154,7 +154,7 @@ void conectarConSeed() {
 					IPs[conteo_seeds], IPsPorts[conteo_seeds]);
 
 			ConsultoPorMemoriasConocidas(socketGossip); //
-			printf("TAMANIO LISTA CONOCIDAS %d\n",list_size(listaMemoriasConocidas));
+			log_info(logger_gossiping,"TAMANIO LISTA CONOCIDAS %d\n",list_size(listaMemoriasConocidas));
 			//close(socket);
 		}
 
@@ -182,14 +182,14 @@ void ConsultoPorMemoriasConocidas(int socketSEEDS) {
 	request.TipoDeMensaje = GOSSIPING_REQUEST;
 	//printf("Paquete armado\n");
 	request.Argumentos.GOSSIPING_REQUEST.resultado_comprimido = envio;
-	log_info(logger_visible,
+	log_info(logger_gossiping,
 			"GOSSIPING.C:ConsultoPorMemoriasConocidas: Envio gossiping: %s",
 			envio);
 	send_msg(socketSEEDS, request);
 	//pthread_mutex_unlock(&mutexGossiping);
 	//printf("Envio %d\n",request.TipoDeMensaje);
 	request = recv_msg(socketSEEDS);
-	log_info(logger_visible,
+	log_info(logger_gossiping,
 			"GOSSIPING.C:ConsultoPorMemoriasConocidas: Respuesta gossiping: %s",
 			request.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 	//printf("Respuesta\n");
@@ -248,7 +248,7 @@ void ConsultoPorMemoriasConocidas(int socketSEEDS) {
 
 	log_info(logger_invisible,
 			"GOSSIPING.C:ConsultoPorMemoriasConocidas:Fin GOSSIP");
-	log_info(logger_visible,
+	log_info(logger_gossiping,
 			"GOSSIPING.C:ConsultoPorMemoriasConocidas:Fin GOSSIP");
 	pthread_mutex_unlock(&mutexGossiping);
 	close(socketSEEDS);
@@ -277,7 +277,7 @@ Operacion recibir_gossiping(Operacion resultado) {
 		for (int i = 0; descompresion[i] != NULL; i += 3) {
 			knownMemory_t *memoria;
 			if ((memoria = machearMemoria(atoi(descompresion[i]))) == NULL) {
-				printf("NO MACHEA\n");
+				//printf("NO MACHEA\n");
 
 				knownMemory_t *memoria = malloc(sizeof(knownMemory_t));
 				memoria->memory_number = atoi(descompresion[i]);
@@ -287,15 +287,15 @@ Operacion recibir_gossiping(Operacion resultado) {
 				int socketNew = connect_to_server(descompresion[i + 1],
 						descompresion[i + 2]);
 				//printf("SOCKET NEW : %d\n",socketNew);
-				printf(RED"RECIBI GOSSIP Y GENERO SOCKET A LAS MEMORIA QUE ME PASAN %d" STD "\n",socketNew);
+				//printf(RED"RECIBI GOSSIP Y GENERO SOCKET A LAS MEMORIA QUE ME PASAN %d" STD "\n",socketNew);
 				if (socketNew == EXIT_FAILURE) {
 					//printf("FALLO SOCKET\n");
-					log_info(logger_visible,
+					log_info(logger_gossiping,
 							"GOSSIPING.C:recibir_gossiping: La memoria no esta activa %s:%s",
 							descompresion[i + 1], descompresion[i + 2]);
 
-					printf(RED"MEMORIA QUE ME PASARON NO ESTA ACTIVA %s:%s" STD "\n",
-												descompresion[i + 1], descompresion[i + 2]);
+					//printf(RED"MEMORIA QUE ME PASARON NO ESTA ACTIVA %s:%s" STD "\n",
+					//							descompresion[i + 1], descompresion[i + 2]);
 					//printf("No activa\n");
 
 					// Debo quitar de la lista esta memoria ya que no esta
@@ -347,7 +347,7 @@ Operacion recibir_gossiping(Operacion resultado) {
 	}
 	resultado.TipoDeMensaje = GOSSIPING_REQUEST;
 	resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido = envio;
-	log_info(logger_visible,
+	log_info(logger_gossiping,
 			"GOSSIPING.C:recibir_gossiping: Envio mensaje gossiping %s", envio);
 	pthread_mutex_unlock(&mutexGossiping);
 	//pthread_mutex_lock(&mutexGossiping);
@@ -365,9 +365,9 @@ static knownMemory_t *machearMemoria(int numeroMemoria) {
 void chequeo_memorias_en_lista_activas (void) {
 	int indexList = 0;
 	int sizeList = list_size(listaMemoriasConocidas);
-	printf("TAMAÑO DE LISTA; %d\n", sizeList);
+	//printf("TAMAÑO DE LISTA; %d\n", sizeList);
 				while ((sizeList > 0) && (indexList < sizeList)) {
-					printf(YEL"ENTRO AL WHILE\n"STD);
+					//printf(YEL"ENTRO AL WHILE\n"STD);
 					knownMemory_t * memoriaLista;
 					memoriaLista = (knownMemory_t *) list_get(
 							listaMemoriasConocidas, indexList);
@@ -377,18 +377,18 @@ void chequeo_memorias_en_lista_activas (void) {
 							((knownMemory_t*) memoriaLista)->ip);
 					if ((comparoPort * comparoPort + comparoIP * comparoIP) == 0){
 						indexList++;
-					printf(GRN"Yo mismo, no hago nada"STD"\n");
+				//	printf(GRN"Yo mismo, no hago nada"STD"\n");
 					}
 					else {
 						// TIRO SOCKET, SI DA ERROR, lo tengo que limpiar de la lista
-						printf("VIENDO SI ESTA: %s ----- %s\n",((knownMemory_t*) memoriaLista)->ip,((knownMemory_t*) memoriaLista)->ip_port);
+						//printf("VIENDO SI ESTA: %s ----- %s\n",((knownMemory_t*) memoriaLista)->ip,((knownMemory_t*) memoriaLista)->ip_port);
 						int socketLista = connect_to_server(
 								((knownMemory_t*) memoriaLista)->ip,
 								((knownMemory_t*) memoriaLista)->ip_port);
 						if (socketLista == EXIT_FAILURE) {
 							list_remove(listaMemoriasConocidas, indexList);
 							sizeList = list_size(listaMemoriasConocidas);
-							printf(YEL"SEED CAIDA Y OTRA MEMORIA TAMBIEN\n"STD);
+							//printf(YEL"SEED CAIDA Y OTRA MEMORIA TAMBIEN\n"STD);
 
 						} else {
 							// La memoria sigue activa, cierro el socket de chequeo

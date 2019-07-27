@@ -145,7 +145,6 @@ void *connection_handler(void *nSocket) {
 	case GOSSIPING_REQUEST:
 		resultado = recibir_gossiping(resultado);
 		send_msg(socket, resultado);
-		printf("ENVIO EN CONEXION HANDLER %s",resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 		break;
 	case GOSSIPING_REQUEST_KERNEL:
 		resultado = recibir_gossiping(resultado);
