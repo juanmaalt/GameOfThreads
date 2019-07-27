@@ -93,58 +93,61 @@ void liberarIPs(char** IPs) {
 	}
 }
 
+int levantarSocketSeed(char * IP, char * puerto, int * socketALevantar){
+	return *socketALevantar = connect_to_server(IP,puerto);
+
+}
+
+void removerDeListaDeConocidas(char * IP,char * puerto){
+	bool buscarMemoria(void * buscoMemoria) {
+		int comparoPort = strcmp(puerto,
+				((knownMemory_t*) buscoMemoria)->ip_port);
+		int comparoIP = strcmp(IP,
+				((knownMemory_t*) buscoMemoria)->ip);
+		//return ((IPs[conteo_seeds] == ((knownMemory_t*)buscoMemoria)->ip) && (IPsPorts[conteo_seeds] == ((knownMemory_t*)buscoMemoria)->ip_port));
+		printf("Buscar primeri %s  BUSCAR SEGUNDO %s\n",puerto,((knownMemory_t*)buscoMemoria)->ip_port);
+
+		if ((comparoPort * comparoPort + comparoIP * comparoIP) == 0) // Como me puede dar negativo, saco los modulos. En el caso de que la IP y el puerto sean iguales devuelve 0 la suma
+			return 1; //Tengo que ir a destruirMemoria
+		else
+			return 0;	// No hago nada
+	}
+	void destruirMemoria(void *destruir) {
+		printf(RED"DESTRUYO MEMORIA %d %s:%s"STD"\n",((knownMemory_t*) destruir)->memory_number,((knownMemory_t*) destruir)->ip,((knownMemory_t*) destruir)->ip_port);
+		free(((knownMemory_t*) destruir)->ip);
+		free(((knownMemory_t*) destruir)->ip_port);
+		free(((knownMemory_t*) destruir));
+		//printf("Destrui Memoria\n");
+		return;
+	}
+	pthread_mutex_lock(&mutexGossiping);
+	list_remove_and_destroy_by_condition(listaMemoriasConocidas,
+		buscarMemoria, destruirMemoria);
+}
 void conectarConSeed() {
 	// Se conecta con la seed para hacer el gossiping
 	int conteo_seeds = 0; //Static
+
+	int socketGossip;
+
 	//printf("CONECTARCONSEED\n");
+
 	for (; IPs[conteo_seeds] != NULL; conteo_seeds++) {
-		//printf("FOR IPS\n");
-		int socketGossip = connect_to_server(IPs[conteo_seeds],
-				IPsPorts[conteo_seeds]);
-		if(socketGossip == EXIT_FAILURE)
-			printf("ESTA DANDO ERROR\n");
+
 		printf(YEL"IMPRIMO SOCKET %d\n IP PUERTO %s:%s"STD"\n",socketGossip,IPs[conteo_seeds],IPsPorts[conteo_seeds]);
-		if (socketGossip == EXIT_FAILURE) {
-			log_info(logger_visible,
-					"GOSSIPING.C:conectarConSeed: La memoria seed no esta activa %s:%s",
-					IPs[conteo_seeds], IPsPorts[conteo_seeds]);
+		if(levantarSocketSeed(IPs[conteo_seeds],IPsPorts[conteo_seeds], &socketGossip) == EXIT_FAILURE){
 
-			bool buscarMemoria(void * buscoMemoria) {
-				//printf("Buscar Memoria %s %s\n",IPs[conteo_seeds],IPsPorts[conteo_seeds]);
-				int comparoPort = strcmp(IPsPorts[conteo_seeds],
-						((knownMemory_t*) buscoMemoria)->ip_port);
-				int comparoIP = strcmp(IPs[conteo_seeds],
-						((knownMemory_t*) buscoMemoria)->ip);
-				//return ((IPs[conteo_seeds] == ((knownMemory_t*)buscoMemoria)->ip) && (IPsPorts[conteo_seeds] == ((knownMemory_t*)buscoMemoria)->ip_port));
-				printf("Buscar primeri %s  BUSCAR SEGUNDO %s\n",IPsPorts[conteo_seeds],((knownMemory_t*)buscoMemoria)->ip_port);
+			log_info(logger_visible, "GOSSIPING.C:conectarConSeed: La memoria seed no esta activa %s:%s", IPs[conteo_seeds], IPsPorts[conteo_seeds]);
 
-				if ((comparoPort * comparoPort + comparoIP * comparoIP) == 0) // Como me puede dar negativo, saco los modulos. En el caso de que la IP y el puerto sean iguales devuelve 0 la suma
-					return 1; //Tengo que ir a destruirMemoria
-				else
-					return 0;	// No hago nada
-			}
-			void destruirMemoria(void *destruir) {
-				printf(RED"DESTRUYO MEMORIA %d %s:%s"STD"\n",((knownMemory_t*) destruir)->memory_number,((knownMemory_t*) destruir)->ip,((knownMemory_t*) destruir)->ip_port);
-				free(((knownMemory_t*) destruir)->ip);
-				free(((knownMemory_t*) destruir)->ip_port);
-				free(((knownMemory_t*) destruir));
-				//printf("Destrui Memoria\n");
-				return;
-			}
-			pthread_mutex_lock(&mutexGossiping);
-			list_remove_and_destroy_by_condition(listaMemoriasConocidas,
-					buscarMemoria, destruirMemoria);
-			//printf("Sali Destruir\n");
-
+			removerDeListaDeConocidas(IPs[conteo_seeds],IPsPorts[conteo_seeds]);
 
 			chequeo_memorias_en_lista_activas();
+
 			pthread_mutex_unlock(&mutexGossiping);
 			printf("TAMANIO LISTA CONOCIDAS %d\n",list_size(listaMemoriasConocidas));
-			//pthread_mutex_unlock(&mutexGossiping);
-			// return EXIT_FAILURE;
-			// Debo quitar del diccionario esta memoria ya que no esta
+
 		} else {
-			//printf ("memoria activa\n");
+
 			//La memoria seed esta activa, voy a consultarle sus memorias
 			log_info(logger_gossiping,
 					"GOSSIPING.C:conectarConSeed: Memoria conocida. Enviar mensaje %s:%s ",
