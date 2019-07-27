@@ -244,11 +244,13 @@ Operacion ejecutarOperacion(char* input) {
 		switch (parsed->keyword){
 		case SELECT:
 			sem_wait(&mutexPeticionesPorTabla);
-			bufferTabla=parsed->argumentos.INSERT.nombreTabla;
+			bufferTabla=parsed->argumentos.SELECT.nombreTabla;
 			semt = list_find(semaforosPorTabla, buscar);
 			if(semt==NULL){
-				//TODO:log error
-				//TODO:Devolver mensaje error
+				log_error(logger_visible, "No existe la tabla a la que se le quiere hacer SELECT");
+				log_error(logger_error, "No existe la tabla a la que se le quiere hacer SELECT");
+				retorno.TipoDeMensaje = ERROR;
+				retorno.Argumentos.ERROR.mensajeError = string_from_format("No existe la tabla a la que se le quiere hacer SELECT");
 				break;
 			}
 			sem_getvalue(&semt->semaforoSelect, &valorSemaforo);
@@ -258,7 +260,7 @@ Operacion ejecutarOperacion(char* input) {
 			}else{
 				encolar_peticion(string_from_format(parsed->argumentos.SELECT.nombreTabla), string_from_format(input));
 				retorno.TipoDeMensaje = TEXTO_PLANO;
-				retorno.Argumentos.TEXTO_PLANO.texto = string_from_format("compactando");
+				retorno.Argumentos.TEXTO_PLANO.texto = string_from_format("Compactando");
 			}
 			break;
 		case INSERT:
@@ -266,8 +268,11 @@ Operacion ejecutarOperacion(char* input) {
 			bufferTabla=parsed->argumentos.INSERT.nombreTabla;
 			semt = list_find(semaforosPorTabla, buscar);
 			if(semt==NULL){
-				//TODO:log error
-				//TODO:Devolver mensaje error
+				log_error(logger_visible, "No existe la tabla a la que se le quiere hacer INSERT");
+				log_error(logger_error, "No existe la tabla a la que se le quiere hacer INSERT");
+				retorno.TipoDeMensaje = ERROR;
+				retorno.Argumentos.ERROR.mensajeError = string_from_format("No existe la tabla a la que se le quiere hacer INSERT");
+
 				break;
 			}
 			sem_getvalue(&semt->semaforoGral, &valorSemaforo);
@@ -278,7 +283,7 @@ Operacion ejecutarOperacion(char* input) {
 			}else{
 				encolar_peticion(string_from_format(parsed->argumentos.INSERT.nombreTabla), string_from_format(input));
 				retorno.TipoDeMensaje = TEXTO_PLANO;
-				retorno.Argumentos.TEXTO_PLANO.texto = string_from_format("compactando");
+				retorno.Argumentos.TEXTO_PLANO.texto = string_from_format("Compactando");
 			}
 			break;
 		case CREATE:
@@ -292,8 +297,10 @@ Operacion ejecutarOperacion(char* input) {
 			bufferTabla=parsed->argumentos.DROP.nombreTabla;
 			semt = list_find(semaforosPorTabla, buscar);
 			if(semt==NULL){
-				//TODO:log error
-				//TODO:Devolver mensaje error
+				log_error(logger_visible, "No existe la tabla a la que se le quiere hacer DROP");
+				log_error(logger_error, "No existe la tabla a la que se le quiere hacer DROP");
+				retorno.TipoDeMensaje = ERROR;
+				retorno.Argumentos.ERROR.mensajeError = string_from_format("No existe la tabla a la que se le quiere hacer DROP");
 				break;
 			}
 			sem_getvalue(&semt->semaforoGral, &valorSemaforo);
