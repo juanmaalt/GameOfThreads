@@ -188,6 +188,7 @@ void ConsultoPorMemoriasConocidas(int socketSEEDS) {
 	send_msg(socketSEEDS, request);
 	//pthread_mutex_unlock(&mutexGossiping);
 	//printf("Envio %d\n",request.TipoDeMensaje);
+	free(envio);
 	request = recv_msg(socketSEEDS);
 	log_info(logger_gossiping,
 			"GOSSIPING.C:ConsultoPorMemoriasConocidas: Respuesta gossiping: %s",
@@ -346,11 +347,11 @@ Operacion recibir_gossiping(Operacion resultado) {
 		//printf("CONCATENO MENSAJE : %s\n",envio);
 	}
 	resultado.TipoDeMensaje = GOSSIPING_REQUEST;
-	resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido = envio;
 	log_info(logger_gossiping,
 			"GOSSIPING.C:recibir_gossiping: Envio mensaje gossiping %s", envio);
+	resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido = string_from_format("%s", envio);
+	free(envio);
 	pthread_mutex_unlock(&mutexGossiping);
-	//pthread_mutex_lock(&mutexGossiping);
 	return resultado;
 }
 
