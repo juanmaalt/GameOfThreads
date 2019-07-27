@@ -33,7 +33,9 @@ void liberarRegistroTablaPags(void* registroAdestruir) {
 
 	list_destroy(listaConMCBBuscado);
 
+	pthread_mutex_lock(&mutexColaMarcos);
 	queue_push(memoriaPrincipal.marcosLibres, (MCB_t*)MCBLibre);
+	pthread_mutex_lock(&mutexColaMarcos);
 
 	if ((registroTablaPag_t *) registroAdestruir != NULL)
 		free(registroAdestruir);
@@ -81,6 +83,7 @@ void liberarRecursos(void) {
 
 	pthread_mutex_destroy(&mutexMemoria);
 	pthread_mutex_destroy(&mutexTablaSegmentos);
+	pthread_mutex_destroy(&mutexColaMarcos);
 
 	config_destroy(configFile);
 	log_destroy(logger_invisible);
