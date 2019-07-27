@@ -128,7 +128,6 @@ timestamp_t obtenerTimestamp(Registro* registro);
 
 /*FUNCIONES SEEK*/
 Registro* fseekBloque(int key, char* listaDeBloques);
-void fseekAndEraseBloque(int key, char* listaDeBloques);
 
 /*FUNCIONES FINALIZACION*/
 void rutinas_de_finalizacion();

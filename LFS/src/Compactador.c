@@ -216,7 +216,7 @@ static int levantarRegistrosBloques(t_dictionary *registrosDeParticiones, char *
 					Registro *registro = malloc(sizeof(Registro));
 					registro->timestamp = atoll(lineaParsed[0]);
 					registro->key = atoi(lineaParsed[1]);
-					registro->value = string_substring_until(lineaParsed[2], (strlen(lineaParsed[2])-1)); //No liberar ninguno de los dos hasta que se elimite el registro de la lista en el final
+					registro->value = string_substring_until(lineaParsed[2], (strlen(lineaParsed[2])-1));
 
 					string_iterate_lines(lineaParsed, (void* )free);
 					free(lineaParsed);
@@ -227,6 +227,8 @@ static int levantarRegistrosBloques(t_dictionary *registrosDeParticiones, char *
 				}
 				free(nchar);
 			}
+			fclose(fBloque);
+			free(pathBloque);
 		}
 		free(linea);
 		string_iterate_lines(bloques, (void* )free);
@@ -374,6 +376,7 @@ static int escribirBloques(t_list* listaDeRegistros, char** bloques, char* nombr
 		msync(textoBloque, size, MS_SYNC);
 		free(pathBloque);
 		munmap(textoBloque, size);
+		actualizarTamanioEnParticion(strlen(linea), nombreTabla, particion);
 		close(fdBloque);
 	}
 	string_iterate_lines(registrosBloques, escribirEnBloques);

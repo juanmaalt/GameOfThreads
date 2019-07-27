@@ -32,48 +32,6 @@ void cambiarNombreFilesTemp(char* pathTabla){
 	free(pathFileNuevo);
 }
 
-void leerTemporal(char* pathTemp, int particiones, char* nombreTabla){//TODO: Borrar funcion
-	FILE* temp;
-    int key;
-    timestamp_t timestamp;
-    char value[atoi(config.tamanio_value)];
-
-    /*Abro file .tmpc*/
-	temp = fopen(pathTemp, "r");
-	/*Leo el file linea a linea*/
-	while(fscanf(temp, "%llu;%d;%s[^\n]", &timestamp, &key, value)!= EOF){
-		log_info(logger_invisible, "Compactador.c: leerTemporal() - Linea leída: %llu;%d;%s", timestamp, key ,value);
-		char* linea = string_from_format("%llu;%d;%s\n",timestamp, key, value);
-
-		//printf("key:%d\npartciones:%d\n", key, particiones);
-		char* tkey= string_from_format("%d", key);
-		int particionNbr = calcularParticionNbr(tkey, particiones);
-		log_info(logger_invisible, "Compactador.c: leerTemporal() - Partición Nro: %d", particionNbr);
-		free(tkey);
-
-		char* listaDeBloques= obtenerListaDeBloques(particionNbr, nombreTabla);
-		if(string_starts_with(listaDeBloques, "[")&&string_ends_with(listaDeBloques, "]")){
-			log_info(logger_invisible, "Compactador.c: leerTemporal() - Bloques asignados: %s",listaDeBloques);
-
-			if(esRegistroMasReciente(timestamp, key, listaDeBloques)){
-				//printf("es más reciente\n");
-				fseekAndEraseBloque(key, listaDeBloques);
-				char* bloque = firstBloqueDisponible(listaDeBloques);
-
-				//printf("mando a escribirLinea el bloque %s\n", bloque);
-				escribirLinea(bloque, linea, nombreTabla, particionNbr);
-				//free(bloque);
-			}
-		}else{
-			log_error(logger_visible, "FuncionesComp.c: leerTemporal() - Las particion '%d' de la Tabla \"%s\" tiene un estado inconsistente.", particionNbr, nombreTabla);
-			log_error(logger_invisible, "FuncionesComp.c: leerTemporal() - Las particion '%d' de la Tabla \"%s\" tiene un estado inconsistente.", particionNbr, nombreTabla);
-			log_error(logger_error, "FuncionesComp.c: leerTemporal() - Las particion '%d' de la Tabla \"%s\" tiene un estado inconsistente.", particionNbr, nombreTabla);
-		}
-		free(linea);
-	}
-	fclose(temp);
-}
-
 char* obtenerListaDeBloques(int particion, char* nombreTabla){
 	char* pathFile = string_from_format("%sTables/%s/%d.bin", config.punto_montaje, nombreTabla, particion);
 

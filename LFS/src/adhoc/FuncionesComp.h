@@ -14,7 +14,6 @@
 #include <stdlib.h>
 
 void cambiarNombreFilesTemp(char* pathTabla);
-void leerTemporal(char* pathTemp, int particiones, char* nombreTabla);
 char* obtenerListaDeBloques(int particion, char* nombreTabla);
 char* firstBloqueDisponible(char* listaDeBloques);
 int caracteresEnBloque(char* bloque);

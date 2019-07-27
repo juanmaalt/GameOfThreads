@@ -36,6 +36,7 @@ void checkExistenciaDirectorio(char* path, char* carpeta);
 void checkDirectorios();
 void levantarTablasExistentes();
 void agregarBloqueEnParticion(char* bloque, char* nombreTabla, int particion);
+void actualizarTamanioEnParticion(int sizeLinea, char* nombreTabla, int particion);
 int agregarBloqueEnBitarray(char* nombreCarpeta);
 
 

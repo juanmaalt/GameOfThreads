@@ -254,7 +254,6 @@ Operacion ejecutarOperacion(char* input) {
 			sem_post(&mutexPeticionesPorTabla);
 			if(valorSemaforo >= 1){
 				retorno = selectAPI(*parsed);
-				mostrarRetorno(retorno);
 			}else{
 				encolar_peticion(string_from_format(parsed->argumentos.SELECT.nombreTabla), string_from_format(input));
 				retorno.TipoDeMensaje = TEXTO_PLANO;
@@ -275,7 +274,6 @@ Operacion ejecutarOperacion(char* input) {
 
 			if(valorSemaforo >= 1){
 				retorno = insertAPI(*parsed);
-				mostrarRetorno(retorno);
 			}else{
 				encolar_peticion(string_from_format(parsed->argumentos.INSERT.nombreTabla), string_from_format(input));
 				retorno.TipoDeMensaje = TEXTO_PLANO;
@@ -284,11 +282,9 @@ Operacion ejecutarOperacion(char* input) {
 			break;
 		case CREATE:
 			retorno = createAPI(*parsed);
-			mostrarRetorno(retorno);
 			break;
 		case DESCRIBE:
 			retorno = describeAPI(*parsed);
-			mostrarRetorno(retorno);
 			break;
 		case DROP:
 			sem_wait(&mutexPeticionesPorTabla);
@@ -304,7 +300,6 @@ Operacion ejecutarOperacion(char* input) {
 
 			if(valorSemaforo >= 1){
 				retorno = dropAPI(*parsed);
-				mostrarRetorno(retorno);
 			}else{
 				encolar_peticion(string_from_format(parsed->argumentos.DROP.nombreTabla), string_from_format(input));
 				retorno.TipoDeMensaje = TEXTO_PLANO;
@@ -332,10 +327,8 @@ Operacion ejecutarOperacion(char* input) {
 	}
 
 	retorno.TipoDeMensaje = ERROR;
-	retorno.Argumentos.ERROR.mensajeError=malloc(sizeof(char)* (strlen("Error en la recepcion del resultado.")+1));
-	strcpy(retorno.Argumentos.ERROR.mensajeError, "Error en la recepcion del resultado.");
-
-	log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - <ERROR> Mensaje de retorno \"%s\"", retorno.Argumentos);
+	retorno.Argumentos.ERROR.mensajeError=string_from_format("Error en la recepcion del resultado.");
+	mostrarRetorno(retorno);
 
 	return retorno;
 }
@@ -437,8 +430,6 @@ int cuentaArchivos(char* path) {
 void dumpTabla(char* nombreTable, void* value){
 	t_list* list = (t_list*) value;
 
-	//t_list * list = dictionary_get(memtable, nombreTable);//obtengo la data, en el insert debera checkear que este dato no sea null
-
 	if(list==NULL || list_size(list)==0){
 		//TODO:log
 		return;
@@ -530,85 +521,6 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 	return reg;
 }
 /*FIN FSEEK*/
-
-/*INICIO FSEEKANDREPLACE*///TODO:Borrar
-
-void fseekAndEraseBloque(int key, char* listaDeBloques){
-	char** bloques = string_get_string_as_array(listaDeBloques);
-
-	FILE* fBloque;
-	FILE* fBloqueTemp;
-	int i=0;
-	int continua=0;
-
-	char* linea = string_new();
-	char ch;
-
-	while(bloques[i]!=NULL){
-		char* pathBloque = string_from_format("%sBloques/%s.bin", config.punto_montaje, bloques[i]);
-		fBloque = fopen(pathBloque, "r");
-		char* pathBloqueTemp = string_from_format("%sBloques/%s.binx", config.punto_montaje, bloques[i]);
-		fBloqueTemp = fopen(pathBloqueTemp, "w");
-		while((ch = getc(fBloque)) != EOF){
-			char* nchar = string_from_format("%c", ch);
-			string_append(&linea, nchar);
-
-			if(string_ends_with(linea, "\n")){
-				char** lineaParse = string_split(linea,";");
-				if(lineaParse[1]!=NULL){//Si la línea lee algo no null
-					if(atoi(lineaParse[1])!=key){//Si la key de la línea no es igual a la buscada
-						if(continua!=0){
-							char* bloqueTemp = string_from_format("%sBloques/%s.binx", config.punto_montaje, bloques[i-1]);
-							remove(bloqueTemp);
-							continua=0;
-							free(bloqueTemp);
-						}
-						fprintf(fBloqueTemp, "%s", linea);
-					}else{//Si la key es la buscada
-						if(continua!=0){
-							char* bloque = string_from_format("%sBloques/%s.bin", config.punto_montaje, bloques[i-1]);
-							remove(bloque);
-							char* bloqueTemp = string_from_format("%sBloques/%s.binx", config.punto_montaje, bloques[i-1]);
-							rename(bloqueTemp, bloque);
-							remove(bloqueTemp);
-							continua=0;
-							free(bloque);
-							free(bloqueTemp);
-						}else{
-							char* bloque = string_from_format("%sBloques/%s.bin", config.punto_montaje, bloques[i]);
-							remove(bloque);
-							char* bloqueTemp = string_from_format("%sBloques/%s.binx", config.punto_montaje, bloques[i]);
-							rename(bloqueTemp, bloque);
-							remove(bloqueTemp);
-							continua=0;
-							free(bloque);
-							free(bloqueTemp);
-						}
-					}
-					string_iterate_lines(lineaParse, (void* )free);
-					free(lineaParse);
-				}
-			}
-			free(nchar);
-		}
-		if(strlen(linea)>0){
-			continua=1;
-		}else{
-			//printf("entró en remover\n");
-			remove(pathBloqueTemp);
-		}
-		free(pathBloqueTemp);
-		free(pathBloque);
-		fclose(fBloque);
-		fclose(fBloqueTemp);
-		i++;
-	}
-
-	free(linea);
-}
-/*FIN FSEEKANDREPLACE*/
-
-
 
 void rutinas_de_finalizacion(){
 	printf(BLU"\n█▀▀▀ █▀▀█ █▀▄▀█ █▀▀ 　 █▀▀█ █▀▀ 　 ▀▀█▀▀ █░░█ █▀▀█ █▀▀ █▀▀█ █▀▀▄ █▀▀ \n█░▀█ █▄▄█ █░▀░█ █▀▀ 　 █░░█ █▀▀ 　 ░░█░░ █▀▀█ █▄▄▀ █▀▀ █▄▄█ █░░█ ▀▀█ \n▀▀▀▀ ▀░░▀ ▀░░░▀ ▀▀▀ 　 ▀▀▀▀ ▀░░ 　 ░░▀░░ ▀░░▀ ▀░▀▀ ▀▀▀ ▀░░▀ ▀▀▀░ ▀▀▀ \n\n"STD);

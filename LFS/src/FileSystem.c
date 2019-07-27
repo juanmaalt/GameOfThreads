@@ -235,30 +235,42 @@ void agregarBloqueEnParticion(char* bloque, char* nombreTabla, int particion){
 	}
 
 	char* bloques = config_get_string_value(particionData, "BLOCKS");
-	int size = config_get_int_value(particionData, "SIZE");
 
 	char* subBloques = string_substring_until(bloques, (strlen(bloques)-1));
 	char* nuevosBloques=string_new();
 
-	if(string_ends_with(subBloques, bloque)){
-		nuevosBloques = string_from_format("%s]", subBloques);
-		size = caracteresEnBloque(bloque);
-	}else{
-		nuevosBloques = string_from_format("%s,%s]", subBloques , bloque);
-		size = size+caracteresEnBloque(bloque);
-	}
-
-	char* sizet= string_from_format("%d", size);
-	config_set_value(particionData, "SIZE", sizet);
 	config_set_value(particionData, "BLOCKS", nuevosBloques);
 
 	config_save(particionData);
 	config_destroy(particionData);
 	free(subBloques);
-	free(sizet);
 	free(nuevosBloques);
 	free(pathParticion);
 }
+
+void actualizarTamanioEnParticion(int sizeLinea, char* nombreTabla, int particion){
+	char* pathParticion = string_from_format("%sTables/%s/%d.bin", config.punto_montaje, nombreTabla, particion);
+	t_config* particionData = config_create(pathParticion);
+
+	if(particionData==NULL){
+		log_info(logger_invisible, "FileSystem.c: agregarBloqueEnParticion() - No se pudo agregar el bloque en la particion %d de la tabla %s", particion, nombreTabla);
+		log_error(logger_invisible, "FileSystem.c: agregarBloqueEnParticion() - No se pudo agregar el bloque en la particion %d de la tabla %s", particion, nombreTabla);
+		return;
+	}
+
+	int size = config_get_int_value(particionData, "SIZE");
+
+	size = size+sizeLinea;
+
+	char* sizet= string_from_format("%d", size);
+	config_set_value(particionData, "SIZE", sizet);
+
+	config_save(particionData);
+	config_destroy(particionData);
+	free(sizet);
+	free(pathParticion);
+}
+
 
 int agregarBloqueEnBitarray(char* nombreCarpeta){
 	char* pathTablas = string_from_format("%sTables/%s/", config.punto_montaje, nombreCarpeta);

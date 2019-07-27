@@ -10,21 +10,21 @@
 void mostrarRetorno(Operacion retorno){
 	switch (retorno.TipoDeMensaje) {
 	case REGISTRO:
-		printf("Timestamp: %llu\nKey:%d\nValue: %s\n",
+		log_info(logger_visible, "<REGISTRO>\nTimestamp: %llu\nKey:%d\nValue: %s",
 				retorno.Argumentos.REGISTRO.timestamp,
 				retorno.Argumentos.REGISTRO.key,
 				retorno.Argumentos.REGISTRO.value);
 		return;
 	case TEXTO_PLANO:
-		printf("Resultado: %s\n",retorno.Argumentos.TEXTO_PLANO.texto);
+		log_info(logger_visible,"<RESULTADO>\n%s",retorno.Argumentos.TEXTO_PLANO.texto);
 		return;
 	case ERROR:
-		printf("ERROR: %s \n",retorno.Argumentos.ERROR.mensajeError);
+		log_error(logger_visible,"<ERROR>\n%s",retorno.Argumentos.ERROR.mensajeError);
 		return;
 	case COMANDO:
 		return;
 	case DESCRIBE_REQUEST:
-		printf("DESCRIBE: %s\n",retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
+		log_info(logger_visible,"<DESCRIBE>\n%s",retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
 		return;
 	case GOSSIPING_REQUEST:
 		return;
