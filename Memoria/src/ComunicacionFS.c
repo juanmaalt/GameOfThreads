@@ -10,36 +10,30 @@
 int handshakeLFS(int socketLFS) {
 	Operacion handshake;
 
-	handshake.TipoDeMensaje= TEXTO_PLANO;
+	handshake.TipoDeMensaje= HANDSHAKE;
 
-	handshake.Argumentos.TEXTO_PLANO.texto= string_from_format("handshake");
+	handshake.Argumentos.HANDSHAKE.informacion= string_from_format("handshake");
 
 	send_msg(socketLFS, handshake);
 
 	destruir_operacion(handshake);
 
 	//Recibo el tamanio
-	//while((handshake = recv_msg(socketLFS)).TipoDeMensaje)
 	handshake = recv_msg(socketLFS);
 
-	//usleep(vconfig.retardoFS * 1000);
-
 	switch(handshake.TipoDeMensaje){
-		case TEXTO_PLANO:
-			tamanioValue=atoi(handshake.Argumentos.TEXTO_PLANO.texto);
+		case HANDSHAKE:
+			tamanioValue=atoi(handshake.Argumentos.HANDSHAKE.informacion);
 			destruir_operacion(handshake);
 			break;
-		case ERROR:
-		case REGISTRO:
-		case COMANDO:
 		default:
 			return EXIT_FAILURE;
 	}
 
 
 	//Pido el punto de montaje
-	handshake.TipoDeMensaje= TEXTO_PLANO;
-	handshake.Argumentos.TEXTO_PLANO.texto=string_from_format("handshake pathLFS");
+	handshake.TipoDeMensaje= HANDSHAKE;
+	handshake.Argumentos.HANDSHAKE.informacion=string_from_format("handshake pathLFS");
 
 	send_msg(socketLFS, handshake);
 
@@ -51,13 +45,10 @@ int handshakeLFS(int socketLFS) {
 	//usleep(vconfig.retardoFS * 1000);
 
 	switch(handshake.TipoDeMensaje){
-			case TEXTO_PLANO:
-				pathLFS=string_from_format(handshake.Argumentos.TEXTO_PLANO.texto);
+			case HANDSHAKE:
+				pathLFS=string_from_format(handshake.Argumentos.HANDSHAKE.informacion);
 				destruir_operacion(handshake);
 				break;
-			case ERROR:
-			case REGISTRO:
-			case COMANDO:
 			default:
 				return EXIT_FAILURE;
 		}
