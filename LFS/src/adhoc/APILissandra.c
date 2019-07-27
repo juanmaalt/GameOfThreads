@@ -77,7 +77,7 @@ Operacion selectAPI(Comando comando){
 	list_destroy(listaDeValues);
 	config_destroy(metadataFile);
 
-	return resultadoSelect;
+	return resultadoSelect; //FIXME: solucionar manejo de memoria para destruir todos los elementos de la lista excepto el primero. El primero se va a destruir despues de enviarlo a la memoria!!
 }
 
 

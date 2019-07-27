@@ -14,12 +14,17 @@ void concatenar_tabla(char **source, char *tabla, char* consistencia, int numero
 			 *source = string_from_format("%s", tabla);
 		else
 			string_append(source, tabla);
+	char *aux = NULL;
 	string_append(source, ";");
 	string_append(source, consistencia);
 	string_append(source, ";");
-	string_append(source, string_from_format("%d", numeroParticiones));
+	aux = string_from_format("%d", numeroParticiones); //Al append trabaja sobre una copia asi que lo que si genero una nueva cadena para pasarle despues la DEBO liberar
+	string_append(source, aux);
+	free(aux);
 	string_append(source, ";");
-	string_append(source, string_from_format("%d", tiempoEntreCompactacion));
+	aux = string_from_format("%d", tiempoEntreCompactacion);
+	string_append(source, aux);
+	free(aux);
 	string_append(source, ";");
 }
 

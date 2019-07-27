@@ -245,7 +245,8 @@ timestamp_t checkTimestamp(char* timestamp){
 void crearTablaEnMemtable(char* nombreTabla){
 	t_list* lista = list_create();
 	char* tabla=string_from_format(nombreTabla);
-	dictionary_put(memtable, tabla, lista);
+	dictionary_put(memtable, tabla, lista); //la funcion hace una ocpia de la key (tabla)
+	free(tabla);
 }
 
 
@@ -368,7 +369,7 @@ void getStringDescribe(char* path, char* string, char* nombreTabla, Operacion *r
 		  }
 			closedir (dir);
 			if(strlen(string)>1){
-				resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = string_from_format(string);
+				resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = string;
 				resultadoDescribe->TipoDeMensaje= DESCRIBE_REQUEST;
 				resultadoDescribe->Argumentos.DESCRIBE_REQUEST.esGlobal=true;
 			}else{
@@ -396,7 +397,7 @@ void getStringDescribe(char* path, char* string, char* nombreTabla, Operacion *r
 			concatenar_tabla(&string, nombreTabla, consistencia, particiones, compactionTime);
 			//printf("string: %s\n", string);
 			resultadoDescribe->TipoDeMensaje= DESCRIBE_REQUEST;
-			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = string_from_format(string);
+			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = string;
 			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.esGlobal=false;
 			config_destroy(metadata);
 			free(consistencia);

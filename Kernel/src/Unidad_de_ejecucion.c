@@ -106,7 +106,8 @@ static DynamicAddressingRequest direccionar_request(char *request){
 		log_error(logger_visible, "Unidad_de_ejecucion.c: direccionar_request: la memoria elegida parece estar caida. Se eligira otra");
 		log_error(logger_invisible, "Unidad_de_ejecucion.c: direccionar_request: la memoria elegida parece estar caida. Se eligira otra");
 		remover_memoria(memoria);
-		//Devuelve un socket como EXIT_FAILURE que se detecta mas adelante
+		if(list_is_empty(memoriasExistentes))
+			retorno.socket = NULL_MEMORY;
 	}
 	return retorno;
 }
@@ -157,8 +158,8 @@ static INTERNAL_STATE exec_string_comando(PCB *pcb){
 		free(pcb->data);
 		free(pcb->nombreArchivoLQL);
 		free(pcb);
-		log_error(logger_error, "Unidad_de_ejecucion.c: exec_string_comando: finalizando operacion.");
-		log_error(logger_invisible, "Unidad_de_ejecucion.c: exec_string_comando: finalizando operacion.");
+		log_error(logger_error, "Unidad_de_ejecucion.c: exec_string_comando: Finalizando operacion. No hay memorias para ejecutar la instruccion");
+		log_error(logger_invisible, "Unidad_de_ejecucion.c: exec_string_comando: Finalizando operacion. No hay memorias para ejecutar la instruccion");
 		return INSTRUCCION_ERROR;
 	}
 	target.inicioOperacion = getCurrentTime();
@@ -216,8 +217,8 @@ static INTERNAL_STATE exec_file_lql(PCB *pcb){
 		if(target.socket == NULL_MEMORY){
 			printf("\n");
 			char *aux = remover_new_line(line);
-			log_error(logger_error, "Unidad_de_ejecucion.c: exec_file_lql: finalizando operacion '%s' debido a la instruccion '%s'", pcb->nombreArchivoLQL, aux);
-			log_error(logger_invisible, "Unidad_de_ejecucion.c: exec_file_lql: finalizando operacion '%s' debido a la instruccion '%s'", pcb->nombreArchivoLQL, aux);
+			log_error(logger_error, "Unidad_de_ejecucion.c: exec_file_lql: finalizando operacion '%s' debido a la instruccion '%s'. No hay memorias para ejecutar la instruccion", pcb->nombreArchivoLQL, aux);
+			log_error(logger_invisible, "Unidad_de_ejecucion.c: exec_file_lql: finalizando operacion '%s' debido a la instruccion '%s'. No hay memorias para ejecutar la instruccion", pcb->nombreArchivoLQL, aux);
 			free(aux);
 			fclose(lql);
 			free(pcb->nombreArchivoLQL);
