@@ -49,12 +49,6 @@ int main(void) {
 	//TODO:GOSSIPING
 	iniciar_gossiping();
 
-	//FUNCIONES PARA TEST DE SELECT TODO: ELIMINAR
-	/*memoriaConUnSegmentoYUnaPagina();
-
-	 mostrarContenidoMemoria();
-	 mostrarPathSegmentos();
-	 */
 	//Inicio consola
 	if (iniciar_consola() == EXIT_FAILURE) {
 		log_error(logger_error,
@@ -200,7 +194,12 @@ int inicializar_memoriaPrincipal() {
 		marco->nroMarco = i;
 
 		//Inserto en la cola y pila
+		pthread_mutex_lock(&mutexColaMarcos);
+
 		queue_push(memoriaPrincipal.marcosLibres, (MCB_t *) marco);
+
+		pthread_mutex_unlock(&mutexColaMarcos);
+
 		list_add(memoriaPrincipal.listaAdminMarcos, (MCB_t *) marco);
 	}
 
@@ -225,6 +224,7 @@ int configuracion_inicial() {
 	sem_init(&journal, 0, 1);
 	pthread_mutex_init(&mutexMemoria, NULL);
 	pthread_mutex_init(&mutexTablaSegmentos, NULL);
+	pthread_mutex_init(&mutexColaMarcos,NULL);
 
 	mkdir("Logs", 0777); //Crea la carpeta Logs junto al ejecutable (si ya existe no toca nada de lo que haya adentro)
 

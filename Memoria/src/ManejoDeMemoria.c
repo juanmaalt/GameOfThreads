@@ -65,7 +65,9 @@ int colocarPaginaEnMemoria(timestamp_t timestamp, uint16_t key, char* value) { /
 
 	pthread_mutex_lock(&mutexMemoria);
 
+	pthread_mutex_lock(&mutexColaMarcos);
 	MCB_t * marcoObjetivo = (MCB_t *) queue_pop(memoriaPrincipal.marcosLibres); //No se elimina porque el MCB tambien esta en listaAdministrativaMarcos
+	pthread_mutex_unlock(&mutexColaMarcos);
 
 	void * direccionMarco = memoriaPrincipal.memoria + memoriaPrincipal.tamanioMarco * marcoObjetivo->nroMarco;
 
