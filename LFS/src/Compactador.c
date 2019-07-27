@@ -188,15 +188,19 @@ static int levantarRegistrosBloques(t_dictionary *registrosDeParticiones, char *
 
 	for(int p=0; p<particiones; p++){
 		char* bloquesAsignados = obtenerListaDeBloques(p, nombreTabla);
+		char* particionActual= string_from_format("%d", p);
+		t_list *registros = list_create();
+		dictionary_put(registrosDeParticiones, particionActual, registros);
 
 		if(bloquesAsignados == NULL){
 			printf("La particion %d de la tabla %s no parece tener bloques asignados\n", p, nombreTabla);
+			free(particionActual);
 			continue;
 		}
 		char** bloques = string_get_string_as_array(bloquesAsignados);
-		char* particionActual= string_from_format("%d", p);
 		char ch;
 		char* linea = string_new();
+
 
 		for(int i=0; bloques[i]!=NULL; i++){
 			FILE* fBloque;
@@ -218,10 +222,6 @@ static int levantarRegistrosBloques(t_dictionary *registrosDeParticiones, char *
 					free(lineaParsed);
 					free(linea);
 
-					if(!dictionary_has_key(registrosDeParticiones, particionActual)){
-						t_list *registros = list_create();
-						dictionary_put(registrosDeParticiones, particionActual, registros);
-					}
 					agregarRegistro((t_list*)dictionary_get(registrosDeParticiones, particionActual), registro);
 					linea=string_new();
 				}
