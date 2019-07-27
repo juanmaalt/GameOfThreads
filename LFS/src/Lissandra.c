@@ -498,7 +498,7 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 		while((ch = getc(fBloque)) != EOF){
 			char* nchar = string_from_format("%c", ch);
 			string_append(&linea, nchar);
-
+			free(nchar);
 			if(string_ends_with(linea, "\n")){
 				char** lineaParseada = string_split(linea,";");
 				if(lineaParseada[1]!=NULL){
@@ -508,15 +508,12 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 
 						free(pathBloque);
 						free(linea);
-						free(nchar);
 						fclose(fBloque);
 						return reg;
 					}
-					string_iterate_lines(lineaParseada, (void* )free);
-					free(lineaParseada);
 				}
+				if(!lineaParseada){string_iterate_lines(lineaParseada, (void* )free); free(lineaParseada);}
 			}
-			free(nchar);
 			//printf("linea: %s\n", linea);
 		}
 		fclose(fBloque);

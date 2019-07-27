@@ -1,6 +1,9 @@
 #include "cliente.h"
 
 int connect_to_server(char * ip, char *port){
+	if(ip == NULL || port == NULL)
+		return EXIT_FAILURE;
+
 	struct addrinfo hints;
 	struct addrinfo *serverInfo;
 

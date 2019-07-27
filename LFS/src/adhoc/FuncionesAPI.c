@@ -183,6 +183,7 @@ void leerTemps(char* nombreTabla, char* key, t_list* listaDeValuesFiles){
 			}
 			free(nombreTemp);
 		}
+		fclose(dir);
 	}
     free(pathTabla);
 }
@@ -394,9 +395,13 @@ void getStringDescribe(char* path, char* string, char* nombreTabla, Operacion *r
 		if((dir = opendir (path)) != NULL){
 			//printf("path: %s\n", pathMetadata);
 			//printf("nombreTabla: %s\n", nombreTabla);
-			if((metadata = config_create(string_from_format("%s%s/Metadata", path, nombreTabla)))==NULL){
+			char *fullPath = string_from_format("%s%s/Metadata", path, nombreTabla);
+			metadata = config_create(fullPath);
+			free(fullPath);
+			if(metadata == NULL){
 				resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = NULL;
 				resultadoDescribe->Argumentos.DESCRIBE_REQUEST.esGlobal=false;
+				fclose(dir);
 				return;
 			}
 
@@ -411,6 +416,7 @@ void getStringDescribe(char* path, char* string, char* nombreTabla, Operacion *r
 			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.esGlobal=false;
 			config_destroy(metadata);
 			free(consistencia);
+			fclose(dir);
 		}
 		else{
 			resultadoDescribe->Argumentos.DESCRIBE_REQUEST.resultado_comprimido = NULL;

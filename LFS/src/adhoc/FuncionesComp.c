@@ -231,8 +231,11 @@ void destruirPeticionesPendientes(char *nombreTabla){
 	t_list *encoladas = dictionary_get(dPeticionesPorTabla, nombreTabla);
 	if(encoladas==NULL)
 		return;
-	void destroy(void *request){
-		free((char*)request);
+	void destroy(void *lista){
+		void destruirLista(void *request){
+			free((char*)request);
+		}
+		list_destroy_and_destroy_elements((t_list*)lista, destruirLista);
 	}
 	dictionary_remove_and_destroy(dPeticionesPorTabla, nombreTabla, destroy);
 }
@@ -284,6 +287,7 @@ char **generarRegistroBloque(t_list *registros){
 		retorno = realloc(retorno, sizeof(char*)*pos);
 		retorno[pos-1] = NULL;
 	}
+	free(stringsDeRegistros);
 	return retorno;
 }
 

@@ -21,6 +21,8 @@ typedef struct dirent EntradaDirectorio;
 void* compactar(void* nombreTabla);
 void waitSemaforoTabla(char *tabla);
 void postSemaforoTabla(char *tabla);
+void waitSemaforoTablaSelect(char *tabla);
+void postSemaforoTablaSelect(char *tabla);
 
 
 #endif /* COMPACTADOR_H_ */
