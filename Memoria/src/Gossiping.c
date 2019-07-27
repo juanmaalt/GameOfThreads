@@ -136,45 +136,8 @@ void conectarConSeed() {
 					buscarMemoria, destruirMemoria);
 			//printf("Sali Destruir\n");
 
-			int sizeList = list_size(listaMemoriasConocidas);
-			printf("TAMAÑO DE LISTA; %d\n", sizeList);
-			int indexList = 0;
-			while ((sizeList > 0) && (indexList < sizeList)) {
-				printf(YEL"ENTRO AL WHILE\n"STD);
-				knownMemory_t * memoriaLista;
-				memoriaLista = (knownMemory_t *) list_get(
-						listaMemoriasConocidas, indexList);
-				int comparoPort = strcmp(fconfig.puerto,
-						((knownMemory_t*) memoriaLista)->ip_port);
-				int comparoIP = strcmp(fconfig.ip,
-						((knownMemory_t*) memoriaLista)->ip);
-				if ((comparoPort * comparoPort + comparoIP * comparoIP) == 0){
-					indexList++;
-				printf(GRN"Yo mismo no hago nada"STD"\n");
-				}
-				else {
-					// TIRO SOCKET, SI DA ERROR, lo tengo que limpiar de la lista
-					printf("VIENDO SI ESTA: %s ----- %s\n",((knownMemory_t*) memoriaLista)->ip,((knownMemory_t*) memoriaLista)->ip_port);
-					int socketLista = connect_to_server(
-							((knownMemory_t*) memoriaLista)->ip,
-							((knownMemory_t*) memoriaLista)->ip_port);
-					if (socketLista == EXIT_FAILURE) {
-						list_remove(listaMemoriasConocidas, indexList);
-						sizeList = list_size(listaMemoriasConocidas);
-						printf(YEL"SEED CAIDA Y OTRA MEMORIA TAMBIEN\n"STD);
 
-					} else {
-						close (socketLista);
-					}
-
-					indexList++;
-					//free(((knownMemory_t*)memoriaLista)->ip);
-					//free(((knownMemory_t*)memoriaLista)->ip_port);
-					//free(((knownMemory_t*)memoriaLista));
-
-				}
-
-			}
+			chequeo_memorias_en_lista_activas();
 			pthread_mutex_unlock(&mutexGossiping);
 			printf("TAMANIO LISTA CONOCIDAS %d\n",list_size(listaMemoriasConocidas));
 			//pthread_mutex_unlock(&mutexGossiping);
@@ -182,6 +145,7 @@ void conectarConSeed() {
 			// Debo quitar del diccionario esta memoria ya que no esta
 		} else {
 			//printf ("memoria activa\n");
+			//La memoria seed esta activa, voy a consultarle sus memorias
 			log_info(logger_gossiping,
 					"GOSSIPING.C:conectarConSeed: Memoria conocida. Enviar mensaje %s:%s ",
 					IPs[conteo_seeds], IPsPorts[conteo_seeds]);
@@ -315,11 +279,15 @@ Operacion recibir_gossiping(Operacion resultado) {
 				int socketNew = connect_to_server(descompresion[i + 1],
 						descompresion[i + 2]);
 				//printf("SOCKET NEW : %d\n",socketNew);
+				printf(RED"RECIBI GOSSIP Y GENERO SOCKET A LAS MEMORIA QUE ME PASAN %d" STD "\n",socketNew);
 				if (socketNew == EXIT_FAILURE) {
 					//printf("FALLO SOCKET\n");
 					log_info(logger_visible,
 							"GOSSIPING.C:recibir_gossiping: La memoria no esta activa %s:%s",
 							descompresion[i + 1], descompresion[i + 2]);
+
+					printf(RED"MEMORIA QUE ME PASARON NO ESTA ACTIVA %s:%s" STD "\n",
+												descompresion[i + 1], descompresion[i + 2]);
 					//printf("No activa\n");
 
 					// Debo quitar de la lista esta memoria ya que no esta
@@ -395,4 +363,45 @@ static knownMemory_t *machearMemoria(int numeroMemoria) {
 		return numeroMemoria == ((knownMemory_t*) elemento)->memory_number;
 	}
 	return (knownMemory_t*) list_find(listaMemoriasConocidas, buscar);
+}
+
+
+void chequeo_memorias_en_lista_activas (void) {
+	int indexList = 0;
+	int sizeList = list_size(listaMemoriasConocidas);
+	printf("TAMAÑO DE LISTA; %d\n", sizeList);
+				while ((sizeList > 0) && (indexList < sizeList)) {
+					printf(YEL"ENTRO AL WHILE\n"STD);
+					knownMemory_t * memoriaLista;
+					memoriaLista = (knownMemory_t *) list_get(
+							listaMemoriasConocidas, indexList);
+					int comparoPort = strcmp(fconfig.puerto,
+							((knownMemory_t*) memoriaLista)->ip_port);
+					int comparoIP = strcmp(fconfig.ip,
+							((knownMemory_t*) memoriaLista)->ip);
+					if ((comparoPort * comparoPort + comparoIP * comparoIP) == 0){
+						indexList++;
+					printf(GRN"Yo mismo, no hago nada"STD"\n");
+					}
+					else {
+						// TIRO SOCKET, SI DA ERROR, lo tengo que limpiar de la lista
+						printf("VIENDO SI ESTA: %s ----- %s\n",((knownMemory_t*) memoriaLista)->ip,((knownMemory_t*) memoriaLista)->ip_port);
+						int socketLista = connect_to_server(
+								((knownMemory_t*) memoriaLista)->ip,
+								((knownMemory_t*) memoriaLista)->ip_port);
+						if (socketLista == EXIT_FAILURE) {
+							list_remove(listaMemoriasConocidas, indexList);
+							sizeList = list_size(listaMemoriasConocidas);
+							printf(YEL"SEED CAIDA Y OTRA MEMORIA TAMBIEN\n"STD);
+
+						} else {
+							// La memoria sigue activa, cierro el socket de chequeo
+							close (socketLista);
+						}
+
+						indexList++;
+
+					}
+
+				}
 }
