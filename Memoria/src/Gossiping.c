@@ -134,9 +134,9 @@ void conectarConSeed() {
 
 	for (; IPs[conteo_seeds] != NULL; conteo_seeds++) {
 
-		printf(YEL"IMPRIMO SOCKET %d\n IP PUERTO %s:%s"STD"\n",socketGossip,IPs[conteo_seeds],IPsPorts[conteo_seeds]);
-		if(levantarSocketSeed(IPs[conteo_seeds],IPsPorts[conteo_seeds], &socketGossip) == EXIT_FAILURE){
 
+		if(levantarSocketSeed(IPs[conteo_seeds],IPsPorts[conteo_seeds], &socketGossip) == EXIT_FAILURE){
+			printf(YEL"IMPRIMO SOCKET %d\n IP PUERTO %s:%s"STD"\n",socketGossip,IPs[conteo_seeds],IPsPorts[conteo_seeds]);
 			log_info(logger_visible, "GOSSIPING.C:conectarConSeed: La memoria seed no esta activa %s:%s", IPs[conteo_seeds], IPsPorts[conteo_seeds]);
 
 			removerDeListaDeConocidas(IPs[conteo_seeds],IPsPorts[conteo_seeds]);
@@ -201,10 +201,17 @@ void ConsultoPorMemoriasConocidas(int socketSEEDS) {
 	 elemento machea => voy a la lista y la quito. agrego en aux (es viejo)
 	 Al final los que quedan en la lista vieja son las bajas
 	 */
+	knownMemory_t * mem = malloc(sizeof(knownMemory_t));
+		//Asigno a sus atributos los valores correspondientes
+		mem->memory_number = atoi(fconfig.numero_memoria);
+		mem->ip = string_from_format(fconfig.ip);
+		mem->ip_port = string_from_format(fconfig.puerto);
+		list_add(aux, mem);
 	char **descompresion = descomprimir_memoria(
 			request.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 	//printf("Mensaje corrido recibido: %s \n",request.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 	//pthread_mutex_lock(&mutexGossiping);
+
 	for (int i = 0; descompresion[i] != NULL; i += 3) {
 
 		knownMemory_t *memoria;
@@ -221,20 +228,18 @@ void ConsultoPorMemoriasConocidas(int socketSEEDS) {
 			memoria->memory_number = atoi(descompresion[i]);
 			memoria->ip = string_from_format(descompresion[i + 1]);
 			memoria->ip_port = string_from_format(descompresion[i + 2]);
-			list_add(aux, memoria);
-			/* bool buscarMemoria(void * buscoMemoria){
-			 return atoi(descompresion[i]) == ((knownMemory_t*)buscoMemoria)->memory_number;
-			 }
-			 void destruirMemoria ( void * destruir){
-			 free(destruir);
-			 return;
-			 }
-			 list_remove_and_destroy_by_condition(listaMemoriasConocidas,buscarMemoria,destruirMemoria);*/
 
+			int cmpIP = strcmp(mem->ip, memoria->ip);
+			int cmpIPPORT = strcmp(mem->ip_port,memoria->ip_port);
+				if ((cmpIP * cmpIP + cmpIPPORT * cmpIPPORT) != 0)
+					list_add(aux, memoria);
+				else {
+					free(memoria->ip);
+					free(memoria->ip_port);
+					free(memoria);
+				}
 		}
-
 	}
-
 	destruir_split_memorias(descompresion);
 	list_destroy(listaMemoriasConocidas); //Libero las referencias de la lista, sin liberar cada uno de sus elementos. Es decir, libero solo los nodos
 	listaMemoriasConocidas = list_duplicate(aux); //Duplico la lista auxiliar con todos los elementos del nuevo describe, manteniendo los del anterior describe (son sus respecrtivos atributos de criterios), y eliminando los viejos (ya que nunca se agregaron a la listaAuxiliar)
@@ -297,16 +302,11 @@ Operacion recibir_gossiping(Operacion resultado) {
 					for (int j = 0; list_size(listaMemoriasConocidas) > j; j++) {
 						//printf("Entro a filtar para quitar de lista\n");
 						recupero = (knownMemory_t *) list_get(listaMemoriasConocidas, j);
-						int cmpIP = strcmp(recupero->ip, descompresion[j + 1]);
+						int cmpIP = strcmp(recupero->ip, descompresion[i + 1]);
 						int cmpIPPORT = strcmp(recupero->ip_port,
-								descompresion[j + 2]);
+								descompresion[i + 2]);
 						if ((cmpIP * cmpIP + cmpIPPORT * cmpIPPORT) != 0)
 							list_add(aux_filtro, recupero);
-						concatenar_memoria(&envio,
-								string_from_format("%d",
-										recupero->memory_number), recupero->ip,
-								recupero->ip_port);
-						//printf("CONCATENO MENSAJE MEMORIA NO ACTIVA QUITAR : %s\n",envio);
 					}
 					list_destroy(aux); //Libero las referencias de la lista, sin liberar cada uno de sus elementos. Es decir, libero solo los nodos
 					aux = list_duplicate(aux_filtro); //Duplico la lista auxiliar con todos los elementos del nuevo describe, manteniendo los del anterior describe (son sus respecrtivos atributos de criterios), y eliminando los viejos (ya que nunca se agregaron a la listaAuxiliar)
@@ -320,14 +320,7 @@ Operacion recibir_gossiping(Operacion resultado) {
 				}
 				//printf("AGREGO EN LISTA\n %s\n%s\n%s\n",descompresion[i],descompresion[i+1],descompresion[i+2]);
 				//list_add(aux, memoria);
-			} else {
-				//printf("MACHEA\n");
-				//printf("AGREGO EN LISTA\n %s\n%s\n%s\n",descompresion[i],descompresion[i+1],descompresion[i+2]);
-
-			}
-
-			//printf("MODIFIQUE NUMERO\n");
-			//printf("YA MODIFICO VALORES LISTA\n");
+			} // NO USO EL ELSE, si machea, ya la agregue antes en el add all
 		}
 		envio = NULL;
 		destruir_split_memorias(descompresion);
