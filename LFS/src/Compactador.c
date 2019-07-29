@@ -49,17 +49,21 @@ void* compactar(void* nombreTabla){
 		usleep(metadata->compaction_time * 1000);
 		waitSemaforoTabla((char*) nombreTabla);
 		log_info(logger_invisible, "Compactador.c: Se inicio la compactacion de los dumps de la tabla %s", pathTabla);
-		if(!seHizoUnDump(pathTabla))
+		if(!seHizoUnDump(pathTabla)){
+			postSemaforoTabla((char*) nombreTabla);
 			continue;
+		}
 		cambiarNombreFilesTemp(pathTabla);
 		if(levantarRegistrosBloques(registrosDeParticiones, (char*)nombreTabla, metadata->partitions) == EXIT_FAILURE){
 			log_error(logger_invisible, "No se pudieron leer los bloques asociados a la tabla %s, no se puede realizar la compactación.", (char*)nombreTabla);
 			log_error(logger_error, "No se pudieron leer los bloques asociados a la tabla %s, no se puede realizar la compactación.", (char*)nombreTabla);
+			postSemaforoTabla((char*) nombreTabla);
 			continue;
 		}
 		if(directory_iterate_if(pathTabla, es_tmpc, iterar_tmpc)==EXIT_FAILURE){
 			log_error(logger_invisible, "No se pudieron leer los dumps de la tabla %s, no se puede realizar la compactación.", (char*)nombreTabla);
 			log_error(logger_error, "No se pudieron leer los dumps de la tabla %s, no se puede realizar la compactación.", (char*)nombreTabla);
+			postSemaforoTabla((char*) nombreTabla);
 			continue;
 		}
 		verDiccionarioDebug(registrosDeParticiones);
