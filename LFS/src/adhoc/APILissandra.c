@@ -204,6 +204,7 @@ Operacion createAPI(Comando comando){
 	SemaforoTabla *semt = malloc(sizeof(SemaforoTabla));
 	sem_init(&(semt->semaforoGral), 0, 1);
 	sem_init(&(semt->semaforoSelect), 0, 1);
+	semt->peticionesEnEspera = 0;
 	semt->tabla = string_from_format(comando.argumentos.CREATE.nombreTabla);
 	sem_wait(&mutexPeticionesPorTabla);
 	list_add(semaforosPorTabla, semt);
@@ -211,7 +212,7 @@ Operacion createAPI(Comando comando){
 
 	/*Inicio el proceso de compactación*/
 	char* nombreTabla = string_from_format(comando.argumentos.CREATE.nombreTabla);
-	if(iniciarCompactacion(nombreTabla) == EXIT_FAILURE){
+	if(iniciarCompactacion(nombreTabla, semt) == EXIT_FAILURE){
 		log_error(logger_error,"APILissandra.c: <CREATE> No se pudo iniciar el hilo de compactación");
 		return resultadoCreate;
 	}
@@ -270,10 +271,15 @@ Operacion dropAPI(Comando comando){
 		dictionary_remove_and_destroy(memtable, comando.argumentos.DROP.nombreTabla, eliminarTablaDeMemtable);
 	}
 
-	/*Borro el semáforo del diccionario de semáforos*/
+	//Cancelamos la compactacion que esta corriendo
 	bool buscarSemaforo(void* semaforo){
 		return string_equals_ignore_case(((SemaforoTabla*) semaforo)->tabla, comando.argumentos.DROP.nombreTabla);
 	}
+	SemaforoTabla *semt = list_find(semaforosPorTabla, buscarSemaforo);
+	if(semt)
+		pthread_cancel(semt->compactacionService);
+
+	/*Borro el semáforo del diccionario de semáforos*/
 	void destruirSemaforo(void* semaforo){
 		SemaforoTabla* sem = ((SemaforoTabla*) semaforo);
 		free(sem->tabla);

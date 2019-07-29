@@ -196,6 +196,7 @@ void levantarTablasExistentes(){
 				SemaforoTabla *semt = malloc(sizeof(SemaforoTabla));
 				sem_init(&(semt->semaforoGral), 0, 1);
 				sem_init(&(semt->semaforoSelect), 0, 1);
+				semt->peticionesEnEspera = 0;
 				semt->tabla = string_from_format(nombreCarpeta);
 				sem_wait(&mutexPeticionesPorTabla);
 				list_add(semaforosPorTabla, semt);
@@ -203,7 +204,7 @@ void levantarTablasExistentes(){
 
 				log_info(logger_invisible, "FileSystem.c: levantarTablasExistentes() - Tabla levantada: %s", nombreCarpeta);
 				if(agregarBloqueEnBitarray(nombreCarpeta)==0){
-					iniciarCompactacion(string_from_format(nombreCarpeta));//REVISION pido memoria para nombreCarpeta solo en el uso de la compactacion. Se puede liberar desde ahi
+					iniciarCompactacion(string_from_format(nombreCarpeta), semt);//REVISION pido memoria para nombreCarpeta solo en el uso de la compactacion. Se puede liberar desde ahi
 				}else{
 					log_error(logger_visible, "FileSystem.c: levantarTablasExistentes() - Las particiones de la Tabla \"%s\" tiene un estado inconsistente. Tabla %s borrada. ", nombreCarpeta, nombreCarpeta);
 					log_error(logger_invisible, "FileSystem.c: levantarTablasExistentes() - Las particiones de la Tabla \"%s\" tiene un estado inconsistente. Tabla %s borrada. ", nombreCarpeta, nombreCarpeta);

@@ -74,10 +74,12 @@ typedef struct registro_t{
 	char* value;
 }Registro;
 
-typedef struct {
+typedef struct semt_t{
 	char* tabla;
+	int peticionesEnEspera;
 	sem_t semaforoGral;
 	sem_t semaforoSelect;
+	pthread_t compactacionService;
 	timestamp_t inicioBloqueo;
 	timestamp_t finBloqueo;
 }SemaforoTabla;
