@@ -21,15 +21,14 @@ void cambiarNombreFilesTemp(char* pathTabla){
 				pathFileViejo = string_from_format("%s/%s", pathTabla, nombreArchivo);
 				pathFileNuevo = string_duplicate(pathFileViejo);
 				string_append(&pathFileNuevo,"c");
-
 				rename(pathFileViejo, pathFileNuevo);
+				free(pathFileViejo);
+				free(pathFileNuevo);
 			}
 			free(nombreArchivo);
 		}
 		closedir (dir);
 	}
-	free(pathFileViejo);
-	free(pathFileNuevo);
 }
 
 char* obtenerListaDeBloques(int particion, char* nombreTabla){
@@ -298,11 +297,12 @@ void borrarArchivosTmpc(char* nombreTabla){
 	bool es_tmpc(EntradaDirectorio *entrada){
 		return string_ends_with(entrada->d_name, ".tmpc");
 	}
-	void iterar_tmpc(EntradaDirectorio *entrada){
+	void borrar_tmpc(EntradaDirectorio *entrada){
 		char* pathArchivoTMPC = string_from_format("%s/%s", pathTabla, entrada->d_name);
 		remove(pathArchivoTMPC);
 		free(pathArchivoTMPC);
 	}
+	directory_iterate_if(pathTabla, es_tmpc, borrar_tmpc);
 	free(pathTabla);
 }
 

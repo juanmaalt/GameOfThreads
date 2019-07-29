@@ -243,7 +243,7 @@ Operacion ejecutarOperacion(char* input) {
 	if (parsed->valido) {
 		switch (parsed->keyword){
 		case SELECT:
-			sem_wait(&mutexPeticionesPorTabla);
+			SELECT: sem_wait(&mutexPeticionesPorTabla);
 			bufferTabla=parsed->argumentos.SELECT.nombreTabla;
 			semt = list_find(semaforosPorTabla, buscar);
 			if(semt==NULL){
@@ -258,13 +258,12 @@ Operacion ejecutarOperacion(char* input) {
 			if(valorSemaforo >= 1){
 				retorno = selectAPI(*parsed);
 			}else{
-				encolar_peticion(string_from_format(parsed->argumentos.SELECT.nombreTabla), string_from_format(input));
-				retorno.TipoDeMensaje = TEXTO_PLANO;
-				retorno.Argumentos.TEXTO_PLANO.texto = string_from_format("Compactando");
+				esperarFinCompactacion(parsed->argumentos.SELECT.nombreTabla);
+				goto SELECT;
 			}
 			break;
 		case INSERT:
-			sem_wait(&mutexPeticionesPorTabla);
+			INSERT: sem_wait(&mutexPeticionesPorTabla);
 			bufferTabla=parsed->argumentos.INSERT.nombreTabla;
 			semt = list_find(semaforosPorTabla, buscar);
 			if(semt==NULL){
@@ -272,7 +271,6 @@ Operacion ejecutarOperacion(char* input) {
 				log_error(logger_error, "No existe la tabla %s. No se puede realizar el INSERT.", parsed->argumentos.INSERT.nombreTabla);
 				retorno.TipoDeMensaje = ERROR;
 				retorno.Argumentos.ERROR.mensajeError = string_from_format("No existe la tabla %s. No se puede realizar el INSERT.", parsed->argumentos.INSERT.nombreTabla);
-
 				break;
 			}
 			sem_getvalue(&semt->semaforoGral, &valorSemaforo);
@@ -281,9 +279,8 @@ Operacion ejecutarOperacion(char* input) {
 			if(valorSemaforo >= 1){
 				retorno = insertAPI(*parsed);
 			}else{
-				encolar_peticion(string_from_format(parsed->argumentos.INSERT.nombreTabla), string_from_format(input));
-				retorno.TipoDeMensaje = TEXTO_PLANO;
-				retorno.Argumentos.TEXTO_PLANO.texto = string_from_format("Compactando");
+				esperarFinCompactacion(parsed->argumentos.INSERT.nombreTabla);
+				goto INSERT;
 			}
 			break;
 		case CREATE:
@@ -293,7 +290,7 @@ Operacion ejecutarOperacion(char* input) {
 			retorno = describeAPI(*parsed);
 			break;
 		case DROP:
-			sem_wait(&mutexPeticionesPorTabla);
+			DROP: sem_wait(&mutexPeticionesPorTabla);
 			bufferTabla=parsed->argumentos.DROP.nombreTabla;
 			semt = list_find(semaforosPorTabla, buscar);
 			if(semt==NULL){
@@ -309,9 +306,8 @@ Operacion ejecutarOperacion(char* input) {
 			if(valorSemaforo >= 1){
 				retorno = dropAPI(*parsed);
 			}else{
-				encolar_peticion(string_from_format(parsed->argumentos.DROP.nombreTabla), string_from_format(input));
-				retorno.TipoDeMensaje = TEXTO_PLANO;
-				retorno.Argumentos.TEXTO_PLANO.texto = string_from_format("compactando");
+				esperarFinCompactacion(parsed->argumentos.DROP.nombreTabla);
+				goto DROP;
 			}
 			break;
 		case RUN:
@@ -509,6 +505,10 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 						free(pathBloque);
 						free(linea);
 						fclose(fBloque);
+						if(bloques){
+							string_iterate_lines(bloques, (void*)free);
+							free(bloques);
+						}
 						return reg;
 					}
 				}
@@ -520,8 +520,10 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 		free(pathBloque);
 		i++;
 	}
-	string_iterate_lines(bloques, (void*)free);
-	if(bloques)free(bloques);
+	if(bloques){
+		string_iterate_lines(bloques, (void*)free);
+		free(bloques);
+	}
 	free(linea);
 	return reg;
 }

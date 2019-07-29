@@ -205,6 +205,7 @@ Operacion createAPI(Comando comando){
 	sem_init(&(semt->semaforoGral), 0, 1);
 	sem_init(&(semt->semaforoSelect), 0, 1);
 	semt->peticionesEnEspera = 0;
+	semt->peticionesEnEsperaSelect = 0;
 	semt->tabla = string_from_format(comando.argumentos.CREATE.nombreTabla);
 	sem_wait(&mutexPeticionesPorTabla);
 	list_add(semaforosPorTabla, semt);
@@ -237,7 +238,7 @@ Operacion describeAPI(Comando comando){
 	char* path = string_from_format("%sTables/", config.punto_montaje);
 	//char* pathMetadata = malloc(1000 * sizeof(char));
 
-	char* string=string_new();
+	char* string = NULL; //=string_new(); REVISION: no se pide memoria para esto
 
 	getStringDescribe(path, string, comando.argumentos.DESCRIBE.nombreTabla, &resultadoDescribe);
 	//printf("Describe_string: %s\n", resultadoDescribe.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);

@@ -359,8 +359,9 @@ void getStringDescribe(char* path, char* string, char* nombreTabla, Operacion *r
 				}else{
 					//printf("path: %s\n", pathMetadata);
 					//printf("nombreTabla: %s\n", nombreCarpeta);
-
-					metadata = config_create(string_from_format("%s%s/Metadata", path, nombreCarpeta));
+					char *fullPath = string_from_format("%s%s/Metadata", path, nombreCarpeta);
+					metadata = config_create(fullPath);
+					free(fullPath);
 					if(metadata==NULL){
 						log_info(logger_invisible, "No se puede acceder al archivo Metadata de la tabla %s", nombreCarpeta);
 						log_error(logger_invisible, "No se puede acceder al archivo Metadata de la tabla %s", nombreCarpeta);

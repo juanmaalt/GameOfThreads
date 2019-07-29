@@ -77,6 +77,7 @@ typedef struct registro_t{
 typedef struct semt_t{
 	char* tabla;
 	int peticionesEnEspera;
+	int peticionesEnEsperaSelect;
 	sem_t semaforoGral;
 	sem_t semaforoSelect;
 	pthread_t compactacionService;
