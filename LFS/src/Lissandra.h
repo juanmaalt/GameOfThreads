@@ -78,9 +78,13 @@ typedef struct registro_t{
 typedef struct semt_t{
 	char* tabla;
 	int peticionesEnEspera;
+	int peticionesEjecutando;
 	int peticionesEnEsperaSelect;
+	int peticionesEjecutandoSelect;
 	sem_t semaforoGral;
 	sem_t semaforoSelect;
+	sem_t enEjecucion;
+	sem_t enEjecucionSelect;
 	pthread_t compactacionService;
 	timestamp_t inicioBloqueo;
 	timestamp_t finBloqueo;
@@ -106,6 +110,7 @@ t_bitarray* bitarray;
 char* bitmap;
 
 sem_t mutexPeticionesPorTabla;
+sem_t dumpTest;
 
 pthread_t inotify;
 

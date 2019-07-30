@@ -324,7 +324,7 @@ t_list *procesar_gossiping(char *cadenaResultadoGossiping){
 		}
 		close(socket);
 		memoria = crear_memoria(atoi(descompresion[i]), descompresion[i+1], descompresion[i+2]);
-		list_add(lista, memoria);
+		if(memoria != NULL) list_add(lista, memoria);
 	}
 	destruir_split_memorias(descompresion);
 	return lista;

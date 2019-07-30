@@ -291,7 +291,7 @@ static INTERNAL_STATE procesar_retorno_operacion(Operacion op, PCB* pcb, char* i
 			log_info(logger_visible,YEL"CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta realizando Journal. Se eligira otra de manera aleatoria si el criterio lo permite"STD, process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, pcb->simbolicIP, instruccionActualTemp);
 			log_info(logger_invisible,"CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta realizando Journal. Se eligira otra de manera aleatoria si el criterio lo permite", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, pcb->simbolicIP, instruccionActualTemp);
 			free(instruccionActualTemp);
-			sleep(3);
+			//sleep(3);
 			return JOURNAL_MEMORY_INACCESSIBLE; //TODO: ver de solucionar espera activa
 		}
 		log_error(logger_visible, "CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta realizando Journal. Se eligira otra de manera aleatoria si el criterio lo permite", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, ++pcb->simbolicIP, instruccionActualTemp);
@@ -305,7 +305,7 @@ static INTERNAL_STATE procesar_retorno_operacion(Operacion op, PCB* pcb, char* i
 			log_info(logger_visible,YEL"CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta full. Reintentando."STD, process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, pcb->simbolicIP, instruccionActualTemp);
 			log_info(logger_invisible,"CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta full. Reintentando.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, pcb->simbolicIP, instruccionActualTemp);
 			free(instruccionActualTemp);
-			sleep(3);
+			//sleep(3);
 			return JOURNAL_MEMORY_INACCESSIBLE; //TODO con este tipo de retorno, si el kernel se queda reintentando, y se mata a la memoria entra en un bucle infinito (setear memoria con baja capacidad, 100)
 		}
 		log_error(logger_visible, "CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta full. Abortando.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, ++pcb->simbolicIP, instruccionActualTemp);

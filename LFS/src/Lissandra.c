@@ -36,6 +36,7 @@ int main(void) {
 	dPeticionesPorTabla = dictionary_create();//REVISION: se liberan las peticiones cuando se hace un drop
 	semaforosPorTabla =list_create();
 	sem_init(&mutexPeticionesPorTabla, 0, 1);
+	sem_init(&dumpTest, 0, 1);
 
 	/*Levantar Tablas*/
 	levantarTablasExistentes();
@@ -92,7 +93,7 @@ void *connection_handler(void *nSocket){
 		fprintf(stderr, RED"No se pude interpretar el enum %d"STD"\n", recibido.TipoDeMensaje);
 	}
 	destruir_operacion(recibido);
-
+	close(socket);
 	return NULL;
 }
 /*FIN FUNCION PARA MANEJO DE HILOS*/
@@ -282,13 +283,6 @@ Operacion ejecutarOperacion(char* input) {
 	Comando *parsed = malloc(sizeof(Comando));
 	Operacion retorno;
 	*parsed = parsear_comando(input);
-	int valorSemaforo=0;
-
-	SemaforoTabla *semt=NULL;
-	char *bufferTabla=NULL;
-	bool buscar(void *tablaSemaforo){
-		return string_equals_ignore_case(bufferTabla, ((SemaforoTabla*) tablaSemaforo)->tabla);
-	}
 
 	log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - Mensaje recibido %s", input);
 
@@ -297,12 +291,16 @@ Operacion ejecutarOperacion(char* input) {
 	if (parsed->valido) {
 		switch (parsed->keyword){
 		case SELECT:
+			sem_wait(&dumpTest);
 			tryExecuteSelect(parsed->argumentos.SELECT.nombreTabla);
 			retorno = selectAPI(*parsed);
+			finishExecuteSelect(parsed->argumentos.SELECT.nombreTabla);
+			sem_post(&dumpTest);
 			break;
 		case INSERT:
 			tryExecute(parsed->argumentos.INSERT.nombreTabla);
 			retorno = insertAPI(*parsed);
+			finishExecute(parsed->argumentos.INSERT.nombreTabla);
 			break;
 		case CREATE:
 			retorno = createAPI(*parsed);
@@ -313,6 +311,7 @@ Operacion ejecutarOperacion(char* input) {
 		case DROP:
 			tryExecute(parsed->argumentos.DROP.nombreTabla);
 			retorno = dropAPI(*parsed);
+			finishExecute(parsed->argumentos.DROP.nombreTabla);
 			break;
 		case RUN:
 			liberarBloque(atoi(parsed->argumentos.RUN.path));
@@ -425,6 +424,8 @@ int cuentaArchivos(char* path) {
 	struct dirent * entry;
 
 	dirp = opendir(path);
+	if(dirp == NULL)
+		return -1;
 	while ((entry = readdir(dirp)) != NULL) {
 	    if ((entry->d_type == DT_REG) && (esTemp(entry->d_name) == 1)) {
 		 cuenta++;
@@ -437,7 +438,7 @@ int cuentaArchivos(char* path) {
 
 void dumpTabla(char* nombreTable, void* value){
 	t_list* list = (t_list*) value;
-
+	sem_wait(&dumpTest);
 	if(list==NULL || list_size(list)==0){
 		//TODO:log
 		return;
@@ -445,6 +446,7 @@ void dumpTabla(char* nombreTable, void* value){
 	char* path = string_from_format("%sTables/%s", config.punto_montaje, nombreTable);
 
 	int numeroDump = cuentaArchivos(path);
+	if(numeroDump == -1) return; //REVISION -1
 
 	char* pathArchivo = string_from_format("%s/D%d.tmp", path, numeroDump);
 
@@ -467,6 +469,7 @@ void dumpTabla(char* nombreTable, void* value){
 	}
 
 	list_clean_and_destroy_elements(list, eliminarRegistro);
+	sem_post(&dumpTest);
 }
 
 void dumpRegistro(FILE* file, Registro* registro) {

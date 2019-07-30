@@ -254,7 +254,7 @@ void ConsultoPorMemoriasConocidas(int socketSEEDS) {
 			"GOSSIPING.C:ConsultoPorMemoriasConocidas:Fin GOSSIP");
 	pthread_mutex_unlock(&mutexGossiping);
 	free(request.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
-	free(request);
+	//free(request);
 	close(socketSEEDS);
 
 }

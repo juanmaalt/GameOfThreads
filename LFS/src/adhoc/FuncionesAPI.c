@@ -179,6 +179,7 @@ void leerTemps(char* nombreTabla, char* key, t_list* listaDeValuesFiles){
 						list_add(listaDeValuesFiles, reg);
 					}
 				}
+				fclose(temp);
 				free(pathTemp);
 			}
 			free(nombreTemp);

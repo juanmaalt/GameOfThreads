@@ -53,7 +53,9 @@ void* compactar(void* nombreTabla){
 			desbloquearTabla((char*) nombreTabla);
 			continue;
 		}
+		bloquearSelect((char*)nombreTabla);
 		cambiarNombreFilesTemp(pathTabla);
+		desbloquearSelect((char*)nombreTabla);
 		if(levantarRegistrosBloques(registrosDeParticiones, (char*)nombreTabla, metadata->partitions) == EXIT_FAILURE){
 			log_error(logger_invisible, "No se pudieron leer los bloques asociados a la tabla %s, no se puede realizar la compactación.", (char*)nombreTabla);
 			log_error(logger_error, "No se pudieron leer los bloques asociados a la tabla %s, no se puede realizar la compactación.", (char*)nombreTabla);
@@ -308,15 +310,20 @@ static void destruirRegistrosDeParticiones(t_dictionary *diccionario){
 
 
 
+
+
 void bloquearTabla(char *tabla){
 	bool buscar(void *tablaSemaforo){
 		return !strcmp(tabla, ((SemaforoTabla*) tablaSemaforo)->tabla);
 	}
 	void *semt = list_find(semaforosPorTabla, buscar);
-	sem_wait(&(((SemaforoTabla*)semt)->semaforoGral));
+	sem_wait(&(((SemaforoTabla*)semt)->semaforoGral)); //Bloqueamos nuevas request acceder
+	sem_wait(&(((SemaforoTabla*)semt)->enEjecucion));
 	/*El semaforo de la tabla deberia estar en 1. Este wait lo decrementa a 0 haciendo que ninguna
 	 * nueva request pueda entrar*/
 }
+
+
 
 
 
@@ -326,11 +333,14 @@ void bloquearSelect(char *tabla){
 	}
 	void *semt = list_find(semaforosPorTabla, buscar);
 	sem_wait(&(((SemaforoTabla*)semt)->semaforoSelect));
+	sem_wait(&(((SemaforoTabla*)semt)->enEjecucionSelect));
 	((SemaforoTabla*) semt)->inicioBloqueo = getCurrentTime();
 	//log_info(logger_visible, "Compactar(%s): Se inicio la escritura de los bloques de la tabla %s", tabla, tabla);
 	/*El semaforo de select de la tabla deberia estar en 1. Este wait lo decrementa a 0 haciendo que ninguna
 	 * nueva request pueda hacer un select*/
 }
+
+
 
 
 
@@ -341,9 +351,12 @@ void desbloquearTabla(char *tabla){
 	SemaforoTabla *semt = (SemaforoTabla*) list_find(semaforosPorTabla, buscar);
 	for(int i=0; i<=semt->peticionesEnEspera; ++i)
 		sem_post(&semt->semaforoGral);
+	sem_post(&semt->enEjecucion);
 	/*El desbloqueo de la tabla consiste en hacer signal del semaforo que la bloqueaba antes, tantas veces como request
 	 * haya esperando. Esto es por que durante la compactacion, podrian estar varias request en espera*/
 }
+
+
 
 
 
@@ -354,10 +367,15 @@ void desbloquearSelect(char *tabla){
 	SemaforoTabla *semt = (SemaforoTabla*) list_find(semaforosPorTabla, buscar);
 	for(int i=0; i<=semt->peticionesEnEsperaSelect; ++i)
 		sem_post(&semt->semaforoSelect);
+	sem_post(&semt->enEjecucionSelect);
 	semt->finBloqueo = getCurrentTime();
 	log_info(logger_visible, "Compactar(%s): Tiempo en el que la tabla estuvo bloqueada = %llu", tabla, semt->finBloqueo-semt->inicioBloqueo);
 	log_info(logger_invisible, "Compactar(%s): Tiempo en el que la tabla estuvo bloqueada = %llu", tabla, semt->finBloqueo-semt->inicioBloqueo);
 }
+
+
+
+
 
 void tryExecute(char *tabla){
 	bool buscar(void *tablaSemaforo){
@@ -366,15 +384,22 @@ void tryExecute(char *tabla){
 	sem_wait(&mutexPeticionesPorTabla);
 	SemaforoTabla *semt = (SemaforoTabla*) list_find(semaforosPorTabla, buscar);
 	sem_post(&mutexPeticionesPorTabla);
-	if(semt == NULL)
+	if(semt == NULL){
 		return;
+	}
 	int valorSemaforo;
 	sem_getvalue(&semt->semaforoGral, &valorSemaforo);
-	if(valorSemaforo >= 1)
+	if(valorSemaforo >= 1){
+		sem_wait(&semt->enEjecucion);
 		return;
+	}
 	++semt->peticionesEnEspera;
 	sem_wait(&semt->semaforoGral);
 }
+
+
+
+
 
 void tryExecuteSelect(char *tabla){
 	bool buscar(void *tablaSemaforo){
@@ -383,15 +408,48 @@ void tryExecuteSelect(char *tabla){
 	sem_wait(&mutexPeticionesPorTabla);
 	SemaforoTabla *semt = (SemaforoTabla*) list_find(semaforosPorTabla, buscar);
 	sem_post(&mutexPeticionesPorTabla);
-	if(semt == NULL)
+	if(semt == NULL){
 		return;
+	}
 	int valorSemaforo;
 	sem_getvalue(&semt->semaforoSelect, &valorSemaforo);
-	if(valorSemaforo >= 1)
+	if(valorSemaforo >= 1){
+		sem_wait(&semt->enEjecucionSelect);
 		return;
+	}
 	++semt->peticionesEnEsperaSelect;
 	sem_wait(&semt->semaforoSelect);
 }
+
+
+void finishExecute(char *tabla){
+	bool buscar(void *tablaSemaforo){
+		return !strcmp(tabla, ((SemaforoTabla*) tablaSemaforo)->tabla);
+	}
+	sem_wait(&mutexPeticionesPorTabla);
+	SemaforoTabla *semt = (SemaforoTabla*) list_find(semaforosPorTabla, buscar);
+	sem_post(&mutexPeticionesPorTabla);
+	if(semt == NULL){
+		return;
+	}
+	sem_post(&semt->enEjecucion);
+}
+
+
+
+void finishExecuteSelect(char *tabla){
+	bool buscar(void *tablaSemaforo){
+		return !strcmp(tabla, ((SemaforoTabla*) tablaSemaforo)->tabla);
+	}
+	sem_wait(&mutexPeticionesPorTabla);
+	SemaforoTabla *semt = (SemaforoTabla*) list_find(semaforosPorTabla, buscar);
+	sem_post(&mutexPeticionesPorTabla);
+	if(semt == NULL){
+		return;
+	}
+	sem_post(&semt->enEjecucionSelect);
+}
+
 
 void reiniciarSemaforos(char* tabla){
 	bool buscar(void *tablaSemaforo){
@@ -400,7 +458,13 @@ void reiniciarSemaforos(char* tabla){
 	SemaforoTabla *semt = (SemaforoTabla*) list_find(semaforosPorTabla, buscar);
 	semt->peticionesEnEspera = 0;
 	semt->peticionesEnEsperaSelect = 0;
+	semt->peticionesEjecutandoSelect = 0;
+	semt->peticionesEjecutando = 0;
 }
+
+
+
+
 
 static int escribirDiccionarioEnBloques(t_dictionary* registrosDeParticiones, char* nombreTabla){
 	for(int i=0; i<dictionary_size(registrosDeParticiones);i++){
@@ -418,6 +482,10 @@ static int escribirDiccionarioEnBloques(t_dictionary* registrosDeParticiones, ch
 	}
 	return EXIT_SUCCESS;
 }
+
+
+
+
 
 static int escribirBloques(t_list* listaDeRegistros, char** bloques, char* nombreTabla, int particion){
 	int size = metadataFS.blockSize;

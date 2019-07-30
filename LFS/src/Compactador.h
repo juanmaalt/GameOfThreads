@@ -19,12 +19,18 @@ typedef struct dirent EntradaDirectorio;
 
 /*FUNCIONES*/
 void* compactar(void* nombreTabla);
+
 void bloquearTabla(char *tabla);
 void desbloquearTabla(char *tabla);
+
 void bloquearSelect(char *tabla);
 void desbloquearSelect(char *tabla);
+
 void tryExecute(char *tabla);
+void finishExecute(char *tabla);
+
 void tryExecuteSelect(char *tabla);
+void finishExecuteSelect(char *tabla);
 
 void reiniciarSemaforos(char *tabla);
 
