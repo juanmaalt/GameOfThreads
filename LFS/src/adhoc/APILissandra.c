@@ -75,16 +75,22 @@ Operacion selectAPI(Comando comando){
 	Registro* reg;
 	reg = getMasReciente(listaDeValues, listaDeValuesFiles);
 
-	if(reg->value!=NULL){
-		resultadoSelect.TipoDeMensaje = REGISTRO;
-		resultadoSelect.Argumentos.REGISTRO.timestamp=reg->timestamp;
-		resultadoSelect.Argumentos.REGISTRO.key=reg->key;
-		resultadoSelect.Argumentos.REGISTRO.value=string_from_format("%s",reg->value);
-	}else{
-		resultadoSelect.TipoDeMensaje = ERROR;
-		resultadoSelect.Argumentos.ERROR.mensajeError = string_from_format("No existen registros relacionados con la key solicitada");
-	}
+	if(reg == NULL)
+		goto NULL_SELECT; //Es horrible pero hayq ue solucionarlo ya
+	if(reg->value == NULL)
+		goto NULL_SELECT;
 
+	resultadoSelect.TipoDeMensaje = REGISTRO;
+	resultadoSelect.Argumentos.REGISTRO.timestamp=reg->timestamp;
+	resultadoSelect.Argumentos.REGISTRO.key=reg->key;
+	resultadoSelect.Argumentos.REGISTRO.value=string_from_format("%s",reg->value);
+	goto CONTINUAR;
+
+	NULL_SELECT: ;
+	resultadoSelect.TipoDeMensaje = TEXTO_PLANO;
+	resultadoSelect.Argumentos.TEXTO_PLANO.texto = string_from_format("No existen registros relacionados con la key solicitada");
+
+	CONTINUAR: ;
 	/*Libero recursos en memoria*/
 	void destruirLista(void *registro){
 		free(((Registro*)registro)->value);
@@ -238,7 +244,7 @@ Operacion describeAPI(Comando comando){
 	char* path = string_from_format("%sTables/", config.punto_montaje);
 	//char* pathMetadata = malloc(1000 * sizeof(char));
 
-	char* string = NULL; //=string_new(); REVISION: no se pide memoria para esto
+	char* string = string_new();
 
 	getStringDescribe(path, string, comando.argumentos.DESCRIBE.nombreTabla, &resultadoDescribe);
 	//printf("Describe_string: %s\n", resultadoDescribe.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);

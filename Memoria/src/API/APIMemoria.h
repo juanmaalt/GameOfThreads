@@ -29,4 +29,9 @@ Operacion describeAPI(char* input, Comando comando);
 Operacion dropAPI(char* input, Comando comando);
 Operacion journalAPI();
 
+void bloquearMemoria();
+void desbloquearMemoria();
+void esperarFinJournal();
+void reiniciarSemaforo();
+
 #endif /* APIMEMORIA_H_ */

@@ -73,7 +73,13 @@ struct Config_datos_variables{
 
 typedef struct Config_datos_variables vConfig;
 
-sem_t journal;
+typedef struct sem_journal_t{
+	int enEspera;
+	sem_t sem;
+}SemaforoJournal;
+
+SemaforoJournal journal;
+
 pthread_mutex_t mutexMemoria;
 pthread_mutex_t mutexTablaSegmentos;
 pthread_mutex_t mutexColaMarcos;

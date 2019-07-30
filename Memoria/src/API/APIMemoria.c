@@ -56,17 +56,19 @@ Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 	if (parsed->valido) {
 		switch (parsed->keyword) {
 		case SELECT:
-			sem_getvalue(&journal, &valueSem);
+			SELECT: sem_getvalue(&journal.sem, &valueSem);
 			if(valueSem < 1){
-				retorno.TipoDeMensaje = ERROR_JOURNAL;
+				esperarFinJournal();
+				goto SELECT;
 			}else
 				retorno = selectAPI(input, *parsed);
 			loggearMemoria();
 			break;
 		case INSERT:
-			sem_getvalue(&journal, &valueSem);
+			INSERT: sem_getvalue(&journal.sem, &valueSem);
 			if(valueSem < 1){
-				retorno.TipoDeMensaje = ERROR_JOURNAL;
+				esperarFinJournal();
+				goto INSERT;
 			}else{
 				if ((strlen(parsed->argumentos.INSERT.value) + 1) > tamanioValue) {
 					retorno.Argumentos.ERROR.mensajeError = string_from_format(
@@ -85,9 +87,10 @@ Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 			retorno = describeAPI(input, *parsed);
 			break;
 		case DROP:
-			sem_getvalue(&journal, &valueSem);
+			DROP: sem_getvalue(&journal.sem, &valueSem);
 			if(valueSem < 1){
-				retorno.TipoDeMensaje = ERROR_JOURNAL;
+				esperarFinJournal();
+				goto DROP;
 			}else
 				retorno =dropAPI(input, *parsed);
 			loggearMemoria();
@@ -432,7 +435,7 @@ Operacion journalAPI(){
 
 	//  1.2. Si no esta modificado avanzo
 
-	sem_wait(&journal);
+	bloquearMemoria();
 
 	//printf("TERMINO SLEEP JOURNAL\n");
 
@@ -504,8 +507,27 @@ Operacion journalAPI(){
 						"Journal finalizado");
 
 
-	sem_post(&journal);
+	desbloquearMemoria();
+	reiniciarSemaforo();
 	return resultadoJournal;
+}
+
+void bloquearMemoria(){
+	sem_wait(&journal.sem);
+}
+
+void desbloquearMemoria(){
+	for(int i=0; i<=journal.enEspera; ++i)
+		sem_post(&journal.sem);
+}
+
+void esperarFinJournal(){
+	++journal.enEspera;
+	sem_wait(&journal.sem);
+}
+
+void reiniciarSemaforo(){
+	journal.enEspera = 0;
 }
 
 
