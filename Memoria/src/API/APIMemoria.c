@@ -452,8 +452,6 @@ Operacion journalAPI(){
 
 				resultadoJournal= comunicarseConLFS(input);
 
-				free(input);
-
 				switch(resultadoJournal.TipoDeMensaje){
 				 case TEXTO_PLANO:
 					 log_info(logger_invisible,"APIMemoria.c: Resultado Journal: %s", resultadoJournal.Argumentos.TEXTO_PLANO.texto);
@@ -468,6 +466,8 @@ Operacion journalAPI(){
 				if(nombreTabla!=NULL)
 					free(nombreTabla);
 
+				free(input);
+				destruir_operacion(resultadoJournal);
 				return;
 			}
 		}
