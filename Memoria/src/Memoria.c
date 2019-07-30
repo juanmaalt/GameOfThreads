@@ -79,12 +79,14 @@ int main(void) {
 
 void *realizarJournal(void* null) {
 	pthread_detach(pthread_self());
+	Operacion retorno;
 	while (1) {
 		usleep(vconfig.retardoJOURNAL * 1000);
 
 		log_info(logger_invisible,
 				"Memoria.c: realizarJournal: Inicio Journal automatico");
-		journalAPI();
+		retorno=journalAPI();
+		destruir_operacion(retorno);
 	}
 }
 
