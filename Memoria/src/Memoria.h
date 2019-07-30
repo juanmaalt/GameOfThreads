@@ -176,11 +176,6 @@ pthread_t idConsola;
 pthread_t idJournal;
 pthread_t inotify;
 
-//TODO: HILO DE GOSSIPING?
-
-//socket de FILE SYSTEM TODO: A ELIMINAR
-int lfsSocket;
-
 //socket de la Memoria
 int memorySocket;
 

@@ -71,8 +71,21 @@ int conectarLFS() {
 
 //Para API
 
-void enviarRequestFS(char* input) {
-	lfsSocket = conectarLFS(); //TODO: NO DEJARLA COMO GLOBAL
+Operacion comunicarseConLFS(char * input){
+
+	int lfsSocket = conectarLFS();
+
+	enviarRequestFS(input, lfsSocket);
+
+	Operacion retorno=recibirRequestFS(lfsSocket);
+
+	close(lfsSocket);
+
+	return retorno;
+}
+
+void enviarRequestFS(char* input, int lfsSocket) {
+
 
 	Operacion request;
 	request.TipoDeMensaje = COMANDO;
@@ -84,7 +97,7 @@ void enviarRequestFS(char* input) {
 	destruir_operacion(request);
 }
 
-Operacion recibirRequestFS(void) {
+Operacion recibirRequestFS(int lfsSocket) {
 	Operacion resultado;
 	resultado = recv_msg(lfsSocket);
 

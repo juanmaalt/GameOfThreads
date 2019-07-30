@@ -72,7 +72,7 @@ int main(void) {
 		return EXIT_FAILURE;
 	}
 	log_info(logger_invisible, "=============Finalizando Memoria=============");
-	//finalizar_todos_los_hilos();
+	finalizar_todos_los_hilos();
 	liberarRecursos();
 
 }
@@ -159,13 +159,15 @@ void *connection_handler(void *nSocket) {
 }
 
 int realizarHandshake(void) {
-	lfsSocket = conectarLFS();
+	int lfsSocket = conectarLFS();
 	log_info(logger_visible, "Conectado al LFS. Iniciando Handshake.");
 	if (handshakeLFS(lfsSocket) == EXIT_FAILURE) {
 		return EXIT_FAILURE;
 	}
 	//printf("TAMAÑO_VALUE= %d\n", tamanioValue);
 	log_info(logger_visible, "Handshake realizado correctamente");
+
+	close(lfsSocket);
 	return EXIT_SUCCESS;
 }
 

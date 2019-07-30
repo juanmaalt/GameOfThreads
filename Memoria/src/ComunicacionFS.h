@@ -18,8 +18,10 @@ char *pathLFS;
 int conectarLFS();
 int handshakeLFS(int socketLFS);
 
-Operacion recibirRequestFS(void);
-void enviarRequestFS(char* );
 
+Operacion comunicarseConLFS(char*);
+
+void enviarRequestFS(char* , int);
+Operacion recibirRequestFS(int);
 
 #endif /* COMUNICACIONFS_H_ */

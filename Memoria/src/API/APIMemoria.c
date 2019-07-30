@@ -166,9 +166,8 @@ Operacion selectAPI(char* input, Comando comando) {
 		}else{
 			//printf(YEL"APIMemoria.c: select: no encontro la key. Enviar a LFS la request"STD"\n");
 			log_info(logger_invisible,"APIMemoria.c: select: no encontro la key. Enviando a LFS la request");
-			enviarRequestFS(input);
 
-			resultadoSelect=recibirRequestFS();
+			resultadoSelect= comunicarseConLFS(input);
 
 			if(resultadoSelect.TipoDeMensaje==REGISTRO){
 				//INSERTAR VALOR EN BLOQUE DE MEMORIA Y METER CREAR REGISTRO EN TABLA DE PAGINAS DEL SEGMENTO
@@ -189,9 +188,7 @@ Operacion selectAPI(char* input, Comando comando) {
 	}else{ //NO EXISTE EL SEGMENTO
 		log_info(logger_invisible,"APIMemoria.c: select: no se encontro el path. Enviando a LFS la request");
 
-		enviarRequestFS(input);
-
-		resultadoSelect=recibirRequestFS();
+		resultadoSelect= comunicarseConLFS(input);;
 
 		if(resultadoSelect.TipoDeMensaje==REGISTRO){
 			if(crearSegmentoInsertandoRegistro(comando.argumentos.SELECT.nombreTabla, resultadoSelect.Argumentos.REGISTRO.value, resultadoSelect.Argumentos.REGISTRO.timestamp, keyBuscada, false)== EXIT_SUCCESS){
@@ -317,11 +314,9 @@ Operacion createAPI(char* input, Comando comando) {
 	Operacion resultadoCreate;
 
 	//Enviar al FS la operacion
-	enviarRequestFS(input);
-
 	//Lo que recibo del FS lo retorno
 
-	resultadoCreate=recibirRequestFS();
+	resultadoCreate= comunicarseConLFS(input);
 
 	return resultadoCreate;
 
@@ -338,11 +333,9 @@ Operacion describeAPI(char* input, Comando comando) {
 	Operacion resultadoDescribe;
 
 	//Enviar al FS la operacion
-	enviarRequestFS(input);
-
 	//Lo que recibo del FS lo retorno
 
-	resultadoDescribe=recibirRequestFS();
+	resultadoDescribe= comunicarseConLFS(input);
 
 	return resultadoDescribe;
 }
@@ -397,11 +390,9 @@ Operacion dropAPI(char* input, Comando comando) {
 				*/
 	}
 	//Enviar al FS la operacion
-	enviarRequestFS(input);
-
 	//Lo que recibo del FS lo retorno
 
-	resultadoDrop=recibirRequestFS();
+	resultadoDrop= comunicarseConLFS(input);
 
 	return resultadoDrop;
 
@@ -459,11 +450,7 @@ Operacion journalAPI(){
 
 				log_info(logger_invisible,"APIMemoria.c: Journaling->Request enviada: %s", input);
 
-				enviarRequestFS(input);
-
-				free(input);
-
-				resultadoJournal=recibirRequestFS();
+				resultadoJournal= comunicarseConLFS(input);
 
 				switch(resultadoJournal.TipoDeMensaje){
 				 case TEXTO_PLANO:
