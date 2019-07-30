@@ -268,73 +268,74 @@ static INTERNAL_STATE procesar_retorno_operacion(Operacion op, PCB* pcb, char* i
 	switch(op.TipoDeMensaje){
 	case TEXTO_PLANO:
 		instruccionActualTemp = remover_new_line(instruccionActual);
-		log_info(logger_visible,"CPU: %d | Memoria: %d %s:%s | %s -> %s", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp, op.Argumentos.TEXTO_PLANO.texto);
-		log_info(logger_invisible,"CPU: %d | Memoria: %d %s:%s | %s -> %s", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp, op.Argumentos.TEXTO_PLANO.texto);
+		log_info(logger_visible,"CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> %s", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, ++pcb->simbolicIP, instruccionActualTemp, op.Argumentos.TEXTO_PLANO.texto);
+		log_info(logger_invisible,"CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> %s", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, pcb->simbolicIP, instruccionActualTemp, op.Argumentos.TEXTO_PLANO.texto);
 		free(instruccionActualTemp);
 		return CONTINUE;
 	case REGISTRO:
 		instruccionActualTemp = remover_new_line(instruccionActual);
-		log_info(logger_visible,"CPU: %d | Memoria: %d %s:%s | %s -> [Timestamp: %llu, Key: %d, Value: %s]", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp, op.Argumentos.REGISTRO.timestamp, op.Argumentos.REGISTRO.key, op.Argumentos.REGISTRO.value);
-		log_info(logger_invisible,"CPU: %d | Memoria: %d %s:%s | %s -> [Timestamp: %llu, Key: %d, Value: %s]", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp, op.Argumentos.REGISTRO.timestamp, op.Argumentos.REGISTRO.key, op.Argumentos.REGISTRO.value);
+		log_info(logger_visible,"CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> [Timestamp: %llu, Key: %d, Value: %s]", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, ++pcb->simbolicIP, instruccionActualTemp, op.Argumentos.REGISTRO.timestamp, op.Argumentos.REGISTRO.key, op.Argumentos.REGISTRO.value);
+		log_info(logger_invisible,"CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> [Timestamp: %llu, Key: %d, Value: %s]", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, pcb->simbolicIP, instruccionActualTemp, op.Argumentos.REGISTRO.timestamp, op.Argumentos.REGISTRO.key, op.Argumentos.REGISTRO.value);
 		free(instruccionActualTemp);
 		return CONTINUE;
 	case ERROR:
 		instruccionActualTemp = remover_new_line(instruccionActual);
-		log_error(logger_error,"CPU: %d | Memoria: %d %s:%s | Fallo en la instruccion '%s', Path: '%s'. Abortando: %s", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto,  instruccionActualTemp, pcb->nombreArchivoLQL, op.Argumentos.ERROR.mensajeError);
-		log_error(logger_invisible,"CPU: %d | Memoria: %d %s:%s | Fallo en la instruccion '%s', Path: '%s'. Abortando: %s", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp, pcb->nombreArchivoLQL, op.Argumentos.ERROR.mensajeError);
+		log_error(logger_error,"CPU: %d | Memoria: %d %s:%s | %s (%d) | Fallo en la instruccion '%s'. Abortando: %s", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, ++pcb->simbolicIP,  instruccionActualTemp, op.Argumentos.ERROR.mensajeError);
+		log_error(logger_invisible,"CPU: %d | Memoria: %d %s:%s | %s (%d) | Fallo en la instruccion '%s'. Abortando: %s", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, pcb->simbolicIP, instruccionActualTemp, op.Argumentos.ERROR.mensajeError);
 		free(instruccionActualTemp);
 		return INSTRUCCION_ERROR;
 	case ERROR_JOURNAL:
 		instruccionActualTemp = remover_new_line(instruccionActual);
 		if(pcb->tipo == FILE_LQL){
 			fsetpos((FILE *)pcb->data, &(pcb->instruccionPointer));
-			log_info(logger_visible,YEL"CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta realizando Journal. Se eligira otra de manera aleatoria si el criterio lo permite"STD, process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
-			log_info(logger_invisible,"CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta realizando Journal. Se eligira otra de manera aleatoria si el criterio lo permite", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
+			log_info(logger_visible,YEL"CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta realizando Journal. Se eligira otra de manera aleatoria si el criterio lo permite"STD, process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, pcb->simbolicIP, instruccionActualTemp);
+			log_info(logger_invisible,"CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta realizando Journal. Se eligira otra de manera aleatoria si el criterio lo permite", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, pcb->simbolicIP, instruccionActualTemp);
 			free(instruccionActualTemp);
 			sleep(3);
 			return JOURNAL_MEMORY_INACCESSIBLE; //TODO: ver de solucionar espera activa
 		}
-		log_error(logger_visible, "CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta realizando Journal. Se eligira otra de manera aleatoria si el criterio lo permite", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
-		log_error(logger_invisible, "CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta realizando Journal. Se eligira otra de manera aleatoria si el criterio lo permite", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
+		log_error(logger_visible, "CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta realizando Journal. Se eligira otra de manera aleatoria si el criterio lo permite", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, ++pcb->simbolicIP, instruccionActualTemp);
+		log_error(logger_invisible, "CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta realizando Journal. Se eligira otra de manera aleatoria si el criterio lo permite", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, pcb->simbolicIP, instruccionActualTemp);
 		free(instruccionActualTemp);
 		return INSTRUCCION_ERROR;
 	case ERROR_MEMORIAFULL:
 		instruccionActualTemp = remover_new_line(instruccionActual);
 		if(pcb->tipo == FILE_LQL){
 			fsetpos((FILE *)pcb->data, &(pcb->instruccionPointer));
-			log_info(logger_visible,YEL"CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta full. Reintentando."STD, process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
-			log_info(logger_invisible,"CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta full. Reintentando.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
+			log_info(logger_visible,YEL"CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta full. Reintentando."STD, process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, pcb->simbolicIP, instruccionActualTemp);
+			log_info(logger_invisible,"CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta full. Reintentando.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, pcb->simbolicIP, instruccionActualTemp);
 			free(instruccionActualTemp);
 			sleep(3);
 			return JOURNAL_MEMORY_INACCESSIBLE; //TODO con este tipo de retorno, si el kernel se queda reintentando, y se mata a la memoria entra en un bucle infinito (setear memoria con baja capacidad, 100)
 		}
-		log_error(logger_visible, "CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta full. Abortando.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
-		log_error(logger_invisible, "CPU: %d | Memoria: %d %s:%s | %s -> La memoria esta full. Abortando.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, instruccionActualTemp);
+		log_error(logger_visible, "CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta full. Abortando.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, ++pcb->simbolicIP, instruccionActualTemp);
+		log_error(logger_invisible, "CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta full. Abortando.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, pcb->simbolicIP, instruccionActualTemp);
 		free(instruccionActualTemp);
 		return INSTRUCCION_ERROR;
 	case DESCRIBE_REQUEST:
 		if(op.Argumentos.DESCRIBE_REQUEST.esGlobal){
 			if(procesar_describe_global(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido) == EXIT_FAILURE){
-				log_error(logger_error,"CPU: %d | Abortando: Fallo la descompresion del Describe", process_get_thread_id());
-				log_error(logger_invisible,"CPU: %d | Abortando: Fallo la descompresion del Describe", process_get_thread_id());
+				log_error(logger_error,"CPU: %d | %s (%d) | Abortando: Fallo la descompresion del Describe", process_get_thread_id(), pcb->nombreArchivoLQL, ++pcb->simbolicIP);
+				log_error(logger_invisible,"CPU: %d | %s (%d) | Abortando: Fallo la descompresion del Describe", process_get_thread_id(), pcb->nombreArchivoLQL, pcb->simbolicIP);
 				return INSTRUCCION_ERROR;
 			}
 		}else{
 			if(procesar_describe_simple(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido, instruccionActual) == EXIT_FAILURE){
-				log_error(logger_error,"CPU: %d | Abortando: Fallo la descompresion del Describe", process_get_thread_id());
-				log_error(logger_invisible,"CPU: %d | Abortando: Fallo la descompresion del Describe", process_get_thread_id());
+				log_error(logger_error,"CPU: %d | %s (%d) | Abortando: Fallo la descompresion del Describe", process_get_thread_id(), pcb->nombreArchivoLQL, ++pcb->simbolicIP);
+				log_error(logger_invisible,"CPU: %d | %s (%d) | Abortando: Fallo la descompresion del Describe", process_get_thread_id(), pcb->nombreArchivoLQL, pcb->simbolicIP);
 				return INSTRUCCION_ERROR;
 			}
 		}
 		instruccionActualTemp = remover_new_line(instruccionActual);
 		mostrar_describe(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
+		++pcb->simbolicIP;
 		log_info(logger_invisible, "Resultado describe %s: %s", instruccionActualTemp, op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
 		free(instruccionActualTemp);
 		return CONTINUE;
 	default:
 		instruccionActualTemp = remover_new_line(instruccionActual);
-		log_error(logger_visible,"CPU: %d | Instruccion '%s' invalida o fuera de contexto", process_get_thread_id(), instruccionActualTemp);
-		log_error(logger_invisible,"CPU: | Instruccion '%s' invalida o fuera de contexto", process_get_thread_id(), instruccionActualTemp);
+		log_error(logger_visible,"CPU: %d | %s (%d) | Instruccion ilegal '%s' invalida o fuera de contexto, Path: %s", process_get_thread_id(), pcb->nombreArchivoLQL, ++pcb->simbolicIP, instruccionActualTemp, pcb->nombreArchivoLQL);
+		log_error(logger_invisible,"CPU: | %s (%d) | Instruccion ilegal '%s' invalida o fuera de contexto, Path: %s", process_get_thread_id(), pcb->nombreArchivoLQL, pcb->simbolicIP, instruccionActualTemp, pcb->nombreArchivoLQL);
 		free(instruccionActualTemp);
 		return INSTRUCCION_ERROR;
 	}

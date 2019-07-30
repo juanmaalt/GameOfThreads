@@ -157,15 +157,36 @@ static int inicializar_configs() {
 
 
 static void refrescar_vconfig(){
-	t_config *tmpConfigFile = config_create(STANDARD_PATH_KERNEL_CONFIG);
-	if(tmpConfigFile == NULL){
+	t_config *configFile = config_create(STANDARD_PATH_KERNEL_CONFIG);
+	if(configFile == NULL){
 		log_error(logger_visible, "inotify_service: refrescar_vconfig: el archivo de configuracion no se encontro");
 		log_error(logger_invisible, "inotify_service: refrescar_vconfig: el archivo de configuracion no se encontro");
 	}
-	vconfig.quantum = config_get_int_value(tmpConfigFile, "QUANTUM");
-	vconfig.refreshMetadata = config_get_int_value(tmpConfigFile, "REFRESH_METADATA");
-	vconfig.retardo = config_get_int_value(tmpConfigFile, "SLEEP_EJECUCION");
-	config_destroy(tmpConfigFile);
+
+	void error(char* m){
+		log_error(logger_visible, "%s", m);
+		log_error(logger_invisible, "%s", m);
+	}
+
+	if(config_get_string_value(configFile, "QUANTUM") == NULL)
+		error("Kernel.c: inicializar_configs: error en la extraccion del parametro QUANTUM");
+	else if(!esNumerica(config_get_string_value(configFile, "QUANTUM")))
+		error("Kernel.c: inicializar_configs: el parametro QUANTUM debe ser numerico");
+	else vconfig.quantum = config_get_int_value(configFile, "QUANTUM");
+
+	if(config_get_string_value(configFile, "REFRESH_METADATA") == NULL)
+		error("Kernel.c: inicializar_configs: error en la extraccion del parametro REFRESH_METADATA");
+	else if(!esNumerica(config_get_string_value(configFile, "REFRESH_METADATA")))
+		error("Kernel.c: inicializar_configs: el parametro REFRESH_METADATA debe ser numerico");
+	else vconfig.refreshMetadata = config_get_int_value(configFile, "REFRESH_METADATA");
+
+	if(config_get_string_value(configFile, "SLEEP_EJECUCION") == NULL)
+		error("Kernel.c: inicializar_configs: error en la extraccion del parametro SLEEP_EJECUCION");
+	else if(!esNumerica(config_get_string_value(configFile, "SLEEP_EJECUCION")))
+		error("Kernel.c: inicializar_configs: el parametro SLEEP_EJECUCION debe ser numerico");
+	else vconfig.retardo = config_get_int_value(configFile, "SLEEP_EJECUCION");
+
+	config_destroy(configFile);
 }
 
 

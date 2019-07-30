@@ -39,6 +39,7 @@ int iniciar_planificador(){
 int new(PCB_DataType tipo, void *data, char *nombreArchivoLQL){
 	PCB *pcb = malloc(sizeof(PCB));
 	pcb->data = data;
+	pcb->simbolicIP = 0;
 	switch(tipo){
 	case STRING_COMANDO:
 		pcb->tipo = STRING_COMANDO;

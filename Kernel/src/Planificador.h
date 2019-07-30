@@ -30,6 +30,7 @@ typedef struct pcb_t{
 	char *nombreArchivoLQL;
 	void *data;
 	fpos_t instruccionPointer;
+	unsigned int simbolicIP; //para mostrar en que linea esta la instruccion que se esta ejecutando
 	PCB_DataType tipo;
 }PCB;
 
