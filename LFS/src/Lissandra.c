@@ -9,6 +9,7 @@
  */
 
 #include "Lissandra.h"
+static void *inotify_service(void *null);
 
 int main(void) {
 	/*Configuración inicial para log y config*/
@@ -130,7 +131,10 @@ int configuracion_inicial(){
 		RETURN_ERROR("Lissandra.c: configuracion_inicial() - Error en leer_config();");
 	}
 	extraer_data_config();
-	extraer_data_vConfig();
+	refrescar_vconfig();
+	config_destroy(configFile);
+	if(pthread_create(&inotify, NULL, inotify_service, NULL))
+		RETURN_ERROR("Lissandra.c: configuracion_inicial: no se pudo iniciar inotify");
 	log_info(logger_invisible, "Lissandra.c: configuracion_inicial() - Se extrajo la data del config;");
 
 	return EXIT_SUCCESS;
@@ -145,29 +149,79 @@ t_config* leer_config() {
 }
 
 void extraer_data_config() {
-	config.ip = config_get_string_value(configFile, "IP");
-	config.puerto_escucha = config_get_string_value(configFile, "PUERTO_ESCUCHA");
-	config.punto_montaje = config_get_string_value(configFile, "PUNTO_MONTAJE");
-	config.tamanio_value = config_get_string_value(configFile, "TAMANIO_VALUE");
+	if(config_get_string_value(configFile, "IP") != NULL)
+		config.ip = string_from_format(config_get_string_value(configFile, "IP"));
+	if(config_get_string_value(configFile, "PUERTO_ESCUCHA") != NULL)
+		config.puerto_escucha = string_from_format(config_get_string_value(configFile, "PUERTO_ESCUCHA"));
+	if(config_get_string_value(configFile, "PUNTO_MONTAJE") != NULL)
+		config.punto_montaje = string_from_format(config_get_string_value(configFile, "PUNTO_MONTAJE"));
+	if(config_get_string_value(configFile, "TAMANIO_VALUE") != NULL)
+		config.tamanio_value = string_from_format(config_get_string_value(configFile, "TAMANIO_VALUE"));
 }
 
-void extraer_data_vConfig(){
-	vconfig.retardo = extraer_retardo;
-	vconfig.tiempoDump = extraer_tiempoDump;
+#define EVENT_SIZE (sizeof (struct inotify_event))
+#define BUF_LEN (1024 * (EVENT_SIZE + 16))
+static void *inotify_service(void *null){
+	void *service(){
+		int fd = inotify_init();
+		if(fd<0){
+			printf(RED"Lissandra.c: inotify_service: fallo el fd para inotify\n"STD);
+			return NULL;
+		}
+
+		int watch = inotify_add_watch(fd, STANDARD_PATH_LFS_CONFIG, IN_MODIFY | IN_DELETE);
+		if(watch<0){
+			printf(RED"Lissandra.c: inotify_service: fallo en el add watch para inotify\n"STD);
+			return NULL;
+		}
+		char buf[BUF_LEN];
+		int len, i = 0;
+		len = read (fd, buf, BUF_LEN);
+		while (i < len) {
+			struct inotify_event *event;
+			event = (struct inotify_event *) &buf[i];
+			refrescar_vconfig();
+			log_info(logger_visible, GRN"El archivo de configuracion ha cambiado"STD);
+			log_info(logger_invisible, "El archivo de configuracion ha cambiado");
+			ver_config();
+			//printf("wd=%d mask=%u cookie=%u len=%u\n", event->wd, event->mask, event->cookie, event->len);
+			i += EVENT_SIZE + event->len;
+		}
+		return NULL;
+	}
+
+	for(;;)
+		service();
+
+	printf(YEL"Lissandra.c: inotify_service: inotify finalizo. Ya no se podra tener un seguimiento del archivo de configuracion.\n"STD);
+	return NULL;
 }
 
-int extraer_retardo(){
-	t_config *tmpConfigFile = config_create(STANDARD_PATH_LFS_CONFIG);
-	int res = config_get_int_value(tmpConfigFile, "RETARDO");
-	config_destroy(tmpConfigFile);
-	return res;
-}
+void refrescar_vconfig(){
+	t_config *configFile = config_create(STANDARD_PATH_LFS_CONFIG);
+	if(configFile == NULL){
+		log_error(logger_visible, "inotify_service: refrescar_vconfig: el archivo de configuracion no se encontro");
+		log_error(logger_invisible, "inotify_service: refrescar_vconfig: el archivo de configuracion no se encontro");
+	}
 
-int extraer_tiempoDump(){
-	t_config *tmpConfigFile = config_create(STANDARD_PATH_LFS_CONFIG);
-	int res = config_get_int_value(tmpConfigFile, "TIEMPO_DUMP");
-	config_destroy(tmpConfigFile);
-	return res;
+	void error(char* m){
+		log_error(logger_visible, "%s", m);
+		log_error(logger_invisible, "%s", m);
+	}
+
+	if(config_get_string_value(configFile, "RETARDO") == NULL)
+		error("Lissandra.c: inicializar_configs: error en la extraccion del parametro RETARDO");
+	else if(!esNumerica(config_get_string_value(configFile, "RETARDO")))
+		error("Lissandra.c: inicializar_configs: el parametro RETARDO debe ser numerico");
+	else vconfig.retardo = config_get_int_value(configFile, "RETARDO");
+
+	if(config_get_string_value(configFile, "TIEMPO_DUMP") == NULL)
+		error("Lissandra.c: inicializar_configs: error en la extraccion del parametro TIEMPO_DUMP");
+	else if(!esNumerica(config_get_string_value(configFile, "TIEMPO_DUMP")))
+		error("Lissandra.c: inicializar_configs: el parametro TIEMPO_DUMP debe ser numerico");
+	else vconfig.tiempoDump = config_get_int_value(configFile, "TIEMPO_DUMP");
+
+	config_destroy(configFile);
 }
 
 void ver_config(){
@@ -238,7 +292,7 @@ Operacion ejecutarOperacion(char* input) {
 
 	log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - Mensaje recibido %s", input);
 
-	usleep(vconfig.retardo()*1000);
+	usleep(vconfig.retardo*1000);
 
 	if (parsed->valido) {
 		switch (parsed->keyword){
@@ -403,7 +457,7 @@ void* dump(){
 	pthread_detach(pthread_self());
 
 	for(;;){
-		usleep(vconfig.tiempoDump() * 1000);
+		usleep(vconfig.tiempoDump * 1000);
 		dictionary_iterator(memtable, dumpTabla);
 	}
 	return NULL;
@@ -535,9 +589,7 @@ void rutinas_de_finalizacion(){
 	fflush(stdout);
 
 	/*Libero recursos*/
-	config_destroy(configFile);
 	dictionary_destroy(memtable);
-	dictionary_destroy(dPeticionesPorTabla);
 	bitarray_destroy(bitarray);
 	close(miSocket);
 	munmap(bitmap,metadataFS.blocks);

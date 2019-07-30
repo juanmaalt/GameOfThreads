@@ -41,6 +41,7 @@
 #include <readline/readline.h>
 #include <pthread.h>
 #include <semaphore.h>
+#include <sys/inotify.h>
 
 #include "adhoc/Consola.h"
 #include "adhoc/APILissandra.h"
@@ -60,8 +61,8 @@ typedef struct{
 }Config_final_data;
 
 struct Config_datos_variables{
-	int (*retardo)();
-	int (*tiempoDump)();
+	int retardo;
+	int tiempoDump;
 }; //Se actualizan en tiempo de ejecucion
 
 typedef struct Config_datos_variables vConfig;
@@ -106,6 +107,8 @@ char* bitmap;
 
 sem_t mutexPeticionesPorTabla;
 
+pthread_t inotify;
+
 /*FUNCIONES*/
 /*CONNECTION HANDLER*/
 void *connection_handler(void *nSocket);
@@ -114,9 +117,7 @@ int configuracion_inicial();
 t_log* iniciar_logger(bool visible, char* path);
 t_config* leer_config();
 void extraer_data_config();
-void extraer_data_vConfig();
-int extraer_retardo();
-int extraer_tiempoDump();
+void refrescar_vconfig();
 void ver_config();
 t_dictionary* inicializarDiccionario();
 void handshakeMemoria(int socket);
