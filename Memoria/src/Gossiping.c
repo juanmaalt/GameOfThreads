@@ -262,6 +262,8 @@ void ConsultoPorMemoriasConocidas(int socketSEEDS) {
 
 }
 
+
+
 Operacion recibir_gossiping(Operacion resultado) {
 	knownMemory_t * recupero;
 	char * envio = NULL;
@@ -316,6 +318,7 @@ Operacion recibir_gossiping(Operacion resultado) {
 						if ((cmpIP * cmpIP + cmpIPPORT * cmpIPPORT) != 0)
 							list_add(aux_filtro, recupero);
 					}
+
 					list_destroy(aux); //Libero las referencias de la lista, sin liberar cada uno de sus elementos. Es decir, libero solo los nodos
 					aux = list_duplicate(aux_filtro); //Duplico la lista auxiliar con todos los elementos del nuevo describe, manteniendo los del anterior describe (son sus respecrtivos atributos de criterios), y eliminando los viejos (ya que nunca se agregaron a la listaAuxiliar)
 					list_destroy(aux_filtro);
