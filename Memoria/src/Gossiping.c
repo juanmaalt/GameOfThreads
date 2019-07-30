@@ -93,8 +93,8 @@ void liberarIPs(char** IPs) {
 	}
 }
 
-int levantarSocketSeed(char * IP, char * puerto, int * socketALevantar){
-	return *socketALevantar = connect_to_server(IP,puerto);
+int levantarSocketSeed(char * IP, char * puerto){
+	return  connect_to_server(IP,puerto);
 
 }
 
@@ -135,7 +135,7 @@ void conectarConSeed() {
 	for (; IPs[conteo_seeds] != NULL; conteo_seeds++) {
 
 
-		if(levantarSocketSeed(IPs[conteo_seeds],IPsPorts[conteo_seeds], &socketGossip) == EXIT_FAILURE){
+		if((socketGossip = levantarSocketSeed(IPs[conteo_seeds],IPsPorts[conteo_seeds])) == EXIT_FAILURE){
 			//printf(YEL"IMPRIMO SOCKET %d\n IP PUERTO %s:%s"STD"\n",socketGossip,IPs[conteo_seeds],IPsPorts[conteo_seeds]);
 			log_info(logger_gossiping, "GOSSIPING.C:conectarConSeed: La memoria seed no esta activa %s:%s", IPs[conteo_seeds], IPsPorts[conteo_seeds]);
 
@@ -187,6 +187,7 @@ void ConsultoPorMemoriasConocidas(int socketSEEDS) {
 	request.Argumentos.GOSSIPING_REQUEST.resultado_comprimido = string_from_format("%s", envio);
 	free(envio);
 	send_msg(socketSEEDS, request);
+	pthread_mutex_unlock(&mutexGossiping);
 	//pthread_mutex_unlock(&mutexGossiping);
 	//printf("Envio %d\n",request.TipoDeMensaje);
 
@@ -213,7 +214,7 @@ void ConsultoPorMemoriasConocidas(int socketSEEDS) {
 			request.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 	//printf("Mensaje corrido recibido: %s \n",request.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 	//pthread_mutex_lock(&mutexGossiping);
-
+	pthread_mutex_lock(&mutexGossiping);
 	for (int i = 0; descompresion[i] != NULL; i += 3) {
 
 		knownMemory_t *memoria;
@@ -254,6 +255,7 @@ void ConsultoPorMemoriasConocidas(int socketSEEDS) {
 			"GOSSIPING.C:ConsultoPorMemoriasConocidas:Fin GOSSIP");
 	pthread_mutex_unlock(&mutexGossiping);
 	free(request.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
+	pthread_mutex_unlock(&mutexGossiping);
 	//free(request);
 	close(socketSEEDS);
 
@@ -264,7 +266,7 @@ Operacion recibir_gossiping(Operacion resultado) {
 	char * envio = NULL;
 	log_info(logger_gossiping,
 			"GOSSIPING.C:recibir_gossiping: ENTRO FUNCION RECIBIR GOSSIPING");
-	pthread_mutex_lock(&mutexGossiping);
+	//pthread_mutex_lock(&mutexGossiping);
 	if (resultado.TipoDeMensaje == GOSSIPING_REQUEST) {	// si es gossping request, proceso las memorias que me envian
 		t_list *aux = list_create();
 		t_list *aux_filtro = list_create();
@@ -278,6 +280,7 @@ Operacion recibir_gossiping(Operacion resultado) {
 				resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 		//pthread_mutex_lock(&mutexGossiping);
 		list_add_all(aux, listaMemoriasConocidas);
+		pthread_mutex_lock(&mutexGossiping);
 		for (int i = 0; descompresion[i] != NULL; i += 3) {
 			knownMemory_t *memoria;
 			if ((memoria = machearMemoria(atoi(descompresion[i]))) == NULL) {
@@ -332,6 +335,7 @@ Operacion recibir_gossiping(Operacion resultado) {
 		listaMemoriasConocidas = list_duplicate(aux); //Duplico la lista auxiliar con todos los elementos del nuevo describe, manteniendo los del anterior describe (son sus respecrtivos atributos de criterios), y eliminando los viejos (ya que nunca se agregaron a la listaAuxiliar)
 		//pthread_mutex_unlock(&mutexGossiping);
 		list_destroy(aux);
+		pthread_mutex_unlock(&mutexGossiping);
 		// Ya agregue las memorias que me llegaron
 		// Logica para enviar mi lista
 		log_info(logger_gossiping,
@@ -340,6 +344,7 @@ Operacion recibir_gossiping(Operacion resultado) {
 
 	// Preparo mensaje para enviar mis memorias conocidas
 	//pthread_mutex_lock(&mutexGossiping);
+	pthread_mutex_lock(&mutexGossiping);
 	for (int i = 0; list_size(listaMemoriasConocidas) > i; i++) {
 		//printf("Entro en lista\n");
 		recupero = (knownMemory_t *) list_get(listaMemoriasConocidas, i);
