@@ -188,6 +188,7 @@ void ConsultoPorMemoriasConocidas(int socketSEEDS) {
 	free(envio);
 	send_msg(socketSEEDS, request);
 	pthread_mutex_unlock(&mutexGossiping);
+	free(request.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 	//pthread_mutex_unlock(&mutexGossiping);
 	//printf("Envio %d\n",request.TipoDeMensaje);
 
@@ -335,6 +336,7 @@ Operacion recibir_gossiping(Operacion resultado) {
 		listaMemoriasConocidas = list_duplicate(aux); //Duplico la lista auxiliar con todos los elementos del nuevo describe, manteniendo los del anterior describe (son sus respecrtivos atributos de criterios), y eliminando los viejos (ya que nunca se agregaron a la listaAuxiliar)
 		//pthread_mutex_unlock(&mutexGossiping);
 		list_destroy(aux);
+		free(resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 		pthread_mutex_unlock(&mutexGossiping);
 		// Ya agregue las memorias que me llegaron
 		// Logica para enviar mi lista
