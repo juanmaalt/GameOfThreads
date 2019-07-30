@@ -297,45 +297,12 @@ Operacion ejecutarOperacion(char* input) {
 	if (parsed->valido) {
 		switch (parsed->keyword){
 		case SELECT:
-			SELECT: sem_wait(&mutexPeticionesPorTabla);
-			bufferTabla=parsed->argumentos.SELECT.nombreTabla;
-			semt = list_find(semaforosPorTabla, buscar);
-			if(semt==NULL){
-				log_error(logger_visible, "No existe la tabla %s. No se puede realizar el SELECT.", parsed->argumentos.SELECT.nombreTabla);
-				log_error(logger_error, "No existe la tabla a la que se le quiere hacer SELECT", parsed->argumentos.SELECT.nombreTabla);
-				retorno.TipoDeMensaje = ERROR;
-				retorno.Argumentos.ERROR.mensajeError = string_from_format("No existe la tabla %s. No se puede realizar el SELECT.", parsed->argumentos.SELECT.nombreTabla);
-				break;
-			}
-			sem_getvalue(&semt->semaforoSelect, &valorSemaforo);
-			sem_post(&mutexPeticionesPorTabla);
-			if(valorSemaforo >= 1){
-				retorno = selectAPI(*parsed);
-			}else{
-				esperarFinCompactacion(parsed->argumentos.SELECT.nombreTabla);
-				goto SELECT;
-			}
+			tryExecuteSelect(parsed->argumentos.SELECT.nombreTabla);
+			retorno = selectAPI(*parsed);
 			break;
 		case INSERT:
-			INSERT: sem_wait(&mutexPeticionesPorTabla);
-			bufferTabla=parsed->argumentos.INSERT.nombreTabla;
-			semt = list_find(semaforosPorTabla, buscar);
-			if(semt==NULL){
-				log_error(logger_visible, "No existe la tabla %s. No se puede realizar el INSERT.", parsed->argumentos.INSERT.nombreTabla);
-				log_error(logger_error, "No existe la tabla %s. No se puede realizar el INSERT.", parsed->argumentos.INSERT.nombreTabla);
-				retorno.TipoDeMensaje = ERROR;
-				retorno.Argumentos.ERROR.mensajeError = string_from_format("No existe la tabla %s. No se puede realizar el INSERT.", parsed->argumentos.INSERT.nombreTabla);
-				break;
-			}
-			sem_getvalue(&semt->semaforoGral, &valorSemaforo);
-			sem_post(&mutexPeticionesPorTabla);
-
-			if(valorSemaforo >= 1){
-				retorno = insertAPI(*parsed);
-			}else{
-				esperarFinCompactacion(parsed->argumentos.INSERT.nombreTabla);
-				goto INSERT;
-			}
+			tryExecute(parsed->argumentos.INSERT.nombreTabla);
+			retorno = insertAPI(*parsed);
 			break;
 		case CREATE:
 			retorno = createAPI(*parsed);
@@ -344,25 +311,8 @@ Operacion ejecutarOperacion(char* input) {
 			retorno = describeAPI(*parsed);
 			break;
 		case DROP:
-			DROP: sem_wait(&mutexPeticionesPorTabla);
-			bufferTabla=parsed->argumentos.DROP.nombreTabla;
-			semt = list_find(semaforosPorTabla, buscar);
-			if(semt==NULL){
-				log_error(logger_visible, "No existe la tabla %s. No se puede realizar el DROP.", parsed->argumentos.DROP.nombreTabla);
-				log_error(logger_error, "No existe la tabla %s. No se puede realizar el DROP.", parsed->argumentos.DROP.nombreTabla);
-				retorno.TipoDeMensaje = ERROR;
-				retorno.Argumentos.ERROR.mensajeError = string_from_format("No existe la tabla %s. No se puede realizar el DROP.", parsed->argumentos.DROP.nombreTabla);
-				break;
-			}
-			sem_getvalue(&semt->semaforoGral, &valorSemaforo);
-			sem_post(&mutexPeticionesPorTabla);
-
-			if(valorSemaforo >= 1){
-				retorno = dropAPI(*parsed);
-			}else{
-				esperarFinCompactacion(parsed->argumentos.DROP.nombreTabla);
-				goto DROP;
-			}
+			tryExecute(parsed->argumentos.DROP.nombreTabla);
+			retorno = dropAPI(*parsed);
 			break;
 		case RUN:
 			liberarBloque(atoi(parsed->argumentos.RUN.path));

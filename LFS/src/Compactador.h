@@ -23,8 +23,9 @@ void bloquearTabla(char *tabla);
 void desbloquearTabla(char *tabla);
 void bloquearSelect(char *tabla);
 void desbloquearSelect(char *tabla);
-void esperarFinCompactacion(char *tabla);
-void esperarFinCompactacionSelect(char *tabla);
+void tryExecute(char *tabla);
+void tryExecuteSelect(char *tabla);
+
 void reiniciarSemaforos(char *tabla);
 
 

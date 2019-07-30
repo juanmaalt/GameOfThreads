@@ -359,25 +359,38 @@ void desbloquearSelect(char *tabla){
 	log_info(logger_invisible, "Compactar(%s): Tiempo en el que la tabla estuvo bloqueada = %llu", tabla, semt->finBloqueo-semt->inicioBloqueo);
 }
 
-
-
-void esperarFinCompactacion(char *tabla){
+void tryExecute(char *tabla){
 	bool buscar(void *tablaSemaforo){
 		return !strcmp(tabla, ((SemaforoTabla*) tablaSemaforo)->tabla);
 	}
+	sem_wait(&mutexPeticionesPorTabla);
 	SemaforoTabla *semt = (SemaforoTabla*) list_find(semaforosPorTabla, buscar);
+	sem_post(&mutexPeticionesPorTabla);
+	if(semt == NULL)
+		return;
+	int valorSemaforo;
+	sem_getvalue(&semt->semaforoGral, &valorSemaforo);
+	if(valorSemaforo >= 1)
+		return;
 	++semt->peticionesEnEspera;
 	sem_wait(&semt->semaforoGral);
-	/*Esperar la compactacion implica que el valor del semaforo ahora es 0 o menos, y que las request se quedan trabadas en este wait.*/
 }
 
-void esperarFinCompactacionSelect(char *tabla){
+void tryExecuteSelect(char *tabla){
 	bool buscar(void *tablaSemaforo){
 		return !strcmp(tabla, ((SemaforoTabla*) tablaSemaforo)->tabla);
 	}
+	sem_wait(&mutexPeticionesPorTabla);
 	SemaforoTabla *semt = (SemaforoTabla*) list_find(semaforosPorTabla, buscar);
+	sem_post(&mutexPeticionesPorTabla);
+	if(semt == NULL)
+		return;
+	int valorSemaforo;
+	sem_getvalue(&semt->semaforoSelect, &valorSemaforo);
+	if(valorSemaforo >= 1)
+		return;
 	++semt->peticionesEnEsperaSelect;
-	sem_wait(&semt->semaforoGral);
+	sem_wait(&semt->semaforoSelect);
 }
 
 void reiniciarSemaforos(char* tabla){
