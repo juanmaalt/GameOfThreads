@@ -12,6 +12,17 @@ void liberarMCB(void* MCBAdestruir) {
 		free(MCBAdestruir);
 }
 
+void liberarMemorias(void* MemoryAdestruir) {
+	if ((t_list *) MemoryAdestruir != NULL) {
+		free(((knownMemory_t*) MemoryAdestruir)->ip);
+		free(((knownMemory_t*) MemoryAdestruir)->ip_port);
+		free(MemoryAdestruir);
+	}
+
+
+}
+
+
 void liberarRegistroTablaPags(void* registroAdestruir) {
 	MCB_t* MCBLibre;
 
@@ -76,6 +87,7 @@ void liberarRecursos(void) {
 	queue_destroy(memoriaPrincipal.marcosLibres);
 
 	list_destroy_and_destroy_elements(memoriaPrincipal.listaAdminMarcos,liberarMCB);
+	list_destroy_and_destroy_elements(listaMemoriasConocidas,liberarMemorias);
 
 
 	if (pathLFS != NULL)

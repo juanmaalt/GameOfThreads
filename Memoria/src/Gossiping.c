@@ -253,6 +253,8 @@ void ConsultoPorMemoriasConocidas(int socketSEEDS) {
 	log_info(logger_gossiping,
 			"GOSSIPING.C:ConsultoPorMemoriasConocidas:Fin GOSSIP");
 	pthread_mutex_unlock(&mutexGossiping);
+	free(request.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
+	free(request);
 	close(socketSEEDS);
 
 }
