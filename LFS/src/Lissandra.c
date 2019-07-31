@@ -32,10 +32,8 @@ int main(void) {
 	/*Levantar Bitmap*/
 	leerBitmap();
 
-	/*Creo el diccionario para las tablas en compactación*/
-	dPeticionesPorTabla = dictionary_create();//REVISION: se liberan las peticiones cuando se hace un drop
-	semaforosPorTabla =list_create();
-	sem_init(&mutexPeticionesPorTabla, 0, 1);
+	/*Creo estructuras para semaforos*/
+	iniciar_semaforos();
 
 	/*Levantar Tablas*/
 	levantarTablasExistentes();
@@ -292,7 +290,9 @@ Operacion ejecutarOperacion(char* input) {
 		switch (parsed->keyword){
 		case SELECT:
 			tryExecuteSelect(parsed->argumentos.SELECT.nombreTabla);
+			seVaAEjecutarRequestSelect(parsed->argumentos.SELECT.nombreTabla);
 			retorno = selectAPI(*parsed);
+			seTerminoDeEjecutarRequestSelect(parsed->argumentos.SELECT.nombreTabla);
 			break;
 		case INSERT:
 			tryExecute(parsed->argumentos.INSERT.nombreTabla);
@@ -335,16 +335,6 @@ Operacion ejecutarOperacion(char* input) {
 	return retorno;
 }
 
-void encolar_peticion(char *tabla, char* peticion){
-	if(dictionary_has_key(dPeticionesPorTabla, tabla)){
-		t_list *encoladas = dictionary_get(dPeticionesPorTabla, tabla);
-		list_add(encoladas, peticion);
-	}else{
-		t_list *encoladas = list_create();
-		list_add(encoladas, peticion);
-		dictionary_put(dPeticionesPorTabla, tabla, encoladas);
-	}
-}
 
 uint16_t obtenerKey(Registro* registro) {
 		return registro->key;

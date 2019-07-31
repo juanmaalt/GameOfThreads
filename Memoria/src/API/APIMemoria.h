@@ -35,6 +35,7 @@ void esperarFinJournal();
 void reiniciarSemaforo();
 
 void esperarFinRequestsViejas();
+void finalizarEspera();
 void seEmpiezaAEjecutarOperacion();
 void seTerminaDeEjecutarOperacion();
 

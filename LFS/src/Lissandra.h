@@ -47,6 +47,7 @@
 #include "adhoc/APILissandra.h"
 #include "adhoc/Bitmap.h"
 #include "FileSystem.h"
+#include "adhoc/Semaforos.h"
 #include "Compactador.h"
 
 
@@ -75,16 +76,6 @@ typedef struct registro_t{
 	char* value;
 }Registro;
 
-typedef struct semt_t{
-	char* tabla;
-	int peticionesEnEspera;
-	int peticionesEnEsperaSelect;
-	sem_t semaforoGral;
-	sem_t semaforoSelect;
-	pthread_t compactacionService;
-	timestamp_t inicioBloqueo;
-	timestamp_t finBloqueo;
-}SemaforoTabla;
 
 /*GLOBALES*/
 t_log* logger_visible;
@@ -100,12 +91,8 @@ int socketMemoria;
 pthread_t idConsola;
 
 t_dictionary* memtable;
-t_dictionary* dPeticionesPorTabla;
-t_list* semaforosPorTabla;
 t_bitarray* bitarray;
 char* bitmap;
-
-sem_t mutexPeticionesPorTabla;
 
 pthread_t inotify;
 

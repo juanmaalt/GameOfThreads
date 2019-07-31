@@ -506,7 +506,7 @@ Operacion journalAPI(){
 	resultadoJournal.Argumentos.TEXTO_PLANO.texto = string_from_format(
 						"Journal finalizado");
 
-
+	finalizarEspera();
 	desbloquearMemoria();
 	reiniciarSemaforo();
 	return resultadoJournal;
@@ -553,3 +553,6 @@ void seTerminaDeEjecutarOperacion(){
 
 }
 
+void finalizarEspera(){
+	sem_post(&journal.semRequest);
+}

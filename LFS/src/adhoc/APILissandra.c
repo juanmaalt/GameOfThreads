@@ -207,7 +207,7 @@ Operacion createAPI(Comando comando){
 	/*Creo la Tabla en la Memtable*/
 	crearTablaEnMemtable(comando.argumentos.CREATE.nombreTabla);
 
-	SemaforoTabla *semt = malloc(sizeof(SemaforoTabla));
+	SemaforoCompactacion *semt = malloc(sizeof(SemaforoCompactacion));
 	sem_init(&(semt->semaforoGral), 0, 1);
 	sem_init(&(semt->semaforoSelect), 0, 1);
 	semt->peticionesEnEspera = 0;
@@ -216,6 +216,13 @@ Operacion createAPI(Comando comando){
 	sem_wait(&mutexPeticionesPorTabla);
 	list_add(semaforosPorTabla, semt);
 	sem_post(&mutexPeticionesPorTabla);
+
+	SemaforoRequestActivas *semr = malloc(sizeof(SemaforoRequestActivas));
+	semr->tabla = string_from_format(comando.argumentos.CREATE.nombreTabla);
+	sem_init(&semr->semaforoSelect, 0, 1);
+	sem_wait(&mutexRequestActivas);
+	list_add(requestActivas, semr);
+	sem_post(&mutexRequestActivas);
 
 	/*Inicio el proceso de compactación*/
 	char* nombreTabla = string_from_format(comando.argumentos.CREATE.nombreTabla);
@@ -280,22 +287,33 @@ Operacion dropAPI(Comando comando){
 
 	//Cancelamos la compactacion que esta corriendo
 	bool buscarSemaforo(void* semaforo){
-		return string_equals_ignore_case(((SemaforoTabla*) semaforo)->tabla, comando.argumentos.DROP.nombreTabla);
+		return string_equals_ignore_case(((SemaforoCompactacion*) semaforo)->tabla, comando.argumentos.DROP.nombreTabla);
 	}
-	SemaforoTabla *semt = list_find(semaforosPorTabla, buscarSemaforo);
+	SemaforoCompactacion *semt = list_find(semaforosPorTabla, buscarSemaforo);
 	if(semt)
 		pthread_cancel(semt->compactacionService);
 
 	/*Borro el semáforo del diccionario de semáforos*/
 	void destruirSemaforo(void* semaforo){
-		SemaforoTabla* sem = ((SemaforoTabla*) semaforo);
+		SemaforoCompactacion* sem = ((SemaforoCompactacion*) semaforo);
 		free(sem->tabla);
+		sem_destroy(&sem->semaforoGral);
+		sem_destroy(&sem->semaforoSelect);
 		free(sem);
 	}
 	list_remove_and_destroy_by_condition(semaforosPorTabla, buscarSemaforo, destruirSemaforo);
 
-	//Borro peticiones pendientes si es que existen
-	destruirPeticionesPendientes(comando.argumentos.DROP.nombreTabla);
+	//Borramos el semaforo de request pendientes para la tabla
+	bool buscarSemaforoReq(void *semaforo){
+		return string_equals_ignore_case(((SemaforoRequestActivas*) semaforo)->tabla, comando.argumentos.DROP.nombreTabla);
+	}
+	void destruirSemaforoReq(void *semaforo){
+		SemaforoRequestActivas* semr = ((SemaforoRequestActivas*) semaforo);
+		free(semr->tabla);
+		sem_destroy(&semr->semaforoSelect);
+		free(semr);
+	}
+	list_remove_and_destroy_by_condition(semaforosPorTabla, buscarSemaforoReq, destruirSemaforoReq);
 
 	//Limpiar bloques
 	limpiarBloquesEnBitarray(comando.argumentos.DROP.nombreTabla);

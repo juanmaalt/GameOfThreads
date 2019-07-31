@@ -21,8 +21,6 @@ int caracteresEnBloque(char* bloque);
 void escribirEnBloque(char* bloque, char* linea);
 bool esRegistroMasReciente(timestamp_t timestamp, int key, char* listaDeBloques);
 void borrarArchivosTmpc(char* nombreTabla);
-void procesarPeticionesPendientes(char *nombreTabla);
-void destruirPeticionesPendientes(char *nombreTabla);
 int getMin(int value1, int value2);
 
 void sacarTablaDeDiccCompactacion(char* nombreTabla);

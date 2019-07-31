@@ -193,7 +193,7 @@ void levantarTablasExistentes(){
 			}else{
 				crearTablaEnMemtable(nombreCarpeta); //REVISION como no se pide memoria, esta funcion la reserva
 
-				SemaforoTabla *semt = malloc(sizeof(SemaforoTabla));
+				SemaforoCompactacion *semt = malloc(sizeof(SemaforoCompactacion));
 				sem_init(&(semt->semaforoGral), 0, 1);
 				sem_init(&(semt->semaforoSelect), 0, 1);
 				semt->peticionesEnEspera = 0;
@@ -202,6 +202,14 @@ void levantarTablasExistentes(){
 				sem_wait(&mutexPeticionesPorTabla);
 				list_add(semaforosPorTabla, semt);
 				sem_post(&mutexPeticionesPorTabla);
+
+				SemaforoRequestActivas *semr = malloc(sizeof(SemaforoRequestActivas));
+				semr->tabla = string_from_format(nombreCarpeta);
+				sem_init(&semr->semaforoSelect, 0, 1);
+				sem_wait(&mutexRequestActivas);
+				list_add(requestActivas, semr);
+				sem_post(&mutexRequestActivas);
+
 
 				log_info(logger_invisible, "FileSystem.c: levantarTablasExistentes() - Tabla levantada: %s", nombreCarpeta);
 				if(agregarBloqueEnBitarray(nombreCarpeta)==0){

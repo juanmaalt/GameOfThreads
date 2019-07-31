@@ -312,15 +312,18 @@ t_list *procesar_gossiping(char *cadenaResultadoGossiping){
 		if(!esNumerica(descompresion[i], false)){
 			log_error(logger_visible, "Sistema_de_criterios.c: procesar_gossiping: datos corruptos en el gossiping enviado por la memoria. Se recibio '%s' en lugar de un valor numerico", descompresion[i]);
 			log_error(logger_invisible, "Sistema_de_criterios: procesar_gossiping: datos corruptos en el gossiping enviado por la memoria Se recibio '%s' en lugar de un valor numerico", descompresion[i]);
-			continue;
+			list_destroy(lista); //TODO: si esta idea funciona para no recibir basura del gossiping, probar eliminar tambien posibles nodos de la lista
+			return NULL;
 		}
 		if(descompresion[i+1] == NULL || descompresion[i+2] == NULL){
 			log_error(logger_visible, "Sistema_de_criterios.c: procesar_gossiping: datos corruptos en el gossiping enviado por la memoria. Null pointer exception");
 			log_error(logger_invisible, "Sistema_de_criterios: procesar_gossiping: datos corruptos en el gossiping enviado por la memoria. Null pointer exception");
-			continue;
+			list_destroy(lista);
+			return NULL;
 		}
 		if((socket = connect_to_server(descompresion[i+1], descompresion[i+2])) == EXIT_FAILURE){
-			continue;
+			list_destroy(lista);
+			return NULL;
 		}
 		close(socket);
 		memoria = crear_memoria(atoi(descompresion[i]), descompresion[i+1], descompresion[i+2]);

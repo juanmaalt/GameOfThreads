@@ -516,7 +516,7 @@ void limpiarBloquesEnBitarray(char* nombreTabla){
 	free(pathTablas);
 }
 
-int iniciarCompactacion(char* nombreTabla, SemaforoTabla *semt){
+int iniciarCompactacion(char* nombreTabla, SemaforoCompactacion *semt){
 	if (pthread_create(&semt->compactacionService, NULL, compactar, nombreTabla)) {
 		log_error(logger_error, "FuncionesAPI.c: iniciarCompactacion(): Falló al iniciar el hilo de compactación");
 		return EXIT_FAILURE;

@@ -14,7 +14,7 @@
 
 typedef struct dirent EntradaDirectorio;
 typedef struct registro_t Registro;
-typedef struct semt_t SemaforoTabla;
+typedef struct semt_comp SemaforoCompactacion;
 
 //GLOBALES
 //Metadata_tabla metadata;
@@ -47,7 +47,7 @@ void crearArchivosBinarios(char* path, int particiones);
 void getStringDescribe(char* path, char* string, char* nombreTabla, Operacion *resultadoDescribe);
 int removerDirectorio(char *path);
 void limpiarBloquesEnBitarray(char* nombreTabla);
-int iniciarCompactacion(char* nombreTabla, SemaforoTabla *semt);
+int iniciarCompactacion(char* nombreTabla, SemaforoCompactacion *semt);
 
 //AD-HOC
 void mostrarMetadata();
