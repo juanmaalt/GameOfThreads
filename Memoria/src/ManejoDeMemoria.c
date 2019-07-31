@@ -86,7 +86,10 @@ int colocarPaginaEnMemoria(timestamp_t timestamp, uint16_t key, char* value) { /
 }
 
 int hayMarcoDisponible(void) {
-	return queue_is_empty(memoriaPrincipal.marcosLibres) != true;
+	pthread_mutex_lock(&mutexColaMarcos);
+	int marcosDisponibles = queue_is_empty(memoriaPrincipal.marcosLibres);
+	pthread_mutex_unlock(&mutexColaMarcos);
+	return marcosDisponibles != true;
 }
 
 // Se debe tener en cuenta que la página a reemplazar no debe tener el Flag de Modificado activado
@@ -147,9 +150,8 @@ int realizarLRU(char* value, uint16_t key, timestamp_t ts, segmento_t * segmento
 
 int insertarPaginaDeSegmento(char* value, uint16_t key, timestamp_t ts, segmento_t * segmento, bool esInsert) {
 
-	pthread_mutex_lock(&mutexColaMarcos);
+
 	if(hayMarcoDisponible()) {
-		pthread_mutex_unlock(&mutexColaMarcos);
 		crearRegistroEnTabla(segmento->tablaPaginas,colocarPaginaEnMemoria(ts, key, value), esInsert);
 		log_info(logger_invisible,"ManejoDeMemoria.C: insertarPaginaDeSegmento: Se ingreso el registro");
 		return EXIT_SUCCESS;
