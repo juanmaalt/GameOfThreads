@@ -161,6 +161,16 @@ void conectarConSeed() {
 	}
 }
 
+void liberarMemoriasConocidas(void* MemoryAdestruir) {
+	if ((t_list *) MemoryAdestruir != NULL) {
+		free(((knownMemory_t*) MemoryAdestruir)->ip);
+		free(((knownMemory_t*) MemoryAdestruir)->ip_port);
+		free(MemoryAdestruir);
+	}
+
+
+}
+
 void ConsultoPorMemoriasConocidas(int socketSEEDS) {
 
 	Operacion request;
@@ -245,7 +255,8 @@ void ConsultoPorMemoriasConocidas(int socketSEEDS) {
 		}
 	}
 	destruir_split_memorias(descompresion);
-	list_destroy(listaMemoriasConocidas); //Libero las referencias de la lista, sin liberar cada uno de sus elementos. Es decir, libero solo los nodos
+	list_destroy_and_destroy_elements(listaMemoriasConocidas,liberarMemoriasConocidas);
+	//list_destroy(listaMemoriasConocidas); //Libero las referencias de la lista, sin liberar cada uno de sus elementos. Es decir, libero solo los nodos
 	listaMemoriasConocidas = list_duplicate(aux); //Duplico la lista auxiliar con todos los elementos del nuevo describe, manteniendo los del anterior describe (son sus respecrtivos atributos de criterios), y eliminando los viejos (ya que nunca se agregaron a la listaAuxiliar)
 	//pthread_mutex_unlock(&mutexGossiping);
 	list_destroy(aux);
