@@ -205,6 +205,7 @@ void levantarTablasExistentes(){
 
 				SemaforoRequestActivas *semr = malloc(sizeof(SemaforoRequestActivas));
 				semr->tabla = string_from_format(nombreCarpeta);
+				semr->peticionesActivasSelect = 0;
 				sem_init(&semr->semaforoSelect, 0, 1);
 				sem_wait(&mutexRequestActivas);
 				list_add(requestActivas, semr);
