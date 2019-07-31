@@ -186,6 +186,8 @@ Operacion selectAPI(char* input, Comando comando) {
 					return resultadoSelect;
 				}
 				resultadoSelect.TipoDeMensaje = ERROR_MEMORIAFULL;
+				//wait
+				pthread_mutex_lock(&mutexFull);
 				return resultadoSelect;
 
 			}else { //SE DEVUELVE EL ERROR QUE DA EL LFS
@@ -207,6 +209,7 @@ Operacion selectAPI(char* input, Comando comando) {
 			}
 
 			resultadoSelect.TipoDeMensaje = ERROR_MEMORIAFULL;
+			pthread_mutex_lock(&mutexFull);
 
 			return resultadoSelect;
 		}
@@ -285,6 +288,8 @@ Operacion insertAPI(char* input, Comando comando) {
 			//log_info(logger_invisible,"Se realizo el INSERT, estaba en memoria\n");
 			resultadoInsert.TipoDeMensaje = ERROR_MEMORIAFULL;
 
+			pthread_mutex_lock(&mutexFull);
+
 			return resultadoInsert;
 
 
@@ -303,6 +308,8 @@ Operacion insertAPI(char* input, Comando comando) {
 		}
 
 		resultadoInsert.TipoDeMensaje = ERROR_MEMORIAFULL;
+		pthread_mutex_lock(&mutexFull);
+
 		return resultadoInsert;
 
 	}
@@ -505,6 +512,8 @@ Operacion journalAPI(){
 	resultadoJournal.TipoDeMensaje = TEXTO_PLANO;
 	resultadoJournal.Argumentos.TEXTO_PLANO.texto = string_from_format(
 						"Journal finalizado");
+
+	pthread_mutex_unlock(&mutexFull);
 
 	finalizarEspera();
 	desbloquearMemoria();

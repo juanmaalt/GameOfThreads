@@ -125,12 +125,18 @@ void *connection_handler(void *nSocket) {
 	case COMANDO:
 		log_info(logger_visible, "Request recibido por SOCKET: %s",
 				resultado.Argumentos.COMANDO.comandoParseable);
-		resultado = ejecutarOperacion(
-				resultado.Argumentos.COMANDO.comandoParseable, false);
+		resultado = ejecutarOperacion(resultado.Argumentos.COMANDO.comandoParseable, false);
 
 		loggearRetorno(resultado, logger_invisible);
-
 		send_msg(socket, resultado);
+		if(resultado.TipoDeMensaje== ERROR_MEMORIAFULL){
+			//wait
+			pthread_mutex_lock(&mutexFull);
+			resultado = ejecutarOperacion(resultado.Argumentos.COMANDO.comandoParseable, false);
+			send_msg(socket, resultado);
+		}
+
+
 		break;
 	case TEXTO_PLANO:
 		break;
@@ -230,6 +236,8 @@ int configuracion_inicial() {
 	journal.ejecutando = 0;
 	sem_init(&journal.sem, 0, 1);
 	sem_init(&journal.semRequest, 0, 1);
+
+	pthread_mutex_init(&mutexFull, NULL);
 	pthread_mutex_init(&mutexMemoria, NULL);
 	pthread_mutex_init(&mutexTablaSegmentos, NULL);
 	pthread_mutex_init(&mutexColaMarcos,NULL);
