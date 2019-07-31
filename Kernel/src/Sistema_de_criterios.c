@@ -309,7 +309,7 @@ t_list *procesar_gossiping(char *cadenaResultadoGossiping){
 	char **descompresion = descomprimir_memoria(cadenaResultadoGossiping);
 	for(int i=0; descompresion[i]!=NULL; i+=3){
 		int socket;
-		if(!esNumerica(descompresion[i])){
+		if(!esNumerica(descompresion[i], false)){
 			log_error(logger_visible, "Sistema_de_criterios.c: procesar_gossiping: datos corruptos en el gossiping enviado por la memoria. Se recibio '%s' en lugar de un valor numerico", descompresion[i]);
 			log_error(logger_invisible, "Sistema_de_criterios: procesar_gossiping: datos corruptos en el gossiping enviado por la memoria Se recibio '%s' en lugar de un valor numerico", descompresion[i]);
 			continue;
@@ -409,23 +409,25 @@ void remover_metadata_tabla(MetadataTabla *tabla){
 
 
 
-void agregar_sin_repetidos(t_list *destino, t_list *fuente){
-	if(destino == NULL || fuente == NULL){
+void agregar_sin_repetidos(t_list *memoriasExistentes, t_list *seedsDeLaMemoria){
+	if(memoriasExistentes == NULL || seedsDeLaMemoria == NULL){
 		log_error(logger_visible, "Sistema_de_criterios.c: agregar_sin_repetidos: null pointer exception");
 		log_error(logger_invisible, "Sistema_de_criterios.c: agregar_sin_repetidos: null pointer exception");
 		return;
 	}
 
-	void agregar_distinct(void *elementoFuente){
-		bool buscar(void *elementoDestino){
-			return ((Memoria*)elementoDestino)->numero == ((Memoria*)elementoFuente)->numero;
+	void agregar_distinct(void *memoriaParaAgregar){
+		bool buscar(void *memoriaExistente){
+			return ((Memoria*)memoriaParaAgregar)->numero == ((Memoria*)memoriaExistente)->numero;
 		}
-		if(!list_any_satisfy(destino, buscar)){
-			list_add(destino, elementoFuente);
-			list_remove_by_condition(fuente, buscar);
+		if(memoriaParaAgregar == NULL)
+			return;
+		if(!list_any_satisfy(memoriasExistentes, buscar)){
+			list_add(memoriasExistentes, memoriaParaAgregar);
+			list_remove_by_condition(seedsDeLaMemoria, buscar);
 		}
 	}
-	list_iterate(fuente, agregar_distinct);
+	list_iterate(seedsDeLaMemoria, agregar_distinct);
 }
 
 
@@ -490,6 +492,8 @@ void eliminar_todas_las_memorias(t_list *lista){
 		return;
 	}
 	void borrar_memoria(void *memoria){
+		if(memoria == NULL)
+			return;
 		free(((Memoria*)memoria)->ip);
 		free(((Memoria*)memoria)->puerto);
 		free((Memoria*)memoria);

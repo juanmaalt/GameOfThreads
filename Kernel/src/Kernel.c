@@ -120,7 +120,7 @@ static int inicializar_configs() {
 
 	if(config_get_string_value(configFile, "MULTIPROCESAMIENTO") == NULL)
 		RETURN_ERROR("Kernel.c: inicializar_configs: error en la extraccion del parametro MULTIPROCESAMIENTO");
-	if(!esNumerica(config_get_string_value(configFile, "MULTIPROCESAMIENTO")))
+	if(!esNumerica(config_get_string_value(configFile, "MULTIPROCESAMIENTO"), false))
 		RETURN_ERROR("Kernel.c: inicializar_configs: el parametro MULTIPROCESAMIENTO debe ser numerico")
 	fconfig.multiprocesamiento = config_get_int_value(configFile, "MULTIPROCESAMIENTO");
 
@@ -129,19 +129,19 @@ static int inicializar_configs() {
 	//Config_datos_variables
 	if(config_get_string_value(configFile, "QUANTUM") == NULL)
 		RETURN_ERROR("Kernel.c: inicializar_configs: error en la extraccion del parametro QUANTUM")
-	if(!esNumerica(config_get_string_value(configFile, "QUANTUM")))
+	if(!esNumerica(config_get_string_value(configFile, "QUANTUM"), false))
 		RETURN_ERROR("Kernel.c: inicializar_configs: el parametro QUANTUM debe ser numerico")
 	vconfig.quantum = config_get_int_value(configFile, "QUANTUM");
 
 	if(config_get_string_value(configFile, "REFRESH_METADATA") == NULL)
 		RETURN_ERROR("Kernel.c: inicializar_configs: error en la extraccion del parametro REFRESH_METADATA")
-	if(!esNumerica(config_get_string_value(configFile, "REFRESH_METADATA")))
+	if(!esNumerica(config_get_string_value(configFile, "REFRESH_METADATA"), false))
 		RETURN_ERROR("Kernel.c: inicializar_configs: el parametro REFRESH_METADATA debe ser numerico")
 	vconfig.refreshMetadata = config_get_int_value(configFile, "REFRESH_METADATA");
 
 	if(config_get_string_value(configFile, "SLEEP_EJECUCION") == NULL)
 		RETURN_ERROR("Kernel.c: inicializar_configs: error en la extraccion del parametro SLEEP_EJECUCION")
-	if(!esNumerica(config_get_string_value(configFile, "SLEEP_EJECUCION")))
+	if(!esNumerica(config_get_string_value(configFile, "SLEEP_EJECUCION"), false))
 		RETURN_ERROR("Kernel.c: inicializar_configs: el parametro SLEEP_EJECUCION debe ser numerico")
 	vconfig.retardo = config_get_int_value(configFile, "SLEEP_EJECUCION");
 
@@ -170,19 +170,19 @@ static void refrescar_vconfig(){
 
 	if(config_get_string_value(configFile, "QUANTUM") == NULL)
 		error("Kernel.c: inicializar_configs: error en la extraccion del parametro QUANTUM");
-	else if(!esNumerica(config_get_string_value(configFile, "QUANTUM")))
+	else if(!esNumerica(config_get_string_value(configFile, "QUANTUM"), false))
 		error("Kernel.c: inicializar_configs: el parametro QUANTUM debe ser numerico");
 	else vconfig.quantum = config_get_int_value(configFile, "QUANTUM");
 
 	if(config_get_string_value(configFile, "REFRESH_METADATA") == NULL)
 		error("Kernel.c: inicializar_configs: error en la extraccion del parametro REFRESH_METADATA");
-	else if(!esNumerica(config_get_string_value(configFile, "REFRESH_METADATA")))
+	else if(!esNumerica(config_get_string_value(configFile, "REFRESH_METADATA"), false))
 		error("Kernel.c: inicializar_configs: el parametro REFRESH_METADATA debe ser numerico");
 	else vconfig.refreshMetadata = config_get_int_value(configFile, "REFRESH_METADATA");
 
 	if(config_get_string_value(configFile, "SLEEP_EJECUCION") == NULL)
 		error("Kernel.c: inicializar_configs: error en la extraccion del parametro SLEEP_EJECUCION");
-	else if(!esNumerica(config_get_string_value(configFile, "SLEEP_EJECUCION")))
+	else if(!esNumerica(config_get_string_value(configFile, "SLEEP_EJECUCION"), false))
 		error("Kernel.c: inicializar_configs: el parametro SLEEP_EJECUCION debe ser numerico");
 	else vconfig.retardo = config_get_int_value(configFile, "SLEEP_EJECUCION");
 

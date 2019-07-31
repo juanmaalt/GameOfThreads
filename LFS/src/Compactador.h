@@ -27,12 +27,14 @@ void bloquearSelect(char *tabla);
 void desbloquearSelect(char *tabla);
 
 void tryExecute(char *tabla);
-void finishExecute(char *tabla);
-
 void tryExecuteSelect(char *tabla);
-void finishExecuteSelect(char *tabla);
 
 void reiniciarSemaforos(char *tabla);
+
+void tomarTiempoInicio(char *tabla);
+void tomarTiempoFin(char *tabla);
+
+void loggearTiempoCompactacion(char *tabla);
 
 
 #endif /* COMPACTADOR_H_ */

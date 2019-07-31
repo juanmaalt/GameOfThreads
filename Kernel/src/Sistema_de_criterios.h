@@ -163,7 +163,7 @@ t_list *tablasExistentes;
 	* 		 agregar, para que al final de la operacion se pueda hacer un destroy de la lista y sus nodos restantes.
 	* 		 No es una funcion muy reutilizable si no le pasamos por argumento alguna closure de comparacion
 	*/
-	void agregar_sin_repetidos(t_list *destino, t_list *fuente);
+	void agregar_sin_repetidos(t_list *memoriasExistentes, t_list *seedsDeLaMemoria);
 
 	/**
 	* @NAME: agregar_metadata_tabla

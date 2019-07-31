@@ -94,7 +94,6 @@ char* getBloqueLibre(){
 	*/
 
 	sem_post(&leyendoBitarray);
-
 	posicion= string_from_format("%d",pos+1);
 
 	return posicion;
