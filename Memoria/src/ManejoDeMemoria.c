@@ -147,7 +147,9 @@ int realizarLRU(char* value, uint16_t key, timestamp_t ts, segmento_t * segmento
 
 int insertarPaginaDeSegmento(char* value, uint16_t key, timestamp_t ts, segmento_t * segmento, bool esInsert) {
 
+	pthread_mutex_lock(&mutexColaMarcos);
 	if(hayMarcoDisponible()) {
+		pthread_mutex_unlock(&mutexColaMarcos);
 		crearRegistroEnTabla(segmento->tablaPaginas,colocarPaginaEnMemoria(ts, key, value), esInsert);
 		log_info(logger_invisible,"ManejoDeMemoria.C: insertarPaginaDeSegmento: Se ingreso el registro");
 		return EXIT_SUCCESS;
