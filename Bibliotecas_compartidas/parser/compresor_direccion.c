@@ -21,6 +21,7 @@ void concatenar_memoria(char **source, char * numeroMemoria, char *ip, char *pue
 	string_append(source, puerto);
 	string_append(source, ";");
 
+	free(numeroMemoria);
 }
 
 char **descomprimir_memoria(char *compresion){
