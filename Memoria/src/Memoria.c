@@ -284,7 +284,7 @@ int inicializar_configs() {
 	if (config_get_string_value(configFile, "RETARDO_MEM") == NULL)
 		RETURN_ERROR(
 				"Memoria.c: inicializar_configs: error en la extraccion del parametro RETARDO_MEM")
-	if (!esNumerica(config_get_string_value(configFile, "RETARDO_MEM")))
+	if (!esNumerica(config_get_string_value(configFile, "RETARDO_MEM"), false))
 		RETURN_ERROR(
 				"Memoria.c: inicializar_configs: el parametro RETARDO_MEM debe ser numerico")
 	vconfig.retardoMemoria = config_get_int_value(configFile, "RETARDO_MEM");
@@ -293,7 +293,7 @@ int inicializar_configs() {
 	if (config_get_string_value(configFile, "RETARDO_FS") == NULL)
 		RETURN_ERROR(
 				"Memoria.c: inicializar_configs: error en la extraccion del parametro RETARDO_FS")
-	if (!esNumerica(config_get_string_value(configFile, "RETARDO_FS")))
+	if (!esNumerica(config_get_string_value(configFile, "RETARDO_FS"), false))
 		RETURN_ERROR(
 				"Memoria.c: inicializar_configs: el parametro RETARDO_FS debe ser numerico")
 	vconfig.retardoFS = config_get_int_value(configFile, "RETARDO_FS");
@@ -302,7 +302,7 @@ int inicializar_configs() {
 	if (config_get_string_value(configFile, "RETARDO_JOURNAL") == NULL)
 		RETURN_ERROR(
 				"Memoria.c: inicializar_configs: error en la extraccion del parametro RETARDO_JOURNAL")
-	if (!esNumerica(config_get_string_value(configFile, "RETARDO_JOURNAL")))
+	if (!esNumerica(config_get_string_value(configFile, "RETARDO_JOURNAL"), false))
 		RETURN_ERROR(
 				"Memoria.c: inicializar_configs: el parametro RETARDO_JOURNAL debe ser numerico")
 	vconfig.retardoJOURNAL = config_get_int_value(configFile,
@@ -312,7 +312,7 @@ int inicializar_configs() {
 	if (config_get_string_value(configFile, "RETARDO_GOSSIPING") == NULL)
 		RETURN_ERROR(
 				"Memoria.c: inicializar_configs: error en la extraccion del parametro RETARDO_GOSSIPING")
-	if (!esNumerica(config_get_string_value(configFile, "RETARDO_GOSSIPING")))
+	if (!esNumerica(config_get_string_value(configFile, "RETARDO_GOSSIPING"), false))
 		RETURN_ERROR(
 				"Memoria.c: inicializar_configs: el parametro RETARDO_GOSSIPING debe ser numerico")
 	vconfig.retardoGossiping = config_get_int_value(configFile,

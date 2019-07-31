@@ -306,6 +306,18 @@ void borrarArchivosTmpc(char* nombreTabla){
 	free(pathTabla);
 }
 
-
+bool esUnRegistro(char *timestamp, char *key, char *value){
+	if(timestamp == NULL || key == NULL || value == NULL)
+		return false;
+	if(!esTimestamp(timestamp, false))
+		return false;
+	if(!esUint16_t(key, false))
+		return false;
+	if(!esValue(value, false))
+		return false;
+	if(!string_ends_with(value, "\n"))
+		return false;
+	return true;
+}
 
 

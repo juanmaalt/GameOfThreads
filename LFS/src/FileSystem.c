@@ -196,12 +196,8 @@ void levantarTablasExistentes(){
 				SemaforoTabla *semt = malloc(sizeof(SemaforoTabla));
 				sem_init(&(semt->semaforoGral), 0, 1);
 				sem_init(&(semt->semaforoSelect), 0, 1);
-				sem_init(&(semt->enEjecucion), 0, 1);
-				sem_init(&(semt->enEjecucionSelect), 0, 1);
 				semt->peticionesEnEspera = 0;
 				semt->peticionesEnEsperaSelect = 0;
-				semt->peticionesEjecutando = 0;
-				semt->peticionesEjecutandoSelect = 0;
 				semt->tabla = string_from_format(nombreCarpeta);
 				sem_wait(&mutexPeticionesPorTabla);
 				list_add(semaforosPorTabla, semt);
@@ -242,8 +238,8 @@ void agregarBloqueEnParticion(char* bloque, char* nombreTabla, int particion){
 
 	char* bloques = config_get_string_value(particionData, "BLOCKS");
 
-	char* subBloques = string_substring_until(bloques, (strlen(bloques)-1));
-	char* nuevosBloques=string_new();
+	char* subBloques = string_substring_until(bloques, (strlen(bloques)-1)); //Remover ultimo corchete
+	char* nuevosBloques = string_from_format("%s,%s]", subBloques, bloque);
 
 	config_set_value(particionData, "BLOCKS", nuevosBloques);
 

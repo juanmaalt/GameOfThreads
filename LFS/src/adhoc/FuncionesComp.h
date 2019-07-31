@@ -28,6 +28,7 @@ int getMin(int value1, int value2);
 void sacarTablaDeDiccCompactacion(char* nombreTabla);
 
 char **generarRegistroBloque(t_list *registros);
+bool esUnRegistro(char *timestamp, char *key, char *value);
 
 
 #endif /* ADHOC_FUNCIONESCOMP_H_ */

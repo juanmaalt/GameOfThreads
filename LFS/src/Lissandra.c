@@ -36,7 +36,6 @@ int main(void) {
 	dPeticionesPorTabla = dictionary_create();//REVISION: se liberan las peticiones cuando se hace un drop
 	semaforosPorTabla =list_create();
 	sem_init(&mutexPeticionesPorTabla, 0, 1);
-	sem_init(&dumpTest, 0, 1);
 
 	/*Levantar Tablas*/
 	levantarTablasExistentes();
@@ -94,6 +93,7 @@ void *connection_handler(void *nSocket){
 	}
 	destruir_operacion(recibido);
 	close(socket);
+	//free(socket);
 	return NULL;
 }
 /*FIN FUNCION PARA MANEJO DE HILOS*/
@@ -212,13 +212,13 @@ void refrescar_vconfig(){
 
 	if(config_get_string_value(configFile, "RETARDO") == NULL)
 		error("Lissandra.c: inicializar_configs: error en la extraccion del parametro RETARDO");
-	else if(!esNumerica(config_get_string_value(configFile, "RETARDO")))
+	else if(!esNumerica(config_get_string_value(configFile, "RETARDO"), false))
 		error("Lissandra.c: inicializar_configs: el parametro RETARDO debe ser numerico");
 	else vconfig.retardo = config_get_int_value(configFile, "RETARDO");
 
 	if(config_get_string_value(configFile, "TIEMPO_DUMP") == NULL)
 		error("Lissandra.c: inicializar_configs: error en la extraccion del parametro TIEMPO_DUMP");
-	else if(!esNumerica(config_get_string_value(configFile, "TIEMPO_DUMP")))
+	else if(!esNumerica(config_get_string_value(configFile, "TIEMPO_DUMP"), false))
 		error("Lissandra.c: inicializar_configs: el parametro TIEMPO_DUMP debe ser numerico");
 	else vconfig.tiempoDump = config_get_int_value(configFile, "TIEMPO_DUMP");
 
@@ -291,16 +291,12 @@ Operacion ejecutarOperacion(char* input) {
 	if (parsed->valido) {
 		switch (parsed->keyword){
 		case SELECT:
-			sem_wait(&dumpTest);
 			tryExecuteSelect(parsed->argumentos.SELECT.nombreTabla);
 			retorno = selectAPI(*parsed);
-			finishExecuteSelect(parsed->argumentos.SELECT.nombreTabla);
-			sem_post(&dumpTest);
 			break;
 		case INSERT:
 			tryExecute(parsed->argumentos.INSERT.nombreTabla);
 			retorno = insertAPI(*parsed);
-			finishExecute(parsed->argumentos.INSERT.nombreTabla);
 			break;
 		case CREATE:
 			retorno = createAPI(*parsed);
@@ -311,7 +307,6 @@ Operacion ejecutarOperacion(char* input) {
 		case DROP:
 			tryExecute(parsed->argumentos.DROP.nombreTabla);
 			retorno = dropAPI(*parsed);
-			finishExecute(parsed->argumentos.DROP.nombreTabla);
 			break;
 		case RUN:
 			liberarBloque(atoi(parsed->argumentos.RUN.path));
@@ -438,7 +433,6 @@ int cuentaArchivos(char* path) {
 
 void dumpTabla(char* nombreTable, void* value){
 	t_list* list = (t_list*) value;
-	sem_wait(&dumpTest);
 	if(list==NULL || list_size(list)==0){
 		//TODO:log
 		return;
@@ -469,7 +463,6 @@ void dumpTabla(char* nombreTable, void* value){
 	}
 
 	list_clean_and_destroy_elements(list, eliminarRegistro);
-	sem_post(&dumpTest);
 }
 
 void dumpRegistro(FILE* file, Registro* registro) {
@@ -502,8 +495,9 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 			char* nchar = string_from_format("%c", ch);
 			string_append(&linea, nchar);
 			free(nchar);
-			if(string_ends_with(linea, "\n")){
+			if(ch == '\n'){
 				char** lineaParseada = string_split(linea,";");
+				//printf("linea encontrada: %s\n", linea);
 				if(lineaParseada[1]!=NULL){
 					if(atoi(lineaParseada[1])==key){
 						reg->value = string_from_format(lineaParseada[2]);
@@ -519,7 +513,9 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 						return reg;
 					}
 				}
-				if(!lineaParseada){string_iterate_lines(lineaParseada, (void* )free); free(lineaParseada);}
+				if(lineaParseada != NULL){string_iterate_lines(lineaParseada, (void* )free); free(lineaParseada);}
+				if(linea != NULL)free(linea);
+				linea = string_new();
 			}
 			//printf("linea: %s\n", linea);
 		}
@@ -531,7 +527,7 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 		string_iterate_lines(bloques, (void*)free);
 		free(bloques);
 	}
-	free(linea);
+	if(linea!=NULL)free(linea);
 	return reg;
 }
 /*FIN FSEEK*/

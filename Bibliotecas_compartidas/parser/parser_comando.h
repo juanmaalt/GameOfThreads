@@ -150,37 +150,37 @@
 	* @NAME: esAlfaNumerica
 	* @DESC: esAlfaNumerica
 	*/
-	bool esAlfaNumerica(char* cadena);
+	bool esAlfaNumerica(char* cadena, bool warning);
 
 	/**
 	* @NAME: esNumerica
 	* @DESC: esNumerica
 	*/
-	bool esNumerica(char* cadena);
+	bool esNumerica(char* cadena, bool warning);
 
 	/**
 	* @NAME: esConsistenciaValida
 	* @DESC: esConsistenciaValida
 	*/
-	bool esConsistenciaValida(char* cadena);
+	bool esConsistenciaValida(char* cadena, bool warning);
 
 	/**
 	* @NAME: esUint16_t
 	* @DESC: esUint16_t
 	*/
-	bool esUint16_t(char* key);
+	bool esUint16_t(char* key, bool warning);
 
 	/**
 	* @NAME: esTimestamp
 	* @DESC: esTimestamp
 	*/
-	bool esTimestamp(char* timestamp);
+	bool esTimestamp(char* timestamp, bool warning);
 
 	/**
 	* @NAME: esValue
 	* @DESC: esValue
 	*/
-	bool esValue(char* cadena);
+	bool esValue(char* cadenan, bool warning);
 
 	/**
 	* @NAME: string_double_split

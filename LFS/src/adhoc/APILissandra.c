@@ -210,12 +210,8 @@ Operacion createAPI(Comando comando){
 	SemaforoTabla *semt = malloc(sizeof(SemaforoTabla));
 	sem_init(&(semt->semaforoGral), 0, 1);
 	sem_init(&(semt->semaforoSelect), 0, 1);
-	sem_init(&(semt->enEjecucion), 0, 1);
-	sem_init(&(semt->enEjecucionSelect), 0, 1);
 	semt->peticionesEnEspera = 0;
 	semt->peticionesEnEsperaSelect = 0;
-	semt->peticionesEjecutando = 0;
-	semt->peticionesEjecutandoSelect = 0;
 	semt->tabla = string_from_format(comando.argumentos.CREATE.nombreTabla);
 	sem_wait(&mutexPeticionesPorTabla);
 	list_add(semaforosPorTabla, semt);
