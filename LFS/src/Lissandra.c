@@ -91,7 +91,7 @@ void *connection_handler(void *nSocket){
 	}
 	destruir_operacion(recibido);
 	close(socket);
-	//free(socket);
+	free(nSocket);
 	return NULL;
 }
 /*FIN FUNCION PARA MANEJO DE HILOS*/
@@ -474,6 +474,13 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 	char* linea = string_new();
 	char ch;
 
+	void liberarArrayString(char **array){
+		if(array != NULL){
+			string_iterate_lines(array, (void*)free);
+			free(array);
+		}
+	}
+
 	//printf("antes de while bloque\n");
 
 	while(bloques[i]!=NULL){
@@ -496,14 +503,12 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 						free(pathBloque);
 						free(linea);
 						fclose(fBloque);
-						if(bloques){
-							string_iterate_lines(bloques, (void*)free);
-							free(bloques);
-						}
+						liberarArrayString(bloques);
+						liberarArrayString(lineaParseada);
 						return reg;
 					}
 				}
-				if(lineaParseada != NULL){string_iterate_lines(lineaParseada, (void* )free); free(lineaParseada);}
+				liberarArrayString(lineaParseada);
 				if(linea != NULL)free(linea);
 				linea = string_new();
 			}
@@ -513,10 +518,7 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 		free(pathBloque);
 		i++;
 	}
-	if(bloques){
-		string_iterate_lines(bloques, (void*)free);
-		free(bloques);
-	}
+	liberarArrayString(bloques);
 	if(linea!=NULL)free(linea);
 	return reg;
 }

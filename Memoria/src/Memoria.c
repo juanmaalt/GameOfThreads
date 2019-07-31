@@ -155,6 +155,7 @@ void *connection_handler(void *nSocket) {
 
 	destruir_operacion(resultado);
 	close(socket);
+	free(nSocket);
 	return NULL;
 }
 
