@@ -300,18 +300,12 @@ static INTERNAL_STATE procesar_retorno_operacion(Operacion op, PCB* pcb, char* i
 		return INSTRUCCION_ERROR;
 	case ERROR_MEMORIAFULL:
 		instruccionActualTemp = remover_new_line(instruccionActual);
-		if(pcb->tipo == FILE_LQL){
-			fsetpos((FILE *)pcb->data, &(pcb->instruccionPointer));
-			log_info(logger_visible,YEL"CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta full. Reintentando."STD, process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, pcb->simbolicIP, instruccionActualTemp);
-			log_info(logger_invisible,"CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta full. Reintentando.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, pcb->simbolicIP, instruccionActualTemp);
-			free(instruccionActualTemp);
-			//sleep(3);
-			return JOURNAL_MEMORY_INACCESSIBLE; //TODO con este tipo de retorno, si el kernel se queda reintentando, y se mata a la memoria entra en un bucle infinito (setear memoria con baja capacidad, 100)
-		}
-		log_error(logger_visible, "CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta full. Abortando.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, ++pcb->simbolicIP, instruccionActualTemp);
-		log_error(logger_invisible, "CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta full. Abortando.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, pcb->simbolicIP, instruccionActualTemp);
+		log_error(logger_visible, "CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta full. Realizar journal.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, ++pcb->simbolicIP, instruccionActualTemp);
+		log_error(logger_invisible, "CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta full. Realizar journal.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, pcb->simbolicIP, instruccionActualTemp);
 		free(instruccionActualTemp);
-		return INSTRUCCION_ERROR;
+		destruir_operacion(op);
+		op = recv_msg(link->socket);
+		return procesar_retorno_operacion(op, pcb, instruccionActual, link);
 	case DESCRIBE_REQUEST:
 		if(op.Argumentos.DESCRIBE_REQUEST.esGlobal){
 			if(procesar_describe_global(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido) == EXIT_FAILURE){

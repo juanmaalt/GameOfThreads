@@ -249,10 +249,10 @@ static int levantarRegistrosBloques(t_dictionary *registrosDeParticiones, char *
 
 				if(ch =='\n'){
 					char** lineaParsed = string_split(linea,";");
-					if(esUnRegistro(lineaParsed[0], lineaParsed[1], lineaParsed[2])){
+					if(lineaParsed != NULL && esUnRegistro(lineaParsed[0], lineaParsed[1], lineaParsed[2])){ //REVISION: Invalid read of size 4, se agrego el != NULL ahi
 						Registro *registro = malloc(sizeof(Registro));
 						registro->timestamp = atoll(lineaParsed[0]);
-						registro->key = atoi(lineaParsed[1]); //FIXME esto tiro null una vez. pudo llegar a ser por un tema de sincro
+						registro->key = atoi(lineaParsed[1]);
 						registro->value = string_substring_until(lineaParsed[2], (strlen(lineaParsed[2])-1));
 
 						agregarRegistro((t_list*)dictionary_get(registrosDeParticiones, particionActual), registro);
