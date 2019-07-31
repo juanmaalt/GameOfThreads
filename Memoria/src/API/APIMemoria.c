@@ -60,8 +60,11 @@ Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 			if(valueSem < 1){
 				esperarFinJournal();
 				goto SELECT;
-			}else
+			}else{
+				seEmpiezaAEjecutarOperacion();
 				retorno = selectAPI(input, *parsed);
+				seTerminaDeEjecutarOperacion();
+				}
 			loggearMemoria();
 			break;
 		case INSERT:
@@ -75,7 +78,9 @@ Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 						"Error en el tamanio del value. Segmentation Fault");
 					retorno.TipoDeMensaje = ERROR;
 				} else {
+					seEmpiezaAEjecutarOperacion();
 					retorno = insertAPI(input, *parsed);
+					seTerminaDeEjecutarOperacion();
 				}
 			}
 			loggearMemoria();
@@ -91,12 +96,17 @@ Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 			if(valueSem < 1){
 				esperarFinJournal();
 				goto DROP;
-			}else
+			}else{
+				seEmpiezaAEjecutarOperacion();
 				retorno =dropAPI(input, *parsed);
+				seTerminaDeEjecutarOperacion();
+			}
 			loggearMemoria();
 			break;
 		case JOURNAL:
+			seEmpiezaAEjecutarOperacion();
 			retorno = journalAPI();
+			seTerminaDeEjecutarOperacion();
 			loggearMemoria();
 			break;
 		default:
@@ -428,6 +438,7 @@ Operacion journalAPI(){
 
 	bloquearMemoria();
 
+	esperarFinRequestsViejas();
 	//printf("TERMINO SLEEP JOURNAL\n");
 
 	pthread_mutex_lock(&mutexTablaSegmentos);
@@ -519,4 +530,26 @@ void reiniciarSemaforo(){
 	journal.enEspera = 0;
 }
 
+
+
+void esperarFinRequestsViejas(){
+	sem_wait(&journal.semRequest);
+}
+
+void seEmpiezaAEjecutarOperacion(){
+	int valorSemReq;
+	++journal.ejecutando;
+	sem_getvalue(&journal.semRequest,&valorSemReq);
+	if(valorSemReq == 1)
+		sem_wait(&journal.semRequest);
+}
+
+// post solo si el valor del semaforo es 0 && hay uno solo ejecutandose (si mismo)
+void seTerminaDeEjecutarOperacion(){
+	--journal.ejecutando;
+	if(journal.ejecutando == 0)
+		sem_post(&journal.semRequest);
+
+
+}
 

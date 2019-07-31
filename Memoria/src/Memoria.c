@@ -226,7 +226,9 @@ int iniciar_consola() {
 int configuracion_inicial() {
 	//INICIALIZAR SEMAFOROS
 	journal.enEspera = 0;
+	journal.ejecutando = 0;
 	sem_init(&journal.sem, 0, 1);
+	sem_init(&journal.semRequest, 0, 1);
 	pthread_mutex_init(&mutexMemoria, NULL);
 	pthread_mutex_init(&mutexTablaSegmentos, NULL);
 	pthread_mutex_init(&mutexColaMarcos,NULL);

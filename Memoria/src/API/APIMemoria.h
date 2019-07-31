@@ -34,4 +34,8 @@ void desbloquearMemoria();
 void esperarFinJournal();
 void reiniciarSemaforo();
 
+void esperarFinRequestsViejas();
+void seEmpiezaAEjecutarOperacion();
+void seTerminaDeEjecutarOperacion();
+
 #endif /* APIMEMORIA_H_ */

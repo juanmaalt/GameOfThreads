@@ -75,7 +75,9 @@ typedef struct Config_datos_variables vConfig;
 
 typedef struct sem_journal_t{
 	int enEspera;
+	int ejecutando;
 	sem_t sem;
+	sem_t semRequest;
 }SemaforoJournal;
 
 SemaforoJournal journal;
