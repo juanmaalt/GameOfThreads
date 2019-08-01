@@ -118,24 +118,24 @@ void *connection_handler(void *nSocket) {
 	pthread_detach(pthread_self());
 	int socket = *(int*) nSocket;
 	Operacion resultado;
-
+	char *copiaComandoParseable = NULL;
 	resultado = recv_msg(socket);
 
 	switch (resultado.TipoDeMensaje) {
 	case COMANDO:
 		log_info(logger_visible, "Request recibido por SOCKET: %s",
 				resultado.Argumentos.COMANDO.comandoParseable);
+		copiaComandoParseable = string_from_format(resultado.Argumentos.COMANDO.comandoParseable);
 		resultado = ejecutarOperacion(resultado.Argumentos.COMANDO.comandoParseable, false);
 
 		loggearRetorno(resultado, logger_invisible);
 		send_msg(socket, resultado);
 		if(resultado.TipoDeMensaje== ERROR_MEMORIAFULL){
-			//wait
 			pthread_mutex_lock(&mutexFull);
-			resultado = ejecutarOperacion(resultado.Argumentos.COMANDO.comandoParseable, false);
+			resultado = ejecutarOperacion(copiaComandoParseable, false);
 			send_msg(socket, resultado);
 		}
-
+		free(copiaComandoParseable);
 
 		break;
 	case TEXTO_PLANO:

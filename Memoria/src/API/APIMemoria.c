@@ -117,7 +117,6 @@ Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 
 		destruir_comando(*parsed);
 		free(parsed);
-		free(input);
 		return retorno;
 	} else {
 		fprintf(stderr, RED"La request no es valida"STD"\n");
@@ -129,8 +128,6 @@ Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 	retorno.TipoDeMensaje = ERROR;
 	retorno.Argumentos.ERROR.mensajeError = string_from_format(
 			"Error en la recepcion del resultado.");
-
-	free(input);
 
 	return retorno;
 }

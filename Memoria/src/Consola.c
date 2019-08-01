@@ -15,6 +15,7 @@ void *recibir_comandos(void *null) {
 		char *userInput = readline("> ");
 		log_info(logger_invisible,"Consola.c: recibir_comandos: Request recibida por CONSOLA: %s",userInput);
 		retorno = ejecutarOperacion(userInput, true); //libera el userInput en la funcion
+		free(userInput);
 		loggearRetorno(retorno, logger_visible);
 		destruir_operacion(retorno);
 	}

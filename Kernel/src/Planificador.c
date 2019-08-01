@@ -96,11 +96,12 @@ void *describe_automatico(void *null){
 		int socketMemoria = solicitar_socket(memoria);
 		Operacion operacion;
 		operacion.TipoDeMensaje = COMANDO;
-		operacion.Argumentos.COMANDO.comandoParseable = string_from_format("DESCRIBE");
+		operacion.Argumentos.COMANDO.comandoParseable = string_from_format("DESCRIBE\n");
 		send_msg(socketMemoria, operacion);
 		destruir_operacion(operacion);
 		operacion = recv_msg(socketMemoria);
-		destruir_operacion(operacion); //No hago nada
+		procesar_describe_global(operacion.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
+		destruir_operacion(operacion);
 	}
 	return NULL;
 }
@@ -113,7 +114,7 @@ void ejecutar_journal(void *memoria){
 	Memoria *mem = (Memoria*)memoria;
 	Operacion op;
 	op.TipoDeMensaje = COMANDO;
-	op.Argumentos.COMANDO.comandoParseable = string_from_format("JOURNAL");
+	op.Argumentos.COMANDO.comandoParseable = string_from_format("JOURNAL\n");
 	int socket = solicitar_socket(mem);
 	send_msg(socket, op);
 	destruir_operacion(op);

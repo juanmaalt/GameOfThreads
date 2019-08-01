@@ -284,7 +284,7 @@ static INTERNAL_STATE procesar_retorno_operacion(Operacion op, PCB* pcb, char* i
 		log_error(logger_invisible,"CPU: %d | Memoria: %d %s:%s | %s (%d) | Fallo en la instruccion '%s'. Abortando: %s", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, pcb->simbolicIP, instruccionActualTemp, op.Argumentos.ERROR.mensajeError);
 		free(instruccionActualTemp);
 		return INSTRUCCION_ERROR;
-	case ERROR_JOURNAL:
+	case ERROR_JOURNAL: //Ya no se usa este case
 		instruccionActualTemp = remover_new_line(instruccionActual);
 		if(pcb->tipo == FILE_LQL){
 			fsetpos((FILE *)pcb->data, &(pcb->instruccionPointer));
@@ -300,7 +300,7 @@ static INTERNAL_STATE procesar_retorno_operacion(Operacion op, PCB* pcb, char* i
 		return INSTRUCCION_ERROR;
 	case ERROR_MEMORIAFULL:
 		instruccionActualTemp = remover_new_line(instruccionActual);
-		log_error(logger_visible, "CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta full. Realizar journal.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, ++pcb->simbolicIP, instruccionActualTemp);
+		log_error(logger_visible, "CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta full. Realizar journal.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, pcb->simbolicIP, instruccionActualTemp);
 		log_error(logger_invisible, "CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta full. Realizar journal.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, pcb->simbolicIP, instruccionActualTemp);
 		free(instruccionActualTemp);
 		destruir_operacion(op);
