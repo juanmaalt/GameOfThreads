@@ -104,9 +104,9 @@ Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 			loggearMemoria();
 			break;
 		case JOURNAL:
-			seEmpiezaAEjecutarOperacion();
+			pthread_mutex_lock(&mutexJournalSimultaneo);
 			retorno = journalAPI();
-			seTerminaDeEjecutarOperacion();
+			pthread_mutex_unlock(&mutexJournalSimultaneo);
 			loggearMemoria();
 			break;
 		default:
@@ -443,7 +443,6 @@ Operacion journalAPI(){
 	bloquearMemoria();
 
 	esperarFinRequestsViejas();
-	//printf("TERMINO SLEEP JOURNAL\n");
 
 	pthread_mutex_lock(&mutexTablaSegmentos);
 

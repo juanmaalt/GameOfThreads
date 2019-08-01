@@ -82,6 +82,7 @@ typedef struct sem_journal_t{
 
 SemaforoJournal journal;
 
+pthread_mutex_t mutexJournalSimultaneo;
 pthread_mutex_t mutexFull;
 pthread_mutex_t mutexMemoria;
 pthread_mutex_t mutexTablaSegmentos;
