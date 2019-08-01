@@ -22,11 +22,15 @@ Operacion selectAPI(Comando comando){
 		return resultadoSelect;
 	}
 	/*Checkea existencia de la tabla solicitada*/
+	sem_wait(&mutexMemtable);
 	if(!(existeTabla(comando.argumentos.SELECT.nombreTabla))){
+		sem_post(&mutexMemtable);
 		log_error(logger_invisible, "No existe una tabla asociada a la key solicitada.");
 		resultadoSelect.Argumentos.ERROR.mensajeError = string_from_format("No existe una tabla asociada a la key solicitada.");
 		return resultadoSelect;
 	}
+	sem_post(&mutexMemtable);
+
 	/*Levanta la metadata de la tabla*/
 	t_config* metadataFile = leerMetadata(comando.argumentos.SELECT.nombreTabla);
 	if(metadataFile==NULL){
@@ -42,7 +46,9 @@ Operacion selectAPI(Comando comando){
 	metadata.partitions= config_get_int_value(metadataFile, "PARTITIONS");
 
 	/*Levanta la lista de registros relacionados a la tabla*/
+	sem_wait(&mutexMemtable);
 	t_list* data = getData(comando.argumentos.SELECT.nombreTabla);
+	sem_post(&mutexMemtable);
 
 	/*Calculo el nro de partición en la que se encuentra la key*/
 	int particionNbr = calcularParticionNbr(comando.argumentos.SELECT.key, metadata.partitions);
@@ -53,7 +59,9 @@ Operacion selectAPI(Comando comando){
 	t_list* listaDeValuesFiles = list_create();
 
 	/*Busco en Memtable*/
-	listaDeValues=buscarValueEnLista(data, comando.argumentos.SELECT.key);
+	sem_wait(&mutexMemtable);
+	listaDeValues=buscarValueEnLista(data, comando.argumentos.SELECT.key); //listaDeValues es una nueva lista con los nodos de la memtable asi que solo hay que sincronizar los nodos de listaValues a partir de aca
+	sem_post(&mutexMemtable);
 
 	/*Busco en Temporales*/
 	leerTemps(comando.argumentos.SELECT.nombreTabla, comando.argumentos.SELECT.key, listaDeValuesFiles);
@@ -66,24 +74,32 @@ Operacion selectAPI(Comando comando){
 	if(listaDeBloques)free(listaDeBloques);
 
 	/*Ordeno las tablas por el timestamp más reciente*/
-	ordernarPorMasReciente(listaDeValues);
+	sem_wait(&mutexMemtable);
+	ordernarPorMasReciente(listaDeValues); //El ordenamiento es sobre una lista que no es de la memtable. El unico problema que puede haber es que se borren los nodos de la memtable en el medio
+	sem_post(&mutexMemtable);
 	ordernarPorMasReciente(listaDeValuesFiles);
 
 	//recorrerTabla(listaDeValues);//Función ad-hoc para testing
 	//recorrerTabla(listaDeValuesFiles);//Función ad-hoc para testing
 
 	Registro* reg;
+	sem_wait(&mutexMemtable);
 	reg = getMasReciente(listaDeValues, listaDeValuesFiles);
 
-	if(reg == NULL)
+	if(reg == NULL){
+		sem_post(&mutexMemtable);
 		goto NULL_SELECT; //Es horrible pero hayq ue solucionarlo ya
-	if(reg->value == NULL)
+	}
+	if(reg->value == NULL){
+		sem_post(&mutexMemtable);
 		goto NULL_SELECT;
+	}
 
 	resultadoSelect.TipoDeMensaje = REGISTRO;
 	resultadoSelect.Argumentos.REGISTRO.timestamp=reg->timestamp;
 	resultadoSelect.Argumentos.REGISTRO.key=reg->key;
 	resultadoSelect.Argumentos.REGISTRO.value=string_from_format("%s",reg->value);
+	sem_post(&mutexMemtable);
 	goto CONTINUAR;
 
 	NULL_SELECT: ;
@@ -117,11 +133,14 @@ Operacion insertAPI(Comando comando){
 		return resultadoInsert;
 	}
 	/*Checkea existencia de la tabla solicitada*/
+	sem_wait(&mutexMemtable);
 	if(!(existeTabla(comando.argumentos.INSERT.nombreTabla))){
+		sem_post(&mutexMemtable);
 		log_error(logger_invisible, "No existe una tabla asociada a la key solicitada.");
 		resultadoInsert.Argumentos.ERROR.mensajeError = string_from_format("No existe la tabla solicitada.");
 		return resultadoInsert;
 	}
+	sem_post(&mutexMemtable);
 
 	/*Levanta la metadata de la tabla*/
 	t_config* metadataFile = leerMetadata(comando.argumentos.INSERT.nombreTabla);
@@ -148,10 +167,12 @@ Operacion insertAPI(Comando comando){
 	reg->timestamp=checkTimestamp(comando.argumentos.INSERT.timestamp);
 
 	/*Obtengo la lista de registros a partir de la tabla solicitada*/
+	sem_wait(&mutexMemtable);
 	t_list* data = getData(comando.argumentos.INSERT.nombreTabla);
 
 	/*Agrego el registro a dicha lista*/
 	list_add(data, reg);
+	sem_post(&mutexMemtable);
 
 	//INICIO AD-HOC//
 	/*
@@ -182,11 +203,14 @@ Operacion createAPI(Comando comando){
 	resultadoCreate.TipoDeMensaje = ERROR;
 
 	/*Checkeo la existencia de la tabla. De existir la misma loggeo un error*/
+	sem_wait(&mutexMemtable);
 	if(existeTabla(comando.argumentos.CREATE.nombreTabla)){
+		sem_post(&mutexMemtable);
 		log_error(logger_invisible, "La tabla solicitada ya existe en el sistema.");
 		resultadoCreate.Argumentos.ERROR.mensajeError = string_from_format("La tabla solicitada ya existe en el sistema.");
 		return resultadoCreate;
 	}
+	sem_post(&mutexMemtable);
 
 	/*Obtengo la ruta del directorio donde van a estar los archivos de la tabla*/
 	char* path = string_from_format("%sTables/%s", config.punto_montaje, comando.argumentos.CREATE.nombreTabla);
@@ -205,7 +229,9 @@ Operacion createAPI(Comando comando){
 	crearArchivosBinarios(path, atoi(comando.argumentos.CREATE.numeroParticiones));
 
 	/*Creo la Tabla en la Memtable*/
+	sem_wait(&mutexMemtable);
 	crearTablaEnMemtable(comando.argumentos.CREATE.nombreTabla);
+	sem_post(&mutexMemtable);
 
 	SemaforoCompactacion *semt = malloc(sizeof(SemaforoCompactacion));
 	sem_init(&(semt->semaforoGral), 0, 1);
@@ -273,6 +299,7 @@ Operacion dropAPI(Comando comando){
 	resultadoDrop.TipoDeMensaje = ERROR;
 
 	/*Borro la entrada de la memtable*/
+	sem_wait(&mutexMemtable);
 	if(existeTabla(comando.argumentos.DROP.nombreTabla)){
 		/*Borro la entrada de la memtable*/
 		//dictionary_remove(memtable, comando.argumentos.DROP.nombreTabla);
@@ -285,6 +312,7 @@ Operacion dropAPI(Comando comando){
 		}
 		dictionary_remove_and_destroy(memtable, comando.argumentos.DROP.nombreTabla, eliminarTablaDeMemtable);
 	}
+	sem_post(&mutexMemtable);
 
 	//Cancelamos la compactacion que esta corriendo
 	bool buscarSemaforo(void* semaforo){
@@ -302,7 +330,9 @@ Operacion dropAPI(Comando comando){
 		sem_destroy(&sem->semaforoSelect);
 		free(sem);
 	}
+	sem_wait(&mutexPeticionesPorTabla);
 	list_remove_and_destroy_by_condition(semaforosPorTabla, buscarSemaforo, destruirSemaforo);
+	sem_post(&mutexPeticionesPorTabla);
 
 	//Borramos el semaforo de request pendientes para la tabla
 	bool buscarSemaforoReq(void *semaforo){
@@ -314,7 +344,9 @@ Operacion dropAPI(Comando comando){
 		sem_destroy(&semr->semaforoSelect);
 		free(semr);
 	}
+	sem_wait(&mutexRequestActivas);
 	list_remove_and_destroy_by_condition(semaforosPorTabla, buscarSemaforoReq, destruirSemaforoReq);
+	sem_post(&mutexRequestActivas);
 
 	//Limpiar bloques
 	limpiarBloquesEnBitarray(comando.argumentos.DROP.nombreTabla);

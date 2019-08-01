@@ -17,7 +17,7 @@
 #include <commons/collections/dictionary.h>
 #include "../Lissandra.h"
 
-	/*Funciones publicas*/
+	/*========== Funciones publicas ==========*/
 
 	/**
 	* @NAME: iniciar_semaforos
@@ -27,24 +27,29 @@
 
 
 
-	/*Estructura semaforos de compactacion*/
+
+
+	/*========== Mutex generales ==========*/
+
+	sem_t mutexMemtable;
+
+
+	/*========== Estructura semaforos de compactacion ==========*/
 	/*(Para bloquear acceso a nuevas request)*/
 
 	typedef struct semt_comp{
-	char* tabla;
-	int peticionesEnEspera;
-	int peticionesEnEsperaSelect;
-	sem_t semaforoGral;
-	sem_t semaforoSelect;
-	pthread_t compactacionService;
-	timestamp_t inicioBloqueo;
-	timestamp_t finBloqueo;
+		char* tabla;
+		int peticionesEnEspera;
+		int peticionesEnEsperaSelect;
+		sem_t semaforoGral;
+		sem_t semaforoSelect;
+		pthread_t compactacionService;
+		timestamp_t inicioBloqueo;
+		timestamp_t finBloqueo;
 	}SemaforoCompactacion;
 
-	/*Mutex para acceso a la lista 'semaforosPorTabla'*/
 	sem_t mutexPeticionesPorTabla;
 
-	/*Lista que contiene los semaforos por tabla*/
 	t_list* semaforosPorTabla;
 
 	/*Semaforos de compactacion*/
@@ -113,9 +118,10 @@
 
 
 
-	/*Estructura semaforo de request activas*/
-	/*(Para que la compactacion no inicie si hay request ejecutandose ahora)*/
 
+
+	/*========== Estructura semaforo de request activas ==========*/
+	/*(Para que la compactacion no inicie si hay request ejecutandose ahora)*/
 
 	typedef struct semt_ex_request{
 		char *tabla;
@@ -150,11 +156,5 @@
 	* @DESC: notifica al semaforo que ya se termino de ejecutar la request
 	*/
 	void seTerminoDeEjecutarRequestSelect(char *tabla);
-
-
-	typedef struct semt_dump{
-		char *tabla;
-		sem_t semaforo;
-	}SemaforoDump; //Para bloquear el acceso del compactador a .tmp que todavia se estan escribiendo
 
 #endif /* ADHOC_SEMAFOROS_H_ */

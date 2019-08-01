@@ -8,19 +8,24 @@
 #include "Semaforos.h"
 
 int iniciar_semaforos(){
-	//Compactacion
+	/*Mutex generales*/
+	sem_init(&mutexMemtable, 0, 1);
+
+	/*Compactacion*/
 	semaforosPorTabla =list_create();
 	sem_init(&mutexPeticionesPorTabla, 0, 1);
 
-	//Request activas
+	/*Request activas*/
 	requestActivas = list_create();
 	sem_init(&mutexRequestActivas, 0, 1);
 	return EXIT_SUCCESS;
 }
 
 
-//Compactacion
 
+
+
+/*Compactacion*/
 
 void bloquearTabla(char *tabla){
 	bool buscar(void *tablaSemaforo){
@@ -187,7 +192,9 @@ void loggearTiempoCompactacion(char *tabla){
 
 
 
-//Request activas
+
+
+/*Request activas*/
 
 void esperarSelectsActivos(char *tabla){
 	bool buscar(void *tablaSemaforo){
