@@ -85,7 +85,10 @@ void *realizarJournal(void* null) {
 
 		log_info(logger_invisible,
 				"Memoria.c: realizarJournal: Inicio Journal automatico");
+		//TODO: WAIT MUTEX
+		pthread_mutex_lock(&mutexJournalSimultaneo);
 		retorno=journalAPI();
+		pthread_mutex_unlock(&mutexJournalSimultaneo);
 		destruir_operacion(retorno);
 	}
 }
@@ -125,7 +128,10 @@ void *connection_handler(void *nSocket) {
 	case COMANDO:
 		log_info(logger_visible, "Request recibido por SOCKET: %s",
 				resultado.Argumentos.COMANDO.comandoParseable);
+		log_info(logger_invisible, "Request recibido por SOCKET: %s",
+						resultado.Argumentos.COMANDO.comandoParseable);
 		copiaComandoParseable = string_from_format(resultado.Argumentos.COMANDO.comandoParseable);
+
 		resultado = ejecutarOperacion(resultado.Argumentos.COMANDO.comandoParseable, false);
 
 		loggearRetorno(resultado, logger_invisible);
@@ -237,6 +243,7 @@ int configuracion_inicial() {
 	sem_init(&journal.sem, 0, 1);
 	sem_init(&journal.semRequest, 0, 1);
 
+	pthread_mutex_init(&mutexJournalSimultaneo);
 	pthread_mutex_init(&mutexFull, NULL);
 	pthread_mutex_init(&mutexMemoria, NULL);
 	pthread_mutex_init(&mutexTablaSegmentos, NULL);
@@ -342,6 +349,7 @@ t_log* iniciar_logger(char* fileName, bool visibilidad, t_log_level level) {
 }
 
 void loggearRetorno(Operacion retorno, t_log * logger) {
+	printf(RED"TIPO DE MENSAJE: %d\n"STD, retorno.TipoDeMensaje);
 	switch (retorno.TipoDeMensaje) {
 	case REGISTRO:
 		log_info(logger, "Timestamp: %llu  Key:%d  Value: %s\n",
@@ -364,8 +372,17 @@ void loggearRetorno(Operacion retorno, t_log * logger) {
 		return;
 	case COMANDO:
 		return;
+	case GOSSIPING_REQUEST:
+		log_info(logger, "GOSSIPING_REQUEST");
+		return;
+	case GOSSIPING_REQUEST_KERNEL:
+		log_info(logger, "GOSSIPING_REQUEST_KERNEL");
+		return;
+	case DESCRIBE_REQUEST:
+		log_info(logger, "DESCRIBE: %s", retorno.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
+		return;
 	default:
-		log_error(logger, "No cumple con el tipo de mensaje esperado");
+		log_error(logger, "Memoria.c: No cumple con el tipo de mensaje esperado");
 		return;
 	}
 }
