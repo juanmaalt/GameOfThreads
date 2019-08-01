@@ -76,8 +76,10 @@ typedef struct Config_datos_variables vConfig;
 typedef struct sem_journal_t{
 	int enEspera;
 	int ejecutando;
+	int retenidosMemFull;
 	sem_t sem;
 	sem_t semRequest;
+	sem_t memoriaFull;
 }SemaforoJournal;
 
 SemaforoJournal journal;
@@ -87,6 +89,8 @@ pthread_mutex_t mutexFull;
 pthread_mutex_t mutexMemoria;
 pthread_mutex_t mutexTablaSegmentos;
 pthread_mutex_t mutexColaMarcos;
+pthread_mutex_t mutexEnEspera;
+pthread_mutex_t mutexEjecutando;
 
 int configuracion_inicial(void);
 int realizarHandshake(void);

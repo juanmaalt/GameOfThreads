@@ -106,6 +106,7 @@ int send_msg(int socket, Operacion operacion) {
 		return EXIT_FAILURE;
 	}
 
+
 	int result = send(socket, content, total, 0);
 	if (content != NULL)
 			free(content);

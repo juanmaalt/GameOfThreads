@@ -56,32 +56,23 @@ Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 	if (parsed->valido) {
 		switch (parsed->keyword) {
 		case SELECT:
-			SELECT: sem_getvalue(&journal.sem, &valueSem);
-			if(valueSem < 1){
-				esperarFinJournal();
-				goto SELECT;
-			}else{
-				seEmpiezaAEjecutarOperacion();
-				retorno = selectAPI(input, *parsed);
-				seTerminaDeEjecutarOperacion();
-				}
+			esperarFinJournal();
+			seEmpiezaAEjecutarOperacion();
+			retorno = selectAPI(input, *parsed);
+			seTerminaDeEjecutarOperacion();
+
 			loggearMemoria();
 			break;
 		case INSERT:
-			INSERT: sem_getvalue(&journal.sem, &valueSem);
-			if(valueSem < 1){
-				esperarFinJournal();
-				goto INSERT;
-			}else{
-				if ((strlen(parsed->argumentos.INSERT.value) + 1) > tamanioValue) {
-					retorno.Argumentos.ERROR.mensajeError = string_from_format(
-						"Error en el tamanio del value. Segmentation Fault");
-					retorno.TipoDeMensaje = ERROR;
-				} else {
-					seEmpiezaAEjecutarOperacion();
-					retorno = insertAPI(input, *parsed);
-					seTerminaDeEjecutarOperacion();
-				}
+			esperarFinJournal();
+			if ((strlen(parsed->argumentos.INSERT.value) + 1) > tamanioValue) {
+				retorno.Argumentos.ERROR.mensajeError = string_from_format(
+					"Error en el tamanio del value. Segmentation Fault");
+				retorno.TipoDeMensaje = ERROR;
+			} else {
+				seEmpiezaAEjecutarOperacion();
+				retorno = insertAPI(input, *parsed);
+				seTerminaDeEjecutarOperacion();
 			}
 			loggearMemoria();
 			break;
@@ -92,15 +83,10 @@ Operacion ejecutarOperacion(char* input, bool esDeConsola) {
 			retorno = describeAPI(input, *parsed);
 			break;
 		case DROP:
-			DROP: sem_getvalue(&journal.sem, &valueSem);
-			if(valueSem < 1){
-				esperarFinJournal();
-				goto DROP;
-			}else{
-				seEmpiezaAEjecutarOperacion();
-				retorno =dropAPI(input, *parsed);
-				seTerminaDeEjecutarOperacion();
-			}
+			esperarFinJournal();
+			seEmpiezaAEjecutarOperacion();
+			retorno =dropAPI(input, *parsed);
+			seTerminaDeEjecutarOperacion();
 			loggearMemoria();
 			break;
 		case JOURNAL:
@@ -184,7 +170,6 @@ Operacion selectAPI(char* input, Comando comando) {
 				}
 				resultadoSelect.TipoDeMensaje = ERROR_MEMORIAFULL;
 				//wait
-				pthread_mutex_lock(&mutexFull);
 				return resultadoSelect;
 
 			}else { //SE DEVUELVE EL ERROR QUE DA EL LFS
@@ -206,7 +191,6 @@ Operacion selectAPI(char* input, Comando comando) {
 			}
 
 			resultadoSelect.TipoDeMensaje = ERROR_MEMORIAFULL;
-			pthread_mutex_lock(&mutexFull);
 
 			return resultadoSelect;
 		}
@@ -285,7 +269,6 @@ Operacion insertAPI(char* input, Comando comando) {
 			//log_info(logger_invisible,"Se realizo el INSERT, estaba en memoria\n");
 			resultadoInsert.TipoDeMensaje = ERROR_MEMORIAFULL;
 
-			pthread_mutex_lock(&mutexFull);
 
 			return resultadoInsert;
 
@@ -305,7 +288,6 @@ Operacion insertAPI(char* input, Comando comando) {
 		}
 
 		resultadoInsert.TipoDeMensaje = ERROR_MEMORIAFULL;
-		pthread_mutex_lock(&mutexFull);
 
 		return resultadoInsert;
 
@@ -509,7 +491,7 @@ Operacion journalAPI(){
 	resultadoJournal.Argumentos.TEXTO_PLANO.texto = string_from_format(
 						"Journal finalizado");
 
-	pthread_mutex_unlock(&mutexFull);
+	avisoMemoriaLiberada();
 
 	finalizarEspera();
 	desbloquearMemoria();
@@ -522,17 +504,29 @@ void bloquearMemoria(){
 }
 
 void desbloquearMemoria(){
+	pthread_mutex_lock(&mutexEnEspera);
 	for(int i=0; i<=journal.enEspera; ++i)
 		sem_post(&journal.sem);
+	pthread_mutex_unlock(&mutexEnEspera);
 }
 
 void esperarFinJournal(){
+	int semValue;
+	pthread_mutex_lock(&mutexEnEspera);
+	sem_getvalue(&journal.sem, &semValue); //quizas el getvalue tambien pueda generar interbloqueo
+	if(semValue >= 1){
+		pthread_mutex_unlock(&mutexEnEspera);
+		return;
+	}
 	++journal.enEspera;
+	pthread_mutex_unlock(&mutexEnEspera);
 	sem_wait(&journal.sem);
 }
 
 void reiniciarSemaforo(){
+	pthread_mutex_lock(&mutexEnEspera);
 	journal.enEspera = 0;
+	pthread_mutex_unlock(&mutexEnEspera);
 }
 
 
@@ -543,21 +537,45 @@ void esperarFinRequestsViejas(){
 
 void seEmpiezaAEjecutarOperacion(){
 	int valorSemReq;
+	pthread_mutex_lock(&mutexEjecutando);
 	++journal.ejecutando;
 	sem_getvalue(&journal.semRequest,&valorSemReq);
+	pthread_mutex_unlock(&mutexEjecutando);
 	if(valorSemReq == 1)
 		sem_wait(&journal.semRequest);
 }
 
 // post solo si el valor del semaforo es 0 && hay uno solo ejecutandose (si mismo)
 void seTerminaDeEjecutarOperacion(){
+	pthread_mutex_lock(&mutexEjecutando);
 	--journal.ejecutando;
 	if(journal.ejecutando == 0)
 		sem_post(&journal.semRequest);
-
-
+	pthread_mutex_unlock(&mutexEjecutando);
 }
 
 void finalizarEspera(){
 	sem_post(&journal.semRequest);
+}
+
+void retenerRequestPorMemoriaFull(){
+	int semValue;
+	pthread_mutex_lock(&mutexFull);
+	sem_getvalue(&journal.memoriaFull, &semValue);
+	if(semValue >= 1){
+		pthread_mutex_unlock(&mutexFull);
+		return;
+	}
+	++journal.retenidosMemFull;
+	pthread_mutex_unlock(&mutexFull);
+	sem_wait(&journal.memoriaFull);
+}
+
+void avisoMemoriaLiberada(){
+	pthread_mutex_lock(&mutexFull);
+	for(int i=1; i<=journal.retenidosMemFull; ++i){
+		sem_post(&journal.memoriaFull);
+	}
+	journal.retenidosMemFull = 0;
+	pthread_mutex_unlock(&mutexFull);
 }

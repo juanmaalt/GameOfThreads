@@ -34,6 +34,9 @@ void desbloquearMemoria();
 void esperarFinJournal();
 void reiniciarSemaforo();
 
+void retenerRequestPorMemoriaFull();
+void avisoMemoriaLiberada();
+
 void esperarFinRequestsViejas();
 void finalizarEspera();
 void seEmpiezaAEjecutarOperacion();

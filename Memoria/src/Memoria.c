@@ -137,7 +137,7 @@ void *connection_handler(void *nSocket) {
 		loggearRetorno(resultado, logger_invisible);
 		send_msg(socket, resultado);
 		if(resultado.TipoDeMensaje== ERROR_MEMORIAFULL){
-			pthread_mutex_lock(&mutexFull);
+			retenerRequestPorMemoriaFull();
 			resultado = ejecutarOperacion(copiaComandoParseable, false);
 			send_msg(socket, resultado);
 		}
@@ -240,14 +240,18 @@ int configuracion_inicial() {
 	//INICIALIZAR SEMAFOROS
 	journal.enEspera = 0;
 	journal.ejecutando = 0;
+	journal.retenidosMemFull = 0;
 	sem_init(&journal.sem, 0, 1);
 	sem_init(&journal.semRequest, 0, 1);
+	sem_init(&journal.memoriaFull, 0, 0);
 
 	pthread_mutex_init(&mutexJournalSimultaneo,NULL);
 	pthread_mutex_init(&mutexFull, NULL);
 	pthread_mutex_init(&mutexMemoria, NULL);
 	pthread_mutex_init(&mutexTablaSegmentos, NULL);
 	pthread_mutex_init(&mutexColaMarcos,NULL);
+	pthread_mutex_init(&mutexEnEspera, NULL);
+	pthread_mutex_init(&mutexEjecutando, NULL);
 
 	mkdir("Logs", 0777); //Crea la carpeta Logs junto al ejecutable (si ya existe no toca nada de lo que haya adentro)
 
