@@ -1,0 +1,8 @@
+[INFO] 00:45:52:19 LFS/(2797:2797): Lissandra.c: configuracion_inicial() - Se inicio logger_error;
+[INFO] 00:45:52:19 LFS/(2797:2797): Lissandra.c: configuracion_inicial() - Se inicio logger_invisible;
+[INFO] 00:45:52:19 LFS/(2797:2797): Lissandra.c: configuracion_inicial() - Se inicio logger_visible;
+[INFO] 00:45:52:19 LFS/(2797:2797): Lissandra.c: configuracion_inicial() - Se extrajo la data del config;
+[INFO] 00:45:52:19 LFS/(2797:2797): [34mIP=127.0.0.1[0m
+[INFO] 00:45:52:21 LFS/(2797:2797): [34mPUERTO_ESCUCHA=8006[0m
+[INFO] 00:45:52:24 LFS/(2797:2797): [34mPUNTO_MONTAJE=mnt/FileSystem/[0m
+[INFO] 00:45:52:26 LFS/(2797:2797): [34mTAMANIO_VALUE=4[0m

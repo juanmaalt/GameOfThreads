@@ -1,0 +1,9 @@
+[INFO] 00:09:57:305 Kernel/(1966:1966): =============Iniciando kernel=============
+[INFO] 00:09:57:319 Kernel/(1966:1966): IP_MEMORIA=127.0.0.1
+[INFO] 00:09:57:319 Kernel/(1966:1966): PUERTO_MEMORIA=8001
+[INFO] 00:09:57:319 Kernel/(1966:1966): QUANTUM=3
+[INFO] 00:09:57:319 Kernel/(1966:1966): MULTIPROCESAMIENTO=1
+[INFO] 00:09:57:319 Kernel/(1966:1966): REFRESH_METADATA=15000
+[INFO] 00:09:57:319 Kernel/(1966:1966): SLEEP_EJECUCION=5000
+[INFO] 00:09:57:324 Kernel/(1966:1970): Modo de recuperacion: todas las memorias estan caidas. Esperando a la memoria principal 127.0.0.1:8001
+[INFO] 00:10:00:53 Kernel/(1966:1966): =============Finalizando kernel=============

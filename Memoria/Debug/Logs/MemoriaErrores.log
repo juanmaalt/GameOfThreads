@@ -1,0 +1,2 @@
+[ERROR] 00:23:26:944 Memoria/(2327:2327): ComunicacionFS: conectarLFS: El LFS no está levantado. Cerrar la Memoria, levantar el LFS y volver a levantar la Memoria
+[ERROR] 00:23:26:957 Memoria/(2327:2327): Memoria.c: main: no se pudo inicializar la memoria principal
