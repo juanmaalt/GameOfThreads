@@ -349,7 +349,6 @@ t_log* iniciar_logger(char* fileName, bool visibilidad, t_log_level level) {
 }
 
 void loggearRetorno(Operacion retorno, t_log * logger) {
-	printf(RED"TIPO DE MENSAJE: %d\n"STD, retorno.TipoDeMensaje);
 	switch (retorno.TipoDeMensaje) {
 	case REGISTRO:
 		log_info(logger, "Timestamp: %llu  Key:%d  Value: %s\n",
