@@ -8,7 +8,7 @@
 #include "compresor_describe.h"
 
 void concatenar_tabla(char **source, char *tabla, char* consistencia, int numeroParticiones, int tiempoEntreCompactacion){
-	if(!(string_equals_ignore_case(consistencia, "SC")) && !(string_equals_ignore_case(consistencia, "HSC")) && !(string_equals_ignore_case(consistencia, "EC")))
+	if(!(string_equals_ignore_case(consistencia, "SC")) && !(string_equals_ignore_case(consistencia, "SHC")) && !(string_equals_ignore_case(consistencia, "EC")))
 		return;
 	if(*source == NULL)
 			 *source = string_from_format("%s", tabla);
