@@ -243,7 +243,7 @@ int configuracion_inicial() {
 	sem_init(&journal.sem, 0, 1);
 	sem_init(&journal.semRequest, 0, 1);
 
-	pthread_mutex_init(&mutexJournalSimultaneo);
+	pthread_mutex_init(&mutexJournalSimultaneo,NULL);
 	pthread_mutex_init(&mutexFull, NULL);
 	pthread_mutex_init(&mutexMemoria, NULL);
 	pthread_mutex_init(&mutexTablaSegmentos, NULL);
