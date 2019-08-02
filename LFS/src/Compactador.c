@@ -291,7 +291,7 @@ static void agregarRegistro(t_list *lista, Registro *registro){
 
 
 
-
+/*
 static void verDiccionarioDebug(t_dictionary *registrosDeParticiones){
 	void dictionary_element_viewer(char *key, void *data){
 		void list_viewer(void *registro){
@@ -304,7 +304,7 @@ static void verDiccionarioDebug(t_dictionary *registrosDeParticiones){
 	dictionary_iterator(registrosDeParticiones, dictionary_element_viewer);
 
 }
-
+*/
 
 
 

@@ -457,7 +457,7 @@ int escribirBloquesDump(t_list* listaDeRegistros, char* nombreTabla, char* pathA
 	char **registrosBloques = generarRegistroBloque(listaDeRegistros);
 	char* pathBloque;
 
-	void escribirEnBloques(char *linea){
+	void escribirEnBloquesDump(char *linea){
 		char* bloque = getBloqueLibre();
 		pathBloque = string_from_format("%sBloques/%s.bin", config.punto_montaje,bloque);
 		agregarBloqueEnDump(bloque, nombreTabla, pathArchivo);
@@ -470,16 +470,16 @@ int escribirBloquesDump(t_list* listaDeRegistros, char* nombreTabla, char* pathA
 			close(fdBloque);
 			return;
 		}
-		ftruncate(fdBloque, strlen(linea)); //strlen linea va a ser menor o igual a size. Si lo hago por el size, y nosotros escribimos menos del size, entonces se va a ver obligado a rellenar el resto del archivo con caracteres feos
+		ftruncate(fdBloque, strlen(linea));
 		char* textoBloque = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fdBloque, 0);
-		memcpy(textoBloque, linea, strlen(linea)); //strlen linea va a ser menor o igual a size. La linea contiene \n al finalizar cada registro. Contiene \0 al final pero el strlen no lo tiene en cuenta
+		memcpy(textoBloque, linea, strlen(linea));
 		msync(textoBloque, size, MS_SYNC);
 		free(pathBloque);
 		munmap(textoBloque, size);
 		actualizarTamanioEnDump(strlen(linea), nombreTabla, pathArchivo);
 		close(fdBloque);
 	}
-	string_iterate_lines(registrosBloques, escribirEnBloques);
+	string_iterate_lines(registrosBloques, escribirEnBloquesDump);
 	if(registrosBloques){
 		string_iterate_lines(registrosBloques, (void*)free);
 		free(registrosBloques);
