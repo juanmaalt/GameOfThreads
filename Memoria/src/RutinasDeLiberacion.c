@@ -67,7 +67,9 @@ void liberarSegmento(void* segmentoAdestruir) {
 
 void liberarRecursos(void) {
 	log_info(logger_visible,"Finalizando proceso Memoria...");
-	printf(GRN"\n█▀▀▀ █▀▀█ █▀▄▀█ █▀▀ 　 █▀▀█ █▀▀ 　 ▀▀█▀▀ █░░█ █▀▀█ █▀▀ █▀▀█ █▀▀▄ █▀▀ \n█░▀█ █▄▄█ █░▀░█ █▀▀ 　 █░░█ █▀▀ 　 ░░█░░ █▀▀█ █▄▄▀ █▀▀ █▄▄█ █░░█ ▀▀█ \n▀▀▀▀ ▀░░▀ ▀░░░▀ ▀▀▀ 　 ▀▀▀▀ ▀░░ 　 ░░▀░░ ▀░░▀ ▀░▀▀ ▀▀▀ ▀░░▀ ▀▀▀░ ▀▀▀ \n\n"STD);
+	printf(GRN"\n  #####                               #######         \n #     #    ##    #    #  ######      #     #  ###### \n #         #  #   ##  ##  #           #     #  #      \n #  ####  #    #  # ## #  #####       #     #  #####  \n #     #  ######  #    #  #           #     #  #      \n #     #  #    #  #    #  #           #     #  #      \n  #####   #    #  #    #  ######      #######  #      \n"STD);
+	printf("\n");
+	printf(GRN"#######                                                 \n   #     #    #  #####   ######    ##    #####    ####  \n   #     #    #  #    #  #        #  #   #    #  #      \n   #     ######  #    #  #####   #    #  #    #   ####  \n   #     #    #  #####   #       ######  #    #       # \n   #     #    #  #   #   #       #    #  #    #  #    # \n   #     #    #  #    #  ######  #    #  #####    ####   \n\n"STD);
 	if (memoriaPrincipal.memoria != NULL)
 		free(memoriaPrincipal.memoria);
 
