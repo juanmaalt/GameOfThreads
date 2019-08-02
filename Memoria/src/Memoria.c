@@ -133,7 +133,7 @@ void *connection_handler(void *nSocket) {
 		copiaComandoParseable = string_from_format(resultado.Argumentos.COMANDO.comandoParseable);
 
 		resultado = ejecutarOperacion(resultado.Argumentos.COMANDO.comandoParseable, false);
-
+		free(resultado.Argumentos.COMANDO.comandoParseable);
 		loggearRetorno(resultado, logger_invisible);
 		send_msg(socket, resultado);
 		if(resultado.TipoDeMensaje== ERROR_MEMORIAFULL){
