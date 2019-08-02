@@ -73,6 +73,9 @@ t_list *idsExecInstances;
 sem_t disponibilidadPlanificador; //Para que la consola no pueda mandarle algo al planificador si no se inicio
 sem_t scriptEnReady; //Para saber si hay algo en ready o no, y no estar preguntando permanentemente
 sem_t dormirProcesoPadre;
+sem_t mutexQuantumRefresh;
+sem_t mutexMetadataRefresh;
+sem_t mutexRetardoRefresh;
 
 //GLOBALES: semaforos mutex: solo se sincroniza la escritura, no la lectura
 sem_t mutexColaReady;

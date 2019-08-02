@@ -43,14 +43,14 @@ Memoria *determinar_memoria_para_tabla(char *nombreTabla, char *keyDeSerNecesari
 	MetadataTabla *tabla;
 	if(nombreTabla == NULL){
 		log_error(logger_error, "Sistema_de_criterios.c: determinar_memoria_para_tabla: no se especifico el nombre de la tabla");
-		log_info(logger_invisible, "Sistema_de_criterios.c: determinar_memoria_para_tabla: no se especifico el nombre de la tabla");
+		log_error(logger_invisible, "Sistema_de_criterios.c: determinar_memoria_para_tabla: no se especifico el nombre de la tabla");
 		return NULL;
 	}
 
 	sem_wait(&mutexTablasExistentes);
 	if((tabla = machearTabla(nombreTabla)) == NULL){
 		log_error(logger_error, "Sistema_de_criterios.c: determinar_memoria_para_tabla: la tabla no existe o aun no se conoce");
-		log_info(logger_invisible, "Sistema_de_criterios.c: determinar_memoria_para_tabla: la tabla no existe o aun no se conoce");
+		log_error(logger_invisible, "Sistema_de_criterios.c: determinar_memoria_para_tabla: la tabla no existe o aun no se conoce");
 		sem_post(&mutexTablasExistentes);
 		return NULL;
 	}
@@ -85,7 +85,7 @@ Memoria *determinar_memoria_para_tabla(char *nombreTabla, char *keyDeSerNecesari
 
 Memoria *elegir_cualquiera(){
 	if(memoriasExistentes == NULL){
-		log_error(logger_visible, "Sistema_de_criterios.c: elegir_cualquiera: null pointer exception");
+		log_error(logger_error, "Sistema_de_criterios.c: elegir_cualquiera: null pointer exception");
 		log_error(logger_invisible, "Sistema_de_criterios.c: elegir_cualquiera: null pointer exception");
 		return NULL;
 	}
@@ -94,7 +94,7 @@ Memoria *elegir_cualquiera(){
 	sem_post(&mutexMemoriasExistentes);
 	if(m == NULL){
 		log_error(logger_error, "Sistema_de_criterios.c: elegir_cualquiera: no hay memorias para responder a la request.");
-		log_info(logger_invisible, "Sistema_de_criterios.c: elegir_cualquiera: no hay memorias para responder a la request.");
+		log_error(logger_invisible, "Sistema_de_criterios.c: elegir_cualquiera: no hay memorias para responder a la request.");
 	}
 	return m;
 }
@@ -105,7 +105,7 @@ Memoria *elegir_cualquiera(){
 
 int asociar_memoria(char *numeroMemoria, char *consistencia){
 	if(numeroMemoria == NULL || consistencia == NULL){
-		log_error(logger_visible, "Sistema_de_criterios.c: asociar_memoria: null pointer exception");
+		log_error(logger_error, "Sistema_de_criterios.c: asociar_memoria: null pointer exception");
 		log_error(logger_invisible, "Sistema_de_criterios.c: asociar_memoria: null pointer exception");
 		return EXIT_FAILURE;
 	}
@@ -218,7 +218,7 @@ int procesar_describe_global(char *cadenaResultadoDescribe){
 
 int procesar_describe_simple(char *cadenaResultadoDescribe, char *instruccionActual){
 	if(instruccionActual == NULL){
-		log_error(logger_visible, "Sistema_de_criterios.c: procesar_describe_simple: null pointer exception");
+		log_error(logger_error, "Sistema_de_criterios.c: procesar_describe_simple: null pointer exception");
 		log_error(logger_invisible, "Sistema_de_criterios.c: procesar_describe_simple: null pointer exception");
 		return EXIT_FAILURE;
 	}
@@ -271,7 +271,7 @@ void mostrar_describe(char *cadenaResultadoDescribe){
 	LIST: ;
 	sem_wait(&mutexTablasExistentes);
 	if(tablasExistentes == NULL){
-		log_error(logger_visible, "Sistema_de_criterios.c: mostrar_describe: null pointer exception");
+		log_error(logger_error, "Sistema_de_criterios.c: mostrar_describe: null pointer exception");
 		log_error(logger_invisible, "Sistema_de_criterios.c: mostrar_describe: null pointer exception");
 		sem_post(&mutexTablasExistentes);
 		return;
@@ -310,13 +310,13 @@ t_list *procesar_gossiping(char *cadenaResultadoGossiping){
 	for(int i=0; descompresion[i]!=NULL; i+=3){
 		int socket;
 		if(!esNumerica(descompresion[i], false)){
-			log_error(logger_visible, "Sistema_de_criterios.c: procesar_gossiping: datos corruptos en el gossiping enviado por la memoria. Se recibio '%s' en lugar de un valor numerico", descompresion[i]);
+			log_error(logger_error, "Sistema_de_criterios.c: procesar_gossiping: datos corruptos en el gossiping enviado por la memoria. Se recibio '%s' en lugar de un valor numerico", descompresion[i]);
 			log_error(logger_invisible, "Sistema_de_criterios: procesar_gossiping: datos corruptos en el gossiping enviado por la memoria Se recibio '%s' en lugar de un valor numerico", descompresion[i]);
 			list_destroy(lista); //TODO: si esta idea funciona para no recibir basura del gossiping, probar eliminar tambien posibles nodos de la lista
 			return NULL;
 		}
 		if(descompresion[i+1] == NULL || descompresion[i+2] == NULL){
-			log_error(logger_visible, "Sistema_de_criterios.c: procesar_gossiping: datos corruptos en el gossiping enviado por la memoria. Null pointer exception");
+			log_error(logger_error, "Sistema_de_criterios.c: procesar_gossiping: datos corruptos en el gossiping enviado por la memoria. Null pointer exception");
 			log_error(logger_invisible, "Sistema_de_criterios: procesar_gossiping: datos corruptos en el gossiping enviado por la memoria. Null pointer exception");
 			list_destroy(lista);
 			return NULL;
@@ -339,7 +339,7 @@ t_list *procesar_gossiping(char *cadenaResultadoGossiping){
 
 Consistencia consistencia_de_tabla(char *nombreTabla){
 	if(nombreTabla == NULL){
-		log_error(logger_visible, "Sistema_de_criterios.c: consistencia_de_tabla: null pointer exception");
+		log_error(logger_error, "Sistema_de_criterios.c: consistencia_de_tabla: null pointer exception");
 		log_error(logger_invisible, "Sistema_de_criterios.c: consistencia_de_tabla: null pointer exception");
 		return NULL_CONSISTENCY;
 	}
@@ -358,7 +358,7 @@ Consistencia consistencia_de_tabla(char *nombreTabla){
 
 void remover_memoria(Memoria *memoria_a_remover){
 	if(memoria_a_remover == NULL){
-		log_error(logger_visible, "Sistema_de_criterios.c: remover_memoria: null pointer exception");
+		log_error(logger_error, "Sistema_de_criterios.c: remover_memoria: null pointer exception");
 		log_error(logger_invisible, "Sistema_de_criterios.c: remover_memoria: null pointer exception");
 		return;
 	}
@@ -391,7 +391,7 @@ void remover_memoria(Memoria *memoria_a_remover){
 
 void remover_metadata_tabla(MetadataTabla *tabla){
 	if(tabla == NULL){
-		log_error(logger_visible, "Sistema_de_criterios.c: remover_metadata_tabla: null pointer exception");
+		log_error(logger_error, "Sistema_de_criterios.c: remover_metadata_tabla: null pointer exception");
 		log_error(logger_invisible, "Sistema_de_criterios.c: remover_metadata_tabla: null pointer exception");
 		return;
 	}
@@ -414,7 +414,7 @@ void remover_metadata_tabla(MetadataTabla *tabla){
 
 void agregar_sin_repetidos(t_list *memoriasExistentes, t_list *seedsDeLaMemoria){
 	if(memoriasExistentes == NULL || seedsDeLaMemoria == NULL){
-		log_error(logger_visible, "Sistema_de_criterios.c: agregar_sin_repetidos: null pointer exception");
+		log_error(logger_error, "Sistema_de_criterios.c: agregar_sin_repetidos: null pointer exception");
 		log_error(logger_invisible, "Sistema_de_criterios.c: agregar_sin_repetidos: null pointer exception");
 		return;
 	}
@@ -439,14 +439,14 @@ void agregar_sin_repetidos(t_list *memoriasExistentes, t_list *seedsDeLaMemoria)
 
 void agregar_metadata_tabla(char *nombre, char *consistencia, char *particiones, char *tiempoEntreCompactacion){
 	if(nombre == NULL || consistencia == NULL || particiones == NULL || tiempoEntreCompactacion == NULL){
-		log_error(logger_visible, "Sistema_de_criterios.c: remover_metadata_tabla: null pointer exception");
+		log_error(logger_error, "Sistema_de_criterios.c: remover_metadata_tabla: null pointer exception");
 		log_error(logger_invisible, "Sistema_de_criterios.c: remover_metadata_tabla: null pointer exception");
 		return;
 	}
 
 	MetadataTabla *tabla = crear_tabla(nombre, consistencia, particiones, tiempoEntreCompactacion);
 	if(tabla == NULL){
-		log_error(logger_visible, "Sistema_de_criterios.c: agregar_metadata_tabla: no se puede agregar la metadata de la tabla %s", nombre);
+		log_error(logger_error, "Sistema_de_criterios.c: agregar_metadata_tabla: no se puede agregar la metadata de la tabla %s", nombre);
 		log_error(logger_invisible, "Sistema_de_criterios.c: agregar_metadata_tabla: no se puede agregar la metadata de la tabla %s", nombre);
 		return;
 	}
@@ -461,13 +461,13 @@ void agregar_metadata_tabla(char *nombre, char *consistencia, char *particiones,
 
 bool tabla_esta_en_la_lista(char *tabla){
 	if(tabla == NULL){
-		log_error(logger_visible, "Sistema_de_criterios.c: tabla_esta_en_la_lista: null pointer exception");
+		log_error(logger_error, "Sistema_de_criterios.c: tabla_esta_en_la_lista: null pointer exception");
 		log_error(logger_invisible, "Sistema_de_criterios.c: taba_esta_en_la_lista: null pointer exception");
 		return false;
 	}
 	if(tablasExistentes == NULL){
 		log_error(logger_error, "Sistema_de_criterios.c: tabla_esta_en_la_lista: aun no existen tablas conocidas en el sistema");
-		log_info(logger_invisible, "Sistema_de_criterios.c: tabla_esta_en_la_lista: aun no existen tablas conocidas en el sistema");
+		log_error(logger_invisible, "Sistema_de_criterios.c: tabla_esta_en_la_lista: aun no existen tablas conocidas en el sistema");
 		return false;
 	}
 	bool buscar(void *elemento){
@@ -490,7 +490,7 @@ void eliminar_todas_las_tablas(){
 
 void eliminar_todas_las_memorias(t_list *lista){
 	if(lista == NULL){
-		log_error(logger_visible, "Sistema_de_criterios.c: eliminar_todas_las_memorias: null pointer exception");
+		log_error(logger_error, "Sistema_de_criterios.c: eliminar_todas_las_memorias: null pointer exception");
 		log_error(logger_invisible, "Sistema_de_criterios.c: eliminar_todas_las_memorias: null pointer exception");
 		return;
 	}
@@ -526,13 +526,13 @@ static bool memoria_esta_en_la_lista(t_list *lista, int numeroMemoria){
 
 static MetadataTabla *machearTabla(char *tabla){
 	if(tabla == NULL){
-		log_error(logger_visible, "Sistema_de_criterios.c: machearTabla: null pointer exception");
+		log_error(logger_error, "Sistema_de_criterios.c: machearTabla: null pointer exception");
 		log_error(logger_invisible, "Sistema_de_criterios.c: machearTabla: null pointer exception");
 		return NULL;
 	}
 	if(tablasExistentes == NULL){
 		log_error(logger_error, "Sistema_de_criterios.c: machearTabla: aun no existen tablas conocidas en el sistema");
-		log_info(logger_invisible, "Sistema_de_criterios.c: machearTabla: aun no existen tablas conocidas en el sistema");
+		log_error(logger_invisible, "Sistema_de_criterios.c: machearTabla: aun no existen tablas conocidas en el sistema");
 		return NULL;
 	}
 	bool buscar(void *elemento){
@@ -563,7 +563,7 @@ static Memoria *machearMemoria(int numeroMemoria){
 
 static Memoria *sc_determinar_memoria(MetadataTabla *tabla){
 	if(tabla == NULL){
-		log_error(logger_visible, "Sistema_de_criterios.c: sc_determinar_memoria: null pointer exception");
+		log_error(logger_error, "Sistema_de_criterios.c: sc_determinar_memoria: null pointer exception");
 		log_error(logger_invisible, "Sistema_de_criterios.c: sc_determinar_memoria: null pointer exception");
 		return NULL;
 	}
@@ -589,7 +589,7 @@ static Memoria *sc_determinar_memoria(MetadataTabla *tabla){
 
 static Memoria *hsc_determinar_memoria(MetadataTabla *tabla, char *key){ //La verdad que la tabla no se usa para nada pero bueno paja
 	if(tabla == NULL){
-		log_error(logger_visible, "Sistema_de_criterios.c: hsc_determinar_memoria: null pointer exception");
+		log_error(logger_error, "Sistema_de_criterios.c: hsc_determinar_memoria: null pointer exception");
 		log_error(logger_invisible, "Sistema_de_criterios.c: hsc_determinar_memoria: null pointer exception");
 		return NULL;
 	}
@@ -599,7 +599,7 @@ static Memoria *hsc_determinar_memoria(MetadataTabla *tabla, char *key){ //La ve
 
 	if(list_is_empty(memoriasHSC)){
 		log_error(logger_error, "Sistema_de_criterios.c: hsc_determinar_memoria: No se puede responder la request por que no hay memorias Hash Strong Consistency disponibles");
-		log_info(logger_invisible, "Sistema_de_criterios.c: hsc_determinar_memoria: No se puede responder la request por que no hay memorias Hash Strong Consistency disponibles");
+		log_error(logger_invisible, "Sistema_de_criterios.c: hsc_determinar_memoria: No se puede responder la request por que no hay memorias Hash Strong Consistency disponibles");
 		return NULL;
 	}
 	return key == NULL ? (Memoria*)list_get(memoriasHSC, 0) : (Memoria*)list_get(memoriasHSC, getHash(key, list_size(memoriasHSC)));
@@ -611,7 +611,7 @@ static Memoria *hsc_determinar_memoria(MetadataTabla *tabla, char *key){ //La ve
 
 static Memoria *ec_determinar_memoria(MetadataTabla *tabla){
 	if(tabla == NULL){
-		log_error(logger_visible, "Sistema_de_criterios.c: ec_determinar_memoria: null pointer exception");
+		log_error(logger_error, "Sistema_de_criterios.c: ec_determinar_memoria: null pointer exception");
 		log_error(logger_invisible, "Sistema_de_criterios.c: ec_determinar_memoria: null pointer exception");
 		return NULL;
 	}
@@ -621,7 +621,7 @@ static Memoria *ec_determinar_memoria(MetadataTabla *tabla){
 
 	if(list_is_empty(memoriasEC)){
 		log_error(logger_error, "Sistema_de_criterios.c: ec_determinar_memoria: No se puede responder la request por que no hay memorias Eventual Consistency disponibles");
-		log_info(logger_invisible, "Sistema_de_criterios.c: ec_determinar_memoria: No se puede responder la request por que no hay memorias Eventual Consistency disponibles");
+		log_error(logger_invisible, "Sistema_de_criterios.c: ec_determinar_memoria: No se puede responder la request por que no hay memorias Eventual Consistency disponibles");
 		return NULL;
 	}
 	return (Memoria*)list_get(memoriasEC, getNumberUntil(list_size(memoriasEC)));
@@ -633,7 +633,7 @@ static Memoria *ec_determinar_memoria(MetadataTabla *tabla){
 
 static MetadataTabla *crear_tabla(char* nombre, char *consistencia, char *particiones, char *tiempoEntreCompactacion){
 	if(nombre == NULL || consistencia == NULL || particiones == NULL || tiempoEntreCompactacion == NULL){
-		log_error(logger_visible, "Sistema_de_criterios.c: crear_tabla: null pointer exception");
+		log_error(logger_error, "Sistema_de_criterios.c: crear_tabla: null pointer exception");
 		log_error(logger_invisible, "Sistema_de_criterios.c: creat_tabla: null pointer exception");
 		return NULL;
 	}
@@ -659,7 +659,7 @@ static MetadataTabla *crear_tabla(char* nombre, char *consistencia, char *partic
 
 static void remover_referencia_tabla(MetadataTabla *tabla){
 	if(tabla == NULL){
-		log_error(logger_visible, "Sistema_de_criterios.c: remover_referencia_tabla: null pointer exception");
+		log_error(logger_error, "Sistema_de_criterios.c: remover_referencia_tabla: null pointer exception");
 		log_error(logger_invisible, "Sistema_de_criterios.c: remover_referencia_tabla: null pointer exception");
 		return;
 	}
@@ -678,7 +678,7 @@ static void remover_referencia_tabla(MetadataTabla *tabla){
 
 static Memoria *crear_memoria(int numero, char *ip, char *puerto){
 	if(ip == NULL || puerto == NULL){
-		log_error(logger_visible, "Sistema_de_criterios.c: crear_memoria: null pointer exception");
+		log_error(logger_error, "Sistema_de_criterios.c: crear_memoria: null pointer exception");
 		log_error(logger_invisible, "Sistema_de_criterios.c: crear_memoria: null pointer exception");
 		return NULL;
 	}

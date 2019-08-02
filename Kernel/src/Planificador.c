@@ -90,7 +90,10 @@ static int iniciar_describe_automatico(){
 
 void *describe_automatico(void *null){
 	for(;;){
-		usleep(vconfig.refreshMetadata*1000);
+		sem_wait(&mutexMetadataRefresh);
+		int refreshMetadataBuffer = vconfig.refreshMetadata;
+		sem_post(&mutexMetadataRefresh);
+		usleep(refreshMetadataBuffer*1000);
 		Memoria *memoria = elegir_cualquiera();
 		if(memoria == NULL) continue;
 		int socketMemoria = solicitar_socket(memoria);
@@ -133,5 +136,8 @@ void desalojar(PCB *pcb){
 }
 
 void simular_retardo(void){
-	usleep(vconfig.retardo * 1000);
+	sem_wait(&mutexRetardoRefresh);
+	int retardoBuffer = vconfig.retardo;
+	sem_post(&mutexRetardoRefresh);
+	usleep(retardoBuffer * 1000);
 }
