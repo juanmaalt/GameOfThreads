@@ -191,7 +191,9 @@ void levantarTablasExistentes(){
 			nombreCarpeta = entry->d_name; //REVISION ya no se pide memoria para nombreCarpeta
 			if(!strcmp(nombreCarpeta, ".") || !strcmp(nombreCarpeta, "..")){
 			}else{
+				sem_wait(&mutexAgregarTablaMemtable);
 				crearTablaEnMemtable(nombreCarpeta); //REVISION como no se pide memoria, esta funcion la reserva
+				sem_post(&mutexAgregarTablaMemtable);
 
 				SemaforoCompactacion *semt = malloc(sizeof(SemaforoCompactacion));
 				sem_init(&(semt->semaforoGral), 0, 1);

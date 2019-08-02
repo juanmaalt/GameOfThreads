@@ -392,7 +392,9 @@ void* dump(){
 
 	for(;;){
 		usleep(vconfig.tiempoDump * 1000);
+		sem_wait(&mutexAgregarTablaMemtable);
 		dictionary_iterator(memtable, dumpTabla);
+		sem_post(&mutexAgregarTablaMemtable);
 	}
 	return NULL;
 }
@@ -422,11 +424,15 @@ int cuentaArchivos(char* path) {
 }
 
 void dumpTabla(char* nombreTable, void* value){
+	sem_wait(&mutexMemtable);
 	t_list* list = (t_list*) value;
 	if(list==NULL || list_size(list)==0){
 		//TODO:log
+		sem_post(&mutexMemtable);
 		return;
 	}
+	sem_post(&mutexMemtable);
+
 	char* path = string_from_format("%sTables/%s", config.punto_montaje, nombreTable);
 
 	int numeroDump = cuentaArchivos(path);

@@ -229,9 +229,9 @@ Operacion createAPI(Comando comando){
 	crearArchivosBinarios(path, atoi(comando.argumentos.CREATE.numeroParticiones));
 
 	/*Creo la Tabla en la Memtable*/
-	sem_wait(&mutexMemtable);
+	sem_wait(&mutexAgregarTablaMemtable);
 	crearTablaEnMemtable(comando.argumentos.CREATE.nombreTabla);
-	sem_post(&mutexMemtable);
+	sem_post(&mutexAgregarTablaMemtable);
 
 	SemaforoCompactacion *semt = malloc(sizeof(SemaforoCompactacion));
 	sem_init(&(semt->semaforoGral), 0, 1);
