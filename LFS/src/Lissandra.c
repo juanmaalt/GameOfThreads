@@ -309,11 +309,12 @@ Operacion ejecutarOperacion(char* input) {
 			retorno = dropAPI(*parsed);
 			break;
 		case RUN:
-			liberarBloque(atoi(parsed->argumentos.RUN.path));
+			//liberarBloque(atoi(parsed->argumentos.RUN.path));
 			//compactar(parsed->argumentos.RUN.path);
 			break;
 		case JOURNAL:
-			getBloqueLibre();
+			dump();
+			//getBloqueLibre();
 			break;
 		default:
 			fprintf(stderr, RED"No se pude interpretar el enum: %d"STD"\n",parsed->keyword);
@@ -434,16 +435,8 @@ void dumpTabla(char* nombreTable, void* value){
 
 	char* pathArchivo = string_from_format("%s/D%d.tmp", path, numeroDump);
 
-	FILE* file = fopen(pathArchivo,"w");
+	escribirBloquesDump(list, nombreTable, pathArchivo);
 
-	void dumpearTodosLosRegistros(void* reg){
-		Registro* registro = (Registro*) reg;
-		dumpRegistro(file, registro);
-	}
-
-	list_iterate(list, dumpearTodosLosRegistros);
-
-	fclose(file);
 	free(pathArchivo);
 	free(path);
 
@@ -458,6 +451,42 @@ void dumpTabla(char* nombreTable, void* value){
 void dumpRegistro(FILE* file, Registro* registro) {
 	fprintf(file, "%llu;%d;%s\n", registro->timestamp, registro->key, registro->value);
 }
+
+int escribirBloquesDump(t_list* listaDeRegistros, char* nombreTabla, char* pathArchivo){
+	int size = metadataFS.blockSize;
+	char **registrosBloques = generarRegistroBloque(listaDeRegistros);
+	char* pathBloque;
+
+	void escribirEnBloques(char *linea){
+		char* bloque = getBloqueLibre();
+		pathBloque = string_from_format("%sBloques/%s.bin", config.punto_montaje,bloque);
+		agregarBloqueEnDump(bloque, nombreTabla, pathArchivo);
+		free(bloque);
+		int fdBloque = open(pathBloque, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+		if(fdBloque == -1){
+			log_error(logger_visible, "No se pudieron abrir los bloques");
+			log_error(logger_error, "No se pudieron abrir los bloques");
+			free(pathBloque);
+			close(fdBloque);
+			return;
+		}
+		ftruncate(fdBloque, strlen(linea)); //strlen linea va a ser menor o igual a size. Si lo hago por el size, y nosotros escribimos menos del size, entonces se va a ver obligado a rellenar el resto del archivo con caracteres feos
+		char* textoBloque = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fdBloque, 0);
+		memcpy(textoBloque, linea, strlen(linea)); //strlen linea va a ser menor o igual a size. La linea contiene \n al finalizar cada registro. Contiene \0 al final pero el strlen no lo tiene en cuenta
+		msync(textoBloque, size, MS_SYNC);
+		free(pathBloque);
+		munmap(textoBloque, size);
+		actualizarTamanioEnDump(strlen(linea), nombreTabla, pathArchivo);
+		close(fdBloque);
+	}
+	string_iterate_lines(registrosBloques, escribirEnBloques);
+	if(registrosBloques){
+		string_iterate_lines(registrosBloques, (void*)free);
+		free(registrosBloques);
+	}
+	return EXIT_SUCCESS;
+}
+
 /*FIN FUNCIONES DUMP*/
 
 /*INICIO FSEEK*/

@@ -131,6 +131,7 @@ void setPathTabla(char* path, char* nombreTabla);
 void* dump();
 void dumpRegistro(FILE* file, Registro* registro);
 void dumpTabla(char* nombreTable, void* value);
+int escribirBloquesDump(t_list* listaDeRegistros, char* nombreTabla, char* pathArchivo);
 
 #endif /* LISSANDRA_H_ */
 
