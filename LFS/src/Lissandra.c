@@ -440,8 +440,9 @@ void dumpTabla(char* nombreTable, void* value){
 		Registro* registro = (Registro*) reg;
 		dumpRegistro(file, registro);
 	}
-
+	sem_wait(&mutexMemtable);
 	list_iterate(list, dumpearTodosLosRegistros);
+	sem_post(&mutexMemtable);
 
 	fclose(file);
 	free(pathArchivo);
@@ -451,8 +452,9 @@ void dumpTabla(char* nombreTable, void* value){
 		free(((Registro*)elem)->value);
 		free(((Registro*)elem));
 	}
-
+	sem_wait(&mutexMemtable);
 	list_clean_and_destroy_elements(list, eliminarRegistro);
+	sem_post(&mutexMemtable);
 }
 
 void dumpRegistro(FILE* file, Registro* registro) {
