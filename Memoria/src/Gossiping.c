@@ -275,23 +275,24 @@ void ConsultoPorMemoriasConocidas(int socketSEEDS) {
 
 
 
-Operacion recibir_gossiping(Operacion resultado) {
+Operacion recibir_gossiping(Operacion request) {
+	Operacion resultado;
 	knownMemory_t * recupero;
 	char * envio = NULL;
 	log_info(logger_gossiping,
 			"GOSSIPING.C:recibir_gossiping: ENTRO FUNCION RECIBIR GOSSIPING");
 	//pthread_mutex_lock(&mutexGossiping);
-	if (resultado.TipoDeMensaje == GOSSIPING_REQUEST) {	// si es gossping request, proceso las memorias que me envian
+	if (request.TipoDeMensaje == GOSSIPING_REQUEST) {	// si es gossping request, proceso las memorias que me envian
 		t_list *aux = list_create();
 		t_list *aux_filtro = list_create();
 		//pthread_mutex_lock(&mutexGossiping);
 		log_info(logger_gossiping,
-				"GOSSIPING.C:recibir_gossiping: Mensaje recibido %s",resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
+				"GOSSIPING.C:recibir_gossiping: Mensaje recibido %s",request.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 		//log_info(logger_gossiping,
 				//"GOSSIPING.C:recibir_gossiping: Recibo mensaje gossiping: %s",
 				//resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 		char **descompresion = descomprimir_memoria(
-				resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
+				request.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 		//pthread_mutex_lock(&mutexGossiping);
 		list_add_all(aux, listaMemoriasConocidas);
 		pthread_mutex_lock(&mutexGossiping);
@@ -355,7 +356,7 @@ Operacion recibir_gossiping(Operacion resultado) {
 		listaMemoriasConocidas = list_duplicate(aux); //Duplico la lista auxiliar con todos los elementos del nuevo describe, manteniendo los del anterior describe (son sus respecrtivos atributos de criterios), y eliminando los viejos (ya que nunca se agregaron a la listaAuxiliar)
 		//pthread_mutex_unlock(&mutexGossiping);
 		list_destroy(aux);
-		free(resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
+		//free(resultado.Argumentos.GOSSIPING_REQUEST.resultado_comprimido);
 		pthread_mutex_unlock(&mutexGossiping);
 		// Ya agregue las memorias que me llegaron
 		// Logica para enviar mi lista

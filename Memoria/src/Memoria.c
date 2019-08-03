@@ -135,7 +135,7 @@ void *connection_handler(void *nSocket) {
 
 		resultado = ejecutarOperacion(request.Argumentos.COMANDO.comandoParseable, false);
 
-		free(request.Argumentos.COMANDO.comandoParseable);
+		//free(request.Argumentos.COMANDO.comandoParseable);
 
 		loggearRetorno(resultado, logger_invisible);
 		send_msg(socket, resultado);
@@ -144,6 +144,7 @@ void *connection_handler(void *nSocket) {
 			resultado = ejecutarOperacion(copiaComandoParseable, false);
 			send_msg(socket, resultado);
 		}
+		destruir_operacion(resultado);
 		free(copiaComandoParseable);
 
 		break;
@@ -155,10 +156,12 @@ void *connection_handler(void *nSocket) {
 		break;
 	case GOSSIPING_REQUEST:
 		resultado = recibir_gossiping(request);
+		destruir_operacion(resultado);
 		send_msg(socket, resultado);
 		break;
 	case GOSSIPING_REQUEST_KERNEL:
 		resultado = recibir_gossiping(request);
+		destruir_operacion(resultado);
 		send_msg(socket, resultado);
 		break;
 	default:
@@ -166,8 +169,7 @@ void *connection_handler(void *nSocket) {
 				resultado.TipoDeMensaje);
 	}
 
-	//Podríamos meter un counter y que cada X mensajes recibidos corra el gossiping
-	destruir_operacion(resultado);
+	destruir_operacion(request);
 	close(socket);
 	free(nSocket);
 	return NULL;
