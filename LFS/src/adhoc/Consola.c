@@ -46,7 +46,7 @@ void *recibir_comandos(void *null){
 	for(;;){
 		char *userInput = readline("> ");
 		retorno = ejecutarOperacion(userInput);
-		mostrarRetorno(retorno);
+		//mostrarRetorno(retorno);
 		free(userInput);
 		destruir_operacion(retorno);
 	}

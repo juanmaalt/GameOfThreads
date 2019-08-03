@@ -331,7 +331,7 @@ Operacion ejecutarOperacion(char* input) {
 
 	retorno.TipoDeMensaje = ERROR;
 	retorno.Argumentos.ERROR.mensajeError=string_from_format("Error en la recepcion del resultado.");
-	mostrarRetorno(retorno);
+	log_error(logger_visible,"<ERROR>\n%s",retorno.Argumentos.ERROR.mensajeError);
 
 	return retorno;
 }

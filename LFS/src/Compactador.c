@@ -69,6 +69,7 @@ void* compactar(void* nombreTabla){
 			desbloquearTabla((char*) nombreTabla);
 			continue;
 		}
+
 		if(directory_iterate_if(pathTabla, es_tmpc, iterar_tmpc)==EXIT_FAILURE){
 			log_error(logger_invisible, "No se pudieron leer los dumps de la tabla %s, no se puede realizar la compactación.", (char*)nombreTabla);
 			log_error(logger_error, "No se pudieron leer los dumps de la tabla %s, no se puede realizar la compactación.", (char*)nombreTabla);
@@ -77,11 +78,11 @@ void* compactar(void* nombreTabla){
 			desbloquearTabla((char*) nombreTabla);
 			continue;
 		}
+
 		//verDiccionarioDebug(registrosDeParticiones);
 		bloquearSelect((char*) nombreTabla);
 		esperarSelectsActivos((char*) nombreTabla);
 		tomarTiempoInicio((char*)nombreTabla);
-
 		escribirDiccionarioEnBloques(registrosDeParticiones, (char*)nombreTabla);
 		destruirRegistrosDeParticiones(registrosDeParticiones);
 		registrosDeParticiones = dictionary_create();

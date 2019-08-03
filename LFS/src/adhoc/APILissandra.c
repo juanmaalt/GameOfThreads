@@ -190,7 +190,7 @@ Operacion insertAPI(Comando comando){
 	resultadoInsert.Argumentos.TEXTO_PLANO.texto = string_from_format("INSERT realizado con éxito.");
 	/*Libero recursos*/
 	config_destroy(metadataFile);
-
+	//printf("insert fin\n");
 	return resultadoInsert;
 }
 

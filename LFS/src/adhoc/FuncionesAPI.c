@@ -101,7 +101,6 @@ int dump_iterate_registers(char *pathDumpFile, void(*closure)(Registro*)){
 			}
 			free(nchar);
 		}
-		freopen(pathBloque, "w", stdout);
 		fclose(fBloque);
 		free(pathBloque);
 	}
@@ -109,8 +108,7 @@ int dump_iterate_registers(char *pathDumpFile, void(*closure)(Registro*)){
 	string_iterate_lines(bloques, (void* )free);
 	free(bloques);
 	free(bloquesAsignados);
-
-	return EXIT_FAILURE;
+	return EXIT_SUCCESS;
 }
 
 void simple_string_iterate(char *stringToIterate, void (*closure)(char*)){
