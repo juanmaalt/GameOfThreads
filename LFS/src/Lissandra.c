@@ -433,6 +433,7 @@ void dumpTabla(char* nombreTable, void* value){
 		return;
 	}
 	sem_post(&mutexMemtable);
+
 	char* path = string_from_format("%sTables/%s", config.punto_montaje, nombreTable);
 
 	int numeroDump = cuentaArchivos(path);

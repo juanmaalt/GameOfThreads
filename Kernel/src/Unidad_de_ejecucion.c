@@ -103,7 +103,7 @@ static DynamicAddressingRequest direccionar_request(char *request){
 	retorno.memoria = memoria;
 	retorno.socket = comunicarse_con_memoria(memoria);
 	if(retorno.socket == EXIT_FAILURE){
-		log_error(logger_visible, "Unidad_de_ejecucion.c: direccionar_request: la memoria elegida parece estar caida. Se eligira otra");
+		log_error(logger_error, "Unidad_de_ejecucion.c: direccionar_request: la memoria elegida parece estar caida. Se eligira otra");
 		log_error(logger_invisible, "Unidad_de_ejecucion.c: direccionar_request: la memoria elegida parece estar caida. Se eligira otra");
 		remover_memoria(memoria);
 		if(list_is_empty(memoriasExistentes))
@@ -196,7 +196,9 @@ static INTERNAL_STATE exec_file_lql(PCB *pcb){
 	char buffer[MAX_BUFFER_SIZE_FOR_LQL_LINE];
 	char *line = NULL;
 	FILE *lql = (FILE *)pcb->data; //Como el FILE nunca se cerro, cada vez que entre, va a continuar donde se habia quedado
+	sem_wait(&mutexQuantumRefresh);
 	int quantumBuffer = vconfig.quantum; //Para hacer la llamada una sola vez por cada exec. No se actualiza el quantum en tiempo real, pero se actualiza cuando entra un nuevo script por que ya tiene el valor actualizado
+	sem_post(&mutexQuantumRefresh);
 
 	for(int i=1; i<=quantumBuffer; ++i){
 		fgetpos(lql, &(pcb->instruccionPointer));
@@ -292,16 +294,16 @@ static INTERNAL_STATE procesar_retorno_operacion(Operacion op, PCB* pcb, char* i
 			log_info(logger_invisible,"CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta realizando Journal. Se eligira otra de manera aleatoria si el criterio lo permite", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, pcb->simbolicIP, instruccionActualTemp);
 			free(instruccionActualTemp);
 			//sleep(3);
-			return JOURNAL_MEMORY_INACCESSIBLE; //TODO: ver de solucionar espera activa
+			return JOURNAL_MEMORY_INACCESSIBLE;
 		}
-		log_error(logger_visible, "CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta realizando Journal. Se eligira otra de manera aleatoria si el criterio lo permite", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, ++pcb->simbolicIP, instruccionActualTemp);
+		log_error(logger_error, "CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta realizando Journal. Se eligira otra de manera aleatoria si el criterio lo permite", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, ++pcb->simbolicIP, instruccionActualTemp);
 		log_error(logger_invisible, "CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta realizando Journal. Se eligira otra de manera aleatoria si el criterio lo permite", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, pcb->simbolicIP, instruccionActualTemp);
 		free(instruccionActualTemp);
 		return INSTRUCCION_ERROR;
 	case ERROR_MEMORIAFULL:
 		instruccionActualTemp = remover_new_line(instruccionActual);
-		log_error(logger_visible, "CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta full. Realizar journal.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, pcb->simbolicIP, instruccionActualTemp);
-		log_error(logger_invisible, "CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta full. Realizar journal.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, pcb->simbolicIP, instruccionActualTemp);
+		log_error(logger_error, "CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta full. Realizar journal.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, pcb->simbolicIP+1, instruccionActualTemp);
+		log_error(logger_invisible, "CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> La memoria esta full. Realizar journal.", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, pcb->simbolicIP+1, instruccionActualTemp);
 		free(instruccionActualTemp);
 		destruir_operacion(op);
 		op = recv_msg(link->socket);
@@ -321,14 +323,17 @@ static INTERNAL_STATE procesar_retorno_operacion(Operacion op, PCB* pcb, char* i
 			}
 		}
 		instruccionActualTemp = remover_new_line(instruccionActual);
-		mostrar_describe(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
-		++pcb->simbolicIP;
-		log_info(logger_invisible, "Resultado describe %s: %s", instruccionActualTemp, op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
+		log_info(logger_invisible, "CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> %s", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, ++pcb->simbolicIP, instruccionActualTemp, op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
+		if(pcb->tipo == FILE_LQL){
+			log_info(logger_visible, "CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> %s", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, pcb->simbolicIP, instruccionActualTemp, op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
+		}else{
+			mostrar_describe(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
+		}
 		free(instruccionActualTemp);
 		return CONTINUE;
 	default:
 		instruccionActualTemp = remover_new_line(instruccionActual);
-		log_error(logger_visible,"CPU: %d | %s (%d) | Instruccion ilegal '%s' invalida o fuera de contexto, Path: %s", process_get_thread_id(), pcb->nombreArchivoLQL, ++pcb->simbolicIP, instruccionActualTemp, pcb->nombreArchivoLQL);
+		log_error(logger_error,"CPU: %d | %s (%d) | Instruccion ilegal '%s' invalida o fuera de contexto, Path: %s", process_get_thread_id(), pcb->nombreArchivoLQL, ++pcb->simbolicIP, instruccionActualTemp, pcb->nombreArchivoLQL);
 		log_error(logger_invisible,"CPU: | %s (%d) | Instruccion ilegal '%s' invalida o fuera de contexto, Path: %s", process_get_thread_id(), pcb->nombreArchivoLQL, pcb->simbolicIP, instruccionActualTemp, pcb->nombreArchivoLQL);
 		free(instruccionActualTemp);
 		return INSTRUCCION_ERROR;

@@ -68,6 +68,9 @@ static int configuracion_inicial(){
 	sem_init(&mutexMemoriasExistentes, 0, 1);
 	sem_init(&mutexTablasExistentes, 0, 1);
 	sem_init(&mutexMetricas, 0, 1);
+	sem_init(&mutexQuantumRefresh, 0, 1);
+	sem_init(&mutexMetadataRefresh, 0, 1);
+	sem_init(&mutexRetardoRefresh, 0, 1);
 
 	mkdir("log", 0777); //Crea la carpeta log junto al ejecutable (si ya existe no toca nada de lo que haya adentro)
 
@@ -159,12 +162,12 @@ static int inicializar_configs() {
 static void refrescar_vconfig(){
 	t_config *configFile = config_create(STANDARD_PATH_KERNEL_CONFIG);
 	if(configFile == NULL){
-		log_error(logger_visible, "inotify_service: refrescar_vconfig: el archivo de configuracion no se encontro");
+		log_error(logger_error, "inotify_service: refrescar_vconfig: el archivo de configuracion no se encontro");
 		log_error(logger_invisible, "inotify_service: refrescar_vconfig: el archivo de configuracion no se encontro");
 	}
 
 	void error(char* m){
-		log_error(logger_visible, "%s", m);
+		log_error(logger_error, "%s", m);
 		log_error(logger_invisible, "%s", m);
 	}
 
@@ -172,19 +175,31 @@ static void refrescar_vconfig(){
 		error("Kernel.c: inicializar_configs: error en la extraccion del parametro QUANTUM");
 	else if(!esNumerica(config_get_string_value(configFile, "QUANTUM"), false))
 		error("Kernel.c: inicializar_configs: el parametro QUANTUM debe ser numerico");
-	else vconfig.quantum = config_get_int_value(configFile, "QUANTUM");
+	else{
+		sem_wait(&mutexQuantumRefresh);
+		vconfig.quantum = config_get_int_value(configFile, "QUANTUM");
+		sem_post(&mutexQuantumRefresh);
+	}
 
 	if(config_get_string_value(configFile, "REFRESH_METADATA") == NULL)
 		error("Kernel.c: inicializar_configs: error en la extraccion del parametro REFRESH_METADATA");
 	else if(!esNumerica(config_get_string_value(configFile, "REFRESH_METADATA"), false))
 		error("Kernel.c: inicializar_configs: el parametro REFRESH_METADATA debe ser numerico");
-	else vconfig.refreshMetadata = config_get_int_value(configFile, "REFRESH_METADATA");
+	else{
+		sem_wait(&mutexMetadataRefresh);
+		vconfig.refreshMetadata = config_get_int_value(configFile, "REFRESH_METADATA");
+		sem_post(&mutexMetadataRefresh);
+	}
 
 	if(config_get_string_value(configFile, "SLEEP_EJECUCION") == NULL)
 		error("Kernel.c: inicializar_configs: error en la extraccion del parametro SLEEP_EJECUCION");
 	else if(!esNumerica(config_get_string_value(configFile, "SLEEP_EJECUCION"), false))
 		error("Kernel.c: inicializar_configs: el parametro SLEEP_EJECUCION debe ser numerico");
-	else vconfig.retardo = config_get_int_value(configFile, "SLEEP_EJECUCION");
+	else{
+		sem_wait(&mutexRetardoRefresh);
+		vconfig.retardo = config_get_int_value(configFile, "SLEEP_EJECUCION");
+		sem_post(&mutexRetardoRefresh);
+	}
 
 	config_destroy(configFile);
 }
@@ -270,7 +285,9 @@ static void *inotify_service(void *null){
 
 
 static void rutinas_de_finalizacion(){
-	printf(YEL"\n█▀▀▀ █▀▀█ █▀▄▀█ █▀▀ 　 █▀▀█ █▀▀ 　 ▀▀█▀▀ █░░█ █▀▀█ █▀▀ █▀▀█ █▀▀▄ █▀▀ \n█░▀█ █▄▄█ █░▀░█ █▀▀ 　 █░░█ █▀▀ 　 ░░█░░ █▀▀█ █▄▄▀ █▀▀ █▄▄█ █░░█ ▀▀█ \n▀▀▀▀ ▀░░▀ ▀░░░▀ ▀▀▀ 　 ▀▀▀▀ ▀░░ 　 ░░▀░░ ▀░░▀ ▀░▀▀ ▀▀▀ ▀░░▀ ▀▀▀░ ▀▀▀ \n\n"STD);
+	printf(YEL"\n  #####                               #######         \n #     #    ##    #    #  ######      #     #  ###### \n #         #  #   ##  ##  #           #     #  #      \n #  ####  #    #  # ## #  #####       #     #  #####  \n #     #  ######  #    #  #           #     #  #      \n #     #  #    #  #    #  #           #     #  #      \n  #####   #    #  #    #  ######      #######  #      \n"STD);
+	printf("\n");
+	printf(YEL"#######                                                 \n   #     #    #  #####   ######    ##    #####    ####  \n   #     #    #  #    #  #        #  #   #    #  #      \n   #     ######  #    #  #####   #    #  #    #   ####  \n   #     #    #  #####   #       ######  #    #       # \n   #     #    #  #   #   #       #    #  #    #  #    # \n   #     #    #  #    #  ######  #    #  #####    ####   \n\n"STD);
 	//printf(GRN"Finalizando kernel..."STD"\n");
 	log_info(logger_invisible, "=============Finalizando kernel=============");
 	finalizar_todos_los_hilos();

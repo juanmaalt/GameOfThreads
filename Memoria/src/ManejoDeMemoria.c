@@ -127,7 +127,8 @@ int realizarLRU(char* value, uint16_t key, timestamp_t ts, segmento_t * segmento
 	pthread_mutex_unlock(&mutexTablaSegmentos);
 
 	if(registroVictima != NULL){
-		log_info(logger_invisible,"ManejoDeMemoria.C: realizarLRU: liberando registro y creando uno nuevo");
+		log_info(logger_invisible,"ManejoDeMemoria.C: realizarLRU: liberando registro de segmento %s y creando uno nuevo en segmento %s",obtenerPath(segmentoDeVictima),obtenerPath(segmento));
+		//log_info(logger_invisible,"El registro contiene");
 		//Elimino el registro
 
 		bool esRegistroVictima(void * registro){

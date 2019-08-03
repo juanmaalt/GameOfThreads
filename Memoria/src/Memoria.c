@@ -120,20 +120,20 @@ int iniciar_serverMemoria(void) {
 void *connection_handler(void *nSocket) {
 	pthread_detach(pthread_self());
 	int socket = *(int*) nSocket;
+	Operacion request;
 	Operacion resultado;
 	char *copiaComandoParseable = NULL;
-	resultado = recv_msg(socket);
+	request = recv_msg(socket);
 
-	switch (resultado.TipoDeMensaje) {
+	switch (request.TipoDeMensaje) {
 	case COMANDO:
 		log_info(logger_visible, "Request recibido por SOCKET: %s",
-				resultado.Argumentos.COMANDO.comandoParseable);
+				request.Argumentos.COMANDO.comandoParseable);
 		log_info(logger_invisible, "Request recibido por SOCKET: %s",
-						resultado.Argumentos.COMANDO.comandoParseable);
-		copiaComandoParseable = string_from_format(resultado.Argumentos.COMANDO.comandoParseable);
+				request.Argumentos.COMANDO.comandoParseable);
+		copiaComandoParseable = string_from_format(request.Argumentos.COMANDO.comandoParseable);
 
-		resultado = ejecutarOperacion(resultado.Argumentos.COMANDO.comandoParseable, false);
-
+		resultado = ejecutarOperacion(request.Argumentos.COMANDO.comandoParseable, false);
 		loggearRetorno(resultado, logger_invisible);
 		send_msg(socket, resultado);
 		if(resultado.TipoDeMensaje== ERROR_MEMORIAFULL){
@@ -151,11 +151,11 @@ void *connection_handler(void *nSocket) {
 	case ERROR:
 		break;
 	case GOSSIPING_REQUEST:
-		resultado = recibir_gossiping(resultado);
+		resultado = recibir_gossiping(request);
 		send_msg(socket, resultado);
 		break;
 	case GOSSIPING_REQUEST_KERNEL:
-		resultado = recibir_gossiping(resultado);
+		resultado = recibir_gossiping(request);
 		send_msg(socket, resultado);
 		break;
 	default:
@@ -165,6 +165,7 @@ void *connection_handler(void *nSocket) {
 
 	//Podríamos meter un counter y que cada X mensajes recibidos corra el gossiping
 
+	destruir_operacion(request);
 	destruir_operacion(resultado);
 	close(socket);
 	free(nSocket);
@@ -173,8 +174,13 @@ void *connection_handler(void *nSocket) {
 
 int realizarHandshake(void) {
 	int lfsSocket = conectarLFS();
+	if (lfsSocket == EXIT_FAILURE){
+		log_error(logger_error,"Memoria.c-> realizarHandshake: Cerrar la Memoria, levantar el LFS y volver a levantar la Memoria");
+		return EXIT_FAILURE;
+	}
 	log_info(logger_visible, "Conectado al LFS. Iniciando Handshake.");
 	if (handshakeLFS(lfsSocket) == EXIT_FAILURE) {
+		log_error(logger_error,"Memoria.c-> realizarHandshake: Hubo un fallo en el Handshake");
 		return EXIT_FAILURE;
 	}
 	//printf("TAMAÑO_VALUE= %d\n", tamanioValue);

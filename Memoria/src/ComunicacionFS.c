@@ -63,7 +63,7 @@ int conectarLFS() {
 	//Obtiene el socket por el cual se va a conectar al LFS como cliente / * Conectarse al proceso File System
 	int socket = connect_to_server(fconfig.ip_fileSystem, fconfig.puerto_fileSystem);
 	if (socket == EXIT_FAILURE) {
-		log_error(logger_error,"ComunicacionFS: conectarLFS: El LFS no está levantado. Cerrar la Memoria, levantar el LFS y volver a levantar la Memoria");
+		log_error(logger_error,"ComunicacionFS: conectarLFS: Error de comunicacion. El LFS no está levantado.");
 		return EXIT_FAILURE;
 	}
 	return socket;
@@ -72,12 +72,19 @@ int conectarLFS() {
 //Para API
 
 Operacion comunicarseConLFS(char * input){
+	Operacion retorno;
 
 	int lfsSocket = conectarLFS();
 
+	if(lfsSocket == EXIT_FAILURE){
+		retorno.TipoDeMensaje=ERROR;
+		retorno.Argumentos.ERROR.mensajeError=string_from_format("ComunicacionFS-> comunicarseConLFS: no se pudo comunicar con el LFS");
+		return retorno;
+	}
+
 	enviarRequestFS(input, lfsSocket);
 
-	Operacion retorno=recibirRequestFS(lfsSocket);
+	retorno=recibirRequestFS(lfsSocket);
 
 	close(lfsSocket);
 
@@ -86,8 +93,8 @@ Operacion comunicarseConLFS(char * input){
 
 void enviarRequestFS(char* input, int lfsSocket) {
 
-
 	Operacion request;
+
 	request.TipoDeMensaje = COMANDO;
 
 	request.Argumentos.COMANDO.comandoParseable = string_from_format(input);
