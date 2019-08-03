@@ -246,8 +246,12 @@ Registro* getMasReciente(t_list* listaDeValues, t_list* listaDeValuesFiles){
 	Registro* registroMemtable = NULL;
 	Registro* registroFile = NULL;
 
-	registroMemtable = list_get(listaDeValues, 0);
-	registroFile = list_get(listaDeValuesFiles, 0);
+	if(!list_is_empty(listaDeValues)){
+		registroMemtable = list_get(listaDeValues, 0);
+	}
+	if(!list_is_empty(listaDeValuesFiles)){
+		registroFile = list_get(listaDeValuesFiles, 0);
+	}
 
 	if(registroMemtable!=NULL && registroFile!=NULL){
 		if((registroMemtable->timestamp) > (registroFile->timestamp)){

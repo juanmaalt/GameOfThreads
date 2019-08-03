@@ -455,7 +455,9 @@ void dumpTabla(char* nombreTable, void* value){
 	free(path);
 
 	void eliminarRegistro(void* elem){
-		free(((Registro*)elem)->value);
+		if(((Registro*)elem)->value!=NULL){
+			free(((Registro*)elem)->value);
+		}
 		free(((Registro*)elem));
 	}
 

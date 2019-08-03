@@ -98,7 +98,7 @@ Operacion selectAPI(Comando comando){
 	resultadoSelect.TipoDeMensaje = REGISTRO;
 	resultadoSelect.Argumentos.REGISTRO.timestamp=reg->timestamp;
 	resultadoSelect.Argumentos.REGISTRO.key=reg->key;
-	resultadoSelect.Argumentos.REGISTRO.value=string_from_format("%s",reg->value);
+	resultadoSelect.Argumentos.REGISTRO.value=string_from_format("%s",reg->value);//FIXME: Facu la concha de tu madre
 	sem_post(&mutexMemtable);
 	goto CONTINUAR;
 
@@ -151,9 +151,8 @@ Operacion insertAPI(Comando comando){
 		return resultadoInsert;
 	}
 	//checkExisteMemoria(); //Verificar si existe en memoria una lista de datos a dumpear. De no existir, alocar dicha memoria.
-	char* value = string_from_format(comando.argumentos.INSERT.value);
 
-	if(strlen(value)>atoi(config.tamanio_value)){
+	if(strlen(comando.argumentos.INSERT.value)>atoi(config.tamanio_value)){
 		log_error(logger_invisible, "El value recibido es mayor al tamaño value del sistema.");
 		log_error(logger_error, "El value recibido es mayor al tamaño value del sistema.");
 		resultadoInsert.Argumentos.ERROR.mensajeError = string_from_format("El value recibido es mayor al tamaño value del sistema.");
@@ -163,7 +162,7 @@ Operacion insertAPI(Comando comando){
 	/*Reservo espacio y aloco los datos a insertar*/
 	Registro* reg = malloc(sizeof(Registro));
 	reg->key = atoi(comando.argumentos.INSERT.key);
-	reg->value = value;
+	reg->value = string_from_format(comando.argumentos.INSERT.value);
 	reg->timestamp=checkTimestamp(comando.argumentos.INSERT.timestamp);
 
 	/*Obtengo la lista de registros a partir de la tabla solicitada*/
