@@ -156,13 +156,14 @@ void *connection_handler(void *nSocket) {
 		break;
 	case GOSSIPING_REQUEST:
 		resultado = recibir_gossiping(request);
-		destruir_operacion(resultado);
 		send_msg(socket, resultado);
+		destruir_operacion(resultado);
 		break;
 	case GOSSIPING_REQUEST_KERNEL:
 		resultado = recibir_gossiping(request);
-		destruir_operacion(resultado);
+
 		send_msg(socket, resultado);
+		destruir_operacion(resultado);
 		break;
 	default:
 		fprintf(stderr, RED"No se pude interpretar el enum %d"STD"\n",
