@@ -22,7 +22,7 @@ void loggearMemoria(void){
 										return;
 
 						}
-							log_info(logger_invisible,"	  Nro Pagina: %d",((registroTablaPag_t *) registro)->nroPagina);
+							//log_info(logger_invisible,"	  Nro Pagina: %d",((registroTablaPag_t *) registro)->nroPagina);
 							log_info(logger_invisible,"		Ultimo uso: %llu",((registroTablaPag_t *) registro)->ultimoUso);
 							log_info(logger_invisible,"		Flag Modificado: %d",((registroTablaPag_t *) registro)->flagModificado);
 							Operacion retorno=tomarContenidoPagina(*((registroTablaPag_t *) registro));
