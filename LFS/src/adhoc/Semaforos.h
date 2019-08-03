@@ -32,6 +32,7 @@
 	/*========== Mutex generales ==========*/
 
 	sem_t mutexMemtable;
+	sem_t mutexAgregarTablaMemtable;
 
 
 	/*========== Estructura semaforos de compactacion ==========*/

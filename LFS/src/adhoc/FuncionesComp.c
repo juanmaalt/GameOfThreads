@@ -43,6 +43,15 @@ char* obtenerListaDeBloques(int particion, char* nombreTabla){
 	return listaDeBloques;
 }
 
+char* obtenerListaDeBloquesDump(char* pathDump){
+	t_config* particionFile = config_create(pathDump);
+	if(particionFile == NULL)
+		return NULL;
+	char* listaDeBloques = string_from_format(config_get_string_value(particionFile, "BLOCKS"));
+	config_destroy(particionFile);
+	return listaDeBloques;
+}
+
 char* firstBloqueDisponible(char* listaDeBloques){
 	char** bloques = string_get_string_as_array(listaDeBloques);
 

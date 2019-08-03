@@ -393,7 +393,9 @@ void* dump(){
 
 	for(;;){
 		usleep(vconfig.tiempoDump * 1000);
+		sem_wait(&mutexAgregarTablaMemtable);
 		dictionary_iterator(memtable, dumpTabla);
+		sem_post(&mutexAgregarTablaMemtable);
 	}
 	return NULL;
 }
@@ -423,11 +425,14 @@ int cuentaArchivos(char* path) {
 }
 
 void dumpTabla(char* nombreTable, void* value){
+	sem_wait(&mutexMemtable);
 	t_list* list = (t_list*) value;
 	if(list==NULL || list_size(list)==0){
 		//TODO:log
+		sem_post(&mutexMemtable);
 		return;
 	}
+	sem_post(&mutexMemtable);
 	char* path = string_from_format("%sTables/%s", config.punto_montaje, nombreTable);
 
 	int numeroDump = cuentaArchivos(path);
@@ -435,8 +440,16 @@ void dumpTabla(char* nombreTable, void* value){
 
 	char* pathArchivo = string_from_format("%s/D%d.tmp", path, numeroDump);
 
+	FILE *dump = fopen(pathArchivo, "w");
+
+	dump = txt_open_for_append(pathArchivo);
+	char* text=string_from_format("SIZE=0\nBLOCKS=[]\n");
+	txt_write_in_file(dump, text);
+	free(text);
+
 	escribirBloquesDump(list, nombreTable, pathArchivo);
 
+	fclose(dump);
 	free(pathArchivo);
 	free(path);
 
@@ -445,7 +458,9 @@ void dumpTabla(char* nombreTable, void* value){
 		free(((Registro*)elem));
 	}
 
+	sem_wait(&mutexMemtable);
 	list_clean_and_destroy_elements(list, eliminarRegistro);
+	sem_post(&mutexMemtable);
 }
 
 void dumpRegistro(FILE* file, Registro* registro) {
@@ -454,7 +469,9 @@ void dumpRegistro(FILE* file, Registro* registro) {
 
 int escribirBloquesDump(t_list* listaDeRegistros, char* nombreTabla, char* pathArchivo){
 	int size = metadataFS.blockSize;
+	sem_wait(&mutexMemtable);
 	char **registrosBloques = generarRegistroBloque(listaDeRegistros);
+	sem_post(&mutexMemtable);
 	char* pathBloque;
 
 	void escribirEnBloquesDump(char *linea){
@@ -468,6 +485,10 @@ int escribirBloquesDump(t_list* listaDeRegistros, char* nombreTabla, char* pathA
 			log_error(logger_error, "No se pudieron abrir los bloques");
 			free(pathBloque);
 			close(fdBloque);
+			if(registrosBloques){
+				string_iterate_lines(registrosBloques, (void*)free);
+				free(registrosBloques);
+			}
 			return;
 		}
 		ftruncate(fdBloque, strlen(linea));
@@ -554,7 +575,9 @@ Registro* fseekBloque(int key, char* listaDeBloques){
 /*FIN FSEEK*/
 
 void rutinas_de_finalizacion(){
-	printf(BLU"\n█▀▀▀ █▀▀█ █▀▄▀█ █▀▀ 　 █▀▀█ █▀▀ 　 ▀▀█▀▀ █░░█ █▀▀█ █▀▀ █▀▀█ █▀▀▄ █▀▀ \n█░▀█ █▄▄█ █░▀░█ █▀▀ 　 █░░█ █▀▀ 　 ░░█░░ █▀▀█ █▄▄▀ █▀▀ █▄▄█ █░░█ ▀▀█ \n▀▀▀▀ ▀░░▀ ▀░░░▀ ▀▀▀ 　 ▀▀▀▀ ▀░░ 　 ░░▀░░ ▀░░▀ ▀░▀▀ ▀▀▀ ▀░░▀ ▀▀▀░ ▀▀▀ \n\n"STD);
+	printf(BLU"\n  #####                               #######         \n #     #    ##    #    #  ######      #     #  ###### \n #         #  #   ##  ##  #           #     #  #      \n #  ####  #    #  # ## #  #####       #     #  #####  \n #     #  ######  #    #  #           #     #  #      \n #     #  #    #  #    #  #           #     #  #      \n  #####   #    #  #    #  ######      #######  #      \n"STD);
+	printf("\n");
+	printf(BLU"#######                                                 \n   #     #    #  #####   ######    ##    #####    ####  \n   #     #    #  #    #  #        #  #   #    #  #      \n   #     ######  #    #  #####   #    #  #    #   ####  \n   #     #    #  #####   #       ######  #    #       # \n   #     #    #  #   #   #       #    #  #    #  #    # \n   #     #    #  #    #  ######  #    #  #####    ####   \n\n"STD);
 	log_info(logger_invisible, "=============Finalizando LFS=============");
 	fflush(stdout);
 

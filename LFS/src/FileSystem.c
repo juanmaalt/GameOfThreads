@@ -191,7 +191,9 @@ void levantarTablasExistentes(){
 			nombreCarpeta = entry->d_name; //REVISION ya no se pide memoria para nombreCarpeta
 			if(!strcmp(nombreCarpeta, ".") || !strcmp(nombreCarpeta, "..")){
 			}else{
+				sem_wait(&mutexAgregarTablaMemtable);
 				crearTablaEnMemtable(nombreCarpeta); //REVISION como no se pide memoria, esta funcion la reserva
+				sem_post(&mutexAgregarTablaMemtable);
 
 				SemaforoCompactacion *semt = malloc(sizeof(SemaforoCompactacion));
 				sem_init(&(semt->semaforoGral), 0, 1);
@@ -285,6 +287,8 @@ void actualizarTamanioEnParticion(int sizeLinea, char* nombreTabla, int particio
 void agregarBloqueEnDump(char* bloque, char* nombreTabla, char* pathDump){
 	t_config* particionData = config_create(pathDump);
 
+	log_info(logger_invisible, "FileSystem.c: agregarBloqueEnParticion() -path: %s", pathDump);
+
 	if(particionData==NULL){
 		log_info(logger_invisible, "FileSystem.c: agregarBloqueEnParticion() - No se pudo agregar el bloque %s en el dump de la tabla %s", bloque, nombreTabla);
 		log_error(logger_invisible, "FileSystem.c: agregarBloqueEnParticion() - No se pudo agregar el bloque %s en el dump de la tabla %s", bloque, nombreTabla);
@@ -294,7 +298,7 @@ void agregarBloqueEnDump(char* bloque, char* nombreTabla, char* pathDump){
 	char* bloques = config_get_string_value(particionData, "BLOCKS");
 
 	char* subBloques = string_substring_until(bloques, (strlen(bloques)-1)); //Remover ultimo corchete
-	char* nuevosBloques = string_from_format("%s,%s]", subBloques, bloque);
+	char* nuevosBloques = string_from_format("%s%s,]", subBloques, bloque);
 
 	config_set_value(particionData, "BLOCKS", nuevosBloques);
 
