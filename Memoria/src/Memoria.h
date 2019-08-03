@@ -92,6 +92,9 @@ pthread_mutex_t mutexColaMarcos;
 pthread_mutex_t mutexEnEspera;
 pthread_mutex_t mutexEjecutando;
 
+
+//pthread_mutex_t mutexSegmentoUnico;
+
 int configuracion_inicial(void);
 int realizarHandshake(void);
 void *connection_handler(void *);
@@ -149,6 +152,7 @@ typedef struct tabla_de_paginas{
 typedef struct segmento{
 	char* pathTabla;
 	tabla_de_paginas_t* tablaPaginas;
+	pthread_mutex_t mutexSegmento;
 }segmento_t;
 
 

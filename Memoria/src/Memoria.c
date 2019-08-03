@@ -262,6 +262,7 @@ int configuracion_inicial() {
 	pthread_mutex_init(&mutexColaMarcos,NULL);
 	pthread_mutex_init(&mutexEnEspera, NULL);
 	pthread_mutex_init(&mutexEjecutando, NULL);
+	//pthread_mutex_init(&mutexSegmentoUnico, NULL);
 
 	mkdir("Logs", 0777); //Crea la carpeta Logs junto al ejecutable (si ya existe no toca nada de lo que haya adentro)
 

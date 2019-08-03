@@ -53,9 +53,9 @@ void crearRegistroEnTabla(tabla_de_paginas_t *tablaDondeSeEncuentra, int indiceM
 //Retorna el numero de marco donde se encuentra la pagina
 
 int colocarPaginaEnMemoria(timestamp_t timestamp, uint16_t key, char* value) { //DEBE DEVOLVER ERROR_MEMORIA_FULL si la cola esta vacia
-	if (queue_is_empty(memoriaPrincipal.marcosLibres)) {	//TODO: PUEDE DESAPARECER o dejar como salvaguarda
-		return ERROR_MEMORIA_FULL;
-	}
+	//if (queue_is_empty(memoriaPrincipal.marcosLibres)) {	//TODO: PUEDE DESAPARECER o dejar como salvaguarda
+	//	return ERROR_MEMORIA_FULL;
+	//}
 	usleep(vconfig.retardoMemoria * 1000); //TODO: es correcto?
 
 	char* valueAux = malloc(sizeof(char)*tamanioValue);
@@ -67,7 +67,7 @@ int colocarPaginaEnMemoria(timestamp_t timestamp, uint16_t key, char* value) { /
 
 	pthread_mutex_lock(&mutexColaMarcos);
 	MCB_t * marcoObjetivo = (MCB_t *) queue_pop(memoriaPrincipal.marcosLibres); //No se elimina porque el MCB tambien esta en listaAdministrativaMarcos
-	pthread_mutex_unlock(&mutexColaMarcos);
+
 
 	void * direccionMarco = memoriaPrincipal.memoria + memoriaPrincipal.tamanioMarco * marcoObjetivo->nroMarco;
 
@@ -77,6 +77,8 @@ int colocarPaginaEnMemoria(timestamp_t timestamp, uint16_t key, char* value) { /
 
 	memcpy(direccionMarco + sizeof(timestamp_t) + sizeof(uint16_t), valueAux,
 			(sizeof(char) * tamanioValue));
+
+	pthread_mutex_unlock(&mutexColaMarcos);
 
 	pthread_mutex_unlock(&mutexMemoria);
 
@@ -151,16 +153,21 @@ int realizarLRU(char* value, uint16_t key, timestamp_t ts, segmento_t * segmento
 
 int insertarPaginaDeSegmento(char* value, uint16_t key, timestamp_t ts, segmento_t * segmento, bool esInsert) {
 
-
+	//TODO MUTEX
 	if(hayMarcoDisponible()) {
 		crearRegistroEnTabla(segmento->tablaPaginas,colocarPaginaEnMemoria(ts, key, value), esInsert);
 		log_info(logger_invisible,"ManejoDeMemoria.C: insertarPaginaDeSegmento: Se ingreso el registro");
+		//TODO MUTEX
 		return EXIT_SUCCESS;
 
 	} else {//aplicar el algoritmo de reemplazo (LRU) y en caso de que la memoria se encuentre full iniciar el proceso Journal.
 		log_info(logger_invisible,"Procediendo a realizar el algoritmo de reemplazo LRU");
-		return realizarLRU(value, key, ts, segmento, esInsert);   //ERROR_MEMORIA_FULL;
+
+		int resultado = realizarLRU(value, key, ts, segmento, esInsert);   //ERROR_MEMORIA_FULL;
+		//TODO MUTEX
+		return resultado;
 	}
+
 }
 
 Operacion tomarContenidoPagina(registroTablaPag_t registro) {

@@ -25,6 +25,7 @@ void liberarMemorias(void* MemoryAdestruir) {
 
 void liberarRegistroTablaPags(void* registroAdestruir) {
 	MCB_t* MCBLibre;
+	pthread_mutex_lock(&mutexColaMarcos);
 
 	bool compararConMCB(void* MCBAComparar){
 		if((((registroTablaPag_t *) registroAdestruir)->nroMarco) == ((MCB_t *)MCBAComparar)->nroMarco){
@@ -44,7 +45,7 @@ void liberarRegistroTablaPags(void* registroAdestruir) {
 
 	list_destroy(listaConMCBBuscado);
 
-	pthread_mutex_lock(&mutexColaMarcos);
+
 	queue_push(memoriaPrincipal.marcosLibres, (MCB_t*)MCBLibre);
 	pthread_mutex_unlock(&mutexColaMarcos);
 

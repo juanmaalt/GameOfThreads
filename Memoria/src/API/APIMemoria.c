@@ -10,7 +10,7 @@
 
 void loggearMemoria(void){
 	void mostrarRegistros(void * segmento){
-
+		//TODO MUTEX
 		void muestroRegistro(void* registro){
 
 			void mostrarRetorno(Operacion retorno) {
@@ -33,7 +33,7 @@ void loggearMemoria(void){
 
 					log_info(logger_invisible,"Segmento: %s",((segmento_t *) segmento)->pathTabla);
 		list_iterate(((segmento_t *) segmento)->tablaPaginas->registrosPag, muestroRegistro);
-
+		//TODO MUTEX
 	}
 	log_info(logger_invisible,"========================Estado de la Memoria========================");
 	if(list_is_empty(tablaSegmentos.listaSegmentos))
