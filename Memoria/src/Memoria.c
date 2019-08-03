@@ -174,8 +174,13 @@ void *connection_handler(void *nSocket) {
 
 int realizarHandshake(void) {
 	int lfsSocket = conectarLFS();
+	if (lfsSocket == EXIT_FAILURE){
+		log_error(logger_error,"Memoria.c-> realizarHandshake: Cerrar la Memoria, levantar el LFS y volver a levantar la Memoria");
+		return EXIT_FAILURE;
+	}
 	log_info(logger_visible, "Conectado al LFS. Iniciando Handshake.");
 	if (handshakeLFS(lfsSocket) == EXIT_FAILURE) {
+		log_error(logger_error,"Memoria.c-> realizarHandshake: Hubo un fallo en el Handshake");
 		return EXIT_FAILURE;
 	}
 	//printf("TAMAÑO_VALUE= %d\n", tamanioValue);

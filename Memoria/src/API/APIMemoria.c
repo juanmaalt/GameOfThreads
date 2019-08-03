@@ -46,9 +46,6 @@ void loggearMemoria(void){
 	}
 }
 Operacion ejecutarOperacion(char* input, bool esDeConsola) {
-	int valueSem;
-
-	//TODO CHEQUEAR SINCRO TODO TODO
 	Comando *parsed = malloc(sizeof(Comando));
 	Operacion retorno;
 	*parsed = parsear_comando(input);
