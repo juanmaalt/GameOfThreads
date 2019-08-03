@@ -327,7 +327,9 @@ static INTERNAL_STATE procesar_retorno_operacion(Operacion op, PCB* pcb, char* i
 		if(pcb->tipo == FILE_LQL){
 			log_info(logger_visible, "CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> %s", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, pcb->simbolicIP, instruccionActualTemp, op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
 		}else{
+			log_info(logger_visible, "CPU: %d | Memoria: %d %s:%s | %s (%d) | %s -> %s", process_get_thread_id(), link->memoria->numero, link->memoria->ip, link->memoria->puerto, pcb->nombreArchivoLQL, pcb->simbolicIP, instruccionActualTemp, op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
 			mostrar_describe(op.Argumentos.DESCRIBE_REQUEST.resultado_comprimido);
+
 		}
 		free(instruccionActualTemp);
 		return CONTINUE;
