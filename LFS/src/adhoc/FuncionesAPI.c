@@ -56,27 +56,60 @@ bool directory_any_satisfy(char *pathDirectorio, bool(*closure)(EntradaDirectori
 	return false;
 }
 
-int dump_iterate_registers(char *pathDumpFile, char *mode, void(*closure)(Registro*)){
+int dump_iterate_registers(char *pathDumpFile, void(*closure)(Registro*)){
 	if(pathDumpFile == NULL)
 		return EXIT_FAILURE;
-	if(mode == NULL)
-		mode = "r";
-	FILE *archivo = fopen(pathDumpFile, mode);
-	if(archivo == NULL)
+
+	char* bloquesAsignados = obtenerListaDeBloquesDump(pathDumpFile);
+	if(bloquesAsignados == NULL){
+		log_error(logger_invisible, "El dump de la tabla no parece tener bloques asignados\n");
 		return EXIT_FAILURE;
-
-	Registro *registro = malloc(sizeof(Registro));
-	registro->value = malloc(sizeof(char)*(atoi(config.tamanio_value)+1));
-
-	while(fscanf(archivo, "%llu;%hu;%[^\n]", &registro->timestamp, &registro->key, registro->value)!= EOF){
-		registro->value[atoi(config.tamanio_value)] = '\0';
-		closure(registro);
-		registro = malloc(sizeof(Registro));
-		registro->value = malloc(sizeof(char)*(atoi(config.tamanio_value)+1));
 	}
-	free(registro->value);
-	free(registro);
-	fclose(archivo);
+	char** bloques = string_get_string_as_array(bloquesAsignados);
+	char ch;
+	char* linea = string_new();
+
+	for(int i=0; bloques[i]!=NULL; i++){
+		FILE* fBloque;
+		char* pathBloque = string_from_format("%sBloques/%s.bin", config.punto_montaje, bloques[i]);
+		fBloque = fopen(pathBloque, "r");
+		if(fBloque == NULL){
+			free(pathBloque);
+			continue;
+		}
+		Registro *registro = malloc(sizeof(Registro));
+		registro->value = malloc(sizeof(char)*(atoi(config.tamanio_value)+1));
+
+		while((ch = getc(fBloque)) != EOF){
+			char* nchar = string_from_format("%c", ch);
+			string_append(&linea, nchar);
+
+			if(ch =='\n'){
+				char** lineaParsed = string_split(linea,";");
+				if(lineaParsed != NULL && esUnRegistro(lineaParsed[0], lineaParsed[1], lineaParsed[2])){ //REVISION: Invalid read of size 4, se agrego el != NULL ahi
+					registro->timestamp = atoll(lineaParsed[0]);
+					registro->key = atoi(lineaParsed[1]);
+					registro->value = string_substring_until(lineaParsed[2], (strlen(lineaParsed[2])-1));
+					closure(registro);
+					registro = malloc(sizeof(Registro));
+					registro->value = malloc(sizeof(char)*(atoi(config.tamanio_value)+1));
+
+				}
+				if(lineaParsed){string_iterate_lines(lineaParsed, (void* )free); free(lineaParsed);}
+				free(linea);
+				linea=string_new();
+			}
+			free(nchar);
+		}
+		freopen(pathBloque, "w", stdout);
+		fclose(fBloque);
+		free(pathBloque);
+	}
+	free(linea);
+	string_iterate_lines(bloques, (void* )free);
+	free(bloques);
+	free(bloquesAsignados);
+
 	return EXIT_FAILURE;
 }
 
@@ -159,28 +192,17 @@ void leerTemps(char* nombreTabla, char* key, t_list* listaDeValuesFiles){
 	struct dirent *entry;
 	char* nombreTemp;
 
-	FILE* temp;
-    int fkey;
-    timestamp_t timestamp;
-    char value[atoi(config.tamanio_value)];
     if((dir = opendir(pathTabla)) != NULL){
 		while((entry = readdir (dir)) != NULL){
 			nombreTemp = string_from_format(entry->d_name);
 			if(string_contains(nombreTemp, ".tmp")){
 				char* pathTemp = string_from_format("%s/%s", pathTabla, nombreTemp);
-				temp = fopen(pathTemp, "r");
-				while(fscanf(temp, "%llu;%d;%[^\n]s", &timestamp, &fkey, value)!= EOF){
-					if(fkey==atoi(key)){
-						Registro* reg = malloc(sizeof(Registro));
-						reg->key = fkey;
-						reg->value = string_from_format(value);
-						reg->timestamp= timestamp;
-
-						list_add(listaDeValuesFiles, reg);
-					}
+				char* listaDeBloquesDump=obtenerListaDeBloquesDump(pathTemp);
+				if(string_starts_with(listaDeBloquesDump, "[")&&string_ends_with(listaDeBloquesDump, "]")){
+					list_add(listaDeValuesFiles, fseekBloque(atoi(key), listaDeBloquesDump));
 				}
-				fclose(temp);
 				free(pathTemp);
+				free(listaDeBloquesDump);
 			}
 			free(nombreTemp);
 		}

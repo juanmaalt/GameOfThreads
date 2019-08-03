@@ -309,11 +309,12 @@ Operacion ejecutarOperacion(char* input) {
 			retorno = dropAPI(*parsed);
 			break;
 		case RUN:
-			liberarBloque(atoi(parsed->argumentos.RUN.path));
+			//liberarBloque(atoi(parsed->argumentos.RUN.path));
 			//compactar(parsed->argumentos.RUN.path);
 			break;
 		case JOURNAL:
-			getBloqueLibre();
+			dump();
+			//getBloqueLibre();
 			break;
 		default:
 			fprintf(stderr, RED"No se pude interpretar el enum: %d"STD"\n",parsed->keyword);
@@ -440,17 +441,16 @@ void dumpTabla(char* nombreTable, void* value){
 
 	char* pathArchivo = string_from_format("%s/D%d.tmp", path, numeroDump);
 
-	FILE* file = fopen(pathArchivo,"w");
+	FILE *dump = fopen(pathArchivo, "w");
 
-	void dumpearTodosLosRegistros(void* reg){
-		Registro* registro = (Registro*) reg;
-		dumpRegistro(file, registro);
-	}
-	sem_wait(&mutexMemtable);
-	list_iterate(list, dumpearTodosLosRegistros);
-	sem_post(&mutexMemtable);
+	dump = txt_open_for_append(pathArchivo);
+	char* text=string_from_format("SIZE=0\nBLOCKS=[]\n");
+	txt_write_in_file(dump, text);
+	free(text);
 
-	fclose(file);
+	escribirBloquesDump(list, nombreTable, pathArchivo);
+
+	fclose(dump);
 	free(pathArchivo);
 	free(path);
 
@@ -458,6 +458,7 @@ void dumpTabla(char* nombreTable, void* value){
 		free(((Registro*)elem)->value);
 		free(((Registro*)elem));
 	}
+
 	sem_wait(&mutexMemtable);
 	list_clean_and_destroy_elements(list, eliminarRegistro);
 	sem_post(&mutexMemtable);
@@ -466,6 +467,48 @@ void dumpTabla(char* nombreTable, void* value){
 void dumpRegistro(FILE* file, Registro* registro) {
 	fprintf(file, "%llu;%d;%s\n", registro->timestamp, registro->key, registro->value);
 }
+
+int escribirBloquesDump(t_list* listaDeRegistros, char* nombreTabla, char* pathArchivo){
+	int size = metadataFS.blockSize;
+	sem_wait(&mutexMemtable);
+	char **registrosBloques = generarRegistroBloque(listaDeRegistros);
+	sem_post(&mutexMemtable);
+	char* pathBloque;
+
+	void escribirEnBloquesDump(char *linea){
+		char* bloque = getBloqueLibre();
+		pathBloque = string_from_format("%sBloques/%s.bin", config.punto_montaje,bloque);
+		agregarBloqueEnDump(bloque, nombreTabla, pathArchivo);
+		free(bloque);
+		int fdBloque = open(pathBloque, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+		if(fdBloque == -1){
+			log_error(logger_visible, "No se pudieron abrir los bloques");
+			log_error(logger_error, "No se pudieron abrir los bloques");
+			free(pathBloque);
+			close(fdBloque);
+			if(registrosBloques){
+				string_iterate_lines(registrosBloques, (void*)free);
+				free(registrosBloques);
+			}
+			return;
+		}
+		ftruncate(fdBloque, strlen(linea));
+		char* textoBloque = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fdBloque, 0);
+		memcpy(textoBloque, linea, strlen(linea));
+		msync(textoBloque, size, MS_SYNC);
+		free(pathBloque);
+		munmap(textoBloque, size);
+		actualizarTamanioEnDump(strlen(linea), nombreTabla, pathArchivo);
+		close(fdBloque);
+	}
+	string_iterate_lines(registrosBloques, escribirEnBloquesDump);
+	if(registrosBloques){
+		string_iterate_lines(registrosBloques, (void*)free);
+		free(registrosBloques);
+	}
+	return EXIT_SUCCESS;
+}
+
 /*FIN FUNCIONES DUMP*/
 
 /*INICIO FSEEK*/

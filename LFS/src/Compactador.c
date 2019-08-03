@@ -15,7 +15,7 @@ static Metadata_tabla* levantarMetadataTabla(char *nombreTabla);
 static int levantarRegistrosDump(t_dictionary *lista, char *nombreTabla, char *pathArchivoTMPC, int particionesDeLaTabla);
 static int levantarRegistrosBloques(t_dictionary *lista, char *nombreTabla, int particiones);
 static void agregarRegistro(t_list *lista, Registro *registro);
-static void verDiccionarioDebug(t_dictionary *lista);
+//static void verDiccionarioDebug(t_dictionary *lista);
 static void destruirRegistrosDeParticiones(t_dictionary *diccionario);
 static int escribirDiccionarioEnBloques(t_dictionary* registrosDeParticiones, char* nombreTabla);
 static int escribirBloques(t_list* listaDeRegistros, char** bloques, char* nombreTabla, int particion);
@@ -204,7 +204,7 @@ static int levantarRegistrosDump(t_dictionary *registrosDeParticiones, char *nom
 		free(particionAsignada);
 	}
 
-	if(dump_iterate_registers(pathArchivoTMPC, "r", levantarRegistro) == EXIT_FAILURE)
+	if(dump_iterate_registers(pathArchivoTMPC, levantarRegistro) == EXIT_FAILURE)
 		return EXIT_FAILURE;
 	return EXIT_SUCCESS;
 }
@@ -291,7 +291,7 @@ static void agregarRegistro(t_list *lista, Registro *registro){
 
 
 
-
+/*
 static void verDiccionarioDebug(t_dictionary *registrosDeParticiones){
 	void dictionary_element_viewer(char *key, void *data){
 		void list_viewer(void *registro){
@@ -304,7 +304,7 @@ static void verDiccionarioDebug(t_dictionary *registrosDeParticiones){
 	dictionary_iterator(registrosDeParticiones, dictionary_element_viewer);
 
 }
-
+*/
 
 
 

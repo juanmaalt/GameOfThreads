@@ -284,6 +284,50 @@ void actualizarTamanioEnParticion(int sizeLinea, char* nombreTabla, int particio
 	free(pathParticion);
 }
 
+void agregarBloqueEnDump(char* bloque, char* nombreTabla, char* pathDump){
+	t_config* particionData = config_create(pathDump);
+
+	log_info(logger_invisible, "FileSystem.c: agregarBloqueEnParticion() -path: %s", pathDump);
+
+	if(particionData==NULL){
+		log_info(logger_invisible, "FileSystem.c: agregarBloqueEnParticion() - No se pudo agregar el bloque %s en el dump de la tabla %s", bloque, nombreTabla);
+		log_error(logger_invisible, "FileSystem.c: agregarBloqueEnParticion() - No se pudo agregar el bloque %s en el dump de la tabla %s", bloque, nombreTabla);
+		return;
+	}
+
+	char* bloques = config_get_string_value(particionData, "BLOCKS");
+
+	char* subBloques = string_substring_until(bloques, (strlen(bloques)-1)); //Remover ultimo corchete
+	char* nuevosBloques = string_from_format("%s%s,]", subBloques, bloque);
+
+	config_set_value(particionData, "BLOCKS", nuevosBloques);
+
+	config_save(particionData);
+	config_destroy(particionData);
+	free(subBloques);
+	free(nuevosBloques);
+}
+
+void actualizarTamanioEnDump(int sizeLinea, char* nombreTabla, char* pathDump){
+	t_config* particionData = config_create(pathDump);
+
+	if(particionData==NULL){
+		log_info(logger_invisible, "FileSystem.c: agregarBloqueEnParticion() - No se pudo agregar el bloque en el dump de la tabla %s", nombreTabla);
+		log_error(logger_invisible, "FileSystem.c: agregarBloqueEnParticion() - No se pudo agregar el bloque en el dump de la tabla %s", nombreTabla);
+		return;
+	}
+
+	int size = config_get_int_value(particionData, "SIZE");
+
+	size = size+sizeLinea;
+
+	char* sizet= string_from_format("%d", size);
+	config_set_value(particionData, "SIZE", sizet);
+
+	config_save(particionData);
+	config_destroy(particionData);
+	free(sizet);
+}
 
 int agregarBloqueEnBitarray(char* nombreCarpeta){
 	char* pathTablas = string_from_format("%sTables/%s/", config.punto_montaje, nombreCarpeta);

@@ -23,7 +23,7 @@ typedef struct semt_comp SemaforoCompactacion;
 int directory_iterate(char *pathDirectorio, void(*closure)(EntradaDirectorio *));
 int directory_iterate_if(char *pathDirectorio, bool (*condicion)(EntradaDirectorio*), void(*closure)(EntradaDirectorio *));
 bool directory_any_satisfy(char *pathDirectorio, bool(*closure)(EntradaDirectorio *));
-int dump_iterate_registers(char *pathFile, char *mode, void(*closure)(Registro*));
+int dump_iterate_registers(char *pathFile, void(*closure)(Registro*));
 void simple_string_iterate(char *stringToIterate, void (*closure)(char*));
 
 //COMPLEMENTARIAS
@@ -48,6 +48,7 @@ void getStringDescribe(char* path, char* string, char* nombreTabla, Operacion *r
 int removerDirectorio(char *path);
 void limpiarBloquesEnBitarray(char* nombreTabla);
 int iniciarCompactacion(char* nombreTabla, SemaforoCompactacion *semt);
+
 
 //AD-HOC
 void mostrarMetadata();

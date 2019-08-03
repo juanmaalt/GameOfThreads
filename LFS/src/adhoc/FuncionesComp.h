@@ -15,6 +15,7 @@
 
 void cambiarNombreFilesTemp(char* pathTabla);
 char* obtenerListaDeBloques(int particion, char* nombreTabla);
+char* obtenerListaDeBloquesDump(char* pathDump);
 char* firstBloqueDisponible(char* listaDeBloques);
 int caracteresEnBloque(char* bloque);
 //void escribirLinea(char* bloque, char* linea, char* nombreTabla, int particion);
