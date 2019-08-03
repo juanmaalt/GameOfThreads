@@ -12,6 +12,9 @@
 static void *inotify_service(void *null);
 
 int main(void) {
+	/*Creo estructuras para semaforos*/
+	iniciar_semaforos();
+
 	/*Configuración inicial para log y config*/
 	if(configuracion_inicial() == EXIT_FAILURE){
 		RETURN_ERROR("Lissandra.c: main() - No se pudo generar la configuracion inicial");
@@ -32,8 +35,7 @@ int main(void) {
 	/*Levantar Bitmap*/
 	leerBitmap();
 
-	/*Creo estructuras para semaforos*/
-	iniciar_semaforos();
+
 
 	/*Levantar Tablas*/
 	levantarTablasExistentes();
