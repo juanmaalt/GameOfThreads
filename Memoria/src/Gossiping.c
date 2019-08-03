@@ -322,12 +322,17 @@ Operacion recibir_gossiping(Operacion resultado) {
 					// Debo quitar de la lista esta memoria ya que no esta
 					for (int j = 0; list_size(listaMemoriasConocidas) > j; j++) {
 						//printf("Entro a filtar para quitar de lista\n");
-						recupero = (knownMemory_t *) list_get(listaMemoriasConocidas, j);
+						recupero = (knownMemory_t *) list_remove(listaMemoriasConocidas, j);
 						int cmpIP = strcmp(recupero->ip, descompresion[i + 1]);
 						int cmpIPPORT = strcmp(recupero->ip_port,
 								descompresion[i + 2]);
-						if ((cmpIP * cmpIP + cmpIPPORT * cmpIPPORT) != 0)
+						if ((cmpIP * cmpIP + cmpIPPORT * cmpIPPORT) != 0) {
 							list_add(aux_filtro, recupero);
+						} else {
+							free(((knownMemory_t*) recupero)->ip);
+							free(((knownMemory_t*) recupero)->ip_port);
+							free(recupero);
+						}
 					}
 
 					list_destroy(aux); //Libero las referencias de la lista, sin liberar cada uno de sus elementos. Es decir, libero solo los nodos
