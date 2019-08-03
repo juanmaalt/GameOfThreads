@@ -142,6 +142,7 @@ void *connection_handler(void *nSocket) {
 			send_msg(socket, resultado);
 		}
 		free(copiaComandoParseable);
+		destruir_operacion(request);
 
 		break;
 	case TEXTO_PLANO:
@@ -164,8 +165,6 @@ void *connection_handler(void *nSocket) {
 	}
 
 	//Podríamos meter un counter y que cada X mensajes recibidos corra el gossiping
-
-	destruir_operacion(request);
 	destruir_operacion(resultado);
 	close(socket);
 	free(nSocket);
