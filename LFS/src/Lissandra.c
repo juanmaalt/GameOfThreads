@@ -211,13 +211,21 @@ void refrescar_vconfig(){
 		error("Lissandra.c: inicializar_configs: error en la extraccion del parametro RETARDO");
 	else if(!esNumerica(config_get_string_value(configFile, "RETARDO"), false))
 		error("Lissandra.c: inicializar_configs: el parametro RETARDO debe ser numerico");
-	else vconfig.retardo = config_get_int_value(configFile, "RETARDO");
+	else{
+		sem_wait(&mutexVConfig);
+		vconfig.retardo = config_get_int_value(configFile, "RETARDO");
+		sem_post(&mutexVConfig);
+	}
 
 	if(config_get_string_value(configFile, "TIEMPO_DUMP") == NULL)
 		error("Lissandra.c: inicializar_configs: error en la extraccion del parametro TIEMPO_DUMP");
 	else if(!esNumerica(config_get_string_value(configFile, "TIEMPO_DUMP"), false))
 		error("Lissandra.c: inicializar_configs: el parametro TIEMPO_DUMP debe ser numerico");
-	else vconfig.tiempoDump = config_get_int_value(configFile, "TIEMPO_DUMP");
+	else{
+		sem_wait(&mutexVConfig);
+		vconfig.tiempoDump = config_get_int_value(configFile, "TIEMPO_DUMP");
+		sem_post(&mutexVConfig);
+	}
 
 	config_destroy(configFile);
 }
@@ -283,7 +291,10 @@ Operacion ejecutarOperacion(char* input) {
 
 	log_info(logger_visible,"Lissandra.c: ejecutarOperacion() - Mensaje recibido %s", input);
 
-	usleep(vconfig.retardo*1000);
+	sem_wait(&mutexVConfig);
+	int retardo = vconfig.retardo;
+	sem_post(&mutexVConfig);
+	usleep(retardo*1000);
 
 	if (parsed->valido) {
 		switch (parsed->keyword){
@@ -392,7 +403,10 @@ void* dump(){
 	pthread_detach(pthread_self());
 
 	for(;;){
-		usleep(vconfig.tiempoDump * 1000);
+		sem_wait(&mutexVConfig);
+		int tiempoDump=vconfig.tiempoDump;
+		sem_post(&mutexVConfig);
+		usleep(tiempoDump* 1000);
 		sem_wait(&mutexAgregarTablaMemtable);
 		dictionary_iterator(memtable, dumpTabla);
 		sem_post(&mutexAgregarTablaMemtable);

@@ -11,6 +11,7 @@ int iniciar_semaforos(){
 	/*Mutex generales*/
 	sem_init(&mutexMemtable, 0, 1);
 	sem_init(&mutexAgregarTablaMemtable, 0, 1);
+	sem_init(&mutexVConfig, 0, 1);
 
 	/*Compactacion*/
 	semaforosPorTabla =list_create();

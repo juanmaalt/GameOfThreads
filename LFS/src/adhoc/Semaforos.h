@@ -33,6 +33,7 @@
 
 	sem_t mutexMemtable;
 	sem_t mutexAgregarTablaMemtable;
+	sem_t mutexVConfig;
 
 
 	/*========== Estructura semaforos de compactacion ==========*/
