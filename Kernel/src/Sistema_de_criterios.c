@@ -310,19 +310,20 @@ t_list *procesar_gossiping(char *cadenaResultadoGossiping){
 	for(int i=0; descompresion[i]!=NULL; i+=3){
 		int socket;
 		if(!esNumerica(descompresion[i], false)){
-			log_error(logger_error, "Sistema_de_criterios.c: procesar_gossiping: datos corruptos en el gossiping enviado por la memoria. Se recibio '%s' en lugar de un valor numerico", descompresion[i]);
+			//log_error(logger_error, "Sistema_de_criterios.c: procesar_gossiping: datos corruptos en el gossiping enviado por la memoria. Se recibio '%s' en lugar de un valor numerico", descompresion[i]);
 			log_error(logger_invisible, "Sistema_de_criterios: procesar_gossiping: datos corruptos en el gossiping enviado por la memoria Se recibio '%s' en lugar de un valor numerico", descompresion[i]);
 			list_destroy(lista); //TODO: si esta idea funciona para no recibir basura del gossiping, probar eliminar tambien posibles nodos de la lista
 			return NULL;
 		}
 		if(descompresion[i+1] == NULL || descompresion[i+2] == NULL){
-			log_error(logger_error, "Sistema_de_criterios.c: procesar_gossiping: datos corruptos en el gossiping enviado por la memoria. Null pointer exception");
+			//log_error(logger_error, "Sistema_de_criterios.c: procesar_gossiping: datos corruptos en el gossiping enviado por la memoria. Null pointer exception");
 			log_error(logger_invisible, "Sistema_de_criterios: procesar_gossiping: datos corruptos en el gossiping enviado por la memoria. Null pointer exception");
 			list_destroy(lista);
 			return NULL;
 		}
 		if((socket = connect_to_server(descompresion[i+1], descompresion[i+2])) == EXIT_FAILURE){
 			list_destroy(lista);
+			//log_error(logger_error, "Sistema_de_criterios.c: procesar_gossiping: No conecta con el server %s:%s. Null pointer exception",descompresion[i+1], descompresion[i+2]);
 			return NULL;
 		}
 		close(socket);
@@ -414,7 +415,7 @@ void remover_metadata_tabla(MetadataTabla *tabla){
 
 void agregar_sin_repetidos(t_list *memoriasExistentes, t_list *seedsDeLaMemoria){
 	if(memoriasExistentes == NULL || seedsDeLaMemoria == NULL){
-		log_error(logger_error, "Sistema_de_criterios.c: agregar_sin_repetidos: null pointer exception");
+		//log_error(logger_error, "Sistema_de_criterios.c: agregar_sin_repetidos: null pointer exception");
 		log_error(logger_invisible, "Sistema_de_criterios.c: agregar_sin_repetidos: null pointer exception");
 		return;
 	}
@@ -490,7 +491,7 @@ void eliminar_todas_las_tablas(){
 
 void eliminar_todas_las_memorias(t_list *lista){
 	if(lista == NULL){
-		log_error(logger_error, "Sistema_de_criterios.c: eliminar_todas_las_memorias: null pointer exception");
+		//log_error(logger_error, "Sistema_de_criterios.c: eliminar_todas_las_memorias: null pointer exception");
 		log_error(logger_invisible, "Sistema_de_criterios.c: eliminar_todas_las_memorias: null pointer exception");
 		return;
 	}
