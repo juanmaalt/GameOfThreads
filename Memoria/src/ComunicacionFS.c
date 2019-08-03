@@ -108,7 +108,11 @@ Operacion recibirRequestFS(int lfsSocket) {
 	Operacion resultado;
 	resultado = recv_msg(lfsSocket);
 
-	usleep(vconfig.retardoFS* 1000);
+	pthread_mutex_lock(&mutexValorVariable);
+	int retardoFS =vconfig.retardoFS;
+	pthread_mutex_unlock(&mutexValorVariable);
+
+	usleep(retardoFS* 1000);
 
 	return resultado;
 }

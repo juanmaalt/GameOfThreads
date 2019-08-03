@@ -81,7 +81,11 @@ void *realizarJournal(void* null) {
 	pthread_detach(pthread_self());
 	Operacion retorno;
 	while (1) {
-		usleep(vconfig.retardoJOURNAL * 1000);
+		pthread_mutex_lock(&mutexValorVariable);
+		int retardoJournal =vconfig.retardoJOURNAL;
+		pthread_mutex_unlock(&mutexValorVariable);
+
+		usleep(retardoJournal* 1000);
 
 		log_info(logger_invisible,
 				"Memoria.c: realizarJournal: Inicio Journal automatico");
@@ -262,6 +266,7 @@ int configuracion_inicial() {
 	pthread_mutex_init(&mutexColaMarcos,NULL);
 	pthread_mutex_init(&mutexEnEspera, NULL);
 	pthread_mutex_init(&mutexEjecutando, NULL);
+	pthread_mutex_init(&mutexValorVariable, NULL);
 
 	mkdir("Logs", 0777); //Crea la carpeta Logs junto al ejecutable (si ya existe no toca nada de lo que haya adentro)
 
@@ -451,13 +456,14 @@ static void refrescar_vconfig() {
 		log_error(logger_invisible,
 				"inotify_service: refrescar_vconfig: el archivo de configuracion no se encontro");
 	}
-
+	pthread_mutex_lock(&mutexValorVariable);
 	vconfig.retardoMemoria = config_get_int_value(tmpConfigFile, "RETARDO_MEM");
 	vconfig.retardoFS = config_get_int_value(tmpConfigFile, "RETARDO_FS");
 	vconfig.retardoJOURNAL = config_get_int_value(tmpConfigFile,
 			"RETARDO_JOURNAL");
 	vconfig.retardoGossiping = config_get_int_value(tmpConfigFile,
 			"RETARDO_GOSSIPING");
+	pthread_mutex_unlock(&mutexValorVariable);
 	config_destroy(tmpConfigFile);
 }
 

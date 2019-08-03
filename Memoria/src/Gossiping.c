@@ -68,7 +68,11 @@ void *conectar_seeds(void *null) { // hilo envia a las seeds
 		log_info(logger_gossiping,
 				"GOSSIPING.C: conectar_seeds: inicio gossiping");
 		conectarConSeed();
-		usleep(vconfig.retardoGossiping * 1000);
+		pthread_mutex_lock(&mutexValorVariable);
+		int retardoGossiping =vconfig.retardoGossiping;
+		pthread_mutex_unlock(&mutexValorVariable);
+
+		usleep(retardoGossiping * 1000);
 		// Envia mensaje a las seeds que conoce
 	}
 	return NULL;
