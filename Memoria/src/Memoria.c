@@ -134,6 +134,9 @@ void *connection_handler(void *nSocket) {
 		copiaComandoParseable = string_from_format(request.Argumentos.COMANDO.comandoParseable);
 
 		resultado = ejecutarOperacion(request.Argumentos.COMANDO.comandoParseable, false);
+
+		free(request.Argumentos.COMANDO.comandoParseable);
+
 		loggearRetorno(resultado, logger_invisible);
 		send_msg(socket, resultado);
 		if(resultado.TipoDeMensaje== ERROR_MEMORIAFULL){
@@ -151,11 +154,11 @@ void *connection_handler(void *nSocket) {
 	case ERROR:
 		break;
 	case GOSSIPING_REQUEST:
-		resultado = recibir_gossiping(resultado);
+		resultado = recibir_gossiping(request);
 		send_msg(socket, resultado);
 		break;
 	case GOSSIPING_REQUEST_KERNEL:
-		resultado = recibir_gossiping(resultado);
+		resultado = recibir_gossiping(request);
 		send_msg(socket, resultado);
 		break;
 	default:
@@ -164,7 +167,6 @@ void *connection_handler(void *nSocket) {
 	}
 
 	//Podríamos meter un counter y que cada X mensajes recibidos corra el gossiping
-	destruir_operacion(request);
 	destruir_operacion(resultado);
 	close(socket);
 	free(nSocket);
