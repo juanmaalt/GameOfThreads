@@ -73,14 +73,14 @@ void *connection_handler(void *nSocket){
 	log_info(logger_invisible,"Lissandra.c: connection_handler() - Nueva conexión");
 
 	switch (recibido.TipoDeMensaje){
-	case COMANDO://TODO checkear que funcione
+	case COMANDO:
 		log_info(logger_invisible,"Lissandra.c: connection_handler() - Comando recibido: %s", recibido.Argumentos.COMANDO.comandoParseable);
 		resultado = ejecutarOperacion(recibido.Argumentos.COMANDO.comandoParseable);
 		send_msg(socket, resultado);
 		destruir_operacion(resultado);
 		break;
 	case HANDSHAKE:
-		if(strcmp(recibido.Argumentos.HANDSHAKE.informacion, "handshake")==0) //TODO: crear handshake memoria
+		if(strcmp(recibido.Argumentos.HANDSHAKE.informacion, "handshake")==0)
 			handshakeMemoria(socket);
 		else
 			log_error(logger_visible ,"Lissandra.c: connectionHandler() - No se pudo conectar la Memoria.");
@@ -100,8 +100,7 @@ void *connection_handler(void *nSocket){
 int configuracion_inicial(){
 	/*Creo la carpeta de logs*/
 	mkdir("logs", 0777);
-	/*Borro el último archivo de log y error.log creado*/
-	remove("logs/LFS.log");
+	/*Borro el último archivo de error.log creado*/
 	remove("logs/LFS_error.log");
 
 	/*Creo logger invisible de error*/
@@ -282,7 +281,7 @@ Operacion ejecutarOperacion(char* input) {
 	Operacion retorno;
 	*parsed = parsear_comando(input);
 
-	log_info(logger_invisible,"Lissandra.c: ejecutarOperacion() - Mensaje recibido %s", input);
+	log_info(logger_visible,"Lissandra.c: ejecutarOperacion() - Mensaje recibido %s", input);
 
 	usleep(vconfig.retardo*1000);
 
@@ -313,7 +312,7 @@ Operacion ejecutarOperacion(char* input) {
 			//compactar(parsed->argumentos.RUN.path);
 			break;
 		case JOURNAL:
-			dump();
+			//dump();
 			//getBloqueLibre();
 			break;
 		default:
@@ -321,6 +320,7 @@ Operacion ejecutarOperacion(char* input) {
 		}
 		destruir_comando(*parsed);
 		free(parsed);
+		mostrarRetorno(retorno);
 		return retorno;
 	}else {
 		fprintf(stderr, RED"La request no es valida"STD"\n");
@@ -428,7 +428,7 @@ void dumpTabla(char* nombreTable, void* value){
 	sem_wait(&mutexMemtable);
 	t_list* list = (t_list*) value;
 	if(list==NULL || list_size(list)==0){
-		//TODO:log
+		log_info(logger_invisible, "Lissandra.c: dumpTabla() - No hay datos para Dumpear para la tabla %s", nombreTable);
 		sem_post(&mutexMemtable);
 		return;
 	}
@@ -479,6 +479,11 @@ int escribirBloquesDump(t_list* listaDeRegistros, char* nombreTabla, char* pathA
 
 	void escribirEnBloquesDump(char *linea){
 		char* bloque = getBloqueLibre();
+		if(atoi(bloque)==0){
+			log_error(logger_invisible, "No hay mas bloques disponibles");
+			log_error(logger_error, "No hay mas bloques disponibles");
+			return;
+		}
 		pathBloque = string_from_format("%sBloques/%s.bin", config.punto_montaje,bloque);
 		agregarBloqueEnDump(bloque, nombreTabla, pathArchivo);
 		free(bloque);

@@ -86,7 +86,7 @@ void* compactar(void* nombreTabla){
 		destruirRegistrosDeParticiones(registrosDeParticiones);
 		registrosDeParticiones = dictionary_create();
 		borrarArchivosTmpc(nombreTabla);
-
+		limpiarBloquesDump((char*)nombreTabla);
 		tomarTiempoFin((char*)nombreTabla);
 		operacionTerminadaForSelects((char*)nombreTabla);
 		desbloquearSelect((char*) nombreTabla);
@@ -389,4 +389,30 @@ static int escribirBloques(t_list* listaDeRegistros, char** bloques, char* nombr
 	return EXIT_SUCCESS;
 }
 
+void limpiarBloquesDump(char* nombreTabla){
+	char* pathTabla = string_from_format("%sTables/%s", config.punto_montaje, nombreTabla);
+	void iterar_tmpc(EntradaDirectorio *entrada){
+		char* pathArchivoTMPC = string_from_format("%s/%s", pathTabla, entrada->d_name);
+		limpiarBloquesParaDump(pathArchivoTMPC);
+		free(pathArchivoTMPC);
+	}
 
+	free(pathTabla);
+}
+
+void limpiarBloquesParaDump(char* pathArchivoTMPC){
+	char* bloquesAsignados = obtenerListaDeBloquesDump(pathArchivoTMPC);
+	if(bloquesAsignados == NULL){
+		log_error(logger_invisible, "El dump de la tabla no parece tener bloques asignados\n");
+		return;
+	}
+	char** bloques = string_get_string_as_array(bloquesAsignados);
+
+	for(int i=0; bloques[i]!=NULL; i++){
+		liberarBloque(atoi(bloques[i]));
+	}
+
+	if(bloques!=NULL){
+		string_iterate_lines(bloques, (void* )free);
+	}
+}

@@ -412,7 +412,7 @@ char **string_double_split(char *cadena, char *firstSeprator, char *secondSepara
 	}
 
 	size++;
-	substrings = realloc(substrings, sizeof(char*) * size); //FIXME: error en esta linea cuando se ingresa un comando invalido
+	substrings = realloc(substrings, sizeof(char*) * size);
 	substrings[size - 1] = NULL;
 
 	free(text_to_iterate);

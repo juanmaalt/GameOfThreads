@@ -19,6 +19,8 @@ typedef struct dirent EntradaDirectorio;
 
 /*FUNCIONES*/
 void* compactar(void* nombreTabla);
+void limpiarBloquesParaDump(char* pathArchivoTMPC);
+void limpiarBloquesDump(char* nombreTabla);
 
 
 

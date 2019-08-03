@@ -39,7 +39,6 @@ Operacion selectAPI(Comando comando){
 		log_error(logger_error, "No existe el archivo Metadata de la tabla solicitada, no se puede realizar el SELECT.");
 		return resultadoSelect;
 	}
-	//TODO:Mejorar
 	Metadata_tabla metadata;
 	metadata.compaction_time = config_get_int_value(metadataFile, "COMPACTION_TIME");
 	metadata.consistency = config_get_string_value(metadataFile, "CONSISTENCY");
@@ -98,7 +97,7 @@ Operacion selectAPI(Comando comando){
 	resultadoSelect.TipoDeMensaje = REGISTRO;
 	resultadoSelect.Argumentos.REGISTRO.timestamp=reg->timestamp;
 	resultadoSelect.Argumentos.REGISTRO.key=reg->key;
-	resultadoSelect.Argumentos.REGISTRO.value=string_from_format("%s",reg->value);//FIXME: Facu la concha de tu madre
+	resultadoSelect.Argumentos.REGISTRO.value=string_from_format("%s",reg->value);
 	sem_post(&mutexMemtable);
 	goto CONTINUAR;
 
@@ -117,7 +116,7 @@ Operacion selectAPI(Comando comando){
 
 	config_destroy(metadataFile);
 
-	return resultadoSelect; //FIXME: solucionar manejo de memoria para destruir todos los elementos de la lista excepto el primero. El primero se va a destruir despues de enviarlo a la memoria!!
+	return resultadoSelect;
 }
 
 
@@ -253,14 +252,14 @@ Operacion createAPI(Comando comando){
 	/*Inicio el proceso de compactación*/
 	char* nombreTabla = string_from_format(comando.argumentos.CREATE.nombreTabla);
 	if(iniciarCompactacion(nombreTabla, semt) == EXIT_FAILURE){
-		log_error(logger_error,"APILissandra.c: <CREATE> No se pudo iniciar el hilo de compactación");
+		log_error(logger_error,"APILissandra.c: <CREATE>\nNo se pudo iniciar el hilo de compactación");
 		return resultadoCreate;
 	}
 
 	/*Loggeo el CREATE exitoso y le aviso a la Memoria*/
 	log_info(logger_invisible, "CREATE realizado con éxito.");
 	resultadoCreate.TipoDeMensaje = TEXTO_PLANO;
-	resultadoCreate.Argumentos.TEXTO_PLANO.texto = string_from_format("CREATE realizado con éxito.");
+	resultadoCreate.Argumentos.TEXTO_PLANO.texto = string_from_format("<CREATE>\nLa tabla %s se ha creado con exito.", comando.argumentos.CREATE.nombreTabla);
 
 	free(path);
 
@@ -357,10 +356,10 @@ Operacion dropAPI(Comando comando){
 	//printf("resultadoDrop= %d\n", removido);
 
 	resultadoDrop.TipoDeMensaje = TEXTO_PLANO;
-	resultadoDrop.Argumentos.TEXTO_PLANO.texto = string_from_format("DROP realizado con exito.");
+	resultadoDrop.Argumentos.TEXTO_PLANO.texto = string_from_format("<DROP>\nEl directorio %s fue borrado exitosamente", comando.argumentos.DROP.nombreTabla);
 
 	if(removido!=0){
-		resultadoDrop.Argumentos.ERROR.mensajeError = string_from_format("No existe la tabla que intenta Borrar");
+		resultadoDrop.Argumentos.ERROR.mensajeError = string_from_format("<DROP>\nNo existe el directorio %s. No se borro la carpeta del sistema.", comando.argumentos.DROP.nombreTabla);
 	}
 
 	free(pathFolder);
