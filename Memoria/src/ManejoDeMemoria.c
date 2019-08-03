@@ -149,21 +149,26 @@ int realizarLRU(char* value, uint16_t key, timestamp_t ts, segmento_t * segmento
 		return EXIT_SUCCESS;
 	}
 
+
 	log_info(logger_invisible,"ManejoDeMemoria.C: realizarLRU: No se puede reemplazar con LRU, MEMORIA FULL");
 	return ERROR_MEMORIA_FULL;
 }
 
 int insertarPaginaDeSegmento(char* value, uint16_t key, timestamp_t ts, segmento_t * segmento, bool esInsert) {
 
-
+	pthread_mutex_lock(&segmentoUnico);
 	if(hayMarcoDisponible()) {
 		crearRegistroEnTabla(segmento->tablaPaginas,colocarPaginaEnMemoria(ts, key, value), esInsert);
 		log_info(logger_invisible,"ManejoDeMemoria.C: insertarPaginaDeSegmento: Se ingreso el registro");
+
+		pthread_mutex_unlock(&segmentoUnico);
 		return EXIT_SUCCESS;
 
 	} else {//aplicar el algoritmo de reemplazo (LRU) y en caso de que la memoria se encuentre full iniciar el proceso Journal.
 		log_info(logger_invisible,"Procediendo a realizar el algoritmo de reemplazo LRU");
-		return realizarLRU(value, key, ts, segmento, esInsert);   //ERROR_MEMORIA_FULL;
+		int resultado=realizarLRU(value, key, ts, segmento, esInsert);   //ERROR_MEMORIA_FULL;
+		pthread_mutex_unlock(&segmentoUnico);
+		return resultado;
 	}
 }
 

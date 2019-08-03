@@ -92,6 +92,8 @@ pthread_mutex_t mutexColaMarcos;
 pthread_mutex_t mutexEnEspera;
 pthread_mutex_t mutexEjecutando;
 
+pthread_mutex_t segmentoUnico;
+
 pthread_mutex_t mutexValorVariable;
 
 int configuracion_inicial(void);
